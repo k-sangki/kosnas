@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kosnas.workers.dev";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kosnas.com";
 // 시크릿에 줄바꿈이 섞여 들어와도 ads.txt·스크립트 주소가 깨지지 않게 다듬는다
 const ADSENSE = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
 

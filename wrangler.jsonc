@@ -14,8 +14,11 @@
       "service": "kosnas"
     }
   ],
-  // 도메인을 정하기 전까지는 kosnas.<계정>.workers.dev 로 연다
+  "routes": [
+    { "pattern": "kosnas.com", "custom_domain": true },
+    { "pattern": "www.kosnas.com", "custom_domain": true }
+  ],
   "vars": {
-    "NEXT_PUBLIC_SITE_URL": "https://kosnas.workers.dev"
+    "NEXT_PUBLIC_SITE_URL": "https://kosnas.com"
   }
 }
