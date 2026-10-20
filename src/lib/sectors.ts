@@ -12,6 +12,10 @@ export interface Stock {
   /** 같은 시장 안 상대강도 순위 점수(1~99) */
   rs: number;
   market?: string;
+  /** 국내: 마지막 종가(원)·전일 대비(%)·최근 수정 종가 열(차트용) */
+  close?: number;
+  chg?: number | null;
+  spark?: (number | null)[];
 }
 
 export interface Sector {
@@ -51,6 +55,8 @@ export interface SectorData {
   /** 화면 확인용 가짜 숫자면 true */
   sample: boolean;
   asof: string;
+  /** spark 열의 첫 날짜 */
+  sparkFrom?: string;
   periods: number[];
   sectors: Sector[];
 }

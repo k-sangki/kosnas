@@ -13,11 +13,12 @@ concurrency: collect-kr
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,11 +33,14 @@ jobs:
             mkdir state
           fi
       - name: 시세 받기·섹터 계산
+        id: collect
         env:
           DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
         run: python collector/krx.py --state state --out src/data/kr-sectors.json
+      # 받기가 중간에 실패해도 받은 데까지는 남긴다
       - name: 시세를 data 브랜치에 저장
+        if: always()
         run: |
           git config --global user.name "kosnas-bot"
           git config --global user.email "actions@users.noreply.github.com"
@@ -51,8 +55,15 @@ jobs:
           git add src/data/kr-sectors.json
           if git diff --cached --quiet; then echo "changed=0" >> "$GITHUB_OUTPUT"; exit 0; fi
           git commit -qm "국내 섹터 자료 $(jq -r .asof src/data/kr-sectors.json)"
+          git pull -q --rebase origin main
           git push -q origin HEAD:main
           echo "changed=1" >> "$GITHUB_OUTPUT"
+      # 처음 1년치처럼 한 번에 다 못 받았으면 이어 받기를 한 번 더 건다
+      - name: 이어 받기
+        if: steps.collect.outputs.more == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run collect-kr.yml --ref main
       # 위 push는 GITHUB_TOKEN이라 Deploy 워크플로가 따로 돌지 않으므로 여기서 배포한다
       - uses: actions/setup-node@v4
         if: steps.publish.outputs.changed == '1'

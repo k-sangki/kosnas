@@ -23,6 +23,13 @@ from fetch import dart_corp_codes, dart_ksic, fsc_range  # noqa: E402
 
 KEEP_DAYS = 300  # 252일 신고가·12개월 상대강도 + 여유
 BACKFILL_CAL_DAYS = 450
+# 한 번 실행에서 받는 데 쓰는 시간. 넘으면 받은 데까지 저장하고 다음 실행이 이어 받는다
+BUDGET_SEC = int(os.environ.get("COLLECT_BUDGET_SEC", 50 * 60))
+START = time.monotonic()
+
+
+def over_budget() -> bool:
+    return time.monotonic() - START > BUDGET_SEC
 
 
 def load_days(state: Path) -> dict[str, list[dict]]:
@@ -53,8 +60,11 @@ def update_prices(state: Path, key: str, days: dict, today: dt.date):
         begin = today - dt.timedelta(days=BACKFILL_CAL_DAYS)
     if begin > today:
         print("새 시세 없음")
-        return
+        return True
     for a, b in month_chunks(begin, today):
+        if over_budget():
+            notice(f"시간이 다 돼 {a} 이후 시세는 다음 실행에서 받습니다")
+            return False
         got = fsc_range(key, a.strftime("%Y%m%d"), b.strftime("%Y%m%d"))
         for day, rows in sorted(got.items()):
             days[day] = rows
@@ -63,20 +73,28 @@ def update_prices(state: Path, key: str, days: dict, today: dt.date):
     for day in sorted(days)[:-KEEP_DAYS]:
         days.pop(day)
         (state / "days" / f"{day}.json.gz").unlink(missing_ok=True)
+    return True
 
 
-def update_industry(state: Path, key: str | None, codes: list[str]) -> dict:
+def update_industry(state: Path, key: str | None, codes: list[str]) -> dict | None:
+    """업종 표를 채운다. 시간이 다 되면 받은 데까지 저장하고 None."""
     path = state / "industry.json"
     ind = json.loads(path.read_text()) if path.exists() else {}
     missing = [c for c in codes if c not in ind]
     if missing and key:
         print(f"DART 업종 조회: {len(missing)}종목")
         corp = dart_corp_codes(key)
+        save = lambda: path.write_text(json.dumps(ind, ensure_ascii=False, sort_keys=True, indent=0))  # noqa: E731
         for i, c in enumerate(missing):
+            if over_budget():
+                save()
+                notice(f"시간이 다 돼 업종 {len(missing) - i}종목은 다음 실행에서 받습니다")
+                return None
             ind[c] = dart_ksic(key, corp[c]) if c in corp else None
             if i % 200 == 199:
                 print(f"  {i + 1}/{len(missing)}")
-            time.sleep(0.08)  # DART 분당 한도 안쪽으로
+                save()
+            time.sleep(0.2)  # DART 분당 1,000회 넘으면 막힐 수 있어 분당 300회 안쪽으로
         path.write_text(json.dumps(ind, ensure_ascii=False, sort_keys=True, indent=0))
     elif missing:
         print(f"DART_API_KEY가 없어 {len(missing)}종목은 기타로 둡니다")
@@ -97,7 +115,8 @@ def main():
     days = load_days(state)
     key = os.environ.get("DATA_GO_KR_KEY", "").strip()
     if key:
-        update_prices(state, key, days, today)
+        if not update_prices(state, key, days, today):
+            return more()
     elif not days:
         sys.exit("DATA_GO_KR_KEY가 없고 저장된 시세도 없습니다")
     notice(f"저장된 시세 {len(days)}일 ({min(days, default='-')}~{max(days, default='-')})")
@@ -106,9 +125,18 @@ def main():
 
     latest = days[max(days)]
     industry = update_industry(state, os.environ.get("DART_API_KEY", "").strip() or None, sorted({r["code"] for r in latest}))
+    if industry is None:
+        return more()
     data = compute(days, industry)
     Path(args.out).write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
     notice(f"{data['asof']} 기준 섹터 {len(data['sectors'])}개를 {args.out}에 썼습니다 (시세 {len(days)}일)")
+
+
+def more():
+    """받을 것이 남았다고 워크플로에 알린다 (워크플로가 자기 자신을 한 번 더 돌린다)."""
+    if out := os.environ.get("GITHUB_OUTPUT"):
+        with open(out, "a") as f:
+            f.write("more=1\n")
 
 
 def notice(msg: str, level: str = "notice"):

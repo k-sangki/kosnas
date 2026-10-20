@@ -84,9 +84,9 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
           <h2 className="card-title">종목 · 상대강도 순</h2>
           <p className="muted">
             상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전 종목과 비교한 순위(1~99)입니다. 시가총액 1,000억원 이상만 보이며, 종목을 누르면
-            트레이딩뷰 차트가 열립니다.
+            차트가 열립니다.
           </p>
-          <StockList stocks={sector.stocks} />
+          <StockList stocks={sector.stocks} from={data.sparkFrom} asof={data.asof} />
         </section>
       </main>
       <SiteFooter />

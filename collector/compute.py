@@ -15,6 +15,7 @@ RS_WEIGHTS = [(63, 0.4), (126, 0.2), (189, 0.2), (252, 0.2)]
 # 섹터 종목 목록에 올리는 최소 크기 (작은 종목은 계산에는 넣고 목록에서는 뺀다)
 MIN_CAP = 1000e8
 MIN_PRICE = 1000
+SPARK = 120  # 종목 차트에 싣는 최근 거래일 수
 
 
 def is_common(code: str, name: str) -> bool:
@@ -115,6 +116,22 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
         s = [v for v in idx[c][max(0, end - 251) : end + 1] if v is not None]
         return len(s) >= 120 and idx[c][end] >= max(s)
 
+    def stock_row(c):
+        """종목 줄: 마지막 종가·전일 대비와, 오늘 종가에 맞춘 수정 종가 열(분할이 있어도 이어진다)."""
+        last_close, last_idx = close[c][end], idx[c][end]
+        spark = [None if v is None else round(last_close * v / last_idx) for v in idx[c][max(0, end - SPARK + 1) : end + 1]]
+        chg = ret(idx[c], end, 1)
+        return {
+            "code": c,
+            "name": meta[c]["name"],
+            "market": meta[c]["market"],
+            "tv": f"KRX:{c}",
+            "rs": rs[c],
+            "close": round(last_close),
+            "chg": None if chg is None else round(chg * 100, 2),
+            "spark": spark,
+        }
+
     # 섹터 수익률: 이번 기간과 바로 앞 같은 길이 기간
     rows = {}
     for sid, name, intro in SECTORS:
@@ -163,10 +180,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
                 "q": q,
                 "above50": round(100 * sum(above50(c) for c in codes) / len(codes)),
                 "newHighs": sum(new_high(c) for c in codes),
-                "stocks": [
-                    {"code": c, "name": meta[c]["name"], "market": meta[c]["market"], "tv": f"KRX:{c}", "rs": rs[c]}
-                    for c in listed[:SHOW_STOCKS]
-                ],
+                "stocks": [stock_row(c) for c in listed[:SHOW_STOCKS]],
             }
         )
 
@@ -190,6 +204,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
         "asof": f"{asof[:4]}-{asof[4:6]}-{asof[6:]}",
         "periods": PERIODS,
         "source": "금융위원회 주식시세정보(공공데이터포털) · DART 기업개황 업종",
+        "sparkFrom": f"{dates[max(0, end - SPARK + 1)][:4]}-{dates[max(0, end - SPARK + 1)][4:6]}-{dates[max(0, end - SPARK + 1)][6:]}",
         "breadth": breadth,
         "sectors": out_sectors,
     }

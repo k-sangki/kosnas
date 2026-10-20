@@ -50,7 +50,7 @@ export function MarketPage({ market }: { market: Market }) {
           <span className="muted">{data.asof} 종가 기준</span>
         </p>
         {data.sample && <SampleNotice asof={data.asof} />}
-        <SectorBoard data={data} />
+        <SectorBoard data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />
         {data.breadth && <BreadthCard breadth={data.breadth} />}
         <AdSlot slot={AD_SLOTS.board} />
         <section className="card">

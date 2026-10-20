@@ -532,3 +532,31 @@ a {
   font-weight: 500;
   margin-left: 6px;
 }
+
+.pchart {
+  padding: 6px 0 10px;
+}
+.pchart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.pchart .stroke {
+  fill: none;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+.pchart .stroke.up {
+  stroke: var(--up);
+}
+.pchart .stroke.down {
+  stroke: var(--down);
+}
+.pchart .area.up {
+  fill: var(--up);
+  opacity: 0.08;
+}
+.pchart .area.down {
+  fill: var(--down);
+  opacity: 0.08;
+}
