@@ -1,0 +1,650 @@
+{
+ "market": "us",
+ "sample": true,
+ "asof": "2026-10-20",
+ "periods": [
+  5,
+  20,
+  60
+ ],
+ "sectors": [
+  {
+   "id": "tech",
+   "name": "기술",
+   "ret": {
+    "5": 0.28,
+    "20": 1.44,
+    "60": 8.54
+   },
+   "above50": 8,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NASDAQ:AVGO",
+     "name": "Broadcom",
+     "tv": "NASDAQ:AVGO",
+     "rs": 87
+    },
+    {
+     "code": "NASDAQ:NVDA",
+     "name": "NVIDIA",
+     "tv": "NASDAQ:NVDA",
+     "rs": 68
+    },
+    {
+     "code": "NASDAQ:MSFT",
+     "name": "Microsoft",
+     "tv": "NASDAQ:MSFT",
+     "rs": 58
+    },
+    {
+     "code": "NASDAQ:AAPL",
+     "name": "Apple",
+     "tv": "NASDAQ:AAPL",
+     "rs": 56
+    },
+    {
+     "code": "NASDAQ:AMD",
+     "name": "AMD",
+     "tv": "NASDAQ:AMD",
+     "rs": 53
+    }
+   ],
+   "x": {
+    "5": -0.38,
+    "20": -0.68,
+    "60": 7.94
+   },
+   "y": {
+    "5": -0.65,
+    "20": -4.89,
+    "60": 6.57
+   },
+   "q": {
+    "5": "lag",
+    "20": "lag",
+    "60": "lead"
+   }
+  },
+  {
+   "id": "comm",
+   "name": "커뮤니케이션",
+   "ret": {
+    "5": 0.99,
+    "20": 4.17,
+    "60": -15.62
+   },
+   "above50": 38,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NASDAQ:TMUS",
+     "name": "T-Mobile",
+     "tv": "NASDAQ:TMUS",
+     "rs": 87
+    },
+    {
+     "code": "NASDAQ:META",
+     "name": "Meta",
+     "tv": "NASDAQ:META",
+     "rs": 67
+    },
+    {
+     "code": "NASDAQ:NFLX",
+     "name": "Netflix",
+     "tv": "NASDAQ:NFLX",
+     "rs": 66
+    },
+    {
+     "code": "NYSE:DIS",
+     "name": "Disney",
+     "tv": "NYSE:DIS",
+     "rs": 53
+    },
+    {
+     "code": "NASDAQ:GOOGL",
+     "name": "Alphabet",
+     "tv": "NASDAQ:GOOGL",
+     "rs": 30
+    }
+   ],
+   "x": {
+    "5": 0.33,
+    "20": 2.05,
+    "60": -16.22
+   },
+   "y": {
+    "5": 1.29,
+    "20": 4.74,
+    "60": -12.47
+   },
+   "q": {
+    "5": "lead",
+    "20": "lead",
+    "60": "lag"
+   }
+  },
+  {
+   "id": "discretionary",
+   "name": "경기소비재",
+   "ret": {
+    "5": 1.6,
+    "20": 5.74,
+    "60": -7.15
+   },
+   "above50": 74,
+   "newHighs": 3,
+   "stocks": [
+    {
+     "code": "NYSE:HD",
+     "name": "Home Depot",
+     "tv": "NYSE:HD",
+     "rs": 79
+    },
+    {
+     "code": "NASDAQ:BKNG",
+     "name": "Booking",
+     "tv": "NASDAQ:BKNG",
+     "rs": 64
+    },
+    {
+     "code": "NYSE:MCD",
+     "name": "McDonald's",
+     "tv": "NYSE:MCD",
+     "rs": 47
+    },
+    {
+     "code": "NASDAQ:AMZN",
+     "name": "Amazon",
+     "tv": "NASDAQ:AMZN",
+     "rs": 43
+    },
+    {
+     "code": "NASDAQ:TSLA",
+     "name": "Tesla",
+     "tv": "NASDAQ:TSLA",
+     "rs": 32
+    }
+   ],
+   "x": {
+    "5": 0.94,
+    "20": 3.62,
+    "60": -7.75
+   },
+   "y": {
+    "5": 0.57,
+    "20": 6.6,
+    "60": 8.23
+   },
+   "q": {
+    "5": "lead",
+    "20": "lead",
+    "60": "watch"
+   }
+  },
+  {
+   "id": "staples",
+   "name": "필수소비재",
+   "ret": {
+    "5": 0.57,
+    "20": 7.12,
+    "60": -16.57
+   },
+   "above50": 3,
+   "newHighs": 0,
+   "stocks": [
+    {
+     "code": "NASDAQ:COST",
+     "name": "Costco",
+     "tv": "NASDAQ:COST",
+     "rs": 86
+    },
+    {
+     "code": "NYSE:PG",
+     "name": "Procter & Gamble",
+     "tv": "NYSE:PG",
+     "rs": 62
+    },
+    {
+     "code": "NASDAQ:PEP",
+     "name": "PepsiCo",
+     "tv": "NASDAQ:PEP",
+     "rs": 60
+    },
+    {
+     "code": "NYSE:WMT",
+     "name": "Walmart",
+     "tv": "NYSE:WMT",
+     "rs": 59
+    },
+    {
+     "code": "NYSE:KO",
+     "name": "Coca-Cola",
+     "tv": "NYSE:KO",
+     "rs": 41
+    }
+   ],
+   "x": {
+    "5": -0.09,
+    "20": 5,
+    "60": -17.17
+   },
+   "y": {
+    "5": -1.14,
+    "20": 1.16,
+    "60": -13.02
+   },
+   "q": {
+    "5": "lag",
+    "20": "lead",
+    "60": "lag"
+   }
+  },
+  {
+   "id": "health",
+   "name": "헬스케어",
+   "ret": {
+    "5": 1.28,
+    "20": -6.5,
+    "60": 10.48
+   },
+   "above50": 98,
+   "newHighs": 1,
+   "stocks": [
+    {
+     "code": "NYSE:ABBV",
+     "name": "AbbVie",
+     "tv": "NYSE:ABBV",
+     "rs": 78
+    },
+    {
+     "code": "NYSE:LLY",
+     "name": "Eli Lilly",
+     "tv": "NYSE:LLY",
+     "rs": 57
+    },
+    {
+     "code": "NASDAQ:ISRG",
+     "name": "Intuitive Surgical",
+     "tv": "NASDAQ:ISRG",
+     "rs": 53
+    },
+    {
+     "code": "NYSE:UNH",
+     "name": "UnitedHealth",
+     "tv": "NYSE:UNH",
+     "rs": 48
+    },
+    {
+     "code": "NYSE:JNJ",
+     "name": "Johnson & Johnson",
+     "tv": "NYSE:JNJ",
+     "rs": 24
+    }
+   ],
+   "x": {
+    "5": 0.62,
+    "20": -8.62,
+    "60": 9.88
+   },
+   "y": {
+    "5": 1.98,
+    "20": -7.95,
+    "60": 5.03
+   },
+   "q": {
+    "5": "lead",
+    "20": "lag",
+    "60": "lead"
+   }
+  },
+  {
+   "id": "financials",
+   "name": "금융",
+   "ret": {
+    "5": 1.39,
+    "20": -2.69,
+    "60": 5.66
+   },
+   "above50": 12,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NYSE:GS",
+     "name": "Goldman Sachs",
+     "tv": "NYSE:GS",
+     "rs": 94
+    },
+    {
+     "code": "NYSE:JPM",
+     "name": "JPMorgan",
+     "tv": "NYSE:JPM",
+     "rs": 69
+    },
+    {
+     "code": "NYSE:BAC",
+     "name": "Bank of America",
+     "tv": "NYSE:BAC",
+     "rs": 50
+    },
+    {
+     "code": "NYSE:MA",
+     "name": "Mastercard",
+     "tv": "NYSE:MA",
+     "rs": 49
+    },
+    {
+     "code": "NYSE:V",
+     "name": "Visa",
+     "tv": "NYSE:V",
+     "rs": 30
+    }
+   ],
+   "x": {
+    "5": 0.73,
+    "20": -4.81,
+    "60": 5.06
+   },
+   "y": {
+    "5": 1.19,
+    "20": -8.92,
+    "60": 17.29
+   },
+   "q": {
+    "5": "lead",
+    "20": "lag",
+    "60": "lead"
+   }
+  },
+  {
+   "id": "industrials",
+   "name": "산업재",
+   "ret": {
+    "5": 1.81,
+    "20": 3.24,
+    "60": -2.11
+   },
+   "above50": 31,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NYSE:CAT",
+     "name": "Caterpillar",
+     "tv": "NYSE:CAT",
+     "rs": 90
+    },
+    {
+     "code": "NYSE:UBER",
+     "name": "Uber",
+     "tv": "NYSE:UBER",
+     "rs": 52
+    },
+    {
+     "code": "NYSE:RTX",
+     "name": "RTX",
+     "tv": "NYSE:RTX",
+     "rs": 44
+    },
+    {
+     "code": "NYSE:ETN",
+     "name": "Eaton",
+     "tv": "NYSE:ETN",
+     "rs": 30
+    },
+    {
+     "code": "NYSE:GE",
+     "name": "GE Aerospace",
+     "tv": "NYSE:GE",
+     "rs": 21
+    }
+   ],
+   "x": {
+    "5": 1.15,
+    "20": 1.12,
+    "60": -2.71
+   },
+   "y": {
+    "5": -0.11,
+    "20": 0.07,
+    "60": -0.36
+   },
+   "q": {
+    "5": "weaken",
+    "20": "lead",
+    "60": "lag"
+   }
+  },
+  {
+   "id": "energy",
+   "name": "에너지",
+   "ret": {
+    "5": -1.67,
+    "20": 5.31,
+    "60": 5.1
+   },
+   "above50": 62,
+   "newHighs": 3,
+   "stocks": [
+    {
+     "code": "NYSE:XOM",
+     "name": "Exxon Mobil",
+     "tv": "NYSE:XOM",
+     "rs": 96
+    },
+    {
+     "code": "NYSE:COP",
+     "name": "ConocoPhillips",
+     "tv": "NYSE:COP",
+     "rs": 68
+    },
+    {
+     "code": "NYSE:CVX",
+     "name": "Chevron",
+     "tv": "NYSE:CVX",
+     "rs": 67
+    },
+    {
+     "code": "NYSE:SLB",
+     "name": "SLB",
+     "tv": "NYSE:SLB",
+     "rs": 65
+    },
+    {
+     "code": "NYSE:EOG",
+     "name": "EOG Resources",
+     "tv": "NYSE:EOG",
+     "rs": 58
+    }
+   ],
+   "x": {
+    "5": -2.33,
+    "20": 3.19,
+    "60": 4.5
+   },
+   "y": {
+    "5": -2.37,
+    "20": 7.95,
+    "60": 2.35
+   },
+   "q": {
+    "5": "lag",
+    "20": "lead",
+    "60": "lead"
+   }
+  },
+  {
+   "id": "utilities",
+   "name": "유틸리티",
+   "ret": {
+    "5": -1.6,
+    "20": 3.63,
+    "60": 10.84
+   },
+   "above50": 14,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NYSE:NEE",
+     "name": "NextEra",
+     "tv": "NYSE:NEE",
+     "rs": 97
+    },
+    {
+     "code": "NASDAQ:CEG",
+     "name": "Constellation",
+     "tv": "NASDAQ:CEG",
+     "rs": 93
+    },
+    {
+     "code": "NYSE:DUK",
+     "name": "Duke Energy",
+     "tv": "NYSE:DUK",
+     "rs": 80
+    },
+    {
+     "code": "NYSE:VST",
+     "name": "Vistra",
+     "tv": "NYSE:VST",
+     "rs": 50
+    },
+    {
+     "code": "NYSE:SO",
+     "name": "Southern",
+     "tv": "NYSE:SO",
+     "rs": 47
+    }
+   ],
+   "x": {
+    "5": -2.26,
+    "20": 1.51,
+    "60": 10.24
+   },
+   "y": {
+    "5": -3.75,
+    "20": -1.02,
+    "60": 23.38
+   },
+   "q": {
+    "5": "lag",
+    "20": "weaken",
+    "60": "lead"
+   }
+  },
+  {
+   "id": "materials",
+   "name": "소재",
+   "ret": {
+    "5": 0.92,
+    "20": -6.82,
+    "60": -8.82
+   },
+   "above50": 23,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NYSE:FCX",
+     "name": "Freeport-McMoRan",
+     "tv": "NYSE:FCX",
+     "rs": 64
+    },
+    {
+     "code": "NYSE:NEM",
+     "name": "Newmont",
+     "tv": "NYSE:NEM",
+     "rs": 50
+    },
+    {
+     "code": "NYSE:LIN",
+     "name": "Linde",
+     "tv": "NYSE:LIN",
+     "rs": 45
+    },
+    {
+     "code": "NYSE:ECL",
+     "name": "Ecolab",
+     "tv": "NYSE:ECL",
+     "rs": 34
+    },
+    {
+     "code": "NYSE:SHW",
+     "name": "Sherwin-Williams",
+     "tv": "NYSE:SHW",
+     "rs": 27
+    }
+   ],
+   "x": {
+    "5": 0.26,
+    "20": -8.94,
+    "60": -9.42
+   },
+   "y": {
+    "5": -0.23,
+    "20": -8.85,
+    "60": -14.02
+   },
+   "q": {
+    "5": "weaken",
+    "20": "lag",
+    "60": "lag"
+   }
+  },
+  {
+   "id": "realestate",
+   "name": "부동산",
+   "ret": {
+    "5": 1.65,
+    "20": 8.73,
+    "60": 16.23
+   },
+   "above50": 57,
+   "newHighs": 2,
+   "stocks": [
+    {
+     "code": "NYSE:PLD",
+     "name": "Prologis",
+     "tv": "NYSE:PLD",
+     "rs": 70
+    },
+    {
+     "code": "NYSE:AMT",
+     "name": "American Tower",
+     "tv": "NYSE:AMT",
+     "rs": 59
+    },
+    {
+     "code": "NYSE:WELL",
+     "name": "Welltower",
+     "tv": "NYSE:WELL",
+     "rs": 59
+    },
+    {
+     "code": "NYSE:O",
+     "name": "Realty Income",
+     "tv": "NYSE:O",
+     "rs": 33
+    },
+    {
+     "code": "NASDAQ:EQIX",
+     "name": "Equinix",
+     "tv": "NASDAQ:EQIX",
+     "rs": 20
+    }
+   ],
+   "x": {
+    "5": 0.99,
+    "20": 6.61,
+    "60": 15.63
+   },
+   "y": {
+    "5": 2.47,
+    "20": 7.41,
+    "60": 3.02
+   },
+   "q": {
+    "5": "lead",
+    "20": "lead",
+    "60": "lead"
+   }
+  }
+ ]
+}
