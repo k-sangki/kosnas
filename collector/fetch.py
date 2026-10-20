@@ -13,7 +13,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 
-FSC_URL = "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo"
+FSC_URL = "https://apis.data.go.kr/1160100/GetStockSecuritiesInfoService_V2/getStockPriceInfo"
 DART_CORP_URL = "https://opendart.fss.or.kr/api/corpCode.xml"
 DART_COMPANY_URL = "https://opendart.fss.or.kr/api/company.json"
 
