@@ -100,6 +100,7 @@ def main():
         update_prices(state, key, days, today)
     elif not days:
         sys.exit("DATA_GO_KR_KEY가 없고 저장된 시세도 없습니다")
+    notice(f"저장된 시세 {len(days)}일 ({min(days, default='-')}~{max(days, default='-')})")
     if len(days) < 130:
         sys.exit(f"시세가 {len(days)}일뿐이라 계산하지 않습니다 (130일 이상 필요)")
 
@@ -107,8 +108,25 @@ def main():
     industry = update_industry(state, os.environ.get("DART_API_KEY", "").strip() or None, sorted({r["code"] for r in latest}))
     data = compute(days, industry)
     Path(args.out).write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
-    print(f"{data['asof']} 기준 섹터 {len(data['sectors'])}개를 {args.out}에 썼습니다")
+    notice(f"{data['asof']} 기준 섹터 {len(data['sectors'])}개를 {args.out}에 썼습니다 (시세 {len(days)}일)")
+
+
+def notice(msg: str, level: str = "notice"):
+    """GitHub Actions 주석으로도 남긴다 (실행 기록을 못 내려받을 때 API로 읽을 수 있게)."""
+    print(msg)
+    if os.environ.get("GITHUB_ACTIONS"):
+        print(f"::{level}::" + msg.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        if e.code not in (0, None):
+            notice(str(e.code), "error")
+        raise
+    except Exception:
+        import traceback
+
+        notice(traceback.format_exc()[-3000:], "error")
+        sys.exit(1)
