@@ -1,0 +1,534 @@
+/* KosNas 디자인 토큰 — 트립날씨(tripnal)와 같은 바탕: 회색 배경 위 흰 카드, Pretendard, 20px 둥근 모서리.
+ * 국내 관례대로 상승은 빨강, 하락은 파랑. */
+:root {
+  --pine: #0e3b36;
+  --pine-2: #15524b;
+  --mint: #3ddba0;
+  --mint-soft: #e3f9f0;
+  --coral: #ff6b4a;
+  --coral-soft: #ffece7;
+  --amber: #f5a524;
+  --amber-soft: #fff4dd;
+  --rain: #3b7bff;
+  --rain-soft: #e8f0ff;
+
+  --bg: #f2f4f6;
+  --card: #ffffff;
+  --ink: #191f28;
+  --ink-2: #4e5968;
+  --muted: #8b95a1;
+  --line: #e5e8eb;
+  --chip: #f2f4f6;
+
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 아이폰 Safari(iOS 26)는 상태바 밑으로 지나가는 내용을 흐리게 덮는다.
+ * 상태바 높이만큼 고정된 단색 띠를 두면 Safari가 그 색으로 상태바를 칠해 흐림이 생기지 않는다. */
+body::before {
+  content: "";
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  pointer-events: none;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  word-break: keep-all;
+}
+/* 상태바·노치 자리만큼 띄운다 (viewport-fit=cover) */
+body {
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:root {
+  --up: #f04452;
+  --down: #3182f6;
+}
+
+/* ---------- 레이아웃 ---------- */
+.shell {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+}
+@media (min-width: 1024px) {
+  .shell {
+    max-width: 720px;
+  }
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+.page-title {
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  margin: 4px 0 0;
+}
+.back {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* ---------- 로고 ---------- */
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  color: var(--pine);
+}
+.logo-dot {
+  display: inline-block;
+  width: 0.3em;
+  height: 0.3em;
+  border-radius: 50%;
+  background: var(--mint);
+  margin: 0 0.06em;
+  transform: translateY(-0.1em);
+}
+.logo-nas {
+  color: #1f6e62;
+}
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+}
+.top-nav {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--chip);
+}
+.top-nav a {
+  padding: 6px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.top-nav a[aria-current="page"] {
+  background: var(--card);
+  color: var(--pine);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- 카드 ---------- */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+@media (max-width: 400px) {
+  .card {
+    padding: 18px 16px;
+  }
+}
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+.small-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+.notice {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-soft);
+  color: #8a5a00;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.up {
+  color: var(--up);
+}
+.down {
+  color: var(--down);
+}
+
+/* ---------- 기간 선택 ---------- */
+.board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.board-head .card-title {
+  margin: 0;
+}
+.seg {
+  display: flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--chip);
+}
+.seg button {
+  flex: 1 1 0;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.seg button[aria-pressed="true"] {
+  background: var(--card);
+  color: var(--pine);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- 네 칸 그래프 ---------- */
+.quad {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.quad .q-lead {
+  fill: #fff0f1;
+}
+.quad .q-weaken {
+  fill: var(--amber-soft);
+}
+.quad .q-lag {
+  fill: #eef4ff;
+}
+.quad .q-watch {
+  fill: var(--mint-soft);
+}
+.quad .axis {
+  stroke: #c4cad1;
+  stroke-width: 1;
+}
+.quad .q-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--muted);
+}
+.quad .dot {
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.quad .d-lead {
+  fill: var(--up);
+}
+.quad .d-weaken {
+  fill: var(--amber);
+}
+.quad .d-lag {
+  fill: var(--down);
+}
+.quad .d-watch {
+  fill: #1f9e72;
+}
+.quad .dot-label {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--ink-2);
+}
+
+/* ---------- 순위 ---------- */
+.rank {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rank li + li {
+  border-top: 1px solid var(--line);
+}
+.rank a {
+  display: grid;
+  grid-template-columns: 24px 1fr auto 64px 64px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  font-size: 15px;
+}
+.rank-no {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13px;
+}
+.rank-name {
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.qtag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.t-lead {
+  background: #fff0f1;
+  color: var(--up);
+}
+.t-weaken {
+  background: var(--amber-soft);
+  color: #a86a00;
+}
+.t-lag {
+  background: #eef4ff;
+  color: var(--down);
+}
+.t-watch {
+  background: var(--mint-soft);
+  color: #13795a;
+}
+
+/* ---------- 섹터 상세 ---------- */
+.ptable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.ptable th {
+  text-align: left;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 0 0 8px;
+}
+.ptable td {
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+}
+.stocks {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.stocks li + li {
+  border-top: 1px solid var(--line);
+}
+.stock-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto auto 12px;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 0;
+  text-align: left;
+}
+.stock-name {
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rs {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  background: var(--chip);
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.rs.hi {
+  color: var(--up);
+  background: #fff0f1;
+}
+/* 접기 삼각형 */
+.tri {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--muted);
+  transition: transform 0.15s;
+}
+.stock-row[aria-expanded="true"] .tri {
+  transform: rotate(180deg);
+}
+
+/* ---------- 트레이딩뷰 위젯 ---------- */
+.tv {
+  margin: 0 0 12px;
+}
+.tradingview-widget-copyright {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ---------- 광고 ---------- */
+.ad-slot {
+  display: block;
+  min-height: 100px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.ad-slot.dev {
+  display: grid;
+  place-items: center;
+  border: 1px dashed #c4cad1;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- 본문 페이지 · 푸터 ---------- */
+.seo-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.seo-text h2 {
+  font-size: 17px;
+  color: var(--ink);
+  margin: 24px 0 8px;
+}
+.doc h1 {
+  font-size: 24px;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+}
+.doc a,
+.foot a {
+  color: var(--pine);
+  text-decoration: underline;
+}
+.foot {
+  margin-top: 32px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 8px 0;
+}
+
+/* ---------- 첫 화면 · 가이드 ---------- */
+.lead {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.inline-link {
+  color: var(--pine);
+  text-decoration: underline;
+}
+.breadth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.breadth h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.breadth p {
+  margin: 2px 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.guide-links {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 2;
+  font-size: 15px;
+}
+.guide-links a {
+  color: var(--pine);
+  text-decoration: underline;
+}
+.guide-card {
+  display: block;
+}
+.guide-card .card-title {
+  margin-bottom: 6px;
+}
+.guide-card p {
+  margin: 0;
+}
+.seo-text ul,
+.seo-text ol {
+  padding-left: 20px;
+}
+.card-title .muted {
+  font-weight: 500;
+  margin-left: 6px;
+}
