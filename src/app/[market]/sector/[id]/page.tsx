@@ -5,17 +5,17 @@ import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
 import { SampleNotice } from "@/components/MarketPage";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
-import { QUADRANTS, findSector, sectorData, signed, type Market } from "@/lib/sectors";
+import { MARKETS, QUADRANTS, findSector, sectorData, signed, type Market } from "@/lib/sectors";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return (["kr", "us"] as const).flatMap((market) => sectorData(market).sectors.map((s) => ({ market, id: s.id })));
+  return MARKETS.flatMap((market) => sectorData(market).sectors.map((s) => ({ market, id: s.id })));
 }
 
 function read(market: string, id: string) {
-  if (market !== "kr" && market !== "us") return undefined;
-  const sector = findSector(market, id);
+  if (!(MARKETS as string[]).includes(market)) return undefined;
+  const sector = findSector(market as Market, id);
   return sector && { market: market as Market, sector };
 }
 
@@ -47,7 +47,14 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
         </Link>
         <h1 className="page-title">{sector.name}</h1>
         {data.sample && <SampleNotice asof={data.asof} />}
+        {sector.intro && (
+          <p className="lead">
+            {sector.intro}
+            {sector.count ? ` 보통주 ${sector.count}종목이 이 섹터에 들어 있습니다.` : ""}
+          </p>
+        )}
         <section className="card">
+          <h2 className="card-title">기간별 흐름 <span className="muted">{data.asof} 종가 기준</span></h2>
           <table className="ptable">
             <thead>
               <tr>
@@ -61,9 +68,9 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
               {data.periods.map((p) => (
                 <tr key={p}>
                   <td>{p}일</td>
-                  <td className={sector.ret[p] >= 0 ? "up" : "down"}>{signed(sector.ret[p])}%</td>
+                  <td className={(sector.ret[p] ?? 0) >= 0 ? "up" : "down"}>{signed(sector.ret[p])}%</td>
                   <td>{signed(sector.x[p])}%p</td>
-                  <td>{QUADRANTS.find((q) => q.key === sector.q[p])?.name}</td>
+                  <td>{QUADRANTS.find((q) => q.key === sector.q[p])?.name ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
@@ -75,7 +82,10 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
         <AdSlot slot={AD_SLOTS.sector} />
         <section className="card">
           <h2 className="card-title">종목 · 상대강도 순</h2>
-          <p className="muted">종목을 누르면 트레이딩뷰 차트가 열립니다.</p>
+          <p className="muted">
+            상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전 종목과 비교한 순위(1~99)입니다. 시가총액 1,000억원 이상만 보이며, 종목을 누르면
+            트레이딩뷰 차트가 열립니다.
+          </p>
           <StockList stocks={sector.stocks} />
         </section>
       </main>

@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { QUADRANTS, signed, type Market, type Sector, type SectorData } from "@/lib/sectors";
+import { QUADRANTS, ready, signed, type Market, type Sector, type SectorData } from "@/lib/sectors";
 
 const CHART = { w: 320, h: 240, pad: 18 };
 
 /** 강도(x)·변화(y) 네 칸 그래프. 축 범위는 그 기간 값의 최대 절댓값에 맞춘다 */
 function QuadrantChart({ sectors, period, market }: { sectors: Sector[]; period: number; market: Market }) {
-  const mx = Math.max(1, ...sectors.map((s) => Math.abs(s.x[period]))) * 1.15;
-  const my = Math.max(1, ...sectors.map((s) => Math.abs(s.y[period]))) * 1.15;
+  const pts = sectors.filter((s) => ready(s, period)).map((s) => ({ s, x: s.x[period]!, y: s.y[period]! }));
+  const mx = Math.max(1, ...pts.map((p) => Math.abs(p.x))) * 1.15;
+  const my = Math.max(1, ...pts.map((p) => Math.abs(p.y))) * 1.15;
   const cx = CHART.w / 2;
   const cy = CHART.h / 2;
   const px = (v: number) => cx + (v / mx) * (cx - CHART.pad);
@@ -26,27 +27,25 @@ function QuadrantChart({ sectors, period, market }: { sectors: Sector[]; period:
       <text x={CHART.w - 6} y={CHART.h - 6} textAnchor="end" className="q-label">약화</text>
       <text x={6} y={CHART.h - 6} className="q-label">소외</text>
       <text x={6} y={14} className="q-label">관찰</text>
-      {sectors.map((s) => (
-        <Link key={s.id} href={`/${market}/sector/${s.id}`}>
-          <circle cx={px(s.x[period])} cy={py(s.y[period])} r={5} className={`dot d-${s.q[period]}`} />
-          {/* 오른쪽 끝 점은 이름을 왼쪽에 써서 잘리지 않게 */}
-          <text
-            x={px(s.x[period]) + (px(s.x[period]) > CHART.w * 0.75 ? -7 : 7)}
-            y={py(s.y[period]) + 4}
-            textAnchor={px(s.x[period]) > CHART.w * 0.75 ? "end" : "start"}
-            className="dot-label"
-          >
-            {s.name}
-          </text>
-        </Link>
-      ))}
+      {pts.map(({ s, x, y }) => {
+        // 오른쪽 끝 점은 이름을 왼쪽에 써서 잘리지 않게
+        const left = px(x) > CHART.w * 0.75;
+        return (
+          <Link key={s.id} href={`/${market}/sector/${s.id}`}>
+            <circle cx={px(x)} cy={py(y)} r={5} className={`dot d-${s.q[period]}`} />
+            <text x={px(x) + (left ? -7 : 7)} y={py(y) + 4} textAnchor={left ? "end" : "start"} className="dot-label">
+              {s.name}
+            </text>
+          </Link>
+        );
+      })}
     </svg>
   );
 }
 
 export function SectorBoard({ data }: { data: SectorData }) {
   const [period, setPeriod] = useState(20);
-  const sorted = [...data.sectors].sort((a, b) => b.x[period] - a.x[period]);
+  const sorted = data.sectors.filter((s) => ready(s, period)).sort((a, b) => b.x[period]! - a.x[period]!);
 
   return (
     <>
@@ -63,7 +62,10 @@ export function SectorBoard({ data }: { data: SectorData }) {
         </div>
         <QuadrantChart sectors={data.sectors} period={period} market={data.market} />
         <p className="muted small-note">
-          가로는 강도(섹터 수익률 − 섹터 평균), 세로는 변화(앞 기간 대비 강도 변화)입니다. 점을 누르면 그 섹터 종목을 볼 수 있어요.
+          가로는 강도(섹터 수익률 − 섹터 평균), 세로는 변화(바로 앞 같은 기간 대비 강도 변화)입니다. 점을 누르면 그 섹터 종목을 볼 수 있어요.{" "}
+          <Link href="/guide/quadrant" className="inline-link">
+            네 칸 읽는 법
+          </Link>
         </p>
       </section>
 
@@ -72,13 +74,14 @@ export function SectorBoard({ data }: { data: SectorData }) {
         <ol className="rank">
           {sorted.map((s, i) => {
             const q = QUADRANTS.find((x) => x.key === s.q[period])!;
+            const r = s.ret[period];
             return (
               <li key={s.id}>
                 <Link href={`/${data.market}/sector/${s.id}`}>
                   <span className="rank-no">{i + 1}</span>
                   <span className="rank-name">{s.name}</span>
                   <span className={`qtag t-${q.key}`}>{q.name}</span>
-                  <span className={`num ${s.ret[period] >= 0 ? "up" : "down"}`}>{signed(s.ret[period])}%</span>
+                  <span className={`num ${r != null && r >= 0 ? "up" : "down"}`}>{signed(r)}%</span>
                   <span className="num muted">{signed(s.x[period])}%p</span>
                 </Link>
               </li>

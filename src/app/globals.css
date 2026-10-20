@@ -478,3 +478,57 @@ a {
   gap: 12px;
   margin: 8px 0;
 }
+
+/* ---------- 첫 화면 · 가이드 ---------- */
+.lead {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.inline-link {
+  color: var(--pine);
+  text-decoration: underline;
+}
+.breadth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.breadth h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.breadth p {
+  margin: 2px 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.guide-links {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 2;
+  font-size: 15px;
+}
+.guide-links a {
+  color: var(--pine);
+  text-decoration: underline;
+}
+.guide-card {
+  display: block;
+}
+.guide-card .card-title {
+  margin-bottom: 6px;
+}
+.guide-card p {
+  margin: 0;
+}
+.seo-text ul,
+.seo-text ol {
+  padding-left: 20px;
+}
+.card-title .muted {
+  font-weight: 500;
+  margin-left: 6px;
+}

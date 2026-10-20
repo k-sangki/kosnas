@@ -1,0 +1,114 @@
+"""국내 섹터 자료를 갱신한다.
+
+    python collector/krx.py --state state --out src/data/kr-sectors.json
+
+state/days/YYYYMMDD.json.gz  날짜별 전 종목 시세 (금융위원회 주식시세정보)
+state/industry.json          종목코드 → KSIC 업종 코드 (DART)
+필요한 값: DATA_GO_KR_KEY (공공데이터포털 인증키, 인코딩되지 않은 값), DART_API_KEY
+"""
+
+import argparse
+import datetime as dt
+import gzip
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+
+from compute import compute  # noqa: E402
+from fetch import dart_corp_codes, dart_ksic, fsc_range  # noqa: E402
+
+KEEP_DAYS = 300  # 252일 신고가·12개월 상대강도 + 여유
+BACKFILL_CAL_DAYS = 450
+
+
+def load_days(state: Path) -> dict[str, list[dict]]:
+    out = {}
+    for f in sorted((state / "days").glob("*.json.gz")):
+        out[f.name[:8]] = json.loads(gzip.decompress(f.read_bytes()))
+    return out
+
+
+def save_day(state: Path, day: str, rows: list[dict]):
+    d = state / "days"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{day}.json.gz").write_bytes(gzip.compress(json.dumps(rows, ensure_ascii=False, separators=(",", ":")).encode(), mtime=0))
+
+
+def month_chunks(begin: dt.date, end: dt.date):
+    cur = begin
+    while cur <= end:
+        stop = min(end, (cur.replace(day=1) + dt.timedelta(days=32)).replace(day=1) - dt.timedelta(days=1))
+        yield cur, stop
+        cur = stop + dt.timedelta(days=1)
+
+
+def update_prices(state: Path, key: str, days: dict, today: dt.date):
+    if days:
+        begin = dt.datetime.strptime(max(days), "%Y%m%d").date() + dt.timedelta(days=1)
+    else:
+        begin = today - dt.timedelta(days=BACKFILL_CAL_DAYS)
+    if begin > today:
+        print("새 시세 없음")
+        return
+    for a, b in month_chunks(begin, today):
+        got = fsc_range(key, a.strftime("%Y%m%d"), b.strftime("%Y%m%d"))
+        for day, rows in sorted(got.items()):
+            days[day] = rows
+            save_day(state, day, rows)
+    # 오래된 날은 지운다
+    for day in sorted(days)[:-KEEP_DAYS]:
+        days.pop(day)
+        (state / "days" / f"{day}.json.gz").unlink(missing_ok=True)
+
+
+def update_industry(state: Path, key: str | None, codes: list[str]) -> dict:
+    path = state / "industry.json"
+    ind = json.loads(path.read_text()) if path.exists() else {}
+    missing = [c for c in codes if c not in ind]
+    if missing and key:
+        print(f"DART 업종 조회: {len(missing)}종목")
+        corp = dart_corp_codes(key)
+        for i, c in enumerate(missing):
+            ind[c] = dart_ksic(key, corp[c]) if c in corp else None
+            if i % 200 == 199:
+                print(f"  {i + 1}/{len(missing)}")
+            time.sleep(0.08)  # DART 분당 한도 안쪽으로
+        path.write_text(json.dumps(ind, ensure_ascii=False, sort_keys=True, indent=0))
+    elif missing:
+        print(f"DART_API_KEY가 없어 {len(missing)}종목은 기타로 둡니다")
+    return ind
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--state", required=True)
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--today", help="YYYY-MM-DD (시험용)")
+    args = ap.parse_args()
+
+    state = Path(args.state)
+    state.mkdir(parents=True, exist_ok=True)
+    today = dt.date.fromisoformat(args.today) if args.today else dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date()
+
+    days = load_days(state)
+    key = os.environ.get("DATA_GO_KR_KEY", "").strip()
+    if key:
+        update_prices(state, key, days, today)
+    elif not days:
+        sys.exit("DATA_GO_KR_KEY가 없고 저장된 시세도 없습니다")
+    if len(days) < 130:
+        sys.exit(f"시세가 {len(days)}일뿐이라 계산하지 않습니다 (130일 이상 필요)")
+
+    latest = days[max(days)]
+    industry = update_industry(state, os.environ.get("DART_API_KEY", "").strip() or None, sorted({r["code"] for r in latest}))
+    data = compute(days, industry)
+    Path(args.out).write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
+    print(f"{data['asof']} 기준 섹터 {len(data['sectors'])}개를 {args.out}에 썼습니다")
+
+
+if __name__ == "__main__":
+    main()
