@@ -7,6 +7,7 @@
 import io
 import json
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -25,6 +26,13 @@ def _get(url: str, params: dict, tries: int = 4) -> bytes:
         try:
             with urllib.request.urlopen(f"{url}?{q}", timeout=60) as r:
                 return r.read()
+        except urllib.error.HTTPError as e:
+            body = e.read()[:500].decode("utf-8", "replace")
+            # 403·401은 키 문제(승인 대기·미등록)라 다시 시도해도 같다
+            if e.code in (401, 403) or i == tries - 1:
+                raise RuntimeError(f"HTTP {e.code} {url}: {body}") from None
+            print(f"  다시 시도 (HTTP {e.code})")
+            time.sleep(2 * (i + 1))
         except Exception as e:  # 공공데이터포털은 가끔 타임아웃·5xx를 낸다
             if i == tries - 1:
                 raise
