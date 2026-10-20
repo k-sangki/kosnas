@@ -137,14 +137,25 @@ OVERRIDES = {
     "028260": "construction",  # 삼성물산
     "035420": "internet",  # NAVER
     "035720": "internet",  # 카카오
+    "009540": "ship",  # HD한국조선해양 (지주회사 코드)
+    "034020": "power",  # 두산에너빌리티 (원전·가스터빈)
+    "078930": "energy",  # GS (GS칼텍스 지분)
+    "010060": "chem",  # OCI홀딩스
+    "001040": "food",  # CJ
+    "004990": "retail",  # 롯데지주
+    "000210": "construction",  # DL
+    "012630": "construction",  # HDC
 }
 
 
-def sector_of(code: str, ksic: str | None) -> str:
+def sector_of(code: str, ksic: str | None, name: str = "") -> str:
     if code in OVERRIDES:
         return OVERRIDES[code]
     if not ksic:
         return "etc"
+    # 64992 지주회사: 금융지주만 금융, 사업 지주회사(GS·OCI홀딩스 등)는 기타 — 큰 곳은 OVERRIDES로 사업 칸에 둔다
+    if ksic.startswith("64992"):
+        return "finance" if "금융" in name else "etc"
     for n in range(len(ksic), 1, -1):
         hit = KSIC_RULES.get(ksic[:n])
         if hit:

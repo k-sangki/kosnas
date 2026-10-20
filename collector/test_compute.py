@@ -38,6 +38,8 @@ class ComputeTest(unittest.TestCase):
         self.assertEqual(sector_of("111110", "20423"), "cosmetics")
         self.assertEqual(sector_of("111110", "20111"), "chem")
         self.assertEqual(sector_of("111110", None), "etc")
+        self.assertEqual(sector_of("105560", "64992", "KB금융"), "finance")
+        self.assertEqual(sector_of("078930", "64992", "GS"), "etc")
 
     def test_compute(self):
         days, industry = fake_days()

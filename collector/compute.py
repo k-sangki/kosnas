@@ -104,7 +104,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
 
     groups: dict[str, list[str]] = {}
     for c in live:
-        groups.setdefault(sector_of(c, industry.get(c)), []).append(c)
+        groups.setdefault(sector_of(c, industry.get(c), meta[c]["name"]), []).append(c)
 
     rs = rs_scores(idx, end)
 
