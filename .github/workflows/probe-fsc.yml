@@ -1,0 +1,15 @@
+name: Probe FSC
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          K: ${{ secrets.DATA_GO_KR_KEY }}
+        run: |
+          for base in "1160100/GetStockSecuritiesInfoService_V2" "1160100/service/GetStockSecuritiesInfoService_V2" "1160100/service/GetStockSecuritiesInfoService"; do
+           for op in getStockPriceInfo getStockPriceInfo_V2 getStockPriceInfoV2 getStockPriceInfo2; do
+            r=$(curl -s -G "https://apis.data.go.kr/$base/$op" --data-urlencode "serviceKey=$K" -d resultType=json -d numOfRows=2 -d pageNo=1 -d basDt=20261017 | head -c 600 | tr '\n' ' ')
+            echo "::notice::$base/$op => $r"
+           done
+          done
