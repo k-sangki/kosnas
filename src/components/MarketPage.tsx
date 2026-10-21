@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
+import { FlowTable } from "./FlowTable";
 import { SectorBoard } from "./SectorBoard";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
@@ -114,6 +115,7 @@ export function MarketContent({ market }: { market: Market }) {
         <span className="muted">{data.asof} 종가 기준</span>
       </p>
       {data.sample && <SampleNotice asof={data.asof} />}
+      {!data.sample && <FlowTable data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />}
       <SectorBoard data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
