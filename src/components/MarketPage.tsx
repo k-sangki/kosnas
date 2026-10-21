@@ -103,32 +103,47 @@ function DailySummary({ data }: { data: SectorData }) {
   );
 }
 
-export function MarketPage({ market }: { market: Market }) {
+/** 섹터 흐름 본문(머리·바닥 없이). 첫 화면과 /kr이 같이 쓴다 */
+export function MarketContent({ market }: { market: Market }) {
   const data = sectorData(market);
+  return (
+    <>
+      <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 흐름</h1>
+      <p className="lead">
+        어느 업종에 돈이 몰리고 어느 업종에서 빠지는지, 섹터별 강도와 그 변화를 매일 장 마감 자료로 계산해 보여줍니다.{" "}
+        <span className="muted">{data.asof} 종가 기준</span>
+      </p>
+      {data.sample && <SampleNotice asof={data.asof} />}
+      <SectorBoard data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />
+      {!data.sample && <DailySummary data={data} />}
+      {data.breadth && <BreadthCard breadth={data.breadth} />}
+      <AdSlot slot={AD_SLOTS.board} />
+      <GuideLinks />
+    </>
+  );
+}
+
+export function GuideLinks() {
+  return (
+    <section className="card">
+      <h2 className="card-title">처음이라면</h2>
+      <ul className="guide-links">
+        {GUIDES.map((g) => (
+          <li key={g.slug}>
+            <Link href={`/guide/${g.slug}`}>{g.title}</Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+export function MarketPage({ market }: { market: Market }) {
   return (
     <div className="shell">
       <SiteHeader active={market} />
       <main className="stack">
-        <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 흐름</h1>
-        <p className="lead">
-          어느 업종에 돈이 몰리고 어느 업종에서 빠지는지, 섹터별 강도와 그 변화를 매일 장 마감 자료로 계산해 보여줍니다.{" "}
-          <span className="muted">{data.asof} 종가 기준</span>
-        </p>
-        {data.sample && <SampleNotice asof={data.asof} />}
-        <SectorBoard data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />
-        {!data.sample && <DailySummary data={data} />}
-        {data.breadth && <BreadthCard breadth={data.breadth} />}
-        <AdSlot slot={AD_SLOTS.board} />
-        <section className="card">
-          <h2 className="card-title">처음이라면</h2>
-          <ul className="guide-links">
-            {GUIDES.map((g) => (
-              <li key={g.slug}>
-                <Link href={`/guide/${g.slug}`}>{g.title}</Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <MarketContent market={market} />
       </main>
       <SiteFooter />
     </div>
