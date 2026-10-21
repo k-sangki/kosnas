@@ -8,7 +8,7 @@ import { moveScores, ready, signed, sectorData, type Breadth, type Market, type 
 export function SampleNotice({ asof }: { asof: string }) {
   return (
     <p className="notice">
-      지금 숫자는 화면 확인용 표본입니다({asof} 기준 가짜 값). 종목 이름과 트레이딩뷰 차트만 실제예요.
+      지금 숫자는 화면 확인용 표본입니다({asof} 기준 가짜 값). 종목 이름만 실제예요.
     </p>
   );
 }

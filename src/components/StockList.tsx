@@ -61,7 +61,9 @@ export function StockList({ stocks, from, asof = "" }: { stocks: Stock[]; from?:
             <span className={`rs${s.rs >= 80 ? " hi" : ""}`}>RS {s.rs}</span>
             <i className="tri" aria-hidden />
           </button>
-          {open === s.code && (s.spark ? <PriceChart s={s} from={from} asof={asof} /> : <TvMini symbol={s.tv} />)}
+          {/* 트레이딩뷰 무료 위젯은 국내(KRX) 심볼을 외부 사이트에 보여주지 않으므로 국내 종목에는 쓰지 않는다 */}
+          {open === s.code &&
+            (s.spark ? <PriceChart s={s} from={from} asof={asof} /> : !s.tv.startsWith("KRX:") && <TvMini symbol={s.tv} />)}
         </li>
       ))}
     </ul>
