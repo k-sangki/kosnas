@@ -22,7 +22,10 @@ export const metadata: Metadata = {
   keywords: ["KosNas", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
   openGraph: { type: "website", siteName: "KosNas", locale: "ko_KR", description: DESCRIPTION },
   formatDetection: { telephone: false },
-  other: ADSENSE ? { "google-adsense-account": ADSENSE } : {},
+  other: {
+    "naver-site-verification": "1f7273a6d588ea39e5b60c5c8e84f6741f5b6056",
+    ...(ADSENSE ? { "google-adsense-account": ADSENSE } : {}),
+  },
 };
 
 export const viewport: Viewport = {
