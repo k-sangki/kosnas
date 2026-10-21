@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   description: DESCRIPTION,
   applicationName: "KosNas",
-  keywords: ["KosNas", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
+  keywords: ["KosNas", "코스피 야간선물", "야간선물 실시간", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
   openGraph: { type: "website", siteName: "KosNas", locale: "ko_KR", description: DESCRIPTION },
   formatDetection: { telephone: false },
   other: {

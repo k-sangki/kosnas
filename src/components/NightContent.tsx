@@ -1,13 +1,34 @@
+import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
 import { NightBoard } from "./NightBoard";
+
+export const NIGHT_FAQ: [string, string][] = [
+  [
+    "코스피 야간선물은 몇 시에 거래하나요?",
+    "한국거래소의 코스피200 선물 야간 거래는 평일 18:00에 시작해 다음 날 06:00에 끝납니다. 주간 거래는 08:45~15:45입니다. 이 화면은 그보다 넓게 15:45부터 다음 날 09:00까지의 흐름을 추정합니다.",
+  ],
+  [
+    "여기 숫자가 실제 코스피 야간선물 시세인가요?",
+    "아닙니다. 한국거래소 야간선물 실시간 시세는 증권사 HTS·MTS에서 볼 수 있고, KosNas는 해외 무기한선물 가격으로 코스피200 수준을 계산한 추정치를 보여 줍니다. 지난 열 번의 밤 동안 06:00 야간선물 종가와의 등락률 평균 오차는 0.2%포인트였습니다.",
+  ],
+  [
+    "코스피 야간 흐름으로 다음 날 코스피 시가를 알 수 있나요?",
+    "방향을 가늠하는 데 도움이 됩니다. 09:00 직전 추정값과 다음 날 코스피200 시가의 등락률 평균 오차는 0.5%포인트로, 야간선물 종가를 그대로 쓸 때(1.0%포인트)보다 작았습니다. 다만 아침 동시호가와 개장 직전 뉴스에 따라 다르게 시작할 수 있습니다.",
+  ],
+  [
+    "코스피선물과 코스피200은 어떻게 다른가요?",
+    "코스피200은 코스피 대표 200종목으로 만든 지수이고, 코스피선물(코스피200 선물)은 이 지수를 미래 가격으로 사고파는 파생상품입니다. 선물 가격은 만기까지의 금리와 배당 때문에 지수와 조금 차이가 나지만 거의 함께 움직입니다.",
+  ],
+];
 
 /** 야간 코스피 본문. 첫 화면과 /night이 같이 쓴다 */
 export function NightContent() {
   return (
     <>
-      <h1 className="page-title">코스피200 야간 추정</h1>
+      <h1 className="page-title">코스피 야간선물 실시간 추정</h1>
       <p className="lead">
-        국내 장이 끝난 15:45부터 다음 날 09:00까지, 해외에서 24시간 거래되는 한국 관련 무기한선물로 코스피200이 지금 어디쯤인지 추정합니다.
+        코스피 야간선물이 지금 어디쯤인지, 국내 장이 끝난 15:45부터 다음 날 09:00까지 해외에서 24시간 거래되는 한국 관련 무기한선물로 코스피200 수준을
+        실시간 추정합니다. 한국거래소 야간선물(18:00~06:00)이 끝난 새벽부터 아침 개장 전까지도 이어서 보여 줍니다.
       </p>
       <NightBoard />
       <AdSlot slot={AD_SLOTS.board} />
@@ -34,6 +55,28 @@ export function NightContent() {
           권하지 않습니다.
         </p>
       </section>
+      <section className="card seo-text">
+        <h2 className="card-title">자주 묻는 질문</h2>
+        {NIGHT_FAQ.map(([q, a]) => (
+          <div key={q}>
+            <h3>{q}</h3>
+            <p>{a}</p>
+          </div>
+        ))}
+        <p className="muted small-note">
+          더 자세한 설명은 <Link href="/guide/night-estimate">코스피 야간선물 추정 읽는 법</Link>에 있습니다.
+        </p>
+      </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: NIGHT_FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+          }),
+        }}
+      />
     </>
   );
 }
