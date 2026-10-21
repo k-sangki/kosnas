@@ -19,6 +19,14 @@ export default function Privacy() {
       <h2>1. 외부 서비스</h2>
       <ul>
         <li>차트와 종목 가격: 트레이딩뷰(TradingView) 위젯이 이용자의 브라우저에서 직접 불러옵니다. 위젯을 여는 동안 트레이딩뷰가 접속 정보를 처리할 수 있습니다.</li>
+        <li>
+          이용 통계: Google 애널리틱스로 방문 페이지, 체류 시간, 기기·브라우저 종류 같은 이용 통계를 쿠키로 수집해 서비스 개선에 씁니다. 이름이나 연락처처럼 개인을
+          알아볼 수 있는 정보는 수집하지 않으며,{" "}
+          <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">
+            Google 애널리틱스 차단 브라우저 부가기능
+          </a>
+          으로 수집을 거부할 수 있습니다.
+        </li>
         <li>호스팅: Cloudflare가 서비스 보안과 운영을 위해 접속 기록(IP 주소, 브라우저 정보 등)을 처리할 수 있습니다.</li>
       </ul>
 
