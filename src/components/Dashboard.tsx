@@ -9,18 +9,18 @@ import { TvWidget } from "./TvWidget";
  * 그 밖의 시세는 트레이딩뷰 위젯이 직접 보여 준다(값을 받거나 저장하지 않는다).
  * 어떤 카드를 어떤 순서로 볼지는 이 브라우저에만 저장한다.
  */
-type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit: "₩" | "$" } | { kind: "tv"; symbol: string });
+type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit?: "₩" | "$" } | { kind: "tv"; symbol: string });
 
 const TILES: Tile[] = [
   { id: "SMSN", label: "삼성전자", kind: "hl", coin: "SMSN", unit: "₩", sub: "무기한선물 · 원화 환산" },
   { id: "SKHX", label: "SK하이닉스", kind: "hl", coin: "SKHX", unit: "₩", sub: "무기한선물 · 원화 환산" },
-  { id: "EWY", label: "EWY(한국 ETF)", kind: "hl", coin: "EWY", unit: "$", sub: "무기한선물" },
-  { id: "XYZ100", label: "나스닥 100", kind: "hl", coin: "XYZ100", unit: "$", sub: "무기한선물" },
-  { id: "SP500", label: "S&P 500", kind: "hl", coin: "SP500", unit: "$", sub: "무기한선물" },
+  { id: "EWY", label: "EWY(한국 ETF)", kind: "hl", coin: "EWY", unit: "$", sub: "무기한선물 · 달러" },
+  { id: "XYZ100", label: "나스닥 100", kind: "hl", coin: "XYZ100", sub: "무기한선물 · 포인트" },
+  { id: "SP500", label: "S&P 500", kind: "hl", coin: "SP500", sub: "무기한선물 · 포인트" },
   { id: "KRW", label: "원/달러", kind: "hl", coin: "KRW", unit: "₩", sub: "무기한선물" },
   { id: "USO", label: "유가(USO)", kind: "tv", symbol: "AMEX:USO" },
   { id: "QQQ", label: "QQQ", kind: "tv", symbol: "NASDAQ:QQQ" },
-  { id: "KR200", label: "KR200", kind: "hl", coin: "KR200", unit: "$", sub: "코스피200 무기한선물" },
+  { id: "KR200", label: "KR200", kind: "hl", coin: "KR200", sub: "코스피200 무기한선물 · 포인트" },
   { id: "WTI", label: "서부텍사스유(WTI)", kind: "tv", symbol: "TVC:USOIL" },
   { id: "BRENT", label: "브렌트유", kind: "tv", symbol: "TVC:UKOIL" },
   { id: "SPY", label: "SPY", kind: "tv", symbol: "AMEX:SPY" },
@@ -175,17 +175,16 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
+      <p className="tile-price">
+        {t.unit && <span className="tile-unit">{t.unit}</span>}
+        {i.krw ? i.krw.toLocaleString() : fmt(i.price)}
+        {t.unit && <span className="tile-word">{t.unit === "₩" ? "원" : "달러"}</span>}
+      </p>
       <div className="tile-row">
-        <div className="tile-num">
-          <p className="tile-price">
-            <span className="tile-unit">{t.unit}</span>
-            {i.krw ? i.krw.toLocaleString() : fmt(i.price)}
-          </p>
-          <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>
-            {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
-            {i.krw && i.chg != null && <span className="tile-won"> {won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
-          </p>
-        </div>
+        <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>
+          {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
+          {i.krw && i.chg != null && <span className="tile-won">{won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
+        </p>
         {i.spark && <Spark v={i.spark} />}
       </div>
       <p className="tile-sub">{t.sub}</p>

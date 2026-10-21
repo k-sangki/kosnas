@@ -862,6 +862,7 @@ a {
   background: var(--chip);
 }
 .tile-won {
+  display: block;
   font-size: 12px;
   font-weight: 600;
 }
@@ -946,7 +947,7 @@ a {
 }
 .tile-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 6px;
 }
@@ -954,9 +955,12 @@ a {
   min-width: 0;
 }
 .tile-unit {
+  margin-right: 1px;
+}
+.tile-word {
   font-size: 0.5em;
   font-weight: 400;
-  margin-right: 2px;
+  margin-left: 2px;
 }
 .tile-spark {
   flex: none;
