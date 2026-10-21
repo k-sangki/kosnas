@@ -523,6 +523,14 @@ a {
   color: var(--ink);
   margin: 24px 0 8px;
 }
+.seo-text h3 {
+  font-size: 15px;
+  color: var(--ink);
+  margin: 18px 0 4px;
+}
+.seo-text h3 + p {
+  margin-top: 0;
+}
 .doc h1 {
   font-size: 24px;
   color: var(--ink);
