@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<"/[market]">): Prom
         alternates: { canonical: "/us" },
       }
     : {
-        title: "국장 - 코스피·코스닥 섹터 흐름",
+        title: "국장 - 코스피·코스닥 섹터 순환",
         description: "코스피·코스닥 섹터별 강도와 그 변화, 시장 폭을 매일 장 마감 자료로.",
         alternates: { canonical: "/kr" },
       };

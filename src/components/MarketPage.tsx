@@ -57,7 +57,7 @@ function DailySummary({ data }: { data: SectorData }) {
   return (
     <section className="card seo-text">
       <h2 className="card-title">
-        {m}월 {d}일 섹터 흐름 요약
+        {m}월 {d}일 섹터 순환 요약
       </h2>
       <p>
         {y}년 {m}월 {d}일 종가 기준 최근 20거래일 동안 섹터 평균보다 가장 강했던 곳은 {top.name}(수익률 {signed(top.ret[P])}%, 평균 대비 {signed(top.x[P])}
@@ -100,7 +100,7 @@ function DailySummary({ data }: { data: SectorData }) {
   );
 }
 
-/** 섹터 흐름 본문(머리·바닥 없이). 첫 화면과 /kr이 같이 쓴다 */
+/** 섹터 순환 본문(머리·바닥 없이). 첫 화면과 /kr이 같이 쓴다 */
 export function MarketContent({ market }: { market: Market }) {
   const data = sectorData(market);
   // 화면 위쪽 카드에는 종목 목록이 필요 없다(페이지 크기를 줄인다)
@@ -110,7 +110,7 @@ export function MarketContent({ market }: { market: Market }) {
   };
   return (
     <>
-      <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 흐름</h1>
+      <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 순환</h1>
       <p className="lead">
         어느 업종에 돈이 몰리고 어느 업종에서 빠지는지, 섹터별 강도와 그 변화를 매일 장 마감 자료로 계산해 보여줍니다.{" "}
         <span className="muted">{data.asof} 종가 기준</span>

@@ -145,7 +145,7 @@ function RsCount({ u }: { u: Unit }) {
   return <small className={`rs-count${u.rsLeaders ? "" : " none"}`}>RS↑{u.rsLeaders}</small>;
 }
 
-const CARD_PERIODS = [5, 10, 15, 20];
+const CARD_PERIODS = [5, 10, 20, 30, 60];
 
 /** 아래 카드(시총 비중·거래대금 비중·하락일 버팀)는 카드마다 따로 기간을 고른다 */
 function CardSeg({ value, onChange, label }: { value: number; onChange: (p: number) => void; label: string }) {
@@ -213,6 +213,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
   const [rsOnly, setRsOnly] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [allRank, setAllRank] = useState(false);
+  const [rankP, setRankP] = useState(20);
   const [cp, setCp] = useState({ cap: 20, flow: 20, hold: 20 });
   const industries = data.industries ?? [];
   const units: Unit[] = level === "industry" && industries.length ? industries : data.sectors;
@@ -223,7 +224,9 @@ export function SectorBoard({ data }: { data: SectorData }) {
   const moves = useMemo(() => moveScores(live, period), [live, period]);
   const hasRs = live.some((u) => u.rsLeaders != null);
   const shown = live.filter((s) => (filter === "all" || moves.get(s.id)?.dir === filter) && (!rsOnly || (s.rsLeaders ?? 0) > 0));
-  const sorted = [...shown].sort((a, b) => b.x[period]! - a.x[period]!);
+  const rankLive = units.filter((s) => ready(s, rankP) && shown.some((x) => x.id === s.id));
+  const sorted = [...rankLive].sort((a, b) => b.x[rankP]! - a.x[rankP]!);
+  const rankMoves = moveScores(units.filter((s) => ready(s, rankP)), rankP);
   const sel = shown.find((s) => s.id === selected);
   const selMove = sel && moves.get(sel.id);
   const selAccel = sel && accelOf(sel, period);
@@ -380,11 +383,12 @@ export function SectorBoard({ data }: { data: SectorData }) {
       </div>
 
       <section className="card">
-        <h2 className="card-title">{period}일 강도 순위</h2>
+        <h2 className="card-title">강도 순위</h2>
+        <CardSeg value={rankP} onChange={setRankP} label="강도 순위" />
         <ol className="rank">
           {sorted.slice(0, level === "industry" && !allRank ? 30 : undefined).map((s, i) => {
-            const q = QUADRANTS.find((x) => x.key === s.q[period])!;
-            const r = s.ret[period];
+            const q = QUADRANTS.find((x) => x.key === s.q[rankP])!;
+            const r = s.ret[rankP];
             return (
               <li key={s.id}>
                 <Link href={href(s)}>
@@ -394,9 +398,9 @@ export function SectorBoard({ data }: { data: SectorData }) {
                     {"sector" in s && <small className="muted"> {sectorName.get((s as Industry).sector)}</small>}
                   </span>
                   <span className={`qtag t-${q.key}`}>{q.name}</span>
-                  <MoveTag m={moves.get(s.id)} />
+                  <MoveTag m={rankMoves.get(s.id)} />
                   <span className={`num ${r != null && r >= 0 ? "up" : "down"}`}>{signed(r)}%</span>
-                  <span className="num muted">{signed(s.x[period])}%p</span>
+                  <span className="num muted">{signed(s.x[rankP])}%p</span>
                 </Link>
               </li>
             );

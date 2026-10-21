@@ -58,7 +58,7 @@ class ComputeTest(unittest.TestCase):
         self.assertEqual(d["breadth"]["KOSPI"]["count"] + d["breadth"]["KOSDAQ"]["count"], 20)
         self.assertEqual(len(st["rows"]), 20)
         for s in d["sectors"]:
-            self.assertEqual(len(s["path"]["15"]), 15)
+            self.assertEqual(len(s["path"]["30"]), 30)
             self.assertEqual(len(s["half"]["20"]), 2)
         self.assertAlmostEqual(sum(s["capShareChg"]["20"] for s in d["sectors"]), 0, places=1)
 

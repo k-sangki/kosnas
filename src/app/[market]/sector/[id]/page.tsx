@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/[market]/sector/[
   if (!hit) return {};
   const where = hit.market === "kr" ? "국내" : "미국";
   return {
-    title: `${where} ${hit.sector.name} 섹터 흐름`,
+    title: `${where} ${hit.sector.name} 섹터 순환`,
     description: `${where} ${hit.sector.name} 섹터의 기간별 강도와 종목별 상대강도 순위.`,
     alternates: { canonical: `/${market}/sector/${id}` },
   };
@@ -68,7 +68,7 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
       <SiteHeader active={hit.market} />
       <main className="stack">
         <Link href={hit.market === "kr" ? "/" : "/us"} className="back">
-          ← 섹터 흐름
+          ← 섹터 순환
         </Link>
         <h1 className="page-title">{sector.name}</h1>
         {data.sample && <SampleNotice asof={data.asof} />}

@@ -9,12 +9,12 @@ const ADSENSE = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
 // Google 애널리틱스 4 측정 ID (공개 값)
 const GA_ID = "G-Z3JCEMSBJT";
 
-const DESCRIPTION = "코스피·코스닥 섹터 흐름을 한눈에. 어느 업종이 강해지고 약해지는지, 섹터 안 종목의 상대강도 순위와 시장 폭까지.";
+const DESCRIPTION = "코스피·코스닥 섹터 순환을 한눈에. 어느 업종이 강해지고 약해지는지, 섹터 안 종목의 상대강도 순위와 시장 폭까지.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "KosNas - 코스피·코스닥 섹터 흐름",
+    default: "KosNas - 코스피·코스닥 섹터 순환",
     template: "%s | KosNas",
   },
   description: DESCRIPTION,

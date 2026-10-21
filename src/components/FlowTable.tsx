@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import type { Industry, SectorData } from "@/lib/sectors";
 
-// neoScreen 시장 탭의 '섹터 흐름' 표와 같은 구성: 기간별 강도 색칸(왼쪽 긴 기간 → 오른쪽 짧은 기간),
+// neoScreen 시장 탭의 '섹터 흐름' 표와 같은 구성: 기간별 강도 색칸(5·10·20·30·60일),
 // 20일 강도의 매일 추이 미니 그래프, 5거래일 전 대비 순위 변화, 맨 위에는 순위가 크게 바뀐 섹터만.
-const PERIODS = ["60", "20", "10", "5"];
+const PERIODS = ["5", "10", "20", "30", "60"];
 const BASE = "20";
 const AGO = 5;
 
@@ -70,7 +70,7 @@ function industryRows(list: Industry[]): Map<string, (Row & { sector: string; co
 
 function Spark({ path }: { path: number[] }) {
   if (path.length < 2) return <span />;
-  const W = 50;
+  const W = 44;
   const H = 20;
   const m = Math.max(4, ...path.map(Math.abs));
   const x = (i: number) => 2 + (i * (W - 4)) / (path.length - 1);
@@ -138,7 +138,7 @@ export function FlowTable({ data }: { data: SectorData }) {
 
   return (
     <section className="card ft-card">
-      <h2 className="card-title">섹터 흐름 표</h2>
+      <h2 className="card-title">섹터 순위</h2>
       <div className="ft-digest">
         <p className="muted">
           달라진 것 · {AGO}거래일 전 대비 {BASE}일 강도 순위
@@ -206,7 +206,7 @@ export function FlowTable({ data }: { data: SectorData }) {
         );
       })}
       <p className="muted small-note">
-        색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 왼쪽(긴 기간)에서 오른쪽(짧은 기간)으로 읽으면 흐름이 보입니다. 기간을 누르면 그
+        색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 짧은 기간(왼쪽)과 긴 기간(오른쪽)을 나란히 보면 흐름이 보입니다. 기간을 누르면 그
         기간 순으로 정렬합니다. 미니 그래프는 {BASE}일 강도의 매일 추이, 순위는 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그 안의 산업(DART 업종
         코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
       </p>

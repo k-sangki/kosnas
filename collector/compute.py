@@ -8,7 +8,7 @@ import zlib
 
 from taxonomy import INDUSTRIES, SECTORS, industry_of, sector_of
 
-PERIODS = [5, 10, 15, 20, 30, 60]
+PERIODS = [5, 10, 20, 30, 60]
 MIN_SECTOR = 4  # 종목이 이보다 적은 섹터는 보드에 올리지 않는다
 MIN_INDUSTRY = 2  # 산업은 2종목부터
 # 상대강도: 최근 3개월 40%, 6·9·12개월 각 20% (오닐식 가중)

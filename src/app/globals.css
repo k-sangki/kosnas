@@ -887,7 +887,7 @@ a {
 .ft-head,
 .ft-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 50px repeat(4, 31px) 34px;
+  grid-template-columns: minmax(0, 1fr) 46px repeat(5, 30px) 32px;
   gap: 3px;
   align-items: center;
   width: 100%;

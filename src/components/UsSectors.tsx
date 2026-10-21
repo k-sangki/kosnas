@@ -4,19 +4,17 @@ import { useState } from "react";
 import { TvWidget } from "./TvWidget";
 
 // 미국 종목 시세는 공개 사이트에 다시 실을 수 있는 원천이 아직 없어, 국장처럼 직접 계산하지 않고
-// 트레이딩뷰 위젯(출처 표시 유지 조건으로 무료)으로 섹터 흐름을 보여 준다.
+// 트레이딩뷰 위젯(출처 표시 유지 조건으로 무료)으로 섹터 순환을 보여 준다.
 const INDEXES = [
   { key: "SPX500", name: "S&P 500" },
   { key: "NASDAQ100", name: "나스닥 100" },
   { key: "DJDJI", name: "다우 30" },
 ];
+// 국장과 같은 5·10·20·30·60일 단위. 트레이딩뷰 지도가 주는 기간은 1주(5거래일)·1달(약 20거래일)·3달(약 60거래일)뿐이라 10·30일은 없다
 const PERIODS = [
-  { key: "change", name: "1일" },
-  { key: "Perf.W", name: "1주" },
-  { key: "Perf.1M", name: "1달" },
-  { key: "Perf.3M", name: "3달" },
-  { key: "Perf.6M", name: "6달" },
-  { key: "Perf.Y", name: "1년" },
+  { key: "Perf.W", name: "5일" },
+  { key: "Perf.1M", name: "20일" },
+  { key: "Perf.3M", name: "60일" },
 ];
 const ETFS: [string, string][] = [
   ["AMEX:XLK", "기술"],
@@ -39,7 +37,7 @@ export function UsSectors() {
   return (
     <>
       <section className="card">
-        <h2 className="card-title">섹터 흐름 지도</h2>
+        <h2 className="card-title">섹터 순환 지도</h2>
         <div className="seg filter" role="group" aria-label="지수">
           {INDEXES.map((i) => (
             <button key={i.key} aria-pressed={i.key === index} onClick={() => setIndex(i.key)}>
@@ -76,8 +74,7 @@ export function UsSectors() {
           }}
         />
         <p className="muted small-note">
-          칸 크기는 시가총액, 색은 고른 기간 등락률입니다. 섹터끼리 묶여 있어 어느 섹터가 지수를 끌어올리고 끌어내리는지 한눈에 보입니다. 기간을 길게 바꿔 보면 국장
-          화면의 긴 기간 강도처럼 흐름을 읽을 수 있어요.
+          칸 크기는 시가총액, 색은 고른 기간 등락률입니다. 섹터끼리 묶여 있어 어느 섹터가 지수를 끌어올리고 끌어내리는지 한눈에 보입니다. 5일은 1주, 20일은 1달, 60일은 3달 등락률이며, 트레이딩뷰 지도가 이 세 기간만 제공해 10·30일은 없습니다.
         </p>
       </section>
       <section className="card">
