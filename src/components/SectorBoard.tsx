@@ -5,6 +5,17 @@ import { useMemo, useState } from "react";
 import { QUADRANTS, moveScores, ready, signed, type Dir, type Move, type Sector, type SectorData } from "@/lib/sectors";
 
 const CHART = { w: 320, h: 240, pad: 18 };
+
+// 점 색: 이동 강도(▲ +, ▼ −)를 그 기간 가장 큰 값에 맞춰 빨강(--up) ↔ 회색 ↔ 파랑(--down)으로 잇는다
+const RED = [240, 68, 82];
+const GRAY = [196, 202, 209];
+const BLUE = [49, 130, 246];
+function moveColor(m: Move | undefined, max: number) {
+  if (!m) return `rgb(${GRAY})`;
+  const t = Math.min(1, m.score / (max || 1));
+  const to = m.dir === "up" ? RED : BLUE;
+  return `rgb(${GRAY.map((g, i) => Math.round(g + (to[i] - g) * t))})`;
+}
 type Filter = "all" | Dir;
 const FILTERS: { key: Filter; name: string }[] = [
   { key: "all", name: "전체" },
@@ -27,6 +38,7 @@ function QuadrantChart({
   onSelect: (id: string | null) => void;
 }) {
   const pts = sectors.map((s) => ({ s, x: s.x[period]!, y: s.y[period]!, m: moves.get(s.id) }));
+  const maxScore = Math.max(1, ...[...moves.values()].map((m) => m.score));
   const sel = pts.find((p) => p.s.id === selected);
   const line = sel?.m?.line ?? [];
   const all = [...pts.map((p) => [p.x, p.y]), ...line];
@@ -78,7 +90,7 @@ function QuadrantChart({
             }}
           >
             <circle cx={px(x)} cy={py(y)} r={9} className="hit" />
-            <circle cx={px(x)} cy={py(y)} r={2.5} className={`dot ${m?.dir === "down" ? "d-down" : "d-up"}`} />
+            <circle cx={px(x)} cy={py(y)} r={2.5} className="dot" style={{ fill: moveColor(m, maxScore) }} />
             <text x={px(x) + (left ? -5 : 5)} y={py(y) + 2.5} textAnchor={left ? "end" : "start"} className="dot-label">
               {s.name}
             </text>
@@ -167,8 +179,8 @@ export function SectorBoard({ data }: { data: SectorData }) {
           </div>
         ) : (
           <p className="muted small-note">
-            가로는 강도(섹터 수익률 − 섹터 평균), 세로는 변화(바로 앞 같은 기간 대비 강도 변화)입니다. 빨간 점은 주도 쪽으로, 파란 점은 소외 쪽으로 가는
-            섹터예요. 점을 누르면 그 기간 동안의 이동선이 보입니다.{" "}
+            가로는 강도(섹터 수익률 − 섹터 평균), 세로는 변화(바로 앞 같은 기간 대비 강도 변화)입니다. 점 색은 이동 강도로, 주도 쪽으로 가장 강하게 가는
+            섹터가 가장 진한 빨강, 소외 쪽으로 가장 강하게 가는 섹터가 가장 진한 파랑이고 움직임이 약할수록 회색에 가까워요. 점을 누르면 그 기간 동안의 이동선이 보입니다.{" "}
             <Link href="/guide/quadrant" className="inline-link">
               네 칸 읽는 법
             </Link>
