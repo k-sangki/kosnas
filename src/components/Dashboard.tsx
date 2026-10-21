@@ -213,13 +213,32 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   );
 }
 
+/** 위젯은 폭이 좁으면 등락을 숨긴다. 이 폭보다 좁은 카드에서는 이 폭으로 그린 뒤 줄여서 보인다 */
+const TV_MIN_W = 340;
+const TV_H = 150;
+
 function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(0);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setW(el.clientWidth));
+    ro.observe(el);
+    setW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+  const k = w > 0 && w < TV_MIN_W ? w / TV_MIN_W : 1;
   return (
-    <TvWidget
-      kind="mini-symbol-overview"
-      height={150}
-      config={{ symbol: t.symbol, width: "100%", height: 150, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
-    />
+    <div ref={box} className="tv-fit" style={{ height: k < 1 ? (TV_H + 22) * k : undefined }}>
+      <div style={k < 1 ? { width: TV_MIN_W, transform: `scale(${k})`, transformOrigin: "0 0" } : undefined}>
+        <TvWidget
+          kind="mini-symbol-overview"
+          height={TV_H}
+          config={{ symbol: t.symbol, width: "100%", height: TV_H, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
+        />
+      </div>
+    </div>
   );
 }
 

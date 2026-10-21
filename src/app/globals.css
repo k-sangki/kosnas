@@ -1858,3 +1858,6 @@ button.ft-row {
 .stock-sub {
   white-space: normal;
 }
+.tv-fit {
+  overflow: hidden;
+}
