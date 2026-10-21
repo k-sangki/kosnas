@@ -7,16 +7,13 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Hyperliquid dexes and assets
+      - name: Candles
         run: |
           H=https://api.hyperliquid.xyz/info
-          curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"perpDexs"}' | jq -c '[.[]? | select(.!=null) | {name, fullName}]'
-          for d in $(curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"perpDexs"}' | jq -r '.[]? | select(.!=null) | .name'); do
-            echo "== $d"
-            curl -sS -X POST $H -H 'content-type: application/json' -d "{\"type\":\"metaAndAssetCtxs\",\"dex\":\"$d\"}" | jq -c '[.[0].universe, .[1]] | transpose | map({n:.[0].name, px:.[1].markPx, oracle:.[1].oraclePx, vol:.[1].dayNtlVlm, oi:.[1].openInterest})'
+          S=$(( ($(date +%s) - 86400*3) * 1000 ))
+          for c in KR200 EWY KRW SP500 XYZ100 SMSN SKHX; do
+            echo "== $c"
+            curl -sS -X POST $H -H 'content-type: application/json' -d "{\"type\":\"candleSnapshot\",\"req\":{\"coin\":\"xyz:$c\",\"interval\":\"5m\",\"startTime\":$S}}" | jq -c 'map([.t, .c, .v])'
           done
-      - name: Other sources
-        run: |
-          for u in "https://query1.finance.yahoo.com/v8/finance/chart/ES=F?interval=1m&range=2d" "https://query1.finance.yahoo.com/v8/finance/chart/KRW=X?interval=1m&range=1d" "https://api.frankfurter.app/latest?from=USD&to=KRW" "https://open.er-api.com/v6/latest/USD"; do
-            echo "== $u"; curl -sS -m 20 -A Mozilla "$u" | head -c 600; echo
-          done
+          echo "== fullctx"
+          curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"metaAndAssetCtxs","dex":"xyz"}' | jq -c '[.[0].universe, .[1]] | transpose | map(select(.[0].name|test("KR200|EWY|KRW"))) '
