@@ -172,8 +172,12 @@ function Icon({ id }: { id: string }) {
   const [bad, setBad] = useState(false);
   const slug = LOGOS[id];
   if (!slug || bad) return ICONS[id]?.() ?? null;
+  // 서버에서 그린 이미지는 화면이 살아나기 전에 실패할 수 있어, 붙을 때 한 번 더 본다
+  const check = (img: HTMLImageElement | null) => {
+    if (img?.complete && img.naturalWidth === 0) setBad(true);
+  };
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className="tile-icon tile-logo" src={`${LOGO}${slug}.svg`} alt="" loading="lazy" onError={() => setBad(true)} />;
+  return <img ref={check} className="tile-icon tile-logo" src={`${LOGO}${slug}.svg`} alt="" onError={() => setBad(true)} />;
 }
 
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -207,8 +211,8 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
   return (
     <TvWidget
       kind="mini-symbol-overview"
-      height={126}
-      config={{ symbol: t.symbol, width: "100%", height: 126, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
+      height={190}
+      config={{ symbol: t.symbol, width: "100%", height: 190, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
     />
   );
 }

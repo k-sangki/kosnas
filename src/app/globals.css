@@ -19,6 +19,14 @@
   --muted: #8b95a1;
   --line: #e5e8eb;
   --chip: #f2f4f6;
+  --line-2: #c4cad1;
+  --kr-line: #b0b8c1;
+  --up-soft: #fff0f1;
+  --down-soft: #eef4ff;
+  --amber-ink: #8a5a00;
+  --mint-ink: #13795a;
+  --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color-scheme: light;
 
   --radius: 20px;
   --radius-sm: 12px;
@@ -92,6 +100,35 @@ a {
   --down: #3182f6;
 }
 
+/* ---------- 다크 모드 (html[data-theme="dark"], 상단 버튼으로 바꾼다) ---------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --pine: #5fd3a7;
+  --pine-2: #7ee8c0;
+  --mint-soft: #15372c;
+  --mint-ink: #5fd3a7;
+  --coral-soft: #3d2019;
+  --amber-soft: #3a2f15;
+  --amber-ink: #f2c262;
+  --rain-soft: #18284a;
+
+  --bg: #111216;
+  --card: #1d1e24;
+  --ink: #e8e9ec;
+  --ink-2: #b4b8c0;
+  --muted: #80858f;
+  --line: #2c2e36;
+  --chip: #2a2c34;
+  --line-2: #4a4d57;
+  --kr-line: #5d616b;
+  --up: #ff5a68;
+  --down: #4d95ff;
+  --up-soft: #3b1c21;
+  --down-soft: #172743;
+  --shadow: none;
+  --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
 /* ---------- 레이아웃 ---------- */
 .shell {
   max-width: 560px;
@@ -162,7 +199,27 @@ a {
   display: inline-flex;
   align-items: baseline;
 }
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-left: 6px;
+  border-radius: 10px;
+  background: var(--chip);
+  color: var(--ink-2);
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .top-nav {
+  margin-left: auto;
   display: flex;
   gap: 4px;
   padding: 3px;
@@ -179,7 +236,7 @@ a {
 .top-nav a[aria-current="page"] {
   background: var(--card);
   color: var(--pine);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-2);
 }
 
 /* ---------- 카드 ---------- */
@@ -214,7 +271,7 @@ a {
   padding: 12px 14px;
   border-radius: var(--radius-sm);
   background: var(--amber-soft);
-  color: #8a5a00;
+  color: var(--amber-ink);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -255,7 +312,7 @@ a {
 .seg button[aria-pressed="true"] {
   background: var(--card);
   color: var(--pine);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-2);
 }
 
 /* ---------- 네 칸 그래프 ---------- */
@@ -265,19 +322,19 @@ a {
   height: auto;
 }
 .quad .q-lead {
-  fill: #fff0f1;
+  fill: var(--up-soft);
 }
 .quad .q-weaken {
   fill: var(--amber-soft);
 }
 .quad .q-lag {
-  fill: #eef4ff;
+  fill: var(--down-soft);
 }
 .quad .q-watch {
   fill: var(--mint-soft);
 }
 .quad .axis {
-  stroke: #c4cad1;
+  stroke: var(--line-2);
   stroke-width: 1;
 }
 .quad .q-label {
@@ -295,7 +352,7 @@ a {
   fill: transparent;
 }
 .quad .dot {
-  stroke: #fff;
+  stroke: var(--card);
   stroke-width: 0.8;
 }
 .quad .d-up {
@@ -321,7 +378,7 @@ a {
   stroke: var(--down);
 }
 .quad .trail .start {
-  fill: #fff;
+  fill: var(--card);
   stroke-width: 1.2;
 }
 .quad .trail.up .start {
@@ -415,20 +472,20 @@ a {
   border-radius: 6px;
 }
 .t-lead {
-  background: #fff0f1;
+  background: var(--up-soft);
   color: var(--up);
 }
 .t-weaken {
   background: var(--amber-soft);
-  color: #a86a00;
+  color: var(--amber-ink);
 }
 .t-lag {
-  background: #eef4ff;
+  background: var(--down-soft);
   color: var(--down);
 }
 .t-watch {
   background: var(--mint-soft);
-  color: #13795a;
+  color: var(--mint-ink);
 }
 
 /* ---------- 섹터 상세 ---------- */
@@ -484,7 +541,7 @@ a {
 }
 .rs.hi {
   color: var(--up);
-  background: #fff0f1;
+  background: var(--up-soft);
 }
 /* 접기 삼각형 */
 .tri {
@@ -520,7 +577,7 @@ a {
 .ad-slot.dev {
   display: grid;
   place-items: center;
-  border: 1px dashed #c4cad1;
+  border: 1px dashed var(--line-2);
   color: var(--muted);
   font-size: 13px;
 }
@@ -727,7 +784,7 @@ a {
 }
 .nchart .kr {
   fill: none;
-  stroke: #b0b8c1;
+  stroke: var(--kr-line);
   stroke-width: 1;
   opacity: 0.8;
 }
@@ -788,7 +845,7 @@ a {
   margin-left: 0;
 }
 .nchart-read .kr-key {
-  border-top-color: #b0b8c1;
+  border-top-color: var(--kr-line);
 }
 .nchart-read .base-key {
   border-top: 2px dashed var(--ink-2);
@@ -825,7 +882,7 @@ a {
 }
 .dash-edit[aria-pressed="true"] {
   background: var(--pine);
-  color: #fff;
+  color: var(--card);
 }
 .dash-grid {
   position: relative;
@@ -941,7 +998,7 @@ a {
   height: 24px;
   border-radius: 50%;
   background: var(--ink-2);
-  color: #fff;
+  color: var(--card);
   font-size: 15px;
   line-height: 22px;
 }
@@ -1187,7 +1244,7 @@ a {
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: #c4cad1;
+  text-decoration-color: var(--line-2);
 }
 .ft-head,
 .ft-row {
@@ -1247,7 +1304,7 @@ a {
   fill: currentColor;
 }
 .ft-spark .ft-zero {
-  stroke: #c4cad1;
+  stroke: var(--line-2);
   stroke-width: 0.6;
   stroke-dasharray: 2 2;
 }

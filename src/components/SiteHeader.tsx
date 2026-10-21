@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { ThemeToggle } from "./ThemeToggle";
 import { TAB_NAME } from "@/lib/session";
 
 export function SiteHeader({ active }: { active?: "kr" | "us" | "night" | "guide" }) {
@@ -15,6 +16,7 @@ export function SiteHeader({ active }: { active?: "kr" | "us" | "night" | "guide
           </Link>
         ))}
       </nav>
+      <ThemeToggle />
     </header>
   );
 }
@@ -23,9 +25,10 @@ export function SiteFooter() {
   return (
     <footer className="foot">
       <p>
-        KosNas는 코스피·코스닥 시장의 섹터 흐름을 정리해 보여주는 정보 서비스입니다. 섹터 강도·상대강도·시장 폭은 금융위원회 주식시세정보(공공데이터포털)로
-        직접 계산한 값이고, 업종은 DART 기업개황의 표준산업분류를 바탕으로 나눴습니다. 종목 종가와 차트도 같은 금융위원회 시세로 그립니다. 야간 코스피와 미장 흐름은 Hyperliquid(trade.xyz) 무기한선물 시세로 계산한 참고값입니다. 특정 종목의 매수·매도를
-        권하지 않으며 투자 판단과 그 결과의 책임은 이용자 본인에게 있습니다.
+        KosNas는 코스피·코스닥 시장의 섹터 흐름을 정리해 보여주는 정보 서비스입니다. 섹터 강도·상대강도·시장 폭은 금융위원회 주식시세정보(공공데이터포털)로 직접
+        계산한 값이고, 업종은 DART 기업개황의 표준산업분류를 바탕으로 나눴습니다. 종목 종가와 차트도 같은 금융위원회 시세로 그립니다. 야간 코스피와 미장 흐름은
+        Hyperliquid(trade.xyz) 무기한선물 시세로 계산한 참고값입니다. 특정 종목의 매수·매도를 권하지 않으며 투자 판단과 그 결과의 책임은 이용자 본인에게
+        있습니다.
       </p>
       <nav className="foot-links">
         <Link href="/about">소개</Link>

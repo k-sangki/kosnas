@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "@/lib/theme";
 
 /**
  * 트레이딩뷰 무료 위젯. 가격은 우리가 싣지 않고 트레이딩뷰가 직접 보여준다.
@@ -17,7 +18,9 @@ export function TvWidget({
   height: number;
 }) {
   const box = useRef<HTMLDivElement>(null);
-  const json = JSON.stringify(config);
+  const theme = useTheme();
+  // 화면 모드에 맞춰 위젯 색을 고른다(모드를 바꾸면 위젯을 다시 그린다)
+  const json = JSON.stringify({ ...config, colorTheme: theme });
 
   useEffect(() => {
     const el = box.current;
