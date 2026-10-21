@@ -34,7 +34,18 @@ const BY_ID = new Map(TILES.map((t) => [t.id, t]));
 const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ", "WTI"];
 
 // ---- 이 브라우저에만 남기는 카드 목록 ----
-const KEY = "kosnas:dashboard:v1";
+const KEY = "kosnas:dashboard:v2";
+/** v1에 저장한 배치에는 나중에 기본 카드가 된 WTI가 없다 — 한 번만 붙여 옮긴다 */
+const OLD = "kosnas:dashboard:v1";
+function migrate() {
+  try {
+    const old = localStorage.getItem(OLD);
+    if (old == null || localStorage.getItem(KEY) != null) return;
+    const v = JSON.parse(old) as unknown;
+    if (Array.isArray(v)) localStorage.setItem(KEY, JSON.stringify(v.includes("WTI") ? v : [...v, "WTI"]));
+    localStorage.removeItem(OLD);
+  } catch {}
+}
 const listeners = new Set<() => void>();
 let memory: string | null = null; // 저장소를 못 쓰는 브라우저(사생활 보호 모드 등)
 function read() {
@@ -53,6 +64,7 @@ function save(ids: string[] | null) {
   listeners.forEach((f) => f());
 }
 function subscribe(f: () => void) {
+  migrate();
   listeners.add(f);
   window.addEventListener("storage", f);
   return () => {
@@ -140,7 +152,6 @@ const LOGO = "https://s3-symbol-logo.tradingview.com/";
 const LOGOS: Record<string, string> = {
   SMSN: "samsung-electronics",
   SKHX: "sk-hynix",
-  EWY: "ishares",
   SOXX: "ishares",
   KR200: "country/KR",
   XYZ100: "indices/nasdaq-100",
