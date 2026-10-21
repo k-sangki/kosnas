@@ -4,11 +4,13 @@
  * 국내 장이 닫힌 동안(15:45 ~ 다음 거래일 09:00) 해외에서 24시간 거래되는 한국 관련 무기한선물로
  * 코스피200 수준을 추정한다. KRX 야간선물 시세를 받지 않는다(실시간 재배포는 계약이 필요하다).
  *
- * 추정 = 기준점 × (EWY 무기한선물 지금 가격 ÷ 기준 시각 EWY 가격)
+ * 추정 = 기준점 × √(EWY 등락 배율 × KR200 등락 배율)  — 15:45 대비 두 무기한선물 등락의 기하평균
  *  - 기준점: 15:45(주간 선물 마감 시각)의 KR200 무기한선물 가격 — 국내 장중에는 코스피200 지수를 따라간다.
- *  - EWY: 한국 대형주를 담은 미국 ETF(iShares MSCI South Korea)를 따르는 무기한선물. KR200 무기한선물보다
- *    거래가 수십 배 많아 밤사이 움직임이 매끄럽다. 2026-10-20 밤 esignal 야간 추정가와 비교하면
- *    5분 수익률 상관 0.93, 밤 전체 오차 평균 0.9포인트(약 0.1%)였다.
+ *  - EWY: 한국 대형주를 담은 미국 ETF(iShares MSCI South Korea)를 따르는 무기한선물. 거래가 많아 매끄럽다.
+ *  - KR200: 코스피200을 따르는 무기한선물. 거래가 적어 계단식이지만 지수 자체를 따른다.
+ * 2026-10-07 ~ 10-21 밤 10번을 KRX 야간선물 종가(06:00)와 비교한 15:45 대비 등락률 평균 오차:
+ *   EWY만 0.25%p, KR200만 0.25%p, 반반 0.20%p. 다음 날 09:00 시가로는 0.60·0.62·0.53%p
+ *   (KRX 야간 종가를 그대로 시가 예측으로 쓰면 0.98%p).
  * 원천은 Hyperliquid의 trade.xyz 시장(공개 API, 키 없음).
  */
 
@@ -98,12 +100,27 @@ export function buildSeries(ewy: Candle[], kr200: Candle[], win: NightWindow, st
   if (!e0 || !k0) return null;
   const kr = new Map(kr200.map((k) => [k.t, k.c]));
   const points: NightPoint[] = [];
+  let kLast = k0.c; // KR200은 거래가 없는 분이 있어 직전 값을 이어 쓴다
   for (const k of ewy) {
     const t = k.t + step;
+    if (kr.has(k.t)) kLast = kr.get(k.t)!;
     if (t <= win.start || t > win.end) continue;
-    points.push([t, round2((k0.c * k.c) / e0.c), kr.has(k.t) ? kr.get(k.t)! : null]);
+    points.push([t, blend(k0.c, e0.c, k.c, kLast), kr.has(k.t) ? kr.get(k.t)! : null]);
   }
   return { base: k0.c, baseEwy: e0.c, points: [[win.start, k0.c, k0.c], ...points] };
+}
+
+/** 그 시각까지 찍힌 마지막 점의 추정값. 그 시각이 아직 안 왔으면 null */
+export function valueAt(points: NightPoint[], at: number) {
+  if (!points.length || points[points.length - 1][0] < at) return null;
+  let v: number | null = null;
+  for (const p of points) if (p[0] <= at) v = p[1];
+  return v;
+}
+
+/** 15:45 대비 EWY·KR200 등락 배율의 기하평균을 기준점에 곱한다 */
+export function blend(k0: number, e0: number, eNow: number, kNow: number) {
+  return round2(k0 * Math.sqrt((eNow / e0) * (kNow / k0)));
 }
 
 export const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -119,6 +136,8 @@ export type NightData = {
   high: number;
   low: number;
   kr200: number | null;
+  /** KRX 야간선물이 끝나는 06:00의 추정값(지났을 때만) */
+  at0600: number | null;
   points: NightPoint[];
   inputs: NightInput[];
   updated: number;
@@ -146,7 +165,8 @@ export function assemble(
   const ewyNow = marks.EWY;
   if (win.live && ewyNow) {
     const last = points[points.length - 1];
-    const live: NightPoint = [now, round2((s.base * ewyNow) / s.baseEwy), marks.KR200 ?? null];
+    const kNow = marks.KR200 ?? [...points].reverse().find((p) => p[2] != null)?.[2] ?? s.base;
+    const live: NightPoint = [now, blend(s.base, s.baseEwy, ewyNow, kNow), marks.KR200 ?? null];
     if (now - last[0] < step) points[points.length - 1] = [last[0], live[1], live[2]];
     else points.push(live);
   }
@@ -174,6 +194,7 @@ export function assemble(
     high: Math.max(...ests),
     low: Math.min(...ests),
     kr200: marks.KR200 ?? null,
+    at0600: valueAt(points, win.end - 3 * 3600_000),
     points,
     inputs,
     updated: now,

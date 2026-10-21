@@ -64,6 +64,6 @@ describe("추정선", () => {
     const e = assemble(t, live, candles, { EWY: 160, KR200: 900 })!;
     const last = e.points[e.points.length - 1];
     expect(last[2]).toBe(900);
-    expect(last[1]).toBeCloseTo((e.base * 160) / priceAt(candles.EWY, win.start)!.c, 1);
+    expect(last[1]).toBeCloseTo(e.base * Math.sqrt((160 / priceAt(candles.EWY, win.start)!.c) * (900 / e.base)), 1);
   });
 });
