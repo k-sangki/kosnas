@@ -1,0 +1,21 @@
+name: Probe night sources (temp)
+on:
+  push:
+    branches: [claude/project-thread-by6gfk]
+    paths: [.github/workflows/probe-night.yml]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Terms
+        run: |
+          mkdir out && cd out
+          i=0
+          for u in https://hyperliquid.xyz/terms https://app.hyperliquid.xyz/terms https://hyperliquid.xyz/privacy-policy https://hyperliquid.gitbook.io/hyperliquid-docs/legal https://hyperliquid.gitbook.io/hyperliquid-docs/legal/terms-of-use https://trade.xyz/terms https://trade.xyz/terms-of-use https://app.trade.xyz/terms https://docs.trade.xyz https://docs.trade.xyz/legal/terms-of-use https://docs.trade.xyz/legal https://trade.xyz https://hyperliquid.xyz ; do
+            i=$((i+1)); curl -sSL -m 30 -A 'Mozilla/5.0' -o p$i.html -w "$i %{http_code} %{url_effective} %{size_download}\n" "$u" >> index.txt || echo "$i fail $u" >> index.txt
+          done
+          cat index.txt
+          git init -q && git checkout -q -b probe-night-data && git add . && git -c user.name=bot -c user.email=bot@x commit -qm data
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" probe-night-data
