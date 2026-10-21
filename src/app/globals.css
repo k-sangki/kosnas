@@ -197,6 +197,8 @@ body:has(.fab-bar) .foot {
 }
 .capturing .cap-foot b {
   color: var(--ink-2);
+  font-size: 26px;
+  letter-spacing: -0.02em;
 }
 .capturing .cap-icon {
   display: contents;

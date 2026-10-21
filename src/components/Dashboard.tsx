@@ -217,8 +217,8 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
   return (
     <TvWidget
       kind="mini-symbol-overview"
-      height={132}
-      config={{ symbol: t.symbol, width: "100%", height: 132, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
+      height={150}
+      config={{ symbol: t.symbol, width: "100%", height: 150, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
     />
   );
 }
@@ -374,8 +374,8 @@ export function Dashboard({ d }: { d: NightData | null }) {
   const grid = useRef<HTMLDivElement>(null);
   const { list, held, props } = useDrag(ids, grid);
   const rest = TILES.filter((t) => !ids.includes(t.id));
-  // 캡처 이미지에는 앞쪽 무기한선물 카드 4개만 넣는다
-  const inCapture = new Set(list.filter((id) => BY_ID.get(id)!.kind === "hl").slice(0, 4));
+  // 캡처 이미지에는 앞쪽 무기한선물 카드 6개만 넣는다
+  const inCapture = new Set(list.filter((id) => BY_ID.get(id)!.kind === "hl").slice(0, 6));
 
   return (
     <section className="dash" aria-label="시세 카드">
