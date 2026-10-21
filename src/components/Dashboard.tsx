@@ -374,6 +374,8 @@ export function Dashboard({ d }: { d: NightData | null }) {
   const grid = useRef<HTMLDivElement>(null);
   const { list, held, props } = useDrag(ids, grid);
   const rest = TILES.filter((t) => !ids.includes(t.id));
+  // 캡처 이미지에는 앞쪽 무기한선물 카드 4개만 넣는다
+  const inCapture = new Set(list.filter((id) => BY_ID.get(id)!.kind === "hl").slice(0, 4));
 
   return (
     <section className="dash" aria-label="시세 카드">
@@ -387,7 +389,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
         {list.map((id) => {
           const t = BY_ID.get(id)!;
           return (
-            <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}${t.kind === "tv" ? " no-capture" : ""}`} {...props(id)}>
+            <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}${inCapture.has(id) ? "" : " no-capture"}`} {...props(id)}>
               <h3 className="tile-label">
                 <Icon id={id} />
                 {t.label}

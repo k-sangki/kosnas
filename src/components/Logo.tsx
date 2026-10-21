@@ -16,7 +16,7 @@ export function Logo() {
 export function LogoSvg() {
   // 글자 크기 22, 기준선 y=20, x높이 약 0.53em
   return (
-    <svg className="logo-svg" width="92" height="26" viewBox="0 0 92 26" aria-label="KosNas">
+    <svg className="logo-svg" width="86" height="26" viewBox="0 0 86 26" aria-label="KosNas">
       <defs>
         <linearGradient id="logo-g" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="0" y2="8.3">
           <stop offset="0" stopColor="var(--down)" />
@@ -26,8 +26,8 @@ export function LogoSvg() {
       <text x="0" y="20" fontSize="22" fontWeight="800" letterSpacing="-0.88" fill="url(#logo-g)">
         kos
       </text>
-      <circle cx="47.2" cy="14.2" r="3.1" fill="var(--up)" />
-      <text x="51.5" y="20" fontSize="22" fontWeight="800" letterSpacing="-0.88" fill="url(#logo-g)">
+      <circle cx="41.9" cy="14.2" r="3.08" fill="var(--up)" />
+      <text x="46.5" y="20" fontSize="22" fontWeight="800" letterSpacing="-0.88" fill="url(#logo-g)">
         nas
       </text>
     </svg>

@@ -135,34 +135,49 @@ a {
   flex-direction: column;
   gap: 12px;
 }
-.night-top {
+.fab-bar {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
   gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
 }
-.cap-btn {
-  flex: none;
+.fab {
   display: inline-flex;
+  flex: none;
+  white-space: nowrap;
   align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--chip);
-  color: var(--ink-2);
-  font-size: 13px;
-  font-weight: 600;
+  gap: 8px;
+  height: 54px;
+  padding: 0 22px;
+  border-radius: 27px;
+  background: #0e3b36;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
-.cap-btn svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linejoin: round;
+.fab .logo-dot {
+  margin: 0;
+  transform: none;
 }
-.cap-btn:disabled {
-  opacity: 0.4;
+.fab:active {
+  transform: scale(0.97);
+}
+@media (max-width: 359px) {
+  .fab {
+    height: 48px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+}
+/* 떠 있는 버튼이 맨 아래 글을 가리지 않게 */
+body:has(.fab-bar) .foot {
+  padding-bottom: 90px;
 }
 .cap-only,
 .cap-icon {
