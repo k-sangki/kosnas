@@ -1,6 +1,6 @@
 "use client";
 
-/** 종목 검색 자료(public/data/kr-stocks.json). 처음 쓸 때 한 번만 받는다 */
+/** 종목 자료(public/data/kr-stocks.json) — 섹터 페이지에서 종목 차트를 열 때 한 번만 받는다 */
 export interface KrStock {
   code: string;
   name: string;
@@ -67,28 +67,4 @@ export function loadKrStocks(): Promise<KrStocks> {
       throw e;
     });
   return cache;
-}
-
-const CHO = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
-
-/** 한글 초성만 뽑는다(삼성전자 → ㅅㅅㅈㅈ) */
-export function initials(s: string): string {
-  return [...s]
-    .map((ch) => {
-      const c = ch.charCodeAt(0) - 0xac00;
-      return c >= 0 && c < 11172 ? CHO[Math.floor(c / 588)] : ch;
-    })
-    .join("");
-}
-
-export function searchStocks(list: KrStock[], q: string, limit = 12): KrStock[] {
-  const t = q.trim().toLowerCase().replace(/\s+/g, "");
-  if (!t) return [];
-  const onlyCho = /^[ㄱ-ㅎ]+$/.test(t);
-  const hits = list.filter((s) => {
-    const n = s.name.toLowerCase().replace(/\s+/g, "");
-    return s.code.startsWith(t) || n.includes(t) || (onlyCho && initials(n).includes(t));
-  });
-  // 이름이 검색어로 시작하는 종목 → 시가총액 큰 순
-  return hits.sort((a, b) => Number(b.name.toLowerCase().startsWith(t)) - Number(a.name.toLowerCase().startsWith(t)) || b.capEok - a.capEok).slice(0, limit);
 }

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
 import { FlowTable } from "./FlowTable";
 import { SectorBoard } from "./SectorBoard";
-import { StockSearch } from "./StockSearch";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
 import { moveScores, ready, signed, sectorData, type Breadth, type Market, type SectorData } from "@/lib/sectors";
@@ -117,7 +116,6 @@ export function MarketContent({ market }: { market: Market }) {
         <span className="muted">{data.asof} 종가 기준</span>
       </p>
       {data.sample && <SampleNotice asof={data.asof} />}
-      {market === "kr" && !data.sample && <StockSearch sectorName={Object.fromEntries(data.sectors.map((s) => [s.id, s.name]))} />}
       {!data.sample && <FlowTable data={light} />}
       <SectorBoard data={light} />
       {!data.sample && <DailySummary data={data} />}
