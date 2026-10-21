@@ -3,17 +3,21 @@ on:
   push:
     branches: [claude/project-thread-by6gfk]
     paths: [.github/workflows/probe-night.yml]
+permissions:
+  contents: write
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
       - name: Candles
         run: |
+          mkdir out && cd out
           H=https://api.hyperliquid.xyz/info
-          S=$(( ($(date +%s) - 86400*3) * 1000 ))
+          S=$(( ($(date +%s) - 86400*4) * 1000 ))
           for c in KR200 EWY KRW SP500 XYZ100 SMSN SKHX; do
-            echo "== $c"
-            curl -sS -X POST $H -H 'content-type: application/json' -d "{\"type\":\"candleSnapshot\",\"req\":{\"coin\":\"xyz:$c\",\"interval\":\"5m\",\"startTime\":$S}}" | jq -c 'map([.t, .c, .v])'
+            curl -sS -X POST $H -H 'content-type: application/json' -d "{\"type\":\"candleSnapshot\",\"req\":{\"coin\":\"xyz:$c\",\"interval\":\"1m\",\"startTime\":$S}}" > $c.json
+            echo "$c $(jq length $c.json)"
           done
-          echo "== fullctx"
-          curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"metaAndAssetCtxs","dex":"xyz"}' | jq -c '[.[0].universe, .[1]] | transpose | map(select(.[0].name|test("KR200|EWY|KRW"))) '
+          curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"metaAndAssetCtxs","dex":"xyz"}' > ctx.json
+          git init -q && git checkout -q -b probe-night-data && git add . && git -c user.name=bot -c user.email=bot@x commit -qm data
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" probe-night-data
