@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
 import { SampleNotice } from "@/components/MarketPage";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
+import { SectorDetail, type MoveBy } from "@/components/SectorDetail";
 import { StockList } from "@/components/StockList";
 import { SECTOR_NOTES } from "@/lib/sector-notes";
-import { MARKETS, QUADRANTS, findSector, sectorData, signed, type Market } from "@/lib/sectors";
+import { MARKETS, QUADRANTS, findSector, moveScores, ready, sectorData, signed, type Market } from "@/lib/sectors";
 
 export const dynamicParams = false;
 
@@ -39,6 +40,28 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
   const { sector } = hit;
   const data = sectorData(hit.market);
   const note = hit.market === "kr" ? SECTOR_NOTES[sector.id] : undefined;
+  const industries = (data.industries ?? []).filter((i) => i.sector === sector.id);
+  const strip = (m: { dir: "up" | "down"; score: number; straight: number; dist: number }) => ({
+    dir: m.dir,
+    score: m.score,
+    straight: m.straight,
+    dist: m.dist,
+  });
+  const moves: Record<string, MoveBy[string]> = {};
+  const indMoves: Record<string, MoveBy> = {};
+  for (const p of data.periods) {
+    const m = moveScores(
+      data.sectors.filter((s) => ready(s, p)),
+      p,
+    ).get(sector.id);
+    moves[p] = m && strip(m);
+    const all = moveScores(
+      (data.industries ?? []).filter((s) => ready(s, p)),
+      p,
+    );
+    indMoves[p] = Object.fromEntries(industries.map((i) => [i.id, all.get(i.id) && strip(all.get(i.id)!)]));
+  }
+  const detailed = sector.stocks.some((s) => s.r);
 
   return (
     <div className="shell">
@@ -56,7 +79,9 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
           </p>
         )}
         <section className="card">
-          <h2 className="card-title">기간별 흐름 <span className="muted">{data.asof} 종가 기준</span></h2>
+          <h2 className="card-title">
+            기간별 흐름 <span className="muted">{data.asof} 종가 기준</span>
+          </h2>
           <table className="ptable">
             <thead>
               <tr>
@@ -94,14 +119,26 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
           </section>
         )}
         <AdSlot slot={AD_SLOTS.sector} />
-        <section className="card">
-          <h2 className="card-title">종목 · 상대강도 순</h2>
-          <p className="muted">
-            상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전 종목과 비교한 순위(1~99)입니다. 시가총액 1,000억원 이상만 보이며, 종목을 누르면
-            차트가 열립니다.
-          </p>
-          <StockList stocks={sector.stocks} from={data.sparkFrom} asof={data.asof} />
-        </section>
+        {detailed ? (
+          <SectorDetail
+            sector={sector}
+            industries={industries}
+            periods={data.periods}
+            moves={moves}
+            indMoves={indMoves}
+            from={data.sparkFrom}
+            asof={data.asof}
+          />
+        ) : (
+          <section className="card">
+            <h2 className="card-title">종목 · 상대강도 순</h2>
+            <p className="muted">
+              상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전 종목과 비교한 순위(1~99)입니다. 시가총액 1,000억원 이상만 보이며, 종목을 누르면 차트가
+              열립니다.
+            </p>
+            <StockList stocks={sector.stocks} from={data.sparkFrom} asof={data.asof} />
+          </section>
+        )}
       </main>
       <SiteFooter />
     </div>

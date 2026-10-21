@@ -38,20 +38,27 @@ function ranked(rows: Row[]): Row[] {
 }
 
 function stats(data: SectorData): Row[] {
-  return ranked(data.sectors.map((s) => ({ id: s.id, name: s.name, x: s.x, path: (s.path?.[BASE] ?? []).map((p) => p[0]), chg: null })));
+  return ranked(
+    data.sectors.map((s) => ({
+      id: s.id,
+      name: s.name,
+      x: s.x,
+      path: (s.path?.[BASE] ?? []).map((p) => p[0]),
+      chg: null,
+    })),
+  );
 }
 
 /** 산업 줄: 순위 변화는 전체 산업 안에서 센다 */
-function industryRows(list: Industry[]): Map<string, (Row & { sector: string; count: number; top: string[] })[]> {
+function industryRows(list: Industry[]): Map<string, (Row & { sector: string; count: number })[]> {
   const rows = list.map((i) => ({
     id: i.id,
     name: i.name,
     x: i.x,
-    path: i.path20.filter((v): v is number => v != null),
+    path: (i.path?.[BASE] ?? []).map((p) => p[0]),
     chg: null,
     sector: i.sector,
-    count: i.count,
-    top: i.top,
+    count: i.count ?? 0,
   }));
   ranked(rows);
   const by = new Map<string, typeof rows>();
@@ -100,8 +107,14 @@ export function FlowTable({ data }: { data: SectorData }) {
   // 순위가 전체의 1/5 넘게(적어도 3계단) 오르내린 것만 — 날마다 한두 계단 바뀌는 것은 알릴 일이 아니다
   const min = Math.max(3, Math.round(rows.length / 5));
   const moved = rows.filter((r) => r.chg != null && Math.abs(r.chg) >= min);
-  const up = moved.filter((r) => r.chg! > 0).sort((a, b) => b.chg! - a.chg!).slice(0, 3);
-  const down = moved.filter((r) => r.chg! < 0).sort((a, b) => a.chg! - b.chg!).slice(0, 3);
+  const up = moved
+    .filter((r) => r.chg! > 0)
+    .sort((a, b) => b.chg! - a.chg!)
+    .slice(0, 3);
+  const down = moved
+    .filter((r) => r.chg! < 0)
+    .sort((a, b) => a.chg! - b.chg!)
+    .slice(0, 3);
   const item = (r: Row) => (
     <span key={r.id} className="ft-item">
       <Link href={`/${data.market}/sector/${r.id}`} className="ft-pick">
@@ -177,12 +190,12 @@ export function FlowTable({ data }: { data: SectorData }) {
             {isOpen && (
               <div className="ft-kids">
                 {byX(ks).map((k) => (
-                  <div key={k.id} className="ft-row kid" title={k.top.length ? `RS 상위: ${k.top.join(", ")}` : undefined}>
+                  <Link key={k.id} href={`/${data.market}/sector/${r.id}#ind-${k.id}`} className="ft-row kid">
                     <span className="ft-name">
                       {k.name} <span className="muted">{k.count}</span>
                     </span>
                     {cells(k)}
-                  </div>
+                  </Link>
                 ))}
                 <Link href={`/${data.market}/sector/${r.id}`} className="ft-more">
                   {r.name} 종목 보기 →
@@ -194,7 +207,8 @@ export function FlowTable({ data }: { data: SectorData }) {
       })}
       <p className="muted small-note">
         색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 왼쪽(긴 기간)에서 오른쪽(짧은 기간)으로 읽으면 흐름이 보입니다. 기간을 누르면 그
-        기간 순으로 정렬합니다. 미니 그래프는 {BASE}일 강도의 매일 추이, 순위는 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그 안의 산업(DART 업종 코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
+        기간 순으로 정렬합니다. 미니 그래프는 {BASE}일 강도의 매일 추이, 순위는 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그 안의 산업(DART 업종
+        코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
       </p>
     </section>
   );

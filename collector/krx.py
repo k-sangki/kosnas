@@ -105,6 +105,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--state", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--stocks", help="종목 검색 자료(JSON)를 쓸 곳")
     ap.add_argument("--today", help="YYYY-MM-DD (시험용)")
     args = ap.parse_args()
 
@@ -127,8 +128,11 @@ def main():
     industry = update_industry(state, os.environ.get("DART_API_KEY", "").strip() or None, sorted({r["code"] for r in latest}))
     if industry is None:
         return more()
-    data = compute(days, industry)
-    Path(args.out).write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
+    data, stocks = compute(days, industry)
+    Path(args.out).write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n")
+    if args.stocks:
+        Path(args.stocks).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.stocks).write_text(json.dumps(stocks, ensure_ascii=False, separators=(",", ":")) + "\n")
     notice(f"{data['asof']} 기준 섹터 {len(data['sectors'])}개를 {args.out}에 썼습니다 (시세 {len(days)}일)")
 
 

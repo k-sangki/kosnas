@@ -16,27 +16,54 @@ export interface Stock {
   close?: number;
   chg?: number | null;
   spark?: (number | null)[];
+  /** 국내: 기간별 수익률(%) · 50일선 위 · 52주 고가 대비(%) · 산업 이름 */
+  r?: Record<string, number | null>;
+  above50?: boolean;
+  fromHigh?: number | null;
+  ind?: string | null;
 }
 
-export interface Sector {
+/** 섹터·산업이 같이 쓰는 계산 값 */
+export interface Unit {
   id: string;
   name: string;
-  /** 섹터 소개 (섹터 페이지 본문) */
-  intro?: string;
-  /** 섹터에 든 보통주 수 */
   count?: number;
-  /** 기간별 섹터 수익률(%, 시가총액 가중). 자료가 모자라면 null */
   ret: Record<string, number | null>;
-  /** 강도: 섹터 수익률 − 섹터 평균(%p) */
   x: Record<string, number | null>;
-  /** 변화: 이번 강도 − 바로 앞 같은 길이 기간의 강도(%p) */
   y: Record<string, number | null>;
   q: Record<string, Quadrant | null>;
-  /** 기간마다 그 기간 동안 매일의 [강도, 변화] — 마지막이 오늘 */
   path?: Record<string, number[][]>;
-  /** 50일선 위 종목 비율(%) */
-  above50: number;
-  newHighs: number;
+  /** 전반·후반 강도(%p) — 가속·감속 */
+  half?: Record<string, [number, number] | null>;
+  /** 지금 시총 비중(%)과 기간 동안의 변화(%p, 주가 변화분만) */
+  capShare?: number | null;
+  capShareChg?: Record<string, number | null>;
+  /** 거래대금 비중 변화(%p): 최근 n일 − 앞 n일 */
+  dShare?: Record<string, number | null>;
+  /** 하락일 버팀: 묶음 평균이 내린 날들의 (묶음 − 평균) 평균(%p) */
+  hold?: Record<string, number | null>;
+  above50?: number;
+  newHighs?: number;
+  /** 시총 1위. shown = 기본 필터 통과(아니면 이름을 보이지 않는다) */
+  leader?: {
+    code: string;
+    name: string;
+    fromHigh: number | null;
+    shown: boolean;
+  };
+  /** 기본 필터 통과 종목 중 RS 80 이상 수 */
+  rsLeaders?: number;
+  rsLeadersAll?: number;
+  rsMedian?: number | null;
+}
+
+export interface Sector extends Unit {
+  /** 섹터 소개 (섹터 페이지 본문) */
+  intro?: string;
+  /** 이 섹터의 산업 id */
+  industries?: string[];
+  /** 기본 필터에 걸려 목록에서 뺀 종목 수 */
+  hidden?: number;
   stocks: Stock[];
 }
 
@@ -49,17 +76,8 @@ export interface Breadth {
 }
 
 /** 섹터 아래 산업(DART 업종 코드로 나눔). 강도는 산업끼리의 평균 대비 %p */
-export interface Industry {
-  id: string;
+export interface Industry extends Unit {
   sector: string;
-  name: string;
-  count: number;
-  ret: Record<string, number | null>;
-  x: Record<string, number | null>;
-  /** 최근 20거래일 매일의 20일 강도 */
-  path20: (number | null)[];
-  /** RS 상위 종목 이름 */
-  top: string[];
 }
 
 export interface SectorData {
@@ -78,7 +96,10 @@ export interface SectorData {
   industries?: Industry[];
 }
 
-const DATA: Record<Market, SectorData> = { kr: kr as SectorData, us: us as SectorData };
+const DATA: Record<Market, SectorData> = {
+  kr: kr as unknown as SectorData,
+  us: us as unknown as SectorData,
+};
 
 export function sectorData(market: Market): SectorData {
   return DATA[market];
@@ -94,7 +115,7 @@ export const US_ENABLED = false;
 export const MARKETS: Market[] = US_ENABLED ? ["kr", "us"] : ["kr"];
 
 /** 그 기간 값이 모두 있는 섹터만 */
-export function ready(s: Sector, period: number): boolean {
+export function ready(s: Unit, period: number): boolean {
   return s.x[period] != null && s.y[period] != null && s.q[period] != null;
 }
 
@@ -141,7 +162,7 @@ function smooth(pts: number[][], period: number): [number, number][] {
 }
 
 /** neoScreen 이동 강도와 같은 방식: 점수 = 100 × 직진도 × min(거리, 2) ÷ 2 */
-export function moveScores(sectors: Sector[], period: number): Map<string, Move> {
+export function moveScores(sectors: Unit[], period: number): Map<string, Move> {
   const raw = sectors.flatMap((s) => {
     const pts = s.path?.[period];
     if (!pts || pts.length < 2) return [];
@@ -160,7 +181,44 @@ export function moveScores(sectors: Sector[], period: number): Map<string, Move>
   return new Map(
     raw.map((r) => {
       const dist = r.span / med;
-      return [r.id, { dir: r.dir, straight: r.straight, dist, score: Math.round((100 * r.straight * Math.min(dist, 2)) / 2), line: r.line }];
+      return [
+        r.id,
+        {
+          dir: r.dir,
+          straight: r.straight,
+          dist,
+          score: Math.round((100 * r.straight * Math.min(dist, 2)) / 2),
+          line: r.line,
+        },
+      ];
     }),
   );
+}
+
+/** 기본 필터(종목 목록에 보이는 기준) 설명 */
+export const BASE_FILTER = "종가 3,000원 이상 · 시가총액 1,500억원 이상 · 최근 20거래일 최소 거래대금 10억원 초과 · 보통주";
+export const RS_LEADER = 80;
+
+export type Accel = "speedup" | "rebound" | "slowdown" | "rollover" | "weaker" | "easing";
+export const ACCEL: Record<Accel, { name: string; hint: string; up: boolean }> = {
+  speedup: { name: "가속", hint: "점점 빨리 강해지는 중", up: true },
+  rebound: { name: "반등", hint: "약하다가 강해지는 중", up: true },
+  slowdown: { name: "감속", hint: "강해지지만 느려지는 중", up: false },
+  rollover: { name: "꺾임", hint: "강해지다가 약해지는 중", up: false },
+  weaker: { name: "약세 가속", hint: "점점 빨리 약해지는 중", up: false },
+  easing: { name: "약세 둔화", hint: "약해지는 속도가 줄어듦", up: true },
+};
+
+/** 전반·후반 일수(기간 p = 전반 p − ⌊p/2⌋ + 후반 ⌊p/2⌋) */
+export const halfDays = (p: number): [number, number] => [p - Math.floor(p / 2), Math.floor(p / 2)];
+
+/** neoScreen 가속·감속: 전반·후반 강도를 하루당 속도로 비교 */
+export function accelOf(u: Unit, period: number) {
+  const h = u.half?.[period];
+  if (!h) return null;
+  const [d1, d2] = halfDays(period);
+  const v1 = h[0] / d1;
+  const v2 = h[1] / d2;
+  const kind: Accel = v1 > 0 ? (v2 > v1 ? "speedup" : v2 > 0 ? "slowdown" : "rollover") : v2 > 0 ? "rebound" : v2 < v1 ? "weaker" : "easing";
+  return { kind, h1: h[0], h2: h[1], v1, v2, change: v2 - v1 };
 }

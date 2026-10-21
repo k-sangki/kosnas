@@ -2,16 +2,13 @@ import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
 import { FlowTable } from "./FlowTable";
 import { SectorBoard } from "./SectorBoard";
+import { StockSearch } from "./StockSearch";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
 import { moveScores, ready, signed, sectorData, type Breadth, type Market, type SectorData } from "@/lib/sectors";
 
 export function SampleNotice({ asof }: { asof: string }) {
-  return (
-    <p className="notice">
-      지금 숫자는 화면 확인용 표본입니다({asof} 기준 가짜 값). 종목 이름만 실제예요.
-    </p>
-  );
+  return <p className="notice">지금 숫자는 화면 확인용 표본입니다({asof} 기준 가짜 값). 종목 이름만 실제예요.</p>;
 }
 
 function BreadthCard({ breadth }: { breadth: Record<string, Breadth> }) {
@@ -51,8 +48,7 @@ function DailySummary({ data }: { data: SectorData }) {
   const lead = live.filter((s) => s.q[P] === "lead").sort((a, b) => b.x[P]! - a.x[P]!);
   const lag = live.filter((s) => s.q[P] === "lag").sort((a, b) => a.x[P]! - b.x[P]!);
   const moves = moveScores(live, P);
-  const best = (dir: "up" | "down") =>
-    live.filter((s) => moves.get(s.id)?.dir === dir).sort((a, b) => moves.get(b.id)!.score - moves.get(a.id)!.score)[0];
+  const best = (dir: "up" | "down") => live.filter((s) => moves.get(s.id)?.dir === dir).sort((a, b) => moves.get(b.id)!.score - moves.get(a.id)!.score)[0];
   const up = best("up");
   const down = best("down");
   const top = byX[0];
@@ -96,7 +92,8 @@ function DailySummary({ data }: { data: SectorData }) {
         <p>
           시장 전체로는 이날 코스피 보통주 {b.KOSPI.up.toLocaleString()}종목이 오르고 {b.KOSPI.down.toLocaleString()}종목이 내렸으며, 50일 이동평균선 위에 있는
           종목은 {b.KOSPI.above50}%입니다. 코스닥은 {b.KOSDAQ.up.toLocaleString()}종목 상승, {b.KOSDAQ.down.toLocaleString()}종목 하락에 50일선 위 종목{" "}
-          {b.KOSDAQ.above50}%입니다. 52주 신고가는 코스피 {b.KOSPI.newHighs}종목, 코스닥 {b.KOSDAQ.newHighs}종목에서 나왔습니다.
+          {b.KOSDAQ.above50}%입니다. 52주 신고가는 코스피 {b.KOSPI.newHighs}
+          종목, 코스닥 {b.KOSDAQ.newHighs}종목에서 나왔습니다.
         </p>
       )}
       <p className="muted small-note">이 요약은 위 숫자로 매일 자동으로 만들며, 지나간 시세를 정리한 것일 뿐 앞으로의 움직임을 예측하지 않습니다.</p>
@@ -107,6 +104,11 @@ function DailySummary({ data }: { data: SectorData }) {
 /** 섹터 흐름 본문(머리·바닥 없이). 첫 화면과 /kr이 같이 쓴다 */
 export function MarketContent({ market }: { market: Market }) {
   const data = sectorData(market);
+  // 화면 위쪽 카드에는 종목 목록이 필요 없다(페이지 크기를 줄인다)
+  const light = {
+    ...data,
+    sectors: data.sectors.map((s) => ({ ...s, stocks: [] })),
+  };
   return (
     <>
       <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 흐름</h1>
@@ -115,8 +117,9 @@ export function MarketContent({ market }: { market: Market }) {
         <span className="muted">{data.asof} 종가 기준</span>
       </p>
       {data.sample && <SampleNotice asof={data.asof} />}
-      {!data.sample && <FlowTable data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />}
-      <SectorBoard data={{ ...data, sectors: data.sectors.map((s) => ({ ...s, stocks: [] })) }} />
+      {market === "kr" && !data.sample && <StockSearch sectorName={Object.fromEntries(data.sectors.map((s) => [s.id, s.name]))} />}
+      {!data.sample && <FlowTable data={light} />}
+      <SectorBoard data={light} />
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
       <AdSlot slot={AD_SLOTS.board} />

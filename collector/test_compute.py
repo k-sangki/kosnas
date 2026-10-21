@@ -43,7 +43,7 @@ class ComputeTest(unittest.TestCase):
 
     def test_compute(self):
         days, industry = fake_days()
-        d = compute(days, industry)
+        d, st = compute(days, industry)
         ids = {s["id"] for s in d["sectors"]}
         self.assertEqual(ids, {"semis", "ship", "finance", "food"})
         for p in ("5", "20", "60"):
@@ -56,6 +56,11 @@ class ComputeTest(unittest.TestCase):
             self.assertEqual(len(s["stocks"]), 5)
             self.assertTrue(all(1 <= x["rs"] <= 99 for x in s["stocks"]))
         self.assertEqual(d["breadth"]["KOSPI"]["count"] + d["breadth"]["KOSDAQ"]["count"], 20)
+        self.assertEqual(len(st["rows"]), 20)
+        for s in d["sectors"]:
+            self.assertEqual(len(s["path"]["15"]), 15)
+            self.assertEqual(len(s["half"]["20"]), 2)
+        self.assertAlmostEqual(sum(s["capShareChg"]["20"] for s in d["sectors"]), 0, places=1)
 
 
 if __name__ == "__main__":
