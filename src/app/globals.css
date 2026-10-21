@@ -827,6 +827,7 @@ a {
   color: #fff;
 }
 .dash-grid {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -842,14 +843,23 @@ a {
   flex-direction: column;
 }
 .tile-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-2);
   margin: 0 0 4px;
 }
+.tile-icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
 .tile-price {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  white-space: nowrap;
   font-weight: 800;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -873,21 +883,96 @@ a {
 .tile .tv {
   margin: 0;
 }
-.tile-tools {
+.tile {
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: box-shadow 0.15s;
+}
+.tile.held {
+  z-index: 5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0.95;
+}
+.tile.held,
+.tile.held * {
+  pointer-events: none;
+}
+.dash-grid.editing .tile:not(.held) {
+  animation: tile-wiggle 0.3s ease-in-out infinite alternate;
+}
+@keyframes tile-wiggle {
+  from {
+    transform: rotate(-0.6deg);
+  }
+  to {
+    transform: rotate(0.6deg);
+  }
+}
+@media (pointer: fine) {
+  .tile {
+    cursor: grab;
+  }
+  .tile.held {
+    cursor: grabbing;
+  }
+}
+.tile-cover {
+  position: absolute;
+  inset: 0;
+}
+.tile-remove {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink-2);
+  color: #fff;
+  font-size: 15px;
+  line-height: 22px;
+}
+.tile-row {
   display: flex;
-  gap: 4px;
-  margin-top: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
-.tile-tools button {
-  flex: 1;
-  padding: 5px 0;
-  border-radius: 8px;
-  background: var(--chip);
-  font-size: 13px;
-  color: var(--ink-2);
+.tile-num {
+  min-width: 0;
 }
-.tile-tools button:disabled {
-  opacity: 0.35;
+.tile-unit {
+  font-size: 0.5em;
+  font-weight: 400;
+  margin-right: 2px;
+}
+.tile-spark {
+  flex: none;
+  width: 48px;
+  height: 30px;
+  overflow: visible;
+}
+.tile-spark polyline {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.tile-spark.up polyline {
+  stroke: var(--up);
+}
+.tile-spark.down polyline {
+  stroke: var(--down);
+}
+.tile-spark .base {
+  stroke: var(--muted);
+  stroke-dasharray: 2 2;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 .dash-add {
   margin-top: 12px;

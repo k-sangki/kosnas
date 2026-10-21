@@ -125,7 +125,24 @@ export function blend(k0: number, e0: number, eNow: number, kNow: number) {
 
 export const round2 = (v: number) => Math.round(v * 100) / 100;
 
-export type NightInput = { coin: string; label: string; price: number; chg: number | null; krw?: number };
+export type NightInput = {
+  coin: string;
+  label: string;
+  price: number;
+  chg: number | null;
+  krw?: number;
+  /** 15:45부터 지금까지의 가격(처음 값이 15:45, 많아야 80개) — 작은 카드의 선 차트 */
+  spark?: number[];
+};
+
+/** 많아야 n개로 줄인다(처음·끝은 남긴다) */
+export function thin(v: number[], n = 80) {
+  if (v.length <= n) return v;
+  const out: number[] = [];
+  for (let k = 0; k < n - 1; k++) out.push(v[Math.floor((k * (v.length - 1)) / (n - 1))]);
+  out.push(v[v.length - 1]);
+  return out;
+}
 
 export type NightData = {
   window: NightWindow;
@@ -152,13 +169,7 @@ export function markOf(ctx: Ctx | undefined) {
 }
 
 /** 원천 응답으로 화면 자료를 만든다. 지금 표시 가격을 맨 끝 점으로 붙인다. */
-export function assemble(
-  now: number,
-  win: NightWindow,
-  candles: Record<string, Candle[]>,
-  marks: Record<string, number | null>,
-  step = MIN,
-): NightData | null {
+export function assemble(now: number, win: NightWindow, candles: Record<string, Candle[]>, marks: Record<string, number | null>, step = MIN): NightData | null {
   const s = buildSeries(candles.EWY ?? [], candles.KR200 ?? [], win, step);
   if (!s) return null;
   const points = s.points;
@@ -177,12 +188,15 @@ export function assemble(
     const price = marks[i.coin] ?? null;
     const at = priceAt(candles[i.coin] ?? [], win.start)?.c;
     const chg = price != null && at ? round2((price / at - 1) * 100) : null;
+    const mid = (candles[i.coin] ?? []).filter((k) => k.t + step > win.start && k.t + step <= win.end).map((k) => k.c);
+    const spark = at ? thin([at, ...mid, ...(win.live && price != null ? [price] : [])]) : undefined;
     return {
       coin: i.coin,
       label: i.label,
       price: price ?? NaN,
       chg,
       ...("krw" in i && i.krw && price != null && krw ? { krw: Math.round(price * krw) } : {}),
+      ...(spark && spark.length > 1 ? { spark } : {}),
     };
   }).filter((i) => Number.isFinite(i.price));
   return {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { NightData } from "@/lib/night";
 import { TvWidget } from "./TvWidget";
 
@@ -9,18 +9,18 @@ import { TvWidget } from "./TvWidget";
  * 그 밖의 시세는 트레이딩뷰 위젯이 직접 보여 준다(값을 받거나 저장하지 않는다).
  * 어떤 카드를 어떤 순서로 볼지는 이 브라우저에만 저장한다.
  */
-type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string } | { kind: "tv"; symbol: string });
+type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit: "₩" | "$" } | { kind: "tv"; symbol: string });
 
 const TILES: Tile[] = [
-  { id: "SMSN", label: "삼성전자", kind: "hl", coin: "SMSN", sub: "무기한선물 · 원화 환산" },
-  { id: "SKHX", label: "SK하이닉스", kind: "hl", coin: "SKHX", sub: "무기한선물 · 원화 환산" },
-  { id: "EWY", label: "EWY(한국 ETF)", kind: "hl", coin: "EWY", sub: "무기한선물 · 달러" },
-  { id: "XYZ100", label: "나스닥 100", kind: "hl", coin: "XYZ100", sub: "무기한선물" },
-  { id: "SP500", label: "S&P 500", kind: "hl", coin: "SP500", sub: "무기한선물" },
-  { id: "KRW", label: "원/달러", kind: "hl", coin: "KRW", sub: "무기한선물" },
+  { id: "SMSN", label: "삼성전자", kind: "hl", coin: "SMSN", unit: "₩", sub: "무기한선물 · 원화 환산" },
+  { id: "SKHX", label: "SK하이닉스", kind: "hl", coin: "SKHX", unit: "₩", sub: "무기한선물 · 원화 환산" },
+  { id: "EWY", label: "EWY(한국 ETF)", kind: "hl", coin: "EWY", unit: "$", sub: "무기한선물" },
+  { id: "XYZ100", label: "나스닥 100", kind: "hl", coin: "XYZ100", unit: "$", sub: "무기한선물" },
+  { id: "SP500", label: "S&P 500", kind: "hl", coin: "SP500", unit: "$", sub: "무기한선물" },
+  { id: "KRW", label: "원/달러", kind: "hl", coin: "KRW", unit: "₩", sub: "무기한선물" },
   { id: "USO", label: "유가(USO)", kind: "tv", symbol: "AMEX:USO" },
   { id: "QQQ", label: "QQQ", kind: "tv", symbol: "NASDAQ:QQQ" },
-  { id: "KR200", label: "KR200", kind: "hl", coin: "KR200", sub: "코스피200 무기한선물" },
+  { id: "KR200", label: "KR200", kind: "hl", coin: "KR200", unit: "$", sub: "코스피200 무기한선물" },
   { id: "WTI", label: "서부텍사스유(WTI)", kind: "tv", symbol: "TVC:USOIL" },
   { id: "BRENT", label: "브렌트유", kind: "tv", symbol: "TVC:UKOIL" },
   { id: "SPY", label: "SPY", kind: "tv", symbol: "AMEX:SPY" },
@@ -31,7 +31,7 @@ const TILES: Tile[] = [
   { id: "BTC", label: "비트코인", kind: "tv", symbol: "BITSTAMP:BTCUSD" },
 ];
 const BY_ID = new Map(TILES.map((t) => [t.id, t]));
-const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ"];
+const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ", "WTI"];
 
 // ---- 이 브라우저에만 남기는 카드 목록 ----
 const KEY = "kosnas:dashboard:v1";
@@ -71,6 +71,70 @@ function useIds() {
   }, [raw]);
 }
 
+/** 이름 앞 작은 심볼. 회사 로고 원본 대신 직접 그린 배지·국기·아이콘이다 */
+function Badge({ t, bg, size = 9 }: { t: string; bg: string; size?: number }) {
+  return (
+    <svg className="tile-icon" viewBox="0 0 20 20" aria-hidden>
+      <circle cx="10" cy="10" r="10" fill={bg} />
+      <text x="10" y="10" dy="0.35em" textAnchor="middle" fontSize={size} fontWeight="800" fill="#fff">
+        {t}
+      </text>
+    </svg>
+  );
+}
+function KrFlag() {
+  return (
+    <svg className="tile-icon" viewBox="0 0 20 20" aria-hidden>
+      <circle cx="10" cy="10" r="9.5" fill="#fff" stroke="#d1d6db" />
+      <path d="M4 10a6 6 0 0 1 12 0z" fill="#cd2e3a" />
+      <path d="M4 10a6 6 0 0 0 12 0z" fill="#0047a0" />
+    </svg>
+  );
+}
+function UsFlag() {
+  return (
+    <svg className="tile-icon" viewBox="0 0 20 20" aria-hidden>
+      <clipPath id="usf">
+        <circle cx="10" cy="10" r="10" />
+      </clipPath>
+      <g clipPath="url(#usf)">
+        <rect width="20" height="20" fill="#fff" />
+        {[0, 4, 8, 12, 16].map((y) => (
+          <rect key={y} y={y} width="20" height="2" fill="#b22234" />
+        ))}
+        <rect width="10" height="10" fill="#3c3b6e" />
+      </g>
+    </svg>
+  );
+}
+function Drop() {
+  return (
+    <svg className="tile-icon" viewBox="0 0 20 20" aria-hidden>
+      <circle cx="10" cy="10" r="10" fill="#2b2f36" />
+      <path d="M10 4.2c2.2 3 3.6 5 3.6 6.8a3.6 3.6 0 0 1-7.2 0c0-1.8 1.4-3.8 3.6-6.8z" fill="#f5a524" />
+    </svg>
+  );
+}
+const ICONS: Record<string, () => React.ReactElement> = {
+  SMSN: () => <Badge t="S" bg="#1428a0" size={11} />,
+  SKHX: () => <Badge t="SK" bg="#ea002c" />,
+  EWY: KrFlag,
+  KR200: KrFlag,
+  XYZ100: UsFlag,
+  SP500: UsFlag,
+  SPY: UsFlag,
+  QQQ: UsFlag,
+  SOXX: () => <Badge t="SOX" bg="#4e5968" size={6.5} />,
+  KRW: () => <Badge t="₩" bg="#0e3b36" size={11} />,
+  USO: Drop,
+  WTI: Drop,
+  BRENT: Drop,
+  GOLD: () => <Badge t="Au" bg="#c9971c" />,
+  DXY: () => <Badge t="$" bg="#2e7d32" size={11} />,
+  US10Y: () => <Badge t="%" bg="#5c6bc0" size={11} />,
+  BTC: () => <Badge t="₿" bg="#f7931a" size={11} />,
+};
+
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
@@ -79,29 +143,180 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
-      <p className="tile-price">{i.krw ? `${i.krw.toLocaleString()}원` : fmt(i.price)}</p>
-      <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>
-        {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"} <span className="muted">15:45 대비</span>
-      </p>
+      <div className="tile-row">
+        <div className="tile-num">
+          <p className="tile-price">
+            <span className="tile-unit">{t.unit}</span>
+            {i.krw ? i.krw.toLocaleString() : fmt(i.price)}
+          </p>
+          <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>{i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}</p>
+        </div>
+        {i.spark && <Spark v={i.spark} />}
+      </div>
       <p className="tile-sub">{t.sub}</p>
     </>
   );
 }
 
 function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
-  return <TvWidget kind="single-quote" height={76} config={{ symbol: t.symbol, width: "100%", isTransparent: true, colorTheme: "light", locale: "kr" }} />;
+  return (
+    <TvWidget
+      kind="mini-symbol-overview"
+      height={126}
+      config={{ symbol: t.symbol, width: "100%", height: 126, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
+    />
+  );
+}
+
+/** 15:45부터의 작은 선 차트. 점선은 15:45 값 */
+function Spark({ v }: { v: number[] }) {
+  const W = 64;
+  const H = 36;
+  const lo = Math.min(...v);
+  const hi = Math.max(...v);
+  const span = hi - lo || 1;
+  const y = (x: number) => 2 + (1 - (x - lo) / span) * (H - 4);
+  const pts = v.map((x, k) => `${((k / (v.length - 1)) * W).toFixed(1)},${y(x).toFixed(1)}`).join(" ");
+  return (
+    <svg className={`tile-spark ${tone(v[v.length - 1] - v[0])}`} viewBox={`0 0 ${W} ${H}`} aria-hidden>
+      <line x1={0} x2={W} y1={y(v[0])} y2={y(v[0])} className="base" />
+      <polyline points={pts} />
+    </svg>
+  );
+}
+
+const LONG_PRESS = 350;
+
+/**
+ * 카드 끌어 옮기기. 마우스는 누른 채 조금 움직이면, 손가락은 길게 누르면(아이폰 홈 화면처럼) 집어 든다.
+ * 끄는 동안 순서를 바로 바꿔 보여 주고, 놓으면 저장한다.
+ */
+function useDrag(ids: string[], grid: React.RefObject<HTMLDivElement | null>) {
+  const [order, setOrder] = useState<string[] | null>(null);
+  const [held, setHeld] = useState<string | null>(null);
+  const st = useRef<{
+    id: string;
+    pid: number;
+    sx: number;
+    sy: number;
+    gx: number;
+    gy: number;
+    el: HTMLElement;
+    timer?: ReturnType<typeof setTimeout>;
+    on: boolean;
+    off?: () => void;
+  } | null>(null);
+  const list = order ?? ids;
+  const listRef = useRef(list);
+  useLayoutEffect(() => {
+    listRef.current = list;
+  });
+
+  const place = (x: number, y: number) => {
+    const s = st.current;
+    const g = grid.current;
+    if (!s || !g) return;
+    const r = g.getBoundingClientRect();
+    s.el.style.transform = `translate(${x - r.left - s.gx - s.el.offsetLeft}px, ${y - r.top - s.gy - s.el.offsetTop}px)`;
+  };
+  const last = useRef({ x: 0, y: 0 });
+
+  useLayoutEffect(() => {
+    if (st.current?.on) place(last.current.x, last.current.y);
+  });
+
+  useEffect(() => {
+    // 집어 든 뒤에는 화면이 스크롤되지 않게
+    const stop = (e: TouchEvent) => st.current?.on && e.preventDefault();
+    document.addEventListener("touchmove", stop, { passive: false });
+    return () => document.removeEventListener("touchmove", stop);
+  }, []);
+
+  const lift = () => {
+    const s = st.current;
+    if (!s) return;
+    s.on = true;
+    try {
+      s.el.setPointerCapture(s.pid);
+    } catch {}
+    navigator.vibrate?.(10);
+    setHeld(s.id);
+    setOrder(listRef.current);
+    place(last.current.x, last.current.y);
+  };
+  const end = (keep: boolean) => {
+    const s = st.current;
+    if (!s) return;
+    clearTimeout(s.timer);
+    s.off?.();
+    s.el.style.transform = "";
+    if (s.on && keep) save(listRef.current);
+    st.current = null;
+    setHeld(null);
+    setOrder(null);
+  };
+
+  const props = (id: string) => ({
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      if (e.button !== 0 || (e.target as HTMLElement).closest("button, a")) return;
+      const el = e.currentTarget;
+      const r = el.getBoundingClientRect();
+      last.current = { x: e.clientX, y: e.clientY };
+      st.current = { id, pid: e.pointerId, sx: e.clientX, sy: e.clientY, gx: e.clientX - r.left, gy: e.clientY - r.top, el, on: false };
+      if (e.pointerType !== "mouse") st.current.timer = setTimeout(lift, LONG_PRESS);
+      // 집어 든 카드는 포인터를 받지 않으므로(아래 카드 찾기) 창에서 듣는다
+      const up = () => end(true);
+      const cancel = () => end(false);
+      window.addEventListener("pointermove", move, { passive: false });
+      window.addEventListener("pointerup", up);
+      window.addEventListener("pointercancel", cancel);
+      st.current.off = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+        window.removeEventListener("pointercancel", cancel);
+      };
+    },
+    onContextMenu: (e: React.MouseEvent) => st.current?.on && e.preventDefault(),
+  });
+
+  function move(e: PointerEvent) {
+    const s = st.current;
+    if (!s || s.pid !== e.pointerId) return;
+    last.current = { x: e.clientX, y: e.clientY };
+    const far = Math.hypot(e.clientX - s.sx, e.clientY - s.sy) > 6;
+    if (!s.on) {
+      if (!far) return;
+      if (e.pointerType === "mouse") lift();
+      else return end(false); // 길게 누르기 전에 움직이면 스크롤
+    }
+    e.preventDefault();
+    place(e.clientX, e.clientY);
+    const under = document
+      .elementsFromPoint(e.clientX, e.clientY)
+      .map((n) => (n as HTMLElement).closest?.("[data-tile]") as HTMLElement | null)
+      .find((n) => n && n !== s.el);
+    const to = under?.dataset.tile;
+    if (to) {
+      const cur = listRef.current;
+      const a = cur.indexOf(s.id);
+      const b = cur.indexOf(to);
+      if (a >= 0 && b >= 0 && a !== b) {
+        const next = [...cur];
+        next.splice(a, 1);
+        next.splice(b, 0, s.id);
+        setOrder(next);
+      }
+    }
+  }
+
+  return { list, held, props };
 }
 
 export function Dashboard({ d }: { d: NightData | null }) {
   const ids = useIds();
   const [edit, setEdit] = useState(false);
-  const move = (i: number, by: number) => {
-    const next = [...ids];
-    const j = i + by;
-    if (j < 0 || j >= next.length) return;
-    [next[i], next[j]] = [next[j], next[i]];
-    save(next);
-  };
+  const grid = useRef<HTMLDivElement>(null);
+  const { list, held, props } = useDrag(ids, grid);
   const rest = TILES.filter((t) => !ids.includes(t.id));
 
   return (
@@ -112,34 +327,31 @@ export function Dashboard({ d }: { d: NightData | null }) {
           {edit ? "완료" : "카드 편집"}
         </button>
       </div>
-      <div className="dash-grid">
-        {ids.map((id, i) => {
+      <div className={`dash-grid${edit ? " editing" : ""}`} ref={grid}>
+        {list.map((id) => {
           const t = BY_ID.get(id)!;
           return (
-            <article key={id} className="tile">
-              <h3 className="tile-label">{t.label}</h3>
+            <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}`} {...props(id)}>
+              <h3 className="tile-label">
+                {ICONS[id]?.()}
+                {t.label}
+              </h3>
               {t.kind === "hl" ? <HlBody t={t} d={d} /> : <TvBody t={t} />}
+              {/* 편집 중에는 위젯 위를 덮어 카드 어디를 잡아도 끌 수 있게 */}
+              {edit && t.kind === "tv" && <div className="tile-cover" />}
               {edit && (
-                <div className="tile-tools">
-                  <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`${t.label} 앞으로`}>
-                    ←
-                  </button>
-                  <button type="button" onClick={() => move(i, 1)} disabled={i === ids.length - 1} aria-label={`${t.label} 뒤로`}>
-                    →
-                  </button>
-                  <button type="button" onClick={() => save(ids.filter((x) => x !== id))} aria-label={`${t.label} 빼기`}>
-                    빼기
-                  </button>
-                </div>
+                <button type="button" className="tile-remove" onClick={() => save(ids.filter((x) => x !== id))} aria-label={`${t.label} 빼기`}>
+                  ×
+                </button>
               )}
             </article>
           );
         })}
-        {!ids.length && <p className="muted">카드를 모두 뺐습니다. 아래에서 다시 넣을 수 있어요.</p>}
+        {!list.length && <p className="muted">카드를 모두 뺐습니다. 아래에서 다시 넣을 수 있어요.</p>}
       </div>
       {edit && (
         <div className="dash-add">
-          {rest.length > 0 && <p className="muted">눌러서 카드 넣기</p>}
+          <p className="muted">카드를 끌어 순서를 바꾸고, ×로 뺄 수 있어요.{rest.length > 0 && " 아래를 눌러 카드를 넣으세요."}</p>
           <div className="chips">
             {rest.map((t) => (
               <button key={t.id} type="button" className="chip" onClick={() => save([...ids, t.id])}>
@@ -153,8 +365,9 @@ export function Dashboard({ d }: { d: NightData | null }) {
         </div>
       )}
       <p className="muted small-note">
-        무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락은 15:45 대비입니다. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의
-        카드는 트레이딩뷰가 직접 보여 주는 시세입니다. 카드 배치는 이 브라우저에만 저장됩니다.
+        카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45 대비입니다.
+        삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접 보여 주는 시세(미국 전일 종가 대비)입니다. 카드
+        배치는 이 브라우저에만 저장됩니다.
       </p>
     </section>
   );
