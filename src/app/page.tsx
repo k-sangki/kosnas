@@ -16,7 +16,8 @@ export default function Home() {
       <SiteHeader active={tab} />
       <main className="stack">
         <p className="front-note">
-          지금(한국 시각 {hhmm(now)})은 {TAB_NAME[tab]} 시간이라 {TAB_NAME[tab]}{tab === "night" ? "를" : "을"} 먼저 보여 드려요.
+          지금(한국 시각 {hhmm(now)})은 {tab === "night" ? "국내·미국 정규장이 모두 닫힌" : TAB_NAME[tab]} 시간이라 {TAB_NAME[tab]}
+          {tab === "night" ? "를" : "을"} 먼저 보여 드려요.
           {(["night", "kr", "us"] as const)
             .filter((t) => t !== tab)
             .map((t) => (

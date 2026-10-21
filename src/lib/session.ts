@@ -85,7 +85,7 @@ export function frontTab(now: number): Tab {
   return kstMin >= 8 * 60 && kstMin < 18 * 60 ? "kr" : "night";
 }
 
-export const TAB_NAME: Record<Tab, string> = { kr: "국장", night: "야간코스피", us: "미장" };
+export const TAB_NAME: Record<Tab, string> = { kr: "국장", night: "대시보드", us: "미장" };
 
 /** 요청 시각의 첫 화면(서버에서 그릴 때 쓴다) */
 export function frontNow() {

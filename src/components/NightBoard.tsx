@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { hhmm, usOpenIn, type NightData } from "@/lib/night";
+import { Dashboard } from "./Dashboard";
 
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const sign = (v: number) => (v > 0 ? "+" : "");
@@ -98,20 +99,11 @@ function Chart({ d }: { d: NightData }) {
             {hhmm(k)}
           </text>
         ))}
-        {[
-          [night, "야간 개장"],
-          ...(us ? [[us, "미국 개장"] as const] : []),
-          [nightEnd, "야간 마감"],
-        ].map(([at, name]) => (
+        {[[night, "야간 개장"], ...(us ? [[us, "미국 개장"] as const] : []), [nightEnd, "야간 마감"]].map(([at, name]) => (
           <g key={name as string}>
             <line x1={px(at as number)} x2={px(at as number)} y1={PAD.t} y2={H - PAD.b} className="mark" />
             {/* 마감 표시는 선 왼쪽에 써서 오른쪽 눈금과 겹치지 않게 */}
-            <text
-              x={px(at as number) + (at === nightEnd ? -4 : 4)}
-              y={PAD.t + 10}
-              textAnchor={at === nightEnd ? "end" : "start"}
-              className="mlab"
-            >
+            <text x={px(at as number) + (at === nightEnd ? -4 : 4)} y={PAD.t + 10} textAnchor={at === nightEnd ? "end" : "start"} className="mlab">
               {name}
             </text>
           </g>
@@ -182,16 +174,22 @@ export function NightBoard() {
     };
   }, []);
 
-  if (!d) {
-    return (
-      <section className="card">
-        <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
+  return (
+    <>
+      <section className="card night">
+        <h1 className="night-title">코스피 야간선물 실시간 추정</h1>
+        {d ? <Main d={d} /> : <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>}
+        {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
       </section>
-    );
-  }
+      <Dashboard d={d} />
+    </>
+  );
+}
+
+function Main({ d }: { d: NightData }) {
   const t = tone(d.chg);
   return (
-    <section className="card night">
+    <>
       <div className="night-head">
         <div>
           <p className="muted">{d.window.live ? "실시간 · 15초마다 갱신" : `지난밤 · ${hhmm(d.window.end)} 마감`}</p>
@@ -230,20 +228,6 @@ export function NightBoard() {
         </dl>
       </div>
       <Chart d={d} />
-      {err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
-      <h3 className="night-sub">해외에서 거래 중인 한국·미국 무기한선물</h3>
-      <ul className="night-inputs">
-        {d.inputs.map((i) => (
-          <li key={i.coin}>
-            <span>{i.label}</span>
-            <span className="num">
-              {i.coin === "KRW" ? fmt(i.price) : i.krw ? `${i.krw.toLocaleString()}원` : fmt(i.price)}
-            </span>
-            <span className={`num ${i.chg != null ? tone(i.chg) : ""}`}>{i.chg != null ? `${sign(i.chg)}${fmt(i.chg)}%` : "-"}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="muted small-note">등락은 15:45 대비입니다. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요.</p>
-    </section>
+    </>
   );
 }
