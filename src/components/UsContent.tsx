@@ -1,6 +1,7 @@
 import { AD_SLOTS, AdSlot } from "./AdSlot";
 import { MarketContent } from "./MarketPage";
 import { UsBoard } from "./UsBoard";
+import { UsSectors } from "./UsSectors";
 import { US_ENABLED } from "@/lib/sectors";
 
 /** 미장 본문. 첫 화면과 /us가 같이 쓴다 */
@@ -13,6 +14,7 @@ export function UsContent() {
         실시간으로 보여줍니다.
       </p>
       <UsBoard />
+      {!US_ENABLED && <UsSectors />}
       {!US_ENABLED && <AdSlot slot={AD_SLOTS.board} />}
       <section className="card seo-text">
         <h2 className="card-title">어떻게 보나요</h2>
