@@ -30,10 +30,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f2f4f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#111216" },
-  ],
+  themeColor: "#111216",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -41,7 +38,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" data-theme="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />

@@ -5,7 +5,7 @@ import { THEME_COLOR, THEME_KEY, type Theme } from "./theme-script";
 
 export type { Theme };
 
-const current = (): Theme => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+const current = (): Theme => (document.documentElement.dataset.theme === "light" ? "light" : "dark");
 
 function subscribe(f: () => void) {
   const mo = new MutationObserver(f);
@@ -14,7 +14,7 @@ function subscribe(f: () => void) {
 }
 
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, current, () => "light");
+  return useSyncExternalStore(subscribe, current, () => "dark");
 }
 
 export function setTheme(t: Theme) {

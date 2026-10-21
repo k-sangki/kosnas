@@ -8,3 +8,28 @@ export function Logo() {
     </span>
   );
 }
+
+/**
+ * 캡처 이미지용 로고. 이미지로 그릴 때는 글자에 그라데이션을 입히는 CSS(background-clip: text)가 빠져서
+ * SVG 글자에 같은 그라데이션(기준선에서 x높이까지, 가운데가 o의 가운데)을 입힌다.
+ */
+export function LogoSvg() {
+  // 글자 크기 22, 기준선 y=20, x높이 약 0.53em
+  return (
+    <svg className="logo-svg" width="92" height="26" viewBox="0 0 92 26" aria-label="KosNas">
+      <defs>
+        <linearGradient id="logo-g" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="0" y2="8.3">
+          <stop offset="0" stopColor="var(--down)" />
+          <stop offset="1" stopColor="var(--up)" />
+        </linearGradient>
+      </defs>
+      <text x="0" y="20" fontSize="22" fontWeight="800" letterSpacing="-0.88" fill="url(#logo-g)">
+        kos
+      </text>
+      <circle cx="47.2" cy="14.2" r="3.1" fill="var(--up)" />
+      <text x="51.5" y="20" fontSize="22" fontWeight="800" letterSpacing="-0.88" fill="url(#logo-g)">
+        nas
+      </text>
+    </svg>
+  );
+}

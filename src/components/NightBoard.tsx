@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { hhmm, usOpenIn, type NightData } from "@/lib/night";
+import { CaptureSheet } from "./CaptureSheet";
 import { Dashboard } from "./Dashboard";
+import { LogoSvg } from "./Logo";
 
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const sign = (v: number) => (v > 0 ? "+" : "");
@@ -143,6 +145,9 @@ export function NightBoard() {
   const [d, setD] = useState<NightData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const live = useRef(true);
+  const capRef = useRef<HTMLDivElement>(null);
+  const [capturing, setCapturing] = useState(false);
+  const target = useCallback(() => capRef.current, []);
 
   useEffect(() => {
     let stop = false;
@@ -174,14 +179,49 @@ export function NightBoard() {
     };
   }, []);
 
+  const stamp = new Date((d?.updated ?? 0) + 9 * 3600_000);
+  const day = `${stamp.getUTCMonth() + 1}월 ${stamp.getUTCDate()}일`;
   return (
     <>
-      <section className="card night">
-        <h1 className="night-title">코스피 야간선물 실시간 추정</h1>
-        {d ? <Main d={d} /> : <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>}
-        {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
-      </section>
-      <Dashboard d={d} />
+      {/* 캡처 범위: 추정 카드와 시세 카드. 캡처할 때만 머리·꼬리(로고·시각·주소)를 보인다 */}
+      <div className="dash-cap" ref={capRef}>
+        <div className="cap-only cap-head">
+          <LogoSvg />
+          {d && (
+            <span>
+              {day} {hhmm(d.updated)} 기준
+            </span>
+          )}
+        </div>
+        <section className="card night">
+          <div className="night-top">
+            <h1 className="night-title">코스피 야간선물 실시간 추정</h1>
+            <button type="button" className="cap-btn no-capture" onClick={() => setCapturing(true)} aria-label="대시보드 캡처" disabled={!d}>
+              <svg viewBox="0 0 24 24" aria-hidden>
+                <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.4-2h4.6l1.4 2h1.8A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z" />
+                <circle cx="12" cy="13" r="3.5" />
+              </svg>
+              캡처
+            </button>
+          </div>
+          {d ? <Main d={d} /> : <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>}
+          {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
+        </section>
+        <Dashboard d={d} />
+        <div className="cap-only cap-foot">
+          <span>해외 무기한선물로 계산한 참고용 추정치입니다</span>
+          <b>kosnas.com</b>
+        </div>
+      </div>
+      {capturing && (
+        <CaptureSheet
+          target={target}
+          fileName={`kosnas-dashboard-${stamp.toISOString().slice(0, 16).replace(/[-:T]/g, "")}.png`}
+          shareTitle={`코스피 야간선물 실시간 추정 ${day} ${d ? hhmm(d.updated) : ""}`}
+          shareUrl="https://kosnas.com/night"
+          onClose={() => setCapturing(false)}
+        />
+      )}
     </>
   );
 }

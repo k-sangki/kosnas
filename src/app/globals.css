@@ -129,6 +129,169 @@ a {
   --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
+/* ---------- 캡처 ---------- */
+.dash-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.night-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cap-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+.cap-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.cap-btn:disabled {
+  opacity: 0.4;
+}
+.cap-only,
+.cap-icon {
+  display: none;
+}
+.capturing {
+  padding: 16px;
+  background: var(--bg);
+}
+.capturing .cap-only {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.capturing .cap-foot b {
+  color: var(--ink-2);
+}
+.capturing .cap-icon {
+  display: contents;
+}
+.capturing .tile-logo {
+  display: none;
+}
+.capturing .tile {
+  animation: none;
+}
+/* 이미지에서 빠지는 것(편집 단추·트레이딩뷰 카드)은 크기를 잴 때도 빼 둔다 */
+.capturing .no-capture {
+  display: none;
+}
+.logo-svg text {
+  font-family: var(--font);
+}
+.save-tip {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.sheet-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  overflow: auto;
+  background: var(--card);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .sheet-bg {
+    align-items: center;
+  }
+  .sheet {
+    border-radius: 24px;
+  }
+}
+.sheet-preview {
+  display: block;
+  width: 100%;
+  max-height: 46vh;
+  object-fit: contain;
+  object-position: top;
+  border-radius: 12px;
+  background: var(--bg);
+}
+.share-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+.share-btn {
+  height: 52px;
+  border-radius: 14px;
+  background: var(--chip);
+  font-weight: 700;
+  font-size: 15px;
+}
+.share-btn.primary {
+  grid-column: 1 / -1;
+  background: var(--pine);
+  color: var(--card);
+}
+.share-btn.naver {
+  background: #03c75a;
+  color: #fff;
+}
+.toast {
+  position: fixed;
+  z-index: 70;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  background: rgba(25, 31, 40, 0.92);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.skeleton {
+  height: 220px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--chip) 25%, var(--line) 50%, var(--chip) 75%);
+  background-size: 200% 100%;
+  animation: sk 1.2s infinite;
+}
+@keyframes sk {
+  to {
+    background-position: -200% 0;
+  }
+}
+.error {
+  background: var(--coral-soft);
+  color: var(--up);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 14px;
+}
+
 /* ---------- 레이아웃 ---------- */
 .shell {
   max-width: 560px;
@@ -559,6 +722,8 @@ a {
 /* ---------- 트레이딩뷰 위젯 ---------- */
 .tv {
   margin: 0 0 12px;
+  /* 다크 모드에서 다른 사이트 iframe에 흰 바탕이 깔리지 않게 iframe 쪽 색 체계(라이트)와 맞춘다 */
+  color-scheme: light;
 }
 .tradingview-widget-copyright {
   font-size: 11px;

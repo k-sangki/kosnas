@@ -176,8 +176,14 @@ function Icon({ id }: { id: string }) {
   const check = (img: HTMLImageElement | null) => {
     if (img?.complete && img.naturalWidth === 0) setBad(true);
   };
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img ref={check} className="tile-icon tile-logo" src={`${LOGO}${slug}.svg`} alt="" onError={() => setBad(true)} />;
+  // 캡처 이미지에는 다른 사이트 그림이 들어가지 않아 직접 그린 아이콘으로 바꿔 넣는다
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img ref={check} className="tile-icon tile-logo" src={`${LOGO}${slug}.svg`} alt="" onError={() => setBad(true)} />
+      <span className="cap-icon">{ICONS[id]?.()}</span>
+    </>
+  );
 }
 
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -211,8 +217,8 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
   return (
     <TvWidget
       kind="mini-symbol-overview"
-      height={190}
-      config={{ symbol: t.symbol, width: "100%", height: 190, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
+      height={150}
+      config={{ symbol: t.symbol, width: "100%", height: 150, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
     />
   );
 }
@@ -373,7 +379,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
     <section className="dash" aria-label="시세 카드">
       <div className="dash-head">
         <h2>해외에서 거래 중인 시세</h2>
-        <button type="button" className="dash-edit" aria-pressed={edit} onClick={() => setEdit(!edit)}>
+        <button type="button" className="dash-edit no-capture" aria-pressed={edit} onClick={() => setEdit(!edit)}>
           {edit ? "완료" : "카드 편집"}
         </button>
       </div>
@@ -381,7 +387,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
         {list.map((id) => {
           const t = BY_ID.get(id)!;
           return (
-            <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}`} {...props(id)}>
+            <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}${t.kind === "tv" ? " no-capture" : ""}`} {...props(id)}>
               <h3 className="tile-label">
                 <Icon id={id} />
                 {t.label}
@@ -390,7 +396,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
               {/* 편집 중에는 위젯 위를 덮어 카드 어디를 잡아도 끌 수 있게 */}
               {edit && t.kind === "tv" && <div className="tile-cover" />}
               {edit && (
-                <button type="button" className="tile-remove" onClick={() => save(ids.filter((x) => x !== id))} aria-label={`${t.label} 빼기`}>
+                <button type="button" className="tile-remove no-capture" onClick={() => save(ids.filter((x) => x !== id))} aria-label={`${t.label} 빼기`}>
                   ×
                 </button>
               )}
@@ -398,7 +404,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
           );
         })}
         {edit && rest.length > 0 && (
-          <button type="button" className="tile tile-new" onClick={() => setPicking(true)} aria-label="카드 넣기">
+          <button type="button" className="tile tile-new no-capture" onClick={() => setPicking(true)} aria-label="카드 넣기">
             +
           </button>
         )}
@@ -433,14 +439,14 @@ export function Dashboard({ d }: { d: NightData | null }) {
         </div>
       )}
       {edit && (
-        <div className="dash-add">
+        <div className="dash-add no-capture">
           <p className="muted">카드를 끌어 순서를 바꾸고, ×로 빼고, +로 넣을 수 있어요.</p>
           <button type="button" className="dash-reset" onClick={() => save(null)}>
             기본 배치로 되돌리기
           </button>
         </div>
       )}
-      <p className="muted small-note">
+      <p className="muted small-note no-capture">
         카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45 대비입니다.
         삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접 보여 주는 시세(미국 전일 종가 대비)입니다. 카드
         배치는 이 브라우저에만 저장됩니다.
