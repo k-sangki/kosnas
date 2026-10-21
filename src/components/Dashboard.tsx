@@ -217,8 +217,8 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
   return (
     <TvWidget
       kind="mini-symbol-overview"
-      height={150}
-      config={{ symbol: t.symbol, width: "100%", height: 150, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
+      height={132}
+      config={{ symbol: t.symbol, width: "100%", height: 132, locale: "kr", dateRange: "1D", colorTheme: "light", isTransparent: true, noTimeScale: true }}
     />
   );
 }
