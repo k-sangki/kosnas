@@ -5,6 +5,7 @@ import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
 import { SampleNotice } from "@/components/MarketPage";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
+import { SECTOR_NOTES } from "@/lib/sector-notes";
 import { MARKETS, QUADRANTS, findSector, sectorData, signed, type Market } from "@/lib/sectors";
 
 export const dynamicParams = false;
@@ -37,6 +38,7 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
   if (!hit) notFound();
   const { sector } = hit;
   const data = sectorData(hit.market);
+  const note = hit.market === "kr" ? SECTOR_NOTES[sector.id] : undefined;
 
   return (
     <div className="shell">
@@ -79,6 +81,18 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
             50일선 위 종목 {sector.above50}% · 52주 신고가 {sector.newHighs}종목
           </p>
         </section>
+        {note && (
+          <section className="card seo-text">
+            <h2 className="card-title">{sector.name} 섹터를 움직이는 것</h2>
+            <p>{note.drivers}</p>
+            <h2 className="card-title">흐름을 볼 때 참고할 점</h2>
+            <p>{note.watch}</p>
+            <p className="muted small-note">
+              섹터 강도와 네 칸의 뜻은 <Link href="/guide/quadrant">네 칸 읽는 법</Link>, 종목 순위는{" "}
+              <Link href="/guide/relative-strength">상대강도 가이드</Link>에서 볼 수 있습니다.
+            </p>
+          </section>
+        )}
         <AdSlot slot={AD_SLOTS.sector} />
         <section className="card">
           <h2 className="card-title">종목 · 상대강도 순</h2>
