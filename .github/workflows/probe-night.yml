@@ -1,0 +1,22 @@
+name: Probe night sources (temp)
+on:
+  push:
+    branches: [claude/project-thread-by6gfk]
+    paths: [.github/workflows/probe-night.yml]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hyperliquid dexes and assets
+        run: |
+          H=https://api.hyperliquid.xyz/info
+          curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"perpDexs"}' | jq -c '[.[]? | select(.!=null) | {name, fullName}]'
+          for d in $(curl -sS -X POST $H -H 'content-type: application/json' -d '{"type":"perpDexs"}' | jq -r '.[]? | select(.!=null) | .name'); do
+            echo "== $d"
+            curl -sS -X POST $H -H 'content-type: application/json' -d "{\"type\":\"metaAndAssetCtxs\",\"dex\":\"$d\"}" | jq -c '[.[0].universe, .[1]] | transpose | map({n:.[0].name, px:.[1].markPx, oracle:.[1].oraclePx, vol:.[1].dayNtlVlm, oi:.[1].openInterest})'
+          done
+      - name: Other sources
+        run: |
+          for u in "https://query1.finance.yahoo.com/v8/finance/chart/ES=F?interval=1m&range=2d" "https://query1.finance.yahoo.com/v8/finance/chart/KRW=X?interval=1m&range=1d" "https://api.frankfurter.app/latest?from=USD&to=KRW" "https://open.er-api.com/v6/latest/USD"; do
+            echo "== $u"; curl -sS -m 20 -A Mozilla "$u" | head -c 600; echo
+          done
