@@ -184,17 +184,7 @@ export function UsBoard() {
       </div>
       <Chart d={d} />
       {err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
-      <h3 className="night-sub">미국 지수와 한국 관련 무기한선물</h3>
-      <ul className="night-inputs">
-        {d.inputs.map((i) => (
-          <li key={i.coin}>
-            <span>{i.label}</span>
-            <span className="num">{i.coin === "KRW" ? fmt(i.price) : i.krw ? `${i.krw.toLocaleString()}원` : fmt(i.price)}</span>
-            <span className={`num ${tone(i.chg)}`}>{pctText(i.chg)}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="muted small-note">등락은 미국 직전 거래일 16:00(뉴욕) 대비입니다. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요.</p>
+      <p className="muted small-note">등락은 미국 직전 거래일 16:00(뉴욕) 대비입니다.</p>
     </section>
   );
 }
