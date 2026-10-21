@@ -1,14 +1,10 @@
 /**
- * 시각에 따라 첫 화면에 먼저 보일 시장을 고른다(KST).
- *  - 미국 정규장(뉴욕 09:30~16:00, 평일)이 열려 있으면 미장
- *  - 그 밖에 08:00~18:00은 국장
- *  - 나머지(18:00 ~ 미국 개장, 미국 마감 ~ 08:00)는 야간 코스피
- * 미국 개장은 서머타임이면 KST 22:30, 표준시면 23:30이다. 양국 휴장일은 따로 보지 않는다.
+ * 탭 이름과 미국 정규장 시각 계산.
+ * 미국 개장은 서머타임이면 KST 22:30, 표준시면 23:30이다. 휴장일은 따로 보지 않는다.
  */
 
 export type Tab = "kr" | "night" | "us";
 
-const KST = 9 * 3600_000;
 const MIN = 60_000;
 const DAY = 86_400_000;
 
@@ -79,16 +75,4 @@ export function usSession(now: number): UsSession {
   throw new Error("미국 정규장을 찾지 못했다");
 }
 
-export function frontTab(now: number): Tab {
-  if (usSession(now).live) return "us";
-  const kstMin = Math.floor(((now + KST) % DAY) / MIN);
-  return kstMin >= 8 * 60 && kstMin < 18 * 60 ? "kr" : "night";
-}
-
 export const TAB_NAME: Record<Tab, string> = { kr: "국장", night: "대시보드", us: "미장" };
-
-/** 요청 시각의 첫 화면(서버에서 그릴 때 쓴다) */
-export function frontNow() {
-  const now = Date.now();
-  return { now, tab: frontTab(now) };
-}
