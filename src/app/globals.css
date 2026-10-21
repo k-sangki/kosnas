@@ -993,3 +993,55 @@ a {
 .ft-chg.down {
   color: var(--down);
 }
+button.ft-row {
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: inherit;
+  cursor: pointer;
+}
+.ft-tri {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin: 0 5px 1px 0;
+  border-left: 6px solid var(--muted);
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  transition: transform 0.15s;
+}
+.ft-tri.none {
+  border-left-color: transparent;
+}
+.ft-group.open .ft-tri {
+  transform: rotate(90deg);
+}
+.ft-kids {
+  margin: 0 0 6px;
+  border-radius: 8px;
+  background: var(--mint-soft);
+  padding: 0 6px 6px;
+}
+.ft-row.kid {
+  font-size: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.ft-row.kid:first-child {
+  border-top: 0;
+}
+.ft-row.kid .ft-name {
+  font-weight: 500;
+  padding-left: 11px;
+}
+.ft-more {
+  display: block;
+  padding-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pine);
+}

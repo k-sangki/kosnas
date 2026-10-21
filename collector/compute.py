@@ -5,10 +5,11 @@
 
 import re
 
-from taxonomy import SECTORS, sector_of
+from taxonomy import SECTORS, industry_of, sector_of
 
 PERIODS = [5, 10, 20, 30, 60]
 MIN_SECTOR = 4  # 종목이 이보다 적은 섹터는 보드에 올리지 않는다
+MIN_INDUSTRY = 2  # 산업은 2종목부터
 SHOW_STOCKS = 30  # 섹터 페이지에 싣는 종목 수 (상대강도 순)
 # 상대강도: 최근 3개월 40%, 6·9·12개월 각 20% (오닐식 가중)
 RS_WEIGHTS = [(63, 0.4), (126, 0.2), (189, 0.2), (252, 0.2)]
@@ -202,6 +203,40 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
             }
         )
 
+    # 섹터 아래 산업: 같은 계산을 산업 단위로(2종목 이상). 강도는 산업끼리의 평균 대비
+    ind_codes: dict[tuple[str, str], list[str]] = {}
+    for sid, r in rows.items():
+        for c in r["codes"]:
+            ind_codes.setdefault((sid, industry_of(c, industry.get(c), sid)), []).append(c)
+    ind_codes = {k: v for k, v in ind_codes.items() if len(v) >= MIN_INDUSTRY}
+    ind_ids = {k: f"{k[0]}-{i}" for i, k in enumerate(sorted(ind_codes))}
+    ix_cache: dict[tuple[int, int], dict[str, float | None]] = {}
+
+    def ixs(e: int, p: int):
+        if (e, p) not in ix_cache:
+            raw = {ind_ids[k]: sector_return(v, idx, cap, e, p) for k, v in ind_codes.items()}
+            vals = [v for v in raw.values() if v is not None]
+            mean = sum(vals) / len(vals) if vals else 0.0
+            ix_cache[(e, p)] = {i: None if v is None else (v - mean) * 100 for i, v in raw.items()}
+        return ix_cache[(e, p)]
+
+    out_industries = []
+    for k in sorted(ind_codes, key=lambda k: (list(rows).index(k[0]), k[1] == "기타", -len(ind_codes[k]))):
+        iid, codes = ind_ids[k], ind_codes[k]
+        top = sorted([c for c in codes if c in rs], key=lambda c: -rs[c])[:3]
+        out_industries.append(
+            {
+                "id": iid,
+                "sector": k[0],
+                "name": k[1],
+                "count": len(codes),
+                "ret": {str(p): pct(sector_return(codes, idx, cap, end, p)) for p in PERIODS},
+                "x": {str(p): None if ixs(end, p)[iid] is None else round(ixs(end, p)[iid], 2) for p in PERIODS},
+                "path20": [None if ixs(e, 20)[iid] is None else round(ixs(e, 20)[iid], 2) for e in range(end - 19, end + 1)],
+                "top": [meta[c]["name"] for c in top],
+            }
+        )
+
     # 시장 폭: 시장별 상승·하락 종목 수, 50일선 위 비율, 신고가 수
     breadth = {}
     for m in ("KOSPI", "KOSDAQ"):
@@ -225,4 +260,5 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
         "sparkFrom": f"{dates[max(0, end - SPARK + 1)][:4]}-{dates[max(0, end - SPARK + 1)][4:6]}-{dates[max(0, end - SPARK + 1)][6:]}",
         "breadth": breadth,
         "sectors": out_sectors,
+        "industries": out_industries,
     }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import type { SectorData } from "@/lib/sectors";
+import type { Industry, SectorData } from "@/lib/sectors";
 
 // neoScreen 시장 탭의 '섹터 흐름' 표와 같은 구성: 기간별 강도 색칸(왼쪽 긴 기간 → 오른쪽 짧은 기간),
 // 20일 강도의 매일 추이 미니 그래프, 5거래일 전 대비 순위 변화, 맨 위에는 순위가 크게 바뀐 섹터만.
@@ -20,11 +20,7 @@ interface Row {
   chg: number | null;
 }
 
-function stats(data: SectorData): Row[] {
-  const rows: Row[] = data.sectors.map((s) => {
-    const path = (s.path?.[BASE] ?? []).map((p) => p[0]);
-    return { id: s.id, name: s.name, x: s.x, path, chg: null };
-  });
+function ranked(rows: Row[]): Row[] {
   const rank = (key: "now" | "old") => {
     const val = (r: Row) => (key === "now" ? r.path.at(-1) : r.path.length > AGO ? r.path.at(-1 - AGO) : undefined);
     rows
@@ -39,6 +35,30 @@ function stats(data: SectorData): Row[] {
   rank("old");
   for (const r of rows) r.chg = r.nowRank && r.oldRank ? r.oldRank - r.nowRank : null;
   return rows;
+}
+
+function stats(data: SectorData): Row[] {
+  return ranked(data.sectors.map((s) => ({ id: s.id, name: s.name, x: s.x, path: (s.path?.[BASE] ?? []).map((p) => p[0]), chg: null })));
+}
+
+/** 산업 줄: 순위 변화는 전체 산업 안에서 센다 */
+function industryRows(list: Industry[]): Map<string, (Row & { sector: string; count: number; top: string[] })[]> {
+  const rows = list.map((i) => ({
+    id: i.id,
+    name: i.name,
+    x: i.x,
+    path: i.path20.filter((v): v is number => v != null),
+    chg: null,
+    sector: i.sector,
+    count: i.count,
+    top: i.top,
+  }));
+  ranked(rows);
+  const by = new Map<string, typeof rows>();
+  for (const r of rows) by.set(r.sector, [...(by.get(r.sector) ?? []), r]);
+  // 한 칸뿐이거나 '기타'만 있으면 펼칠 것이 없다
+  for (const [k, v] of by) if (v.length < 2) by.delete(k);
+  return by;
 }
 
 function Spark({ path }: { path: number[] }) {
@@ -72,7 +92,10 @@ function Chg({ c }: { c: number | null }) {
 
 export function FlowTable({ data }: { data: SectorData }) {
   const [sortBy, setSortBy] = useState(BASE);
+  const [open, setOpen] = useState<string | null>(null);
   const rows = stats(data);
+  const kids = industryRows(data.industries ?? []);
+  const byX = <T extends Row>(xs: T[]) => [...xs].sort((a, b) => (b.x[sortBy] ?? -1e9) - (a.x[sortBy] ?? -1e9));
   if (!rows.length) return null;
   // 순위가 전체의 1/5 넘게(적어도 3계단) 오르내린 것만 — 날마다 한두 계단 바뀌는 것은 알릴 일이 아니다
   const min = Math.max(3, Math.round(rows.length / 5));
@@ -89,7 +112,16 @@ export function FlowTable({ data }: { data: SectorData }) {
       </span>
     </span>
   );
-  const sorted = [...rows].sort((a, b) => (b.x[sortBy] ?? -1e9) - (a.x[sortBy] ?? -1e9));
+  const sorted = byX(rows);
+  const cells = (r: Row) => (
+    <>
+      <Spark path={r.path} />
+      {PERIODS.map((p) => (
+        <Heat key={p} v={r.x[p]} />
+      ))}
+      <Chg c={r.chg} />
+    </>
+  );
 
   return (
     <section className="card ft-card">
@@ -120,19 +152,49 @@ export function FlowTable({ data }: { data: SectorData }) {
         ))}
         <span>순위</span>
       </div>
-      {sorted.map((r) => (
-        <Link key={r.id} href={`/${data.market}/sector/${r.id}`} className="ft-row">
-          <span className="ft-name">{r.name}</span>
-          <Spark path={r.path} />
-          {PERIODS.map((p) => (
-            <Heat key={p} v={r.x[p]} />
-          ))}
-          <Chg c={r.chg} />
-        </Link>
-      ))}
+      {sorted.map((r) => {
+        const ks = kids.get(r.id);
+        if (!ks)
+          return (
+            <Link key={r.id} href={`/${data.market}/sector/${r.id}`} className="ft-row">
+              <span className="ft-name">
+                <i className="ft-tri none" />
+                {r.name}
+              </span>
+              {cells(r)}
+            </Link>
+          );
+        const isOpen = open === r.id;
+        return (
+          <div key={r.id} className={`ft-group${isOpen ? " open" : ""}`}>
+            <button className="ft-row" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : r.id)}>
+              <span className="ft-name">
+                <i className="ft-tri" />
+                {r.name}
+              </span>
+              {cells(r)}
+            </button>
+            {isOpen && (
+              <div className="ft-kids">
+                {byX(ks).map((k) => (
+                  <div key={k.id} className="ft-row kid" title={k.top.length ? `RS 상위: ${k.top.join(", ")}` : undefined}>
+                    <span className="ft-name">
+                      {k.name} <span className="muted">{k.count}</span>
+                    </span>
+                    {cells(k)}
+                  </div>
+                ))}
+                <Link href={`/${data.market}/sector/${r.id}`} className="ft-more">
+                  {r.name} 종목 보기 →
+                </Link>
+              </div>
+            )}
+          </div>
+        );
+      })}
       <p className="muted small-note">
         색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 왼쪽(긴 기간)에서 오른쪽(짧은 기간)으로 읽으면 흐름이 보입니다. 기간을 누르면 그
-        기간 순으로 정렬합니다. 미니 그래프는 {BASE}일 강도의 매일 추이, 순위는 {AGO}거래일 전 대비 변화입니다. 섹터를 누르면 그 섹터 종목으로 갑니다.
+        기간 순으로 정렬합니다. 미니 그래프는 {BASE}일 강도의 매일 추이, 순위는 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그 안의 산업(DART 업종 코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
       </p>
     </section>
   );

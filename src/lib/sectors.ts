@@ -48,6 +48,20 @@ export interface Breadth {
   newHighs: number;
 }
 
+/** 섹터 아래 산업(DART 업종 코드로 나눔). 강도는 산업끼리의 평균 대비 %p */
+export interface Industry {
+  id: string;
+  sector: string;
+  name: string;
+  count: number;
+  ret: Record<string, number | null>;
+  x: Record<string, number | null>;
+  /** 최근 20거래일 매일의 20일 강도 */
+  path20: (number | null)[];
+  /** RS 상위 종목 이름 */
+  top: string[];
+}
+
 export interface SectorData {
   market: Market;
   /** 원천 자료 표시 */
@@ -61,6 +75,7 @@ export interface SectorData {
   sparkFrom?: string;
   periods: number[];
   sectors: Sector[];
+  industries?: Industry[];
 }
 
 const DATA: Record<Market, SectorData> = { kr: kr as SectorData, us: us as SectorData };
