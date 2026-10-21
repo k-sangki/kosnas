@@ -142,8 +142,20 @@ a {
   margin: 0 0.06em;
   transform: translateY(-0.1em);
 }
-.logo-nas {
-  color: #1f6e62;
+/* 글자 상자 아래를 기준선에 맞추고(text-box) 그라데이션을 기준선에서 x높이(1ex)까지 둔다 — 가운데(0.5ex)가 o의 가운데 */
+.logo-t {
+  display: inline-block;
+  --b: 0.2em; /* text-box를 모르는 브라우저: 글자 상자 아래에서 기준선까지 대략 */
+  background: linear-gradient(to top, var(--down) var(--b), calc(var(--b) + 0.5ex), var(--up) calc(var(--b) + 1ex));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@supports (text-box: trim-end alphabetic) {
+  .logo-t {
+    --b: 0px;
+    text-box: trim-end alphabetic;
+  }
 }
 .brand {
   display: inline-flex;
