@@ -1,0 +1,34 @@
+name: Collect US universe
+
+# 미국 종목 범위(S&P 500 ∪ 나스닥 100 ∪ 필라델피아 반도체 ∪ 다우존스 30 ∪ 러셀 1000)를 매달 1일 09:00(KST)에 갱신한다.
+# 바뀌었으면 src/data/us-universe.json을 main에 올린다. 화면에 쓰기 전이라 배포는 하지 않는다.
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+concurrency: collect-us-universe
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 구성 종목 받기
+        run: python collector/us_universe.py --out src/data/us-universe.json
+      - name: main에 올리기
+        run: |
+          git add src/data/us-universe.json
+          git diff --cached --quiet && exit 0
+          git config user.name "kosnas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -qm "미국 종목 범위 $(jq -r '"\(.updated) \(.count)종목"' src/data/us-universe.json)"
+          git pull -q --rebase origin main
+          git push -q origin HEAD:main
