@@ -9,7 +9,7 @@ export function SiteHeader({ active }: { active?: "kr" | "us" | "night" | "guide
         <Logo />
       </Link>
       <nav className="top-nav">
-        {(["kr", "night", "us"] as const).map((t) => (
+        {(["night", "kr", "us"] as const).map((t) => (
           <Link key={t} href={`/${t}`} aria-current={active === t ? "page" : undefined}>
             {TAB_NAME[t]}
           </Link>

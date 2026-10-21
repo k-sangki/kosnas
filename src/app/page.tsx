@@ -17,7 +17,7 @@ export default function Home() {
       <main className="stack">
         <p className="front-note">
           지금(한국 시각 {hhmm(now)})은 {TAB_NAME[tab]} 시간이라 {TAB_NAME[tab]}{tab === "night" ? "를" : "을"} 먼저 보여 드려요.
-          {(["kr", "night", "us"] as const)
+          {(["night", "kr", "us"] as const)
             .filter((t) => t !== tab)
             .map((t) => (
               <Link key={t} href={`/${t}`}>
