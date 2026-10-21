@@ -7,7 +7,7 @@ import re
 
 from taxonomy import SECTORS, sector_of
 
-PERIODS = [5, 20, 60]
+PERIODS = [5, 10, 20, 30, 60]
 MIN_SECTOR = 4  # 종목이 이보다 적은 섹터는 보드에 올리지 않는다
 SHOW_STOCKS = 30  # 섹터 페이지에 싣는 종목 수 (상대강도 순)
 # 상대강도: 최근 3개월 40%, 6·9·12개월 각 20% (오닐식 가중)
@@ -148,14 +148,31 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
             "codes": codes,
         }
 
-    out_sectors = []
-    for p in PERIODS:
-        for key in ("cur", "prev"):
-            vals = [r[key][p] for r in rows.values() if r[key][p] is not None]
-            mean = sum(vals) / len(vals) if vals else 0.0
-            for r in rows.values():
-                r.setdefault(f"x_{key}", {})[p] = None if r[key][p] is None else (r[key][p] - mean) * 100
+    # 강도 x = 섹터 수익률 − 섹터 평균(%p). (기준일, 기간)마다 한 번만 센다
+    xs_cache: dict[tuple[int, int], dict[str, float | None]] = {}
 
+    def xs(e: int, p: int):
+        if (e, p) not in xs_cache:
+            raw = {sid: sector_return(r["codes"], idx, cap, e, p) for sid, r in rows.items()}
+            vals = [v for v in raw.values() if v is not None]
+            mean = sum(vals) / len(vals) if vals else 0.0
+            xs_cache[(e, p)] = {sid: None if v is None else (v - mean) * 100 for sid, v in raw.items()}
+        return xs_cache[(e, p)]
+
+    for r in rows.values():
+        r["x_cur"] = {p: xs(end, p)[r["id"]] for p in PERIODS}
+        r["x_prev"] = {p: xs(end - p, p)[r["id"]] for p in PERIODS}
+
+    def path(sid: str, p: int):
+        """기간 p 동안 매일의 (강도, 변화) — 점을 누르면 그리는 이동선. 자료가 모자란 날은 뺀다."""
+        pts = []
+        for e in range(end - p + 1, end + 1):
+            xc, xp = xs(e, p)[sid], xs(e - p, p)[sid]
+            if xc is not None and xp is not None:
+                pts.append([round(xc, 2), round(xc - xp, 2)])
+        return pts
+
+    out_sectors = []
     pct = lambda v: None if v is None else round(v * 100, 2)  # noqa: E731
     for r in rows.values():
         codes = r["codes"]
@@ -178,6 +195,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> dic
                 "x": x,
                 "y": y,
                 "q": q,
+                "path": {str(p): path(r["id"], p) for p in PERIODS},
                 "above50": round(100 * sum(above50(c) for c in codes) / len(codes)),
                 "newHighs": sum(new_high(c) for c in codes),
                 "stocks": [stock_row(c) for c in listed[:SHOW_STOCKS]],

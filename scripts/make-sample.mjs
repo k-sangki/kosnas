@@ -2,7 +2,7 @@
 // 수집기가 붙으면 같은 모양의 자료를 collector가 만든다. 실행: npm run sample
 import { writeFileSync } from "node:fs";
 
-const PERIODS = [5, 20, 60];
+const PERIODS = [5, 10, 20, 30, 60];
 
 const KR = {
   "semis": ["반도체", [["005930", "삼성전자"], ["000660", "SK하이닉스"], ["042700", "한미반도체"], ["240810", "원익IPS"], ["058470", "리노공업"]]],
@@ -74,7 +74,11 @@ function build(market, table, seed) {
     const x = Object.fromEntries(PERIODS.map((p) => [p, round(s.ret[p] - mean[p])]));
     const y = Object.fromEntries(PERIODS.map((p) => [p, round(x[p] - prevX[p])]));
     const q = Object.fromEntries(PERIODS.map((p) => [p, quadrant(x[p], y[p])]));
-    return { ...s, x, y, q };
+    // 이동선: 앞쪽에서 오늘 위치로 흔들리며 다가오는 가짜 경로
+    const path = Object.fromEntries(
+      PERIODS.map((p) => [p, Array.from({ length: p }, (_, i) => { const t = (i + 1) / p; return [round(x[p] * t + (r() - 0.5) * 3 * (1 - t)), round(y[p] * t + (r() - 0.5) * 3 * (1 - t))]; })]),
+    );
+    return { ...s, x, y, q, path };
   });
   return { market, sample: true, asof: "2026-10-20", periods: PERIODS, sectors };
 }

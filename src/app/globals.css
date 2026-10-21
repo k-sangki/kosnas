@@ -217,7 +217,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   margin-bottom: 8px;
 }
 .board-head .card-title {
@@ -232,7 +233,7 @@ a {
 .seg button {
   flex: 1 1 0;
   height: 32px;
-  padding: 0 12px;
+  padding: 0 8px;
   border-radius: 9px;
   font-size: 14px;
   font-weight: 700;
@@ -271,26 +272,93 @@ a {
   font-weight: 700;
   fill: var(--muted);
 }
+.quad .pt {
+  cursor: pointer;
+}
+.quad .pt.dim {
+  opacity: 0.25;
+}
+.quad .hit {
+  fill: transparent;
+}
 .quad .dot {
   stroke: #fff;
-  stroke-width: 1.5;
+  stroke-width: 0.8;
 }
-.quad .d-lead {
+.quad .d-up {
   fill: var(--up);
 }
-.quad .d-weaken {
-  fill: var(--amber);
-}
-.quad .d-lag {
+.quad .d-down {
   fill: var(--down);
 }
-.quad .d-watch {
-  fill: #1f9e72;
-}
 .quad .dot-label {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 7px;
+  font-weight: 300;
   fill: var(--ink-2);
+}
+.quad .trail path {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.quad .trail.up path {
+  stroke: var(--up);
+}
+.quad .trail.down path {
+  stroke: var(--down);
+}
+.quad .trail .start {
+  fill: #fff;
+  stroke-width: 1.2;
+}
+.quad .trail.up .start {
+  stroke: var(--up);
+}
+.quad .trail.down .start {
+  stroke: var(--down);
+}
+.quad .m-up {
+  fill: var(--up);
+}
+.quad .m-down {
+  fill: var(--down);
+}
+.seg.filter {
+  margin-bottom: 10px;
+}
+.movers {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.movers p {
+  margin: 0 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+.movers button {
+  padding: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.mv {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mv.up {
+  color: var(--up);
+}
+.mv.down {
+  color: var(--down);
+}
+.sel-info {
+  margin-top: 8px;
+  font-size: 14px;
+}
+.sel-info p {
+  margin: 0 0 4px;
 }
 
 /* ---------- 순위 ---------- */
