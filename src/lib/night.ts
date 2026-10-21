@@ -25,8 +25,8 @@ const DAY = 86_400_000;
 export const INPUTS = [
   { coin: "EWY", label: "EWY(한국 ETF)", unit: "$" },
   { coin: "KR200", label: "KR200 무기한선물", unit: "" },
-  { coin: "SP500", label: "S&P 500", unit: "" },
-  { coin: "XYZ100", label: "나스닥 100", unit: "" },
+  { coin: "SP500", label: "S&P 500 무기한선물", unit: "" },
+  { coin: "XYZ100", label: "나스닥 100 무기한선물", unit: "" },
   { coin: "KRW", label: "원/달러", unit: "₩" },
   { coin: "SMSN", label: "삼성전자", unit: "$", krw: true },
   { coin: "SKHX", label: "SK하이닉스", unit: "$", krw: true },

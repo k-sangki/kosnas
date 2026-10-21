@@ -796,3 +796,58 @@ a {
 .night-inputs .num {
   text-align: right;
 }
+
+/* 미장 */
+.us-price {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 6px 0 0;
+}
+.us-price dt {
+  font-size: 13px;
+  color: var(--muted);
+}
+.us-price dd {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.nchart .us-sp,
+.nchart .us-nd {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.nchart .us-sp {
+  stroke: var(--pine-2);
+}
+.nchart .us-nd {
+  stroke: var(--amber);
+}
+.nchart .us-sp-dot {
+  fill: var(--pine-2);
+}
+.nchart .us-nd-dot {
+  fill: var(--amber);
+}
+.nchart-read .us-sp-key {
+  border-top-color: var(--pine-2);
+}
+.nchart-read .us-nd-key {
+  border-top-color: var(--amber);
+}
+
+/* 시간대 안내 */
+.front-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.front-note a {
+  color: var(--ink-2);
+  font-weight: 600;
+  margin-left: 6px;
+}
