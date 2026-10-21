@@ -135,12 +135,13 @@ a {
 }
 .logo-dot {
   display: inline-block;
-  width: 0.3em;
-  height: 0.3em;
+  width: 0.28em;
+  height: 0.28em;
   border-radius: 50%;
-  background: var(--mint);
-  margin: 0 0.06em;
-  transform: translateY(-0.1em);
+  background: var(--up);
+  /* 앞 글자의 자간(-0.04em)만큼 왼쪽을 더 띄워 두 글자 사이 한가운데, 높이는 o의 가운데(0.5ex) */
+  margin: 0 0.07em 0 0.11em;
+  transform: translateY(calc(0.14em - 0.5ex));
 }
 /* 글자 상자 아래를 기준선에 맞추고(text-box) 그라데이션을 기준선에서 x높이(1ex)까지 둔다 — 가운데(0.5ex)가 o의 가운데 */
 .logo-t {
