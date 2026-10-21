@@ -61,6 +61,7 @@ function Chart({ d }: { d: NightData }) {
   const yt = [0, 1, 2, 3, 4].map((i) => lo + ystep * i);
   const us = usOpenIn(d.window);
   const night = d.window.start + (2 * 60 + 15) * 60_000; // 18:00 야간 개장
+  const nightEnd = d.window.end - 3 * 3600_000; // 06:00 야간 마감
   const hp = hover != null ? pts[hover] : null;
 
   const onMove = (e: React.PointerEvent) => {
@@ -100,10 +101,17 @@ function Chart({ d }: { d: NightData }) {
         {[
           [night, "야간 개장"],
           ...(us ? [[us, "미국 개장"] as const] : []),
+          [nightEnd, "야간 마감"],
         ].map(([at, name]) => (
           <g key={name as string}>
             <line x1={px(at as number)} x2={px(at as number)} y1={PAD.t} y2={H - PAD.b} className="mark" />
-            <text x={px(at as number) + 4} y={PAD.t + 10} className="mlab">
+            {/* 마감 표시는 선 왼쪽에 써서 오른쪽 눈금과 겹치지 않게 */}
+            <text
+              x={px(at as number) + (at === nightEnd ? -4 : 4)}
+              y={PAD.t + 10}
+              textAnchor={at === nightEnd ? "end" : "start"}
+              className="mlab"
+            >
               {name}
             </text>
           </g>
@@ -131,7 +139,7 @@ function Chart({ d }: { d: NightData }) {
           </>
         ) : (
           <>
-            <span className="key est-key" /> 추정(EWY 환산) <span className="key kr-key" /> KR200 무기한선물 <span className="key base-key" /> 15:45 기준
+            <span className="key est-key" /> 추정(EWY·KR200) <span className="key kr-key" /> KR200 무기한선물 <span className="key base-key" /> 15:45 기준
           </>
         )}
       </p>
@@ -201,6 +209,12 @@ export function NightBoard() {
             <dt>기준(15:45)</dt>
             <dd>{fmt(d.base)}</dd>
           </div>
+          {d.at0600 != null && (
+            <div>
+              <dt>06:00</dt>
+              <dd className={tone(d.at0600 - d.base)}>{fmt(d.at0600)}</dd>
+            </div>
+          )}
           <div>
             <dt>고가</dt>
             <dd className="up">{fmt(d.high)}</dd>

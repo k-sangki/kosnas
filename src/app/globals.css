@@ -658,9 +658,9 @@ a {
   font-variant-numeric: tabular-nums;
 }
 .night-stats {
-  display: grid;
-  grid-template-columns: repeat(4, auto);
-  gap: 2px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
   margin: 0;
   align-self: end;
 }
