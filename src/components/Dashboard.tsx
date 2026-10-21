@@ -349,6 +349,7 @@ function useDrag(ids: string[], grid: React.RefObject<HTMLDivElement | null>) {
 export function Dashboard({ d }: { d: NightData | null }) {
   const ids = useIds();
   const [edit, setEdit] = useState(false);
+  const [picking, setPicking] = useState(false);
   const grid = useRef<HTMLDivElement>(null);
   const { list, held, props } = useDrag(ids, grid);
   const rest = TILES.filter((t) => !ids.includes(t.id));
@@ -381,18 +382,44 @@ export function Dashboard({ d }: { d: NightData | null }) {
             </article>
           );
         })}
-        {!list.length && <p className="muted">카드를 모두 뺐습니다. 아래에서 다시 넣을 수 있어요.</p>}
+        {edit && rest.length > 0 && (
+          <button type="button" className="tile tile-new" onClick={() => setPicking(true)} aria-label="카드 넣기">
+            +
+          </button>
+        )}
       </div>
+      {picking && (
+        <div className="picker-bg" onClick={() => setPicking(false)}>
+          <div className="picker" role="dialog" aria-label="카드 넣기" onClick={(e) => e.stopPropagation()}>
+            <div className="picker-head">
+              <h3>카드 넣기</h3>
+              <button type="button" onClick={() => setPicking(false)} aria-label="닫기">
+                ×
+              </button>
+            </div>
+            <ul>
+              {rest.map((t) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      save([...ids, t.id]);
+                      setPicking(false);
+                    }}
+                  >
+                    <Icon id={t.id} />
+                    <span>{t.label}</span>
+                    <span className="muted">{t.kind === "hl" ? t.sub : "트레이딩뷰 시세"}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
       {edit && (
         <div className="dash-add">
-          <p className="muted">카드를 끌어 순서를 바꾸고, ×로 뺄 수 있어요.{rest.length > 0 && " 아래를 눌러 카드를 넣으세요."}</p>
-          <div className="chips">
-            {rest.map((t) => (
-              <button key={t.id} type="button" className="chip" onClick={() => save([...ids, t.id])}>
-                + {t.label}
-              </button>
-            ))}
-          </div>
+          <p className="muted">카드를 끌어 순서를 바꾸고, ×로 빼고, +로 넣을 수 있어요.</p>
           <button type="button" className="dash-reset" onClick={() => save(null)}>
             기본 배치로 되돌리기
           </button>
