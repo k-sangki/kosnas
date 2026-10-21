@@ -135,7 +135,39 @@ const ICONS: Record<string, () => React.ReactElement> = {
   BTC: () => <Badge t="₿" bg="#f7931a" size={11} />,
 };
 
+/** 트레이딩뷰 심볼 로고(파일 이름). 못 불러오면 위의 직접 그린 아이콘을 쓴다 */
+const LOGO = "https://s3-symbol-logo.tradingview.com/";
+const LOGOS: Record<string, string> = {
+  SMSN: "samsung-electronics",
+  SKHX: "sk-hynix",
+  EWY: "ishares",
+  SOXX: "ishares",
+  KR200: "country/KR",
+  XYZ100: "indices/nasdaq-100",
+  SP500: "indices/s-and-p-500",
+  SPY: "spdr-sandp500-etf-tr",
+  QQQ: "invesco",
+  KRW: "country/KR",
+  USO: "united-states-commodity-funds",
+  WTI: "crude-oil",
+  BRENT: "brent-oil",
+  GOLD: "metal/gold",
+  DXY: "indices/u-s-dollar-index",
+  US10Y: "country/US",
+  BTC: "crypto/XTVCBTC",
+};
+
+function Icon({ id }: { id: string }) {
+  const [bad, setBad] = useState(false);
+  const slug = LOGOS[id];
+  if (!slug || bad) return ICONS[id]?.() ?? null;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img className="tile-icon tile-logo" src={`${LOGO}${slug}.svg`} alt="" loading="lazy" onError={() => setBad(true)} />;
+}
+
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
+/** 15:45 대비 원화 등락(같은 % 등락을 지금 원화 값에 되돌려 센다) */
+const won = (v: number) => `${v > 0 ? "▲" : v < 0 ? "▼" : ""}${Math.abs(Math.round(v)).toLocaleString()}원`;
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
 function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | null }) {
@@ -149,7 +181,10 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
             <span className="tile-unit">{t.unit}</span>
             {i.krw ? i.krw.toLocaleString() : fmt(i.price)}
           </p>
-          <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>{i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}</p>
+          <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>
+            {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
+            {i.krw && i.chg != null && <span className="tile-won"> {won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
+          </p>
         </div>
         {i.spark && <Spark v={i.spark} />}
       </div>
@@ -333,7 +368,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
           return (
             <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}`} {...props(id)}>
               <h3 className="tile-label">
-                {ICONS[id]?.()}
+                <Icon id={id} />
                 {t.label}
               </h3>
               {t.kind === "hl" ? <HlBody t={t} d={d} /> : <TvBody t={t} />}

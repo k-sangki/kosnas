@@ -856,6 +856,14 @@ a {
   width: 18px;
   height: 18px;
 }
+.tile-logo {
+  border-radius: 50%;
+  background: var(--chip);
+}
+.tile-won {
+  font-size: 12px;
+  font-weight: 600;
+}
 .tile-price {
   margin: 0;
   font-size: 18px;
