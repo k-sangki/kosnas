@@ -186,9 +186,11 @@ export function assemble(now: number, win: NightWindow, candles: Record<string, 
   const krw = marks.KRW ?? null;
   const inputs: NightInput[] = INPUTS.map((i) => {
     const price = marks[i.coin] ?? null;
-    const at = priceAt(candles[i.coin] ?? [], win.start)?.c;
+    const cs = candles[i.coin] ?? [];
+    // 15:45 전 체결이 없으면 그 뒤 첫 체결을 기준으로 삼는다
+    const at = priceAt(cs, win.start)?.c ?? cs.find((k) => k.t + step > win.start)?.c;
     const chg = price != null && at ? round2((price / at - 1) * 100) : null;
-    const mid = (candles[i.coin] ?? []).filter((k) => k.t + step > win.start && k.t + step <= win.end).map((k) => k.c);
+    const mid = cs.filter((k) => k.t + step > win.start && k.t + step <= win.end).map((k) => k.c);
     const spark = at ? thin([at, ...mid, ...(win.live && price != null ? [price] : [])]) : undefined;
     return {
       coin: i.coin,

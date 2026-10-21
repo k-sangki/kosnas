@@ -15,7 +15,8 @@ async function load(now: number) {
   const win = nightWindow(now);
   const step = stepFor(win, now);
   const interval = step === 60_000 ? "1m" : "5m";
-  const from = win.start - 10 * 60_000;
+  // 거래가 드문 종목(원/달러 등)도 15:45 직전 체결가를 찾도록 두 시간 앞부터 받는다
+  const from = win.start - 120 * 60_000;
   const coins = INPUTS.map((i) => i.coin);
   const [ctx, ...series] = await Promise.all([
     info<[{ universe: { name: string }[] }, { markPx?: string; oraclePx?: string }[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
