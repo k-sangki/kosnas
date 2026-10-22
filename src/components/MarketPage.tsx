@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
+import { CaptureArea } from "./CaptureArea";
 import { FlowTable } from "./FlowTable";
 import { SectorBoard } from "./SectorBoard";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
@@ -116,8 +117,16 @@ export function MarketContent({ market }: { market: Market }) {
         <span className="muted">{data.asof} 종가 기준</span>
       </p>
       {data.sample && <SampleNotice asof={data.asof} />}
-      {!data.sample && <FlowTable data={light} />}
-      <SectorBoard data={light} />
+      <CaptureArea
+        name={`${market}-sectors`}
+        stamp={`${data.asof} 종가 기준`}
+        title={market === "kr" ? "코스피·코스닥 섹터 순환" : "미국 증시 섹터 순환"}
+        url={`https://kosnas.com/${market}`}
+        foot="섹터별 강도와 그 변화 · 장 마감 자료로 계산"
+      >
+        {!data.sample && <FlowTable data={light} />}
+        <SectorBoard data={light} />
+      </CaptureArea>
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
       <AdSlot slot={AD_SLOTS.board} />

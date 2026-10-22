@@ -226,7 +226,10 @@ export function SectorBoard({ data }: { data: SectorData }) {
   const shown = live.filter((s) => (filter === "all" || moves.get(s.id)?.dir === filter) && (!rsOnly || (s.rsLeaders ?? 0) > 0));
   const rankLive = units.filter((s) => ready(s, rankP) && shown.some((x) => x.id === s.id));
   const sorted = [...rankLive].sort((a, b) => b.x[rankP]! - a.x[rankP]!);
-  const rankMoves = moveScores(units.filter((s) => ready(s, rankP)), rankP);
+  const rankMoves = moveScores(
+    units.filter((s) => ready(s, rankP)),
+    rankP,
+  );
   const sel = shown.find((s) => s.id === selected);
   const selMove = sel && moves.get(sel.id);
   const selAccel = sel && accelOf(sel, period);
@@ -361,7 +364,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
         )}
       </section>
 
-      <div className="quad-grid">
+      <div className="quad-grid no-capture">
         {QUADRANTS.map((q) => {
           const list = shown.filter((u) => u.q[period] === q.key).sort((a, b) => score(b) - score(a));
           return (
@@ -382,7 +385,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
         })}
       </div>
 
-      <section className="card">
+      <section className="card no-capture">
         <h2 className="card-title">강도 순위</h2>
         <CardSeg value={rankP} onChange={setRankP} label="강도 순위" />
         <ol className="rank">
@@ -415,7 +418,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
       </section>
 
       {accels.length > 0 && (
-        <section className="card">
+        <section className="card no-capture">
           <h2 className="card-title">
             가속·감속{" "}
             <span className="muted">
@@ -457,7 +460,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
 
       {live.some((u) => u.capShareChg) && (
         <>
-          <section className="card">
+          <section className="card no-capture">
             <h2 className="card-title">시총 비중 변화</h2>
             <CardSeg value={cp.cap} onChange={(p) => setCp({ ...cp, cap: p })} label="시총 비중" />
             <p className="muted">
@@ -474,7 +477,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
               extra={(u) => (u.capShare != null ? `${u.capShare.toFixed(1)}%` : "")}
             />
           </section>
-          <section className="card">
+          <section className="card no-capture">
             <h2 className="card-title">거래대금이 몰리는 {word}</h2>
             <CardSeg value={cp.flow} onChange={(p) => setCp({ ...cp, flow: p })} label="거래대금" />
             <p className="muted">
@@ -482,7 +485,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
             </p>
             <TwoCols units={live} value={(u) => u.dShare?.[cp.flow]} up="늘어남" down="줄어듦" fmt={(v) => signed(v, 2)} href={href} />
           </section>
-          <section className="card">
+          <section className="card no-capture">
             <h2 className="card-title">하락일에 버틴 {word}</h2>
             <CardSeg value={cp.hold} onChange={(p) => setCp({ ...cp, hold: p })} label="하락일 버팀" />
             <p className="muted">
@@ -497,7 +500,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
           </section>
         </>
       )}
-      <p className="muted small-note">
+      <p className="muted small-note no-capture">
         이 화면은 지금 어디가 강하고 어디로 거래가 몰리는지 보는 곳입니다. 지나간 자료로 따져 보면 &lsquo;관찰&rsquo; 칸 섹터가 다음 20일에 평균보다 뚜렷하게
         앞서지 않았고, 이동 강도가 높았던 섹터나 시총·거래대금 비중이 늘어난 섹터도 다음 수익을 앞서 보여 주지 못했습니다. 다음 주도 섹터를 맞히는 신호가 아니라
         흐름을 읽는 참고 자료로 보세요.
