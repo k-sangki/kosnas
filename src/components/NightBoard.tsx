@@ -168,7 +168,7 @@ export function NightBoard() {
           if (!stop) setErr(String(e));
         }
       }
-      if (!stop) timer = setTimeout(tick, live.current ? 15_000 : 300_000);
+      if (!stop) timer = setTimeout(tick, live.current ? 5_000 : 300_000);
     };
     tick();
     const vis = () => document.visibilityState === "visible" && (clearTimeout(timer), tick());
@@ -235,7 +235,7 @@ function Main({ d }: { d: NightData }) {
     <>
       <div className="night-head">
         <div>
-          <p className="muted">{d.window.live ? "실시간 · 15초마다 갱신" : `지난밤 · ${hhmm(d.window.end)} 마감`}</p>
+          <p className="muted">{d.window.live ? "실시간 · 5초마다 갱신" : `지난밤 · ${hhmm(d.window.end)} 마감`}</p>
           <p className="night-price">
             <b className={t}>{fmt(d.est)}</b>
             <span className={t}>
