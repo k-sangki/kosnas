@@ -248,12 +248,13 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
-      <p className="tile-price">
-        {t.unit && <span className="tile-unit">{t.unit}</span>}
-        {i.krw ? i.krw.toLocaleString() : fmt(i.price)}
-        {t.unit && <span className="tile-word">{t.unit === "₩" ? "원" : "달러"}</span>}
-      </p>
-      <div className="tile-row">
+      {/* 가격·등락 오른쪽 남는 자리를 선 차트가 채운다(좁은 카드에서는 아래로) */}
+      <div className="tile-body">
+        <p className="tile-price">
+          {t.unit && <span className="tile-unit">{t.unit}</span>}
+          {i.krw ? i.krw.toLocaleString() : fmt(i.price)}
+          {t.unit && <span className="tile-word">{t.unit === "₩" ? "원" : "달러"}</span>}
+        </p>
         <p className={`tile-chg ${i.chg != null ? tone(i.chg) : ""}`}>
           {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
           {i.krw && i.chg != null && <span className="tile-won">{won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
@@ -304,10 +305,13 @@ function Spark({ v }: { v: number[] }) {
   const y = (x: number) => 2 + (1 - (x - lo) / span) * (H - 4);
   const pts = v.map((x, k) => `${((k / (v.length - 1)) * W).toFixed(1)},${y(x).toFixed(1)}`).join(" ");
   return (
-    <svg className={`tile-spark ${tone(v[v.length - 1] - v[0])}`} viewBox={`0 0 ${W} ${H}`} aria-hidden>
-      <line x1={0} x2={W} y1={y(v[0])} y2={y(v[0])} className="base" />
-      <polyline points={pts} />
-    </svg>
+    // 상자 크기는 카드 배치가 정하고 그림은 그 상자를 채운다(그림 비율이 카드 높이를 늘리지 않게)
+    <div className="tile-spark-box">
+      <svg className={`tile-spark ${tone(v[v.length - 1] - v[0])}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
+        <line x1={0} x2={W} y1={y(v[0])} y2={y(v[0])} className="base" />
+        <polyline points={pts} />
+      </svg>
+    </div>
   );
 }
 
