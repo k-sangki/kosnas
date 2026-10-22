@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMeta({
 
 export default function About() {
   return (
-    <TextPage title="KosNas 소개">
+    <TextPage title="코스나스(KosNas) 소개">
       <p>
         KosNas는 한국 주식시장을 보는 사람이 하루에 여러 번 확인하는 숫자들, 곧 밤사이 코스피가 어디쯤 와 있는지, 국내에서 어느 섹터가 강해지고 약해지는지, 미국
         장이 지금 어떻게 움직이는지를 한곳에 모아 보여주는 무료 정보 서비스입니다. 이름은 코스피(KOSPI)와 나스닥(NASDAQ)에서 따왔습니다.

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "KosNas";
+/** 검색 결과에 보이는 사이트 이름. 구글은 WebSite 이름·og:site_name·제목이 같은 이름일 때 따른다 */
+export const SITE_NAME = "코스나스";
 export const OG_IMAGE = { url: "/og.png", width: 1200, height: 630, alt: "KosNas - 코스피 야간선물 실시간 추정, 국내 섹터 순환, 미국 증시 흐름" };
 
 /**
@@ -34,7 +35,7 @@ export function breadcrumbLd(site: string, crumbs: Crumb[]) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: [["KosNas", "/"] as Crumb, ...crumbs].map(([name, path], i) => ({
+    itemListElement: [[SITE_NAME, "/"] as Crumb, ...crumbs].map(([name, path], i) => ({
       "@type": "ListItem",
       position: i + 1,
       name,
@@ -53,7 +54,7 @@ export function siteLd(site: string, description: string) {
         "@id": `${site}/#website`,
         url: site,
         name: SITE_NAME,
-        alternateName: ["코스나스", "kosnas.com"],
+        alternateName: ["KosNas", "kosnas.com"],
         description,
         inLanguage: "ko-KR",
         publisher: { "@id": `${site}/#org` },

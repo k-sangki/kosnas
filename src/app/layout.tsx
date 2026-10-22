@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { JsonLd } from "@/components/JsonLd";
-import { OG_IMAGE, siteLd } from "@/lib/seo";
+import { OG_IMAGE, SITE_NAME, siteLd } from "@/lib/seo";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kosnas.com";
@@ -18,13 +18,13 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "KosNas - 코스피 야간선물·섹터 순환 대시보드",
-    template: "%s | KosNas",
+    default: "코스나스 - 코스피 야간선물·섹터 순환 대시보드",
+    template: `%s | ${SITE_NAME}`,
   },
   description: DESCRIPTION,
-  applicationName: "KosNas",
-  keywords: ["KosNas", "코스피 야간선물", "야간선물 실시간", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
-  openGraph: { type: "website", siteName: "KosNas", locale: "ko_KR", title: "KosNas - 코스피 야간선물·섹터 순환 대시보드", description: DESCRIPTION, url: "/", images: [OG_IMAGE] },
+  applicationName: SITE_NAME,
+  keywords: ["코스나스", "KosNas", "코스피 야간선물", "야간선물 실시간", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
+  openGraph: { type: "website", siteName: SITE_NAME, locale: "ko_KR", title: "코스나스 - 코스피 야간선물·섹터 순환 대시보드", description: DESCRIPTION, url: "/", images: [OG_IMAGE] },
   twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
   robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   formatDetection: { telephone: false },
