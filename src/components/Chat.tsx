@@ -151,7 +151,12 @@ export function Chat() {
           )}
         </span>
         <span className="chat-head-right">
-          {unread.length > 0 && <span className="chat-new">새 글 {unread.length > 99 ? "99+" : unread.length}</span>}
+          {/* 읽지 않은 새 글 + 아이폰 앱 배지 같은 빨간 숫자 */}
+          {unread.length > 0 && (
+            <span className="chat-unread">
+              읽지 않은 새 글<span className="chat-badge">{unread.length > 99 ? "99+" : unread.length}</span>
+            </span>
+          )}
           <span className="chat-chev" aria-hidden />
         </span>
       </button>
