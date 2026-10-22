@@ -120,13 +120,14 @@ export function MarketContent({ market }: { market: Market }) {
       <CaptureArea
         name={`${market}-sectors`}
         stamp={`${data.asof} 종가 기준`}
+        heading={market === "kr" ? "코스피·코스닥 섹터 순위" : "미국 섹터 순위"}
         title={market === "kr" ? "코스피·코스닥 섹터 순환" : "미국 증시 섹터 순환"}
         url={`https://kosnas.com/${market}`}
         foot="섹터별 강도와 그 변화 · 장 마감 자료로 계산"
       >
         {!data.sample && <FlowTable data={light} />}
-        <SectorBoard data={light} />
       </CaptureArea>
+      <SectorBoard data={light} />
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
       <AdSlot slot={AD_SLOTS.board} />

@@ -1,7 +1,7 @@
 name: Collect investors
 
 # 유명 투자자의 최근 30일 지분 공시·내부자 매매 공시와 ARK 매일 보유 내역을 하루 두 번(07:30·20:30 KST) 받는다.
-# 바뀐 것이 있을 때만 main에 올려 배포한다.
+# 13F(분기 보유)는 새 보고서가 나왔을 때만 바뀐다. 바뀐 것이 있을 때만 main에 올려 배포한다.
 on:
   schedule:
     - cron: "30 22 * * *"
@@ -19,7 +19,7 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,11 +29,14 @@ jobs:
           python-version: "3.12"
       - name: 공시·ARK 받기
         run: python collector/investors_recent.py --out src/data/investors.json --ark src/data/ark-holdings.json
+      - name: 13F 받기
+        continue-on-error: true
+        run: python collector/investors_13f.py --out src/data/investors-13f.json --tickers src/data/cusip-tickers.json --sic src/data/sic-codes.json
       - name: main에 올리기
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git add src/data/investors.json src/data/ark-holdings.json
+          git add src/data/investors.json src/data/ark-holdings.json src/data/investors-13f.json src/data/cusip-tickers.json src/data/sic-codes.json
           git diff --cached --quiet && exit 0
           git config user.name "kosnas-bot"
           git config user.email "actions@users.noreply.github.com"

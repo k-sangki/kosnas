@@ -10,6 +10,8 @@ interface Props {
   children: ReactNode;
   /** 이미지 머리 오른쪽 글. 없으면 캡처한 시각 */
   stamp?: string;
+  /** 이미지 맨 위 제목 */
+  heading: string;
   name: string;
   title: string;
   url: string;
@@ -17,7 +19,7 @@ interface Props {
 }
 
 /** 감싼 카드들을 이미지로 저장·공유하는 떠 있는 버튼(홈 화면 추가 포함). 국장·미장 탭이 쓴다 */
-export function CaptureArea({ children, stamp, name, title, url, foot }: Props) {
+export function CaptureArea({ children, stamp, heading, name, title, url, foot }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const target = useCallback(() => ref.current, []);
   const [at, setAt] = useState<number | null>(null);
@@ -31,6 +33,7 @@ export function CaptureArea({ children, stamp, name, title, url, foot }: Props) 
           <LogoSvg />
           <span>{stamp ?? (at ? `${day} ${hhmm(now)} 기준` : "")}</span>
         </div>
+        <h2 className="cap-only cap-title">{heading}</h2>
         {children}
         <div className="cap-only cap-foot">
           <span>{foot}</span>
