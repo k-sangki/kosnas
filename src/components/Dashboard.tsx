@@ -242,7 +242,7 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   const x = d?.extra?.[t.coin];
   const i =
     d?.inputs.find((v) => v.coin === t.coin) ??
-    (x && { coin: t.coin, price: x.price, chg: x.prev ? (x.price / x.prev - 1) * 100 : null, krw: undefined, spark: undefined });
+    (x && { coin: t.coin, price: x.price, chg: x.prev ? (x.price / x.prev - 1) * 100 : null, krw: undefined, spark: x.spark });
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -292,7 +292,7 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
   );
 }
 
-/** 15:45부터의 작은 선 차트. 점선은 15:45 값 */
+/** 작은 선 차트. 점선은 첫 값(15:45 값, 주말에도 거래 카드는 24시간 전 가격) */
 function Spark({ v }: { v: number[] }) {
   const W = 64;
   const H = 36;
