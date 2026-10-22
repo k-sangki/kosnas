@@ -5,7 +5,7 @@ import { THEME_SCRIPT } from "@/lib/theme-script";
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kosnas.com";
 // 시크릿에 줄바꿈이 섞여 들어와도 ads.txt·스크립트 주소가 깨지지 않게 다듬는다
-const ADSENSE = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
+const ADSENSE = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-2807429912252096";
 
 // Google 애널리틱스 4 측정 ID (공개 값)
 const GA_ID = "G-Z3JCEMSBJT";

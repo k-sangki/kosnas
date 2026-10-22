@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
+const CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-2807429912252096";
 /**
  * 광고 자리 표시 여부. 실제 시세 수집이 붙고 애드센스 승인을 받기 전까지는 끈다(4단계에서 켠다).
  * 자동 광고(전면 광고 포함)는 쓰지 않고 이 수동 슬롯만 쓴다. 트레이딩뷰 위젯과 겹치는 자리에는 두지 않는다.
