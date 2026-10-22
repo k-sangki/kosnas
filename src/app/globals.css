@@ -1995,3 +1995,44 @@ button.ft-row {
   font-weight: 700;
   font-size: 16px;
 }
+.sf-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sf-list li {
+  padding: 9px 0;
+}
+.sf-list li + li {
+  border-top: 1px solid var(--line);
+}
+.sf-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+.sf-bar {
+  position: relative;
+  height: 6px;
+  margin: 6px 0 4px;
+  background: var(--line);
+  border-radius: 3px;
+}
+.sf-bar i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+}
+.sf-bar .pos {
+  left: 50%;
+  background: var(--up);
+}
+.sf-bar .neg {
+  right: 50%;
+  background: var(--down);
+}
+.sf-list small {
+  display: block;
+  font-size: 12px;
+}

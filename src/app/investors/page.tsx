@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Crowd, InvestorList } from "@/components/Investors";
+import { Crowd, InvestorList, SectorFlows } from "@/components/Investors";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { mainPeriod, quarter } from "@/lib/investors";
 
@@ -23,6 +23,7 @@ export default function InvestorsPage() {
           사고 팔았는지 정리했습니다. 이름을 누르면 전체 보유 종목이 나옵니다.
         </p>
         <InvestorList title="투자자" />
+        <SectorFlows />
         <Crowd kind="buy" />
         <Crowd kind="sell" />
         <section className="card seo-text">

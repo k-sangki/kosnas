@@ -36,11 +36,30 @@ export type Investor = {
   sold: Holding[];
 };
 
-type Data = { updated: string | null; failed?: string[]; investors: Investor[] };
+export type SectorFlow = {
+  sector: string;
+  /** 이번 분기 산 금액(달러, +) */
+  buy: number;
+  /** 판 금액(달러, -) */
+  sell: number;
+  net: number;
+  buyers: string[];
+  sellers: string[];
+  top_buy: string[];
+  top_sell: string[];
+};
+
+type Data = {
+  updated: string | null;
+  failed?: string[];
+  sectors?: { period: string; investors: number; sectors: SectorFlow[] } | null;
+  investors: Investor[];
+};
 
 const DATA = raw as unknown as Data;
 
 export const INVESTORS: Investor[] = DATA.investors;
+export const SECTOR_FLOWS = DATA.sectors ?? null;
 export const findInvestor = (id: string) => INVESTORS.find((i) => i.id === id);
 
 /** 2026-06-30 → 2026년 2분기 */
@@ -51,7 +70,8 @@ export function quarter(period: string | null) {
 }
 
 /** 달러 금액을 억·만 단위로 */
-export function usd(v: number) {
+export function usd(v: number): string {
+  if (v < 0) return `-${usd(-v)}`;
   if (v >= 1e8) {
     const e = v / 1e8;
     return `${e >= 100 ? Math.round(e).toLocaleString() : e.toFixed(1)}억 달러`;
