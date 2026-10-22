@@ -10,12 +10,13 @@ const ADSENSE = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim();
 // Google 애널리틱스 4 측정 ID (공개 값)
 const GA_ID = "G-Z3JCEMSBJT";
 
-const DESCRIPTION = "코스피·코스닥 섹터 순환을 한눈에. 어느 업종이 강해지고 약해지는지, 섹터 안 종목의 상대강도 순위와 시장 폭까지.";
+const DESCRIPTION =
+  "코스피 야간선물 실시간 추정, 삼성전자·SK하이닉스·나스닥·원/달러 시세 대시보드, 코스피·코스닥 섹터 순환과 상대강도, 미국 증시 흐름을 한곳에서.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "KosNas - 코스피·코스닥 섹터 순환",
+    default: "KosNas - 코스피 야간선물·섹터 순환 대시보드",
     template: "%s | KosNas",
   },
   description: DESCRIPTION,
