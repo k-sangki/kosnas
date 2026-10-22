@@ -152,6 +152,7 @@ export function UsBoard() {
   if (!d) {
     return (
       <section className="card">
+        <h2 className="card-title">S&P 500 · 나스닥 100 실시간 등락</h2>
         <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
       </section>
     );
@@ -159,6 +160,7 @@ export function UsBoard() {
   const s = d.session;
   return (
     <section className="card night">
+      <h2 className="card-title">S&P 500 · 나스닥 100 실시간 등락</h2>
       <div className="night-head">
         <div>
           <p className="muted">
@@ -184,7 +186,10 @@ export function UsBoard() {
       </div>
       <Chart d={d} />
       {err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
-      <p className="muted small-note">등락은 미국 직전 거래일 16:00(뉴욕) 대비입니다.</p>
+      <p className="muted small-note">
+        미국 정규장 동안 두 지수가 전일 종가보다 얼마나 오르내렸는지 보여 줍니다. 등락은 미국 직전 거래일 16:00(뉴욕) 대비이고, 지수를 따라가는 무기한선물
+        가격으로 계산한 참고값입니다.
+      </p>
     </section>
   );
 }
