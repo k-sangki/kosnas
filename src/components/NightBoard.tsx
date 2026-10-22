@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { hhmm, usOpenIn, type NightData } from "@/lib/night";
+import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
 import { Dashboard } from "./Dashboard";
 import { LogoSvg } from "./Logo";
@@ -209,6 +210,7 @@ export function NightBoard() {
       {d && !capturing && (
         // 트립날씨와 같은 떠 있는 버튼: 스크롤과 상관없이 화면 아래에 있다
         <div className="fab-bar">
+          <InstallButton />
           <button type="button" className="fab" onClick={() => setCapturing(true)}>
             <i className="logo-dot" aria-hidden /> 캡처해서 공유
           </button>

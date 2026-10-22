@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps<"/investors/[id]">)
 export default async function InvestorPage({ params }: PageProps<"/investors/[id]">) {
   const inv = findInvestor((await params).id);
   if (!inv) notFound();
-  const fresh = inv.holdings.filter((h) => h.change === "new" && !h.put_call);
+  const fresh = inv.holdings.filter((h) => h.change === "new" && !h.put_call && !h.prn);
   return (
     <div className="shell">
       <SiteHeader active="us" />

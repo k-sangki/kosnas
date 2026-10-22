@@ -14,6 +14,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 import time
 import urllib.request
@@ -101,6 +102,7 @@ def parse_table(xml_bytes, filed):
                     "value": float(f.get("value", 0)) * mult,
                     "shares": float(f.get("sshPrnamt", 0)),
                     "put_call": (f.get("putCall") or "").capitalize() or None,
+                    "prn": f.get("sshPrnamtType", "SH").upper() == "PRN",
                 }
             )
         except ValueError:
@@ -168,29 +170,39 @@ def info_table(cik, acc, filed):
     return parse_table(get(base + names[0]), filed)
 
 
+def pick_ticker(data):
+    """OpenFIGI 결과에서 미국 거래소 주식 기호 하나. 채권 기호(띄어쓰기 들어감)는 버린다"""
+    eq = [d for d in data if d.get("marketSector") == "Equity" and d.get("ticker")]
+    us = [d for d in eq if d.get("exchCode") == "US"] or eq
+    for d in us:
+        t = d["ticker"].replace("/", ".").rstrip("*")
+        if re.fullmatch(r"[A-Z][A-Z0-9.]{0,7}", t):
+            return t
+    return None
+
+
 def map_tickers(cusips, cache):
-    """CUSIP → 종목 기호(OpenFIGI). 못 찾으면 None으로 적어 다시 묻지 않는다"""
-    # 못 찾은 것(None)도 다시 묻는다: 거래소를 묶지 않고 물으면 찾히는 것이 있다
+    """CUSIP → 종목 기호(OpenFIGI). 못 찾은 것(None)은 다음에 다시 묻는다"""
     todo = sorted(c for c in set(cusips) if c and cache.get(c) is None)
     key = os.environ.get("OPENFIGI_API_KEY")
     batch = 100 if key else 10
     wait = 0.3 if key else 2.6  # 키 없이 분당 25회
-    print(f"OpenFIGI: 새 CUSIP {len(todo)}개", file=sys.stderr)
-    for i in range(0, len(todo), batch):
-        part = todo[i : i + batch]
-        body = json.dumps([{"idType": "ID_CUSIP", "idValue": c} for c in part]).encode()
-        headers = {"Content-Type": "application/json", **({"X-OPENFIGI-APIKEY": key} if key else {})}
-        try:
-            res = json.loads(get(OPENFIGI, data=body, headers=headers))
-        except Exception as e:  # noqa: BLE001 — 기호 없이도 화면은 그린다
-            print(f"  OpenFIGI 실패: {e}", file=sys.stderr)
-            break
-        for c, r in zip(part, res):
-            data = [d for d in (r.get("data") or []) if d.get("ticker")]
-            eq = [d for d in data if d.get("marketSector") == "Equity"] or data
-            us = [d for d in eq if d.get("exchCode") == "US"] or eq
-            cache[c] = us[0]["ticker"].replace("/", ".") if us else None
-        time.sleep(wait)
+    print(f"OpenFIGI: 찾을 CUSIP {len(todo)}개", file=sys.stderr)
+    # 미국 밖에서 설립한 회사(번호가 영문자로 시작)는 CINS로 물어야 찾힌다
+    for id_type in ("ID_CUSIP", "ID_CINS"):
+        todo = [c for c in todo if cache.get(c) is None]
+        for i in range(0, len(todo), batch):
+            part = todo[i : i + batch]
+            body = json.dumps([{"idType": id_type, "idValue": c} for c in part]).encode()
+            headers = {"Content-Type": "application/json", **({"X-OPENFIGI-APIKEY": key} if key else {})}
+            try:
+                res = json.loads(get(OPENFIGI, data=body, headers=headers))
+            except Exception as e:  # noqa: BLE001 — 기호 없이도 화면은 그린다
+                print(f"  OpenFIGI 실패: {e}", file=sys.stderr)
+                return cache
+            for c, r in zip(part, res):
+                cache[c] = pick_ticker(r.get("data") or [])
+            time.sleep(wait)
     return cache
 
 
@@ -205,6 +217,8 @@ def round_row(r, ticker):
     }
     if r.get("put_call"):
         out["put_call"] = r["put_call"]
+    if r.get("prn"):
+        out["prn"] = True
     for k in ("weight",):
         if k in r:
             out[k] = round(r[k], 2)

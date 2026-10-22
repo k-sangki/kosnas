@@ -23,7 +23,7 @@ export function InvestorList({ title = "유명 투자자 포트폴리오", limit
               </span>
               <span className="inv-top">
                 {inv.holdings
-                  .filter((h) => !h.put_call)
+                  .filter((h) => !h.put_call && !h.prn)
                   .slice(0, 3)
                   .map((h) => (
                     <span key={h.cusip}>
@@ -95,7 +95,7 @@ export function Holdings({ inv }: { inv: Investor }) {
             <span className="inv-h-name">
               <b>
                 {label(h)}
-                {h.put_call && <span className="qtag t-weaken">{optionTag(h)}</span>}
+                {optionTag(h) && <span className="qtag t-weaken">{optionTag(h)}</span>}
               </b>
               <small className="muted">
                 {h.ticker ? `${h.name} · ` : ""}
@@ -126,7 +126,7 @@ export function Sold({ inv }: { inv: Investor }) {
             <span className="inv-h-name">
               <b>
                 {label(h)}
-                {h.put_call && <span className="qtag t-weaken">{optionTag(h)}</span>}
+                {optionTag(h) && <span className="qtag t-weaken">{optionTag(h)}</span>}
               </b>
               <small className="muted">{h.ticker ? h.name : ""}</small>
             </span>

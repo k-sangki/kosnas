@@ -10,6 +10,8 @@ export type Holding = {
   value: number;
   shares: number;
   put_call?: "Put" | "Call";
+  /** 주식이 아니라 원금 단위(전환사채 등) */
+  prn?: boolean;
   weight?: number;
   change?: "new" | "add" | "reduce" | "same" | null;
   prev_shares?: number | null;
@@ -60,7 +62,7 @@ export function usd(v: number) {
 /** 이름 대신 쓸 기호(못 찾았으면 회사 이름) */
 export const label = (h: Holding) => h.ticker ?? h.name;
 
-export const optionTag = (h: Holding) => (h.put_call === "Put" ? "풋옵션" : h.put_call === "Call" ? "콜옵션" : "");
+export const optionTag = (h: Holding) => (h.put_call === "Put" ? "풋옵션" : h.put_call === "Call" ? "콜옵션" : h.prn ? "채권" : "");
 
 /** 전 분기 대비 주식 수 변화(%) */
 export function sharePct(h: Holding) {
@@ -74,8 +76,8 @@ export function crowd(kind: "buy" | "sell", n = 10) {
   for (const inv of INVESTORS) {
     const rows =
       kind === "buy"
-        ? inv.holdings.filter((h) => !h.put_call && (h.change === "new" || h.change === "add"))
-        : [...inv.holdings.filter((h) => !h.put_call && h.change === "reduce"), ...inv.sold.filter((h) => !h.put_call)];
+        ? inv.holdings.filter((h) => !h.put_call && !h.prn && (h.change === "new" || h.change === "add"))
+        : [...inv.holdings.filter((h) => !h.put_call && !h.prn && h.change === "reduce"), ...inv.sold.filter((h) => !h.put_call && !h.prn)];
     for (const h of rows) {
       const k = h.cusip;
       const e = by.get(k) ?? { h, who: [] };
