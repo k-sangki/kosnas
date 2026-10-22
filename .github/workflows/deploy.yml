@@ -31,8 +31,9 @@ jobs:
         if: env.CLOUDFLARE_API_TOKEN != ''
         run: |
           want="google.com, pub-2807429912252096, DIRECT, f08c47fec0942fa0"
+          # www 는 kosnas.com 으로 308 이동한다(같은 도메인 안 이동이라 애드센스 허용). 따라가서 본다.
           for u in https://kosnas.com/ads.txt https://www.kosnas.com/ads.txt; do
-            code=$(curl -sS -o body.txt -w '%{http_code} %{content_type}' "$u")
+            code=$(curl -sS -L -o body.txt -w '%{http_code} %{content_type} 최종 %{url_effective}' "$u")
             echo "$u -> $code"; cat body.txt
             grep -qxF "$want" body.txt || { echo "::error::$u 내용이 다릅니다"; exit 1; }
           done
