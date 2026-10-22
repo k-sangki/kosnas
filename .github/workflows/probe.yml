@@ -1,0 +1,20 @@
+name: Probe 13F (temp)
+on: push
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          UA="KosNas contact@kosnas.com"
+          curl -sS -A "$UA" https://data.sec.gov/submissions/CIK0001067983.json | python3 -c "
+          import json,sys; d=json.load(sys.stdin); r=d['filings']['recent']
+          for i,f in enumerate(r['form']):
+            if f.startswith('13F'): print(f, r['accessionNumber'][i], r['filingDate'][i], r['reportDate'][i], r['primaryDocument'][i])
+          " | head -6
+          ACC=$(curl -sS -A "$UA" https://data.sec.gov/submissions/CIK0001067983.json | python3 -c "
+          import json,sys; d=json.load(sys.stdin); r=d['filings']['recent']
+          print(next(r['accessionNumber'][i] for i,f in enumerate(r['form']) if f=='13F-HR'))")
+          N=${ACC//-/}
+          curl -sS -A "$UA" "https://www.sec.gov/Archives/edgar/data/1067983/$N/index.json" | head -c 1500; echo
+          curl -sS -X POST https://api.hyperliquid.xyz/info -H 'content-type: application/json' -d '{"type":"meta","dex":"xyz"}' | python3 -c "import json,sys; print([u['name'] for u in json.load(sys.stdin)['universe']])"
+          curl -sS -X POST https://api.hyperliquid.xyz/info -H 'content-type: application/json' -d '{"type":"perpDexs"}' | python3 -c "import json,sys; print([d and d.get('name') for d in json.load(sys.stdin)])"
