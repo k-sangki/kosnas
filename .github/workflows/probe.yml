@@ -1,0 +1,16 @@
+name: Probe today
+on:
+  push:
+    branches: [probe-today]
+permissions:
+  contents: write
+jobs:
+  p:
+    if: "!contains(github.event.head_commit.message, 'result')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 probe.py
+      - run: |
+          git config user.name kosnas-bot; git config user.email actions@users.noreply.github.com
+          git add out.json && git commit -qm "result" && git push -q
