@@ -6,7 +6,7 @@ import { TAB_NAME } from "@/lib/session";
 export function SiteHeader({ active }: { active?: "kr" | "us" | "night" | "guide" }) {
   return (
     <header className="topbar">
-      <Link href="/" aria-label="KosNas 홈" className="brand">
+      <Link href="/" aria-label="코스나스 홈" className="brand">
         <Logo />
       </Link>
       <nav className="top-nav">
