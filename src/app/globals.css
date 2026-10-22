@@ -1220,12 +1220,6 @@ body:has(.fab-bar) .foot {
   font-size: 15px;
   line-height: 22px;
 }
-.tile-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 6px;
-}
 .tile-num {
   min-width: 0;
 }
@@ -1237,11 +1231,48 @@ body:has(.fab-bar) .foot {
   font-weight: 400;
   margin-left: 2px;
 }
+.tile-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "price spark" "chg spark";
+  column-gap: 14px;
+  min-height: 0;
+}
+.tile-body .tile-price {
+  grid-area: price;
+}
+.tile-body .tile-chg {
+  grid-area: chg;
+  align-self: end;
+}
+.tile-spark-box {
+  grid-area: spark;
+  position: relative;
+  min-height: 44px;
+}
 .tile-spark {
-  flex: none;
-  width: 48px;
-  height: 30px;
+  position: absolute;
+  inset: 4px 0;
+  width: 100%;
+  height: calc(100% - 8px);
   overflow: visible;
+}
+/* 좁은 카드(휴대폰 두 칸)에서는 가격 아래 카드 폭 전체로 */
+.tile {
+  container-type: inline-size;
+}
+@container (max-width: 250px) {
+  .tile-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas: "price" "chg" "spark";
+  }
+  .tile-spark-box {
+    min-height: 40px;
+    margin-top: 4px;
+  }
 }
 .tile-spark polyline {
   fill: none;
