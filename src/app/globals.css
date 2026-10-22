@@ -2200,18 +2200,6 @@ button.ft-row {
   min-width: 0;
   text-align: left;
 }
-.chat-peek {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 13px;
-  color: var(--ink-2);
-}
-.chat-peek b {
-  font-weight: 600;
-  color: var(--muted);
-}
 .chat-head-right {
   flex: none;
   display: flex;

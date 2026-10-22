@@ -5,7 +5,7 @@ import { MAX_NICK, MAX_TEXT, randomNick, type ChatMsg, type ClientEvent, type Se
 
 /**
  * 첫 화면 익명 실시간 채팅. 처음에는 접혀 있지만 웹소켓은 늘 붙어 있어서(휴면 웹소켓이라 말이 없을 때는 비용이 없다)
- * 접힌 상태에서도 새 글 수와 최근 글 한 줄을 보인다. 마지막으로 본 글 번호는 이 브라우저에 저장한다.
+ * 접힌 상태에서도 읽지 않은 새 글 수를 보인다. 마지막으로 본 글 번호는 이 브라우저에 저장한다.
  * 닉네임은 B급 이름을 하나 골라 이 브라우저에 저장하고, 직접 바꿀 수 있다. 캡처에는 들어가지 않는다.
  */
 const NICK_KEY = "kosnas:chat:nick";
@@ -134,7 +134,6 @@ export function Chat() {
 
   const cutoff = mountedAt - FIRST_VISIT_MS;
   const unread = open ? [] : room.msgs.filter((m) => m.tag !== room.myTag && (seen != null ? m.id > seen : m.at > cutoff));
-  const latest = room.msgs[room.msgs.length - 1];
 
   return (
     <section className="card chat no-capture" aria-label="실시간 채팅">
@@ -144,11 +143,6 @@ export function Chat() {
             <i className={`chat-dot${room.conn === "open" ? " live" : ""}`} aria-hidden />
             실시간 채팅
           </span>
-          {!open && latest && (
-            <span className="chat-peek">
-              <b>{latest.nick}</b> {latest.text}
-            </span>
-          )}
         </span>
         <span className="chat-head-right">
           {/* 읽지 않은 새 글 + 아이폰 앱 배지 같은 빨간 숫자 */}
