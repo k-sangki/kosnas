@@ -369,7 +369,6 @@ export function SectorBoard({ data }: { data: SectorData }) {
               <h3>
                 {q.name} <span className="muted">{list.length}</span>
               </h3>
-              <p className="muted">{q.hint}</p>
               <div className="chips">{list.length ? list.slice(0, 10).map(chip) : <span className="muted">없음</span>}</div>
               {list.length > 10 && (
                 <details>
@@ -377,6 +376,7 @@ export function SectorBoard({ data }: { data: SectorData }) {
                   <div className="chips">{list.slice(10).map(chip)}</div>
                 </details>
               )}
+              <p className="muted small-note">{q.hint}</p>
             </section>
           );
         })}
@@ -422,10 +422,6 @@ export function SectorBoard({ data }: { data: SectorData }) {
               {period}일 = 전반 {d1}일 + 후반 {d2}일
             </span>
           </h2>
-          <p className="muted">
-            전반과 후반에 {word} 평균보다 얼마나 앞섰는지(%p)를 하루당 속도로 비교합니다. 가속 = 점점 빨리 강해짐, 반등 = 약하다가 강해짐, 감속 = 강해지지만
-            느려짐, 꺾임 = 강해지다 약해짐. 위 기간 버튼을 따릅니다.
-          </p>
           <div className="flow-cols">
             {[
               { title: "빨라짐", cls: "up", list: speedUp },
@@ -452,6 +448,10 @@ export function SectorBoard({ data }: { data: SectorData }) {
               </div>
             ))}
           </div>
+          <p className="muted small-note">
+            전반과 후반에 {word} 평균보다 얼마나 앞섰는지(%p)를 하루당 속도로 비교합니다. 가속 = 점점 빨리 강해짐, 반등 = 약하다가 강해짐, 감속 = 강해지지만
+            느려짐, 꺾임 = 강해지다 약해짐. 위 기간 버튼을 따릅니다.
+          </p>
         </section>
       )}
 
@@ -460,10 +460,6 @@ export function SectorBoard({ data }: { data: SectorData }) {
           <section className="card">
             <h2 className="card-title">시총 비중 변화</h2>
             <CardSeg value={cp.cap} onChange={(p) => setCp({ ...cp, cap: p })} label="시총 비중" />
-            <p className="muted">
-              {word} 시가총액 ÷ 전체 시가총액(옆 숫자 = 지금 비중)이 {cp.cap}일 동안 얼마나 바뀌었는지(%p)입니다. 주가 변화분만 계산해 신규 상장·증자로 커진
-              몫은 뺍니다. 반도체처럼 큰 {word}가 움직이면 나머지 비중이 함께 반대로 움직여요.
-            </p>
             <TwoCols
               units={live}
               value={(u) => u.capShareChg?.[cp.cap]}
@@ -473,27 +469,31 @@ export function SectorBoard({ data }: { data: SectorData }) {
               href={href}
               extra={(u) => (u.capShare != null ? `${u.capShare.toFixed(1)}%` : "")}
             />
+            <p className="muted small-note">
+              {word} 시가총액 ÷ 전체 시가총액(옆 숫자 = 지금 비중)이 {cp.cap}일 동안 얼마나 바뀌었는지(%p)입니다. 주가 변화분만 계산해 신규 상장·증자로 커진
+              몫은 뺍니다. 반도체처럼 큰 {word}가 움직이면 나머지 비중이 함께 반대로 움직여요.
+            </p>
           </section>
           <section className="card">
             <h2 className="card-title">거래대금이 몰리는 {word}</h2>
             <CardSeg value={cp.flow} onChange={(p) => setCp({ ...cp, flow: p })} label="거래대금" />
-            <p className="muted">
+            <TwoCols units={live} value={(u) => u.dShare?.[cp.flow]} up="늘어남" down="줄어듦" fmt={(v) => signed(v, 2)} href={href} />
+            <p className="muted small-note">
               최근 {cp.flow}일 거래대금 비중 − 그 앞 {cp.flow}일 비중(%p)입니다.
             </p>
-            <TwoCols units={live} value={(u) => u.dShare?.[cp.flow]} up="늘어남" down="줄어듦" fmt={(v) => signed(v, 2)} href={href} />
           </section>
           <section className="card">
             <h2 className="card-title">하락일에 버틴 {word}</h2>
             <CardSeg value={cp.hold} onChange={(p) => setCp({ ...cp, hold: p })} label="하락일 버팀" />
-            <p className="muted">
-              최근 {cp.hold}일 중 {word} 평균이 내린 날들만 골라 ({word} − 평균)을 평균한 값(%p)입니다. 순환매 글에서 흔히 &lsquo;다음 주도 후보&rsquo;로
-              꼽지만, 지나간 자료로 따져 보면 다음 주도라기보다 <b>방어 성격</b>에 가까웠습니다(시장이 오를 때는 뒤처지고 내릴 때만 버팀).
-            </p>
             {live.some((u) => u.hold?.[cp.hold] != null) ? (
               <TwoCols units={live} value={(u) => u.hold?.[cp.hold]} up="덜 빠짐" down="더 빠짐" fmt={(v) => signed(v, 2)} href={href} />
             ) : (
               <p className="muted">최근 {cp.hold}일에 평균이 내린 날이 3일 미만이라 계산하지 않았습니다.</p>
             )}
+            <p className="muted small-note">
+              최근 {cp.hold}일 중 {word} 평균이 내린 날들만 골라 ({word} − 평균)을 평균한 값(%p)입니다. 순환매 글에서 흔히 &lsquo;다음 주도 후보&rsquo;로
+              꼽지만, 지나간 자료로 따져 보면 다음 주도라기보다 <b>방어 성격</b>에 가까웠습니다(시장이 오를 때는 뒤처지고 내릴 때만 버팀).
+            </p>
           </section>
         </>
       )}
