@@ -37,7 +37,6 @@ INVESTORS = [
     ("soros", 1029160, "조지 소로스", "소로스 펀드"),
     ("wood", 1697748, "캐시 우드", "ARK 인베스트"),
     ("burry", 1649339, "마이클 버리", "사이언 자산운용"),
-    ("einhorn", 1079114, "데이비드 아인혼", "그린라이트 캐피털"),
     ("loeb", 1040273, "댄 로브", "서드 포인트"),
     ("coleman", 1167483, "체이스 콜먼", "타이거 글로벌"),
     ("icahn", 921669, "칼 아이칸", "아이칸 캐피털"),
@@ -106,6 +105,11 @@ def parse_table(xml_bytes, filed):
             )
         except ValueError:
             continue
+    # 2023년 뒤에도 천 달러 단위로 적어 내는 곳이 있다: 주당 평가액 중앙값이 1달러도 안 되면 천 달러로 본다
+    per = sorted(r["value"] / r["shares"] for r in rows if r["shares"] > 0 and not r["put_call"])
+    if mult == 1 and per and per[len(per) // 2] < 1:
+        for r in rows:
+            r["value"] *= 1000
     return rows
 
 
@@ -166,14 +170,15 @@ def info_table(cik, acc, filed):
 
 def map_tickers(cusips, cache):
     """CUSIP → 종목 기호(OpenFIGI). 못 찾으면 None으로 적어 다시 묻지 않는다"""
-    todo = sorted(c for c in set(cusips) if c and c not in cache)
+    # 못 찾은 것(None)도 다시 묻는다: 거래소를 묶지 않고 물으면 찾히는 것이 있다
+    todo = sorted(c for c in set(cusips) if c and cache.get(c) is None)
     key = os.environ.get("OPENFIGI_API_KEY")
     batch = 100 if key else 10
     wait = 0.3 if key else 2.6  # 키 없이 분당 25회
     print(f"OpenFIGI: 새 CUSIP {len(todo)}개", file=sys.stderr)
     for i in range(0, len(todo), batch):
         part = todo[i : i + batch]
-        body = json.dumps([{"idType": "ID_CUSIP", "idValue": c, "exchCode": "US"} for c in part]).encode()
+        body = json.dumps([{"idType": "ID_CUSIP", "idValue": c} for c in part]).encode()
         headers = {"Content-Type": "application/json", **({"X-OPENFIGI-APIKEY": key} if key else {})}
         try:
             res = json.loads(get(OPENFIGI, data=body, headers=headers))
@@ -181,9 +186,10 @@ def map_tickers(cusips, cache):
             print(f"  OpenFIGI 실패: {e}", file=sys.stderr)
             break
         for c, r in zip(part, res):
-            data = r.get("data") or []
+            data = [d for d in (r.get("data") or []) if d.get("ticker")]
             eq = [d for d in data if d.get("marketSector") == "Equity"] or data
-            cache[c] = eq[0]["ticker"] if eq and eq[0].get("ticker") else None
+            us = [d for d in eq if d.get("exchCode") == "US"] or eq
+            cache[c] = us[0]["ticker"].replace("/", ".") if us else None
         time.sleep(wait)
     return cache
 
@@ -249,6 +255,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--tickers", required=True)
     ap.add_argument("--only", help="이 id만(시험용)")
+    ap.add_argument("--force", action="store_true", help="보고서가 같아도 다시 받는다")
     a = ap.parse_args()
 
     old = {}
@@ -261,7 +268,7 @@ def main():
         if a.only and spec[0] != a.only:
             continue
         try:
-            inv, cs = build_one(spec, old.get(spec[0]))
+            inv, cs = build_one(spec, None if a.force else old.get(spec[0]))
         except Exception as e:  # noqa: BLE001 — 한 사람이 실패해도 나머지는 낸다
             print(f"{spec[2]}: 실패 {e}", file=sys.stderr)
             failed.append(spec[0])

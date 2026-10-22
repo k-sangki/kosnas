@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: 13F 받기
-        run: python collector/investors_13f.py --out src/data/investors.json --tickers src/data/cusip-tickers.json
+        run: python collector/investors_13f.py --out src/data/investors.json --tickers src/data/cusip-tickers.json ${{ github.event_name == 'push' && '--force' || '' }}
       - name: main에 올리기
         env:
           GH_TOKEN: ${{ github.token }}
