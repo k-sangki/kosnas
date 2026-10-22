@@ -2128,3 +2128,204 @@ button.ft-row {
   letter-spacing: -0.02em;
   color: var(--ink);
 }
+
+/* ---------- 첫 화면 익명 실시간 채팅 ---------- */
+.chat {
+  padding: 0;
+  overflow: hidden;
+}
+.chat-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 20px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.chat-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.chat-title::before {
+  content: "";
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--up);
+}
+.chat-online {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.chat-chev {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  margin: -4px 4px 0 0;
+  transition: transform 0.15s;
+}
+.chat-toggle[aria-expanded="true"] .chat-chev {
+  transform: rotate(-135deg);
+  margin-top: 4px;
+}
+.chat-body {
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--line);
+}
+.chat-list {
+  height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.chat-empty {
+  margin: auto;
+  font-size: 13px;
+}
+.chat-msg {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+.chat-msg.mine {
+  background: var(--chip);
+}
+.chat-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.chat-tag,
+.chat-time {
+  color: var(--muted);
+  font-size: 11px;
+}
+.chat-quote {
+  margin: 3px 0 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--line-2);
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-text {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chat-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+.chat-actions button {
+  padding: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+.chat-actions button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.chat-replying {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.chat-replying button {
+  background: none;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.chat-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.chat-nick {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chat-nick-input {
+  align-self: flex-start;
+  width: 180px;
+  padding: 4px 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+.chat-send {
+  display: flex;
+  gap: 6px;
+}
+.chat-send input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 아이폰이 입력할 때 화면을 확대하지 않게 */
+}
+.chat-send button {
+  flex: none;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  background: var(--pine);
+  color: var(--card);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.chat-send button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.chat-error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--up);
+}
+.chat button {
+  font-family: inherit;
+}

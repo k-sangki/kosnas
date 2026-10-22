@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { hhmm, usOpenIn, type NightData } from "@/lib/night";
 import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
+import { Chat } from "./Chat";
 import { Dashboard } from "./Dashboard";
 import { LogoSvg } from "./Logo";
 
@@ -204,6 +205,7 @@ export function NightBoard() {
           {d ? <Main d={d} /> : <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>}
           {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
         </section>
+        <Chat />
         <Dashboard d={d} />
         <div className="cap-only cap-foot">
           <span>해외 무기한선물로 계산한 참고용 추정치입니다</span>
