@@ -14,7 +14,10 @@ interface Row {
   id: string;
   name: string;
   x: Record<string, number | null>;
+  /** 순위·변화 계산용 20일 강도 추이 */
   path: number[];
+  /** 기간별 강도의 매일 추이(미니 그래프는 고른 기간을 따른다) */
+  paths: Record<string, number[]>;
   nowRank?: number;
   oldRank?: number;
   chg: number | null;
@@ -37,6 +40,10 @@ function ranked(rows: Row[]): Row[] {
   return rows;
 }
 
+function pathsOf(path: Record<string, number[][]> | undefined): Record<string, number[]> {
+  return Object.fromEntries(PERIODS.map((p) => [p, (path?.[p] ?? []).map((v) => v[0])]));
+}
+
 function stats(data: SectorData): Row[] {
   return ranked(
     data.sectors.map((s) => ({
@@ -44,6 +51,7 @@ function stats(data: SectorData): Row[] {
       name: s.name,
       x: s.x,
       path: (s.path?.[BASE] ?? []).map((p) => p[0]),
+      paths: pathsOf(s.path),
       chg: null,
     })),
   );
@@ -56,6 +64,7 @@ function industryRows(list: Industry[]): Map<string, (Row & { sector: string; co
     name: i.name,
     x: i.x,
     path: (i.path?.[BASE] ?? []).map((p) => p[0]),
+    paths: pathsOf(i.path),
     chg: null,
     sector: i.sector,
     count: i.count ?? 0,
@@ -128,7 +137,7 @@ export function FlowTable({ data }: { data: SectorData }) {
   const sorted = byX(rows);
   const cells = (r: Row) => (
     <>
-      <Spark path={r.path} />
+      <Spark path={r.paths[sortBy] ?? []} />
       {PERIODS.map((p) => (
         <Heat key={p} v={r.x[p]} />
       ))}
@@ -157,7 +166,7 @@ export function FlowTable({ data }: { data: SectorData }) {
       </div>
       <div className="ft-head">
         <span>섹터</span>
-        <span>{BASE}일 추이</span>
+        <span>{sortBy}일 추이</span>
         {PERIODS.map((p) => (
           <button key={p} aria-pressed={p === sortBy} onClick={() => setSortBy(p)}>
             {p}일
@@ -207,8 +216,8 @@ export function FlowTable({ data }: { data: SectorData }) {
       })}
       <p className="muted small-note">
         색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 짧은 기간(왼쪽)과 긴 기간(오른쪽)을 나란히 보면 흐름이 보입니다. 기간을 누르면 그
-        기간 순으로 정렬합니다. 미니 그래프는 {BASE}일 강도의 매일 추이, 순위는 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그 안의 산업(DART 업종
-        코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
+        기간 순으로 정렬합니다. 미니 그래프는 고른 기간 강도의 매일 추이, 순위는 {BASE}일 강도 기준 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그
+        안의 산업(DART 업종 코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
       </p>
     </section>
   );
