@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { CONTACT_EMAIL, TextPage } from "@/components/TextPage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "개인정보처리방침",
   description: "KosNas 개인정보처리방침",
-  alternates: { canonical: "/privacy" },
-};
+  path: "/privacy",
+});
 
 export default function Privacy() {
   return (

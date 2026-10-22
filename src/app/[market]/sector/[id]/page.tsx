@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
@@ -26,11 +29,11 @@ export async function generateMetadata({ params }: PageProps<"/[market]/sector/[
   const hit = read(market, id);
   if (!hit) return {};
   const where = hit.market === "kr" ? "국내" : "미국";
-  return {
+  return pageMeta({
     title: `${where} ${hit.sector.name} 섹터 순환`,
     description: `${where} ${hit.sector.name} 섹터의 기간별 강도와 종목별 상대강도 순위.`,
-    alternates: { canonical: `/${market}/sector/${id}` },
-  };
+    path: `/${market}/sector/${id}`,
+  });
 }
 
 export default async function SectorPage({ params }: PageProps<"/[market]/sector/[id]">) {
@@ -67,7 +70,13 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
     <div className="shell">
       <SiteHeader active={hit.market} />
       <main className="stack">
-        <Link href={hit.market === "kr" ? "/" : "/us"} className="back">
+        <JsonLd
+          data={breadcrumbLd(SITE_URL, [
+            [hit.market === "kr" ? "국장 섹터 순환" : "미장", `/${hit.market}`],
+            [`${sector.name} 섹터`, `/${hit.market}/sector/${sector.id}`],
+          ])}
+        />
+        <Link href={`/${hit.market}`} className="back">
           ← 섹터 순환
         </Link>
         <h1 className="page-title">{sector.name}</h1>

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { TextPage } from "@/components/TextPage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "소개",
   description: "KosNas는 코스피 야간 흐름, 국내 섹터 순환, 미국 증시 흐름을 한곳에 정리해 보여주는 무료 시장 정보 서비스입니다.",
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 export default function About() {
   return (

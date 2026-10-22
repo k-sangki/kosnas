@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { MarketContent } from "@/components/MarketPage";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
@@ -14,16 +15,16 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/[market]">): Promise<Metadata> {
   const { market } = await params;
   return market === "us"
-    ? {
+    ? pageMeta({
         title: "미장 - 미국 증시 실시간 흐름",
         description: "미국 정규장 동안 S&P 500·나스닥 100과 한국 관련 종목의 등락을 실시간 차트로.",
-        alternates: { canonical: "/us" },
-      }
-    : {
+        path: "/us",
+      })
+    : pageMeta({
         title: "국장 - 코스피·코스닥 섹터 순환",
         description: "코스피·코스닥 섹터별 강도와 그 변화, 시장 폭을 매일 장 마감 자료로.",
-        alternates: { canonical: "/kr" },
-      };
+        path: "/kr",
+      });
 }
 
 export default async function MarketRoute({ params }: PageProps<"/[market]">) {

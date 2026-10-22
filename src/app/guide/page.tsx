@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { GUIDES } from "@/lib/guides";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "가이드",
-  description: "섹터 순환, 네 칸 그래프, 상대강도, 시장 폭을 읽는 법.",
-  alternates: { canonical: "/guide" },
-};
+  description:
+    "섹터 순환과 네 칸 그래프, 상대강도(RS), 시장 폭, 코스피 야간선물 추정, EWY와 코스피의 관계까지 KosNas 화면을 읽는 법을 정리한 가이드 모음입니다.",
+  path: "/guide",
+});
 
 export default function GuideIndex() {
   return (

@@ -78,3 +78,6 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://kosnas.com
           NEXT_PUBLIC_ADSENSE_CLIENT: ${{ secrets.NEXT_PUBLIC_ADSENSE_CLIENT }}
         run: npm ci && npm run deploy
+      - name: IndexNow 알림(네이버·빙)
+        if: steps.publish.outputs.changed == '1'
+        run: node scripts/indexnow.mjs
