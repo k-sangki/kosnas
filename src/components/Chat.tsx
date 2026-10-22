@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { MAX_NICK, MAX_TEXT, randomNick, type ChatMsg, type ClientEvent, type ServerEvent } from "@/lib/chat";
 
 /**
- * 첫 화면 익명 실시간 채팅. 처음에는 접혀 있고, 펼친 동안에만 웹소켓으로 붙는다.
+ * 첫 화면 익명 실시간 채팅. 처음에는 접혀 있지만 웹소켓은 늘 붙어 있어서(휴면 웹소켓이라 말이 없을 때는 비용이 없다)
+ * 접힌 상태에서도 새 글 수와 최근 글 한 줄을 보인다. 마지막으로 본 글 번호는 이 브라우저에 저장한다.
  * 닉네임은 B급 이름을 하나 골라 이 브라우저에 저장하고, 직접 바꿀 수 있다. 캡처에는 들어가지 않는다.
  */
 const NICK_KEY = "kosnas:chat:nick";
+const SEEN_KEY = "kosnas:chat:seen";
+/** 처음 온 사람에게는 최근 이만큼 사이의 글만 새 글로 센다 */
+const FIRST_VISIT_MS = 3 * 3600_000;
 
 function loadNick() {
   try {
@@ -21,55 +25,42 @@ function loadNick() {
   }
 }
 
+function loadSeen(): number | null {
+  try {
+    const v = Number(localStorage.getItem(SEEN_KEY));
+    return Number.isFinite(v) && v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 const hhmm = (ms: number) => {
   const d = new Date(ms + 9 * 3600_000);
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 };
 
-export function Chat() {
-  const [open, setOpen] = useState(false);
-  const [online, setOnline] = useState<number | null>(null);
-  return (
-    <section className="card chat no-capture" aria-label="실시간 채팅">
-      <button type="button" className="chat-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="chat-title">
-          실시간 채팅
-          {open && online != null && <span className="chat-online">{online}명 접속</span>}
-        </span>
-        <span className="chat-chev" aria-hidden />
-      </button>
-      {open && <ChatBody onOnline={setOnline} />}
-    </section>
-  );
-}
+type Conn = "connecting" | "open" | "closed";
 
-function ChatBody({ onOnline }: { onOnline: (n: number | null) => void }) {
+/** 채팅방 연결. 펼치든 접든 붙어 있고, 끊기면 2초부터 30초까지 늘려 가며 다시 붙는다 */
+function useRoom() {
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
-  const [state, setState] = useState<"connecting" | "open" | "closed">("connecting");
+  const [conn, setConn] = useState<Conn>("connecting");
+  const [online, setOnline] = useState<number | null>(null);
   const [myTag, setMyTag] = useState("");
-  // 펼친 뒤에만 그려지므로(서버 렌더 없음) 처음 값을 바로 읽는다
-  const [nick, setNick] = useState(loadNick);
-  const [editNick, setEditNick] = useState(false);
-  const [text, setText] = useState("");
-  const [reply, setReply] = useState<ChatMsg | null>(null);
   const [error, setError] = useState("");
-  const [reported, setReported] = useState<number[]>([]);
   const ws = useRef<WebSocket | null>(null);
-  const list = useRef<HTMLDivElement>(null);
-  const stick = useRef(true);
-  const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let stop = false;
     let wait = 2000;
     let timer: ReturnType<typeof setTimeout>;
     const connect = () => {
-      setState("connecting");
+      setConn("connecting");
       const s = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/api/chat`);
       ws.current = s;
       s.onopen = () => {
         wait = 2000;
-        setState("open");
+        setConn("open");
       };
       s.onmessage = (m) => {
         let e: ServerEvent;
@@ -79,20 +70,19 @@ function ChatBody({ onOnline }: { onOnline: (n: number | null) => void }) {
           return;
         }
         if (e.type === "init") {
-          stick.current = true;
           setMsgs(e.messages);
           setMyTag(e.tag);
-          onOnline(e.online);
+          setOnline(e.online);
         } else if (e.type === "msg") setMsgs((v) => [...v.slice(-199), e.message]);
         else if (e.type === "hide") setMsgs((v) => v.filter((x) => x.id !== e.id));
-        else if (e.type === "online") onOnline(e.online);
+        else if (e.type === "online") setOnline(e.online);
         else if (e.type === "error") setError(e.text);
       };
       s.onclose = () => {
         if (ws.current === s) ws.current = null;
-        onOnline(null);
+        setOnline(null);
         if (stop) return;
-        setState("closed");
+        setConn("closed");
         timer = setTimeout(connect, wait);
         wait = Math.min(wait * 2, 30_000);
       };
@@ -103,15 +93,8 @@ function ChatBody({ onOnline }: { onOnline: (n: number | null) => void }) {
       clearTimeout(timer);
       ws.current?.close();
       ws.current = null;
-      onOnline(null);
     };
-  }, [onOnline]);
-
-  // 맨 아래를 보고 있을 때만 새 메시지로 따라 내려간다
-  useEffect(() => {
-    const el = list.current;
-    if (el && stick.current) el.scrollTop = el.scrollHeight;
-  }, [msgs]);
+  }, []);
 
   useEffect(() => {
     if (!error) return;
@@ -127,6 +110,78 @@ function ChatBody({ onOnline }: { onOnline: (n: number | null) => void }) {
     ws.current.send(JSON.stringify(e));
     return true;
   };
+
+  return { msgs, conn, online, myTag, error, send };
+}
+
+export function Chat() {
+  const room = useRoom();
+  const [open, setOpen] = useState(false);
+  // 마지막으로 본 글 번호(브라우저 저장). 처음 온 사람은 null
+  // (서버 렌더에서는 null이지만 그때는 글이 없어 화면이 같다)
+  const [seen, setSeen] = useState<number | null>(() => (typeof window === "undefined" ? null : loadSeen()));
+  const [mountedAt] = useState(() => Date.now());
+
+  const lastId = room.msgs.length ? room.msgs[room.msgs.length - 1].id : 0;
+  // 펼쳐 둔 동안 들어온 글은 본 것으로 친다
+  useEffect(() => {
+    if (!open || !lastId) return;
+    try {
+      localStorage.setItem(SEEN_KEY, String(lastId));
+    } catch {}
+  }, [open, lastId]);
+
+  const toggle = () => {
+    if (open && lastId) setSeen(lastId);
+    setOpen(!open);
+  };
+
+  const cutoff = mountedAt - FIRST_VISIT_MS;
+  const unread = open ? [] : room.msgs.filter((m) => m.tag !== room.myTag && (seen != null ? m.id > seen : m.at > cutoff));
+  const latest = room.msgs[room.msgs.length - 1];
+
+  return (
+    <section className="card chat no-capture" aria-label="실시간 채팅">
+      <button type="button" className="chat-toggle" aria-expanded={open} onClick={toggle}>
+        <span className="chat-head-text">
+          <span className="chat-title">
+            <i className={`chat-dot${room.conn === "open" ? " live" : ""}`} aria-hidden />
+            실시간 채팅
+            {room.online != null && <span className="chat-online">{room.online}명 접속</span>}
+          </span>
+          {!open && latest && (
+            <span className="chat-peek">
+              <b>{latest.nick}</b> {latest.text}
+            </span>
+          )}
+        </span>
+        <span className="chat-head-right">
+          {unread.length > 0 && <span className="chat-new">새 글 {unread.length > 99 ? "99+" : unread.length}</span>}
+          <span className="chat-chev" aria-hidden />
+        </span>
+      </button>
+      {open && <ChatBody room={room} />}
+    </section>
+  );
+}
+
+function ChatBody({ room }: { room: ReturnType<typeof useRoom> }) {
+  const { msgs, conn, myTag, error, send } = room;
+  // 펼친 뒤에만 그려지므로(서버 렌더 없음) 처음 값을 바로 읽는다
+  const [nick, setNick] = useState(loadNick);
+  const [editNick, setEditNick] = useState(false);
+  const [text, setText] = useState("");
+  const [reply, setReply] = useState<ChatMsg | null>(null);
+  const [reported, setReported] = useState<number[]>([]);
+  const list = useRef<HTMLDivElement>(null);
+  const stick = useRef(true);
+  const input = useRef<HTMLInputElement>(null);
+
+  // 맨 아래를 보고 있을 때만 새 메시지로 따라 내려간다(펼친 직후에는 맨 아래로)
+  useEffect(() => {
+    const el = list.current;
+    if (el && stick.current) el.scrollTop = el.scrollHeight;
+  }, [msgs]);
 
   const saveNick = (v: string) => {
     const n = v.trim().slice(0, MAX_NICK) || randomNick();
@@ -159,7 +214,7 @@ function ChatBody({ onOnline }: { onOnline: (n: number | null) => void }) {
       >
         {msgs.length === 0 && (
           <p className="muted chat-empty">
-            {state === "open" ? "아직 메시지가 없어요. 첫 마디를 남겨 보세요." : state === "connecting" ? "연결하는 중…" : "연결이 끊겼어요. 다시 연결하는 중…"}
+            {conn === "open" ? "아직 메시지가 없어요. 첫 마디를 남겨 보세요." : conn === "connecting" ? "연결하는 중…" : "연결이 끊겼어요. 다시 연결하는 중…"}
           </p>
         )}
         {msgs.map((m) => {
