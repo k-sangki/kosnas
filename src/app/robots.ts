@@ -1,9 +1,0 @@
-import type { MetadataRoute } from "next";
-import { SITE_URL } from "./layout";
-
-export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/lab/"] },
-    sitemap: `${SITE_URL}/sitemap.xml`,
-  };
-}
