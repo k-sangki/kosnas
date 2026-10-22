@@ -1649,6 +1649,24 @@ button.ft-row {
   font-weight: 500;
   padding-left: 11px;
 }
+.ft-all {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pine);
+  cursor: pointer;
+}
+/* 휴대폰에서 캡처하면 표가 좁아 섹터 이름이 잘린다 — 이미지는 넓게 그린다 */
+.capturing:has(.ft-card) {
+  min-width: 460px;
+}
 .ft-more {
   display: block;
   padding-top: 6px;
