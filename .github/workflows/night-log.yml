@@ -35,3 +35,35 @@ jobs:
             sleep 55
           done
           git add -A; git commit -qm "night log continue" || true; git push -q
+
+  log2:
+    needs: log
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: night-log
+      - name: record
+        run: |
+          git config user.name kosnas-bot; git config user.email actions@users.noreply.github.com
+          end=$(( $(date +%s) + 330*60 ))
+          n=0
+          while [ $(date +%s) -lt $end ]; do
+            h=$(TZ=Asia/Seoul date +%H%M)
+            if [ "$h" -ge 0605 ] && [ "$h" -lt 1500 ]; then git add -A; git commit -qm "night log stop" || true; git push -q; exit 0; fi
+            curl -s -m 15 -X POST https://api.hyperliquid.xyz/info -H 'content-type: application/json' -d '{"type":"metaAndAssetCtxs","dex":"xyz"}' | python3 -c "
+          import json,sys,time
+          try: m,c=json.load(sys.stdin)
+          except Exception: sys.exit(0)
+          r={u['name']:x for u,x in zip(m['universe'],c)}
+          row=[time.strftime('%Y-%m-%dT%H:%M:%S',time.gmtime())]
+          for k in ('xyz:KR200','xyz:EWY','xyz:KRW'):
+            x=r.get(k,{}); row+= [x.get('markPx',''),x.get('oraclePx',''),x.get('midPx') or '']
+          print(','.join(map(str,row)))" >> night.csv
+            n=$((n+1))
+            if [ $((n % 30)) -eq 0 ]; then git add -A; git commit -qm "night log" -q; git pull -q --rebase; git push -q; fi
+            sleep 55
+          done
+          git add -A; git commit -qm "night log continue" || true; git push -q
