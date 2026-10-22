@@ -32,7 +32,7 @@ const TILES: Tile[] = [
   { id: "US10Y", label: "미국 10년물 금리", kind: "tv", symbol: "TVC:US10Y" },
   { id: "BTC", label: "비트코인", kind: "tv", symbol: "BITSTAMP:BTCUSD" },
   // 주말·새벽에도 거래되는 무기한선물. 등락은 24시간 전 대비
-  { id: "P-CL", label: "WTI 유가 · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
+  { id: "P-CL", label: "유가(WTI) · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
   { id: "P-BRENT", label: "브렌트유 · 24시간", kind: "hl", coin: "BRENTOIL", unit: "$", sub: XSUB },
   { id: "P-GOLD", label: "금 · 24시간", kind: "hl", coin: "GOLD", unit: "$", sub: XSUB },
   { id: "P-SILVER", label: "은 · 24시간", kind: "hl", coin: "SILVER", unit: "$", sub: XSUB },
@@ -44,13 +44,20 @@ const TILES: Tile[] = [
   { id: "P-DXY", label: "달러 인덱스 · 24시간", kind: "hl", coin: "DXY", sub: XSUB },
 ];
 const BY_ID = new Map(TILES.map((t) => [t.id, t]));
-const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ", "WTI", "US10Y"];
+const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "P-CL", "QQQ", "US10Y"];
 
 // ---- 이 브라우저에만 남기는 카드 목록 ----
 const KEY = "kosnas:dashboard:v2";
 const OLD = "kosnas:dashboard:v1";
-/** 나중에 기본 카드가 된 것. 예전에 저장한 배치에도 한 번만 붙인다(뺀 뒤에 다시 붙이지는 않는다) */
-const ADDED = ["WTI", "US10Y"];
+/**
+ * 기본 배치가 바뀐 것을 예전에 저장한 배치에도 한 번씩만 반영한다(그 뒤에 사용자가 바꾼 것은 건드리지 않는다).
+ * 유가: 주말에 멈추는 USO·WTI(트레이딩뷰) 대신 주말에도 거래되는 WTI 무기한선물
+ */
+const STEPS: [string, (v: string[]) => string[]][] = [
+  ["WTI", (v) => (v.includes("WTI") ? v : [...v, "WTI"])],
+  ["US10Y", (v) => (v.includes("US10Y") ? v : [...v, "US10Y"])],
+  ["oil-24h", (v) => (v.includes("P-CL") ? v : v.map((x) => (x === "USO" ? "P-CL" : x))).filter((x) => x !== "WTI" && x !== "USO")],
+];
 const ADDED_KEY = "kosnas:dashboard:added";
 function migrate() {
   try {
@@ -60,12 +67,12 @@ function migrate() {
       localStorage.removeItem(OLD);
     }
     const done = JSON.parse(localStorage.getItem(ADDED_KEY) ?? "[]") as string[];
-    const todo = ADDED.filter((x) => !done.includes(x));
+    const todo = STEPS.filter(([k]) => !done.includes(k));
     if (!todo.length) return;
     const raw = localStorage.getItem(KEY);
     const v = raw ? (JSON.parse(raw) as unknown) : null;
-    if (Array.isArray(v)) localStorage.setItem(KEY, JSON.stringify([...v, ...todo.filter((x) => !v.includes(x))]));
-    localStorage.setItem(ADDED_KEY, JSON.stringify(ADDED));
+    if (Array.isArray(v)) localStorage.setItem(KEY, JSON.stringify(todo.reduce((a, [, f]) => f(a), v as string[])));
+    localStorage.setItem(ADDED_KEY, JSON.stringify(STEPS.map(([k]) => k)));
   } catch {}
 }
 const listeners = new Set<() => void>();
