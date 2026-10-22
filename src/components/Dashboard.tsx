@@ -11,6 +11,8 @@ import { TvWidget } from "./TvWidget";
  */
 type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit?: "₩" | "$" } | { kind: "tv"; symbol: string });
 
+const XSUB = "무기한선물 · 24시간 전 대비 · 주말에도 거래";
+
 const TILES: Tile[] = [
   { id: "SMSN", label: "삼성전자", kind: "hl", coin: "SMSN", unit: "₩", sub: "무기한선물 · 원화 환산" },
   { id: "SKHX", label: "SK하이닉스", kind: "hl", coin: "SKHX", unit: "₩", sub: "무기한선물 · 원화 환산" },
@@ -29,6 +31,17 @@ const TILES: Tile[] = [
   { id: "DXY", label: "달러 인덱스", kind: "tv", symbol: "TVC:DXY" },
   { id: "US10Y", label: "미국 10년물 금리", kind: "tv", symbol: "TVC:US10Y" },
   { id: "BTC", label: "비트코인", kind: "tv", symbol: "BITSTAMP:BTCUSD" },
+  // 주말·새벽에도 거래되는 무기한선물. 등락은 24시간 전 대비
+  { id: "P-CL", label: "WTI 유가 · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
+  { id: "P-BRENT", label: "브렌트유 · 24시간", kind: "hl", coin: "BRENTOIL", unit: "$", sub: XSUB },
+  { id: "P-GOLD", label: "금 · 24시간", kind: "hl", coin: "GOLD", unit: "$", sub: XSUB },
+  { id: "P-SILVER", label: "은 · 24시간", kind: "hl", coin: "SILVER", unit: "$", sub: XSUB },
+  { id: "P-NVDA", label: "엔비디아", kind: "hl", coin: "NVDA", unit: "$", sub: XSUB },
+  { id: "P-TSLA", label: "테슬라", kind: "hl", coin: "TSLA", unit: "$", sub: XSUB },
+  { id: "P-MU", label: "마이크론", kind: "hl", coin: "MU", unit: "$", sub: XSUB },
+  { id: "P-TSM", label: "TSMC", kind: "hl", coin: "TSM", unit: "$", sub: XSUB },
+  { id: "P-VIX", label: "VIX(변동성)", kind: "hl", coin: "VIX", sub: XSUB },
+  { id: "P-DXY", label: "달러 인덱스 · 24시간", kind: "hl", coin: "DXY", sub: XSUB },
 ];
 const BY_ID = new Map(TILES.map((t) => [t.id, t]));
 const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ", "WTI", "US10Y"];
@@ -154,6 +167,16 @@ const ICONS: Record<string, () => React.ReactElement> = {
   DXY: () => <Badge t="$" bg="#2e7d32" size={11} />,
   US10Y: () => <Badge t="%" bg="#5c6bc0" size={11} />,
   BTC: () => <Badge t="₿" bg="#f7931a" size={11} />,
+  "P-CL": Drop,
+  "P-BRENT": Drop,
+  "P-GOLD": () => <Badge t="Au" bg="#c9971c" />,
+  "P-SILVER": () => <Badge t="Ag" bg="#8a8f98" />,
+  "P-NVDA": () => <Badge t="NV" bg="#76b900" />,
+  "P-TSLA": () => <Badge t="T" bg="#cc0000" size={11} />,
+  "P-MU": () => <Badge t="MU" bg="#0071c5" />,
+  "P-TSM": () => <Badge t="TSM" bg="#c8102e" size={6.5} />,
+  "P-VIX": () => <Badge t="VIX" bg="#4e5968" size={6.5} />,
+  "P-DXY": () => <Badge t="$" bg="#2e7d32" size={11} />,
 };
 
 /** 트레이딩뷰 심볼 로고(파일 이름). 못 불러오면 위의 직접 그린 아이콘을 쓴다 */
@@ -175,6 +198,15 @@ const LOGOS: Record<string, string> = {
   DXY: "indices/u-s-dollar-index",
   US10Y: "country/US",
   BTC: "crypto/XTVCBTC",
+  "P-CL": "crude-oil",
+  "P-BRENT": "brent-oil",
+  "P-GOLD": "metal/gold",
+  "P-SILVER": "metal/silver",
+  "P-NVDA": "nvidia",
+  "P-TSLA": "tesla",
+  "P-MU": "micron-technology",
+  "P-TSM": "taiwan-semiconductor",
+  "P-DXY": "indices/u-s-dollar-index",
 };
 
 function Icon({ id }: { id: string }) {
@@ -201,7 +233,10 @@ const won = (v: number) => `${v > 0 ? "▲" : v < 0 ? "▼" : ""}${Math.abs(Math
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
 function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | null }) {
-  const i = d?.inputs.find((x) => x.coin === t.coin);
+  const x = d?.extra?.[t.coin];
+  const i =
+    d?.inputs.find((v) => v.coin === t.coin) ??
+    (x && { coin: t.coin, price: x.price, chg: x.prev ? (x.price / x.prev - 1) * 100 : null, krw: undefined, spark: undefined });
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -477,7 +512,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
         </div>
       )}
       <p className="muted small-note no-capture">
-        카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45 대비입니다.
+        카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45 대비입니다('주말에도 거래' 카드는 24시간 전 대비).
         삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접 보여 주는 시세(미국 전일 종가 대비)입니다. 카드
         배치는 이 브라우저에만 저장됩니다.
       </p>

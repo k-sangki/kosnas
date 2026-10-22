@@ -1,4 +1,4 @@
-import { DEX, HL_INFO, INPUTS, assemble, markOf, nightWindow, stepFor, type Candle } from "@/lib/night";
+import { DEX, EXTRA_COINS, HL_INFO, INPUTS, assemble, markOf, nightWindow, stepFor, type Candle } from "@/lib/night";
 
 /** 코스피200 야간 추정 자료. 원천을 15초에 한 번만 부르도록 Workers 엣지 캐시에 담는다. */
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ async function load(now: number) {
   const from = win.start - 120 * 60_000;
   const coins = INPUTS.map((i) => i.coin);
   const [ctx, ...series] = await Promise.all([
-    info<[{ universe: { name: string }[] }, { markPx?: string; oraclePx?: string }[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
+    info<[{ universe: { name: string }[] }, { markPx?: string; oraclePx?: string; prevDayPx?: string }[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
     ...coins.map((c) =>
       info<{ t: number; c: string }[]>({
         type: "candleSnapshot",
@@ -28,13 +28,20 @@ async function load(now: number) {
     ),
   ]);
   const marks: Record<string, number | null> = {};
+  const extra: Record<string, { price: number; prev: number | null }> = {};
   ctx[0].universe.forEach((u, i) => {
     const c = u.name.replace(`${DEX}:`, "");
     if (coins.includes(c as (typeof coins)[number])) marks[c] = markOf(ctx[1][i]);
+    if ((EXTRA_COINS as readonly string[]).includes(c)) {
+      const price = markOf(ctx[1][i]);
+      const prev = Number(ctx[1][i]?.prevDayPx);
+      if (price) extra[c] = { price, prev: prev > 0 ? prev : null };
+    }
   });
   const candles: Record<string, Candle[]> = {};
   coins.forEach((c, i) => (candles[c] = series[i].map((k) => ({ t: k.t, c: Number(k.c) })).sort((a, b) => a.t - b.t)));
-  return assemble(now, win, candles, marks, step);
+  const data = assemble(now, win, candles, marks, step);
+  return data && { ...data, extra };
 }
 
 export async function GET(req: Request) {

@@ -157,10 +157,15 @@ export type NightData = {
   at0600: number | null;
   points: NightPoint[];
   inputs: NightInput[];
+  /** 차트 없이 지금 가격과 24시간 전 가격만 싣는 무기한선물(대시보드 추가 카드용) */
+  extra?: Record<string, { price: number; prev: number | null }>;
   updated: number;
 };
 
-type Ctx = { markPx?: string; oraclePx?: string };
+/** 대시보드에 넣을 수 있는 그 밖의 trade.xyz 무기한선물. 원천 호출을 늘리지 않으려고 이미 받는 시세 목록에서 가격만 꺼낸다 */
+export const EXTRA_COINS = ["CL", "BRENTOIL", "GOLD", "SILVER", "NVDA", "TSLA", "MU", "TSM", "VIX", "DXY"] as const;
+
+type Ctx = { markPx?: string; oraclePx?: string; prevDayPx?: string };
 
 /** 무기한선물 지금 가격(표시 가격 → 오라클 순) */
 export function markOf(ctx: Ctx | undefined) {
