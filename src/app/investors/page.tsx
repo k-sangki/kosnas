@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { ArkTrades, RecentMoves } from "@/components/Investors";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { DATA } from "@/lib/investors";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "유명 투자자 최근 매매 - 워런 버핏·캐시 우드 지분 공시와 매일 매매",
   description:
     "워런 버핏, 캐시 우드, 칼 아이칸, 댄 로브 같은 유명 투자자가 최근 30일 동안 SEC에 낸 지분 공시(13D·13G)와 내부자 매매 공시(Form 4), ARK 펀드의 매일 매매를 정리했습니다.",
   keywords: ["버핏 매수", "캐시 우드 매매", "ARK 매매", "13D", "13G", "Form 4", "유명 투자자 매매", "헤지펀드 지분 공시"],
-  alternates: { canonical: "/investors" },
-};
+  path: "/investors",
+});
 
 export default function InvestorsPage() {
   return (

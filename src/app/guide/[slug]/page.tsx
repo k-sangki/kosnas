@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
@@ -13,7 +16,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/guide/[slug]">): Promise<Metadata> {
   const g = findGuide((await params).slug);
-  return g ? { title: g.title, description: g.description, alternates: { canonical: `/guide/${g.slug}` } } : {};
+  return g ? pageMeta({ title: g.title, description: g.description, path: `/guide/${g.slug}` }) : {};
 }
 
 export default async function GuidePage({ params }: PageProps<"/guide/[slug]">) {
@@ -24,6 +27,7 @@ export default async function GuidePage({ params }: PageProps<"/guide/[slug]">) 
     <div className="shell">
       <SiteHeader active="guide" />
       <main className="stack">
+        <JsonLd data={breadcrumbLd(SITE_URL, [["가이드", "/guide"], [g.title, `/guide/${g.slug}`]])} />
         <Link href="/guide" className="back">
           ← 가이드
         </Link>

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
+import { JsonLd } from "@/components/JsonLd";
+import { OG_IMAGE, siteLd } from "@/lib/seo";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kosnas.com";
@@ -22,7 +24,9 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   applicationName: "KosNas",
   keywords: ["KosNas", "코스피 야간선물", "야간선물 실시간", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
-  openGraph: { type: "website", siteName: "KosNas", locale: "ko_KR", description: DESCRIPTION },
+  openGraph: { type: "website", siteName: "KosNas", locale: "ko_KR", title: "KosNas - 코스피 야간선물·섹터 순환 대시보드", description: DESCRIPTION, url: "/", images: [OG_IMAGE] },
+  twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
+  robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   formatDetection: { telephone: false },
   other: {
     "naver-site-verification": "1f7273a6d588ea39e5b60c5c8e84f6741f5b6056",
@@ -51,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {ADSENSE && <script async crossOrigin="anonymous" src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE}`} />}
       </head>
       <body>
+        <JsonLd data={siteLd(SITE_URL, DESCRIPTION)} />
         {children}
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga4" strategy="afterInteractive">

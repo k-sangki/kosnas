@@ -1,0 +1,71 @@
+import type { Metadata } from "next";
+
+export const SITE_NAME = "KosNas";
+export const OG_IMAGE = { url: "/og.png", width: 1200, height: 630, alt: "KosNas - 코스피 야간선물 실시간 추정, 국내 섹터 순환, 미국 증시 흐름" };
+
+/**
+ * 페이지 메타데이터. 하위 페이지의 openGraph 는 상위 것을 통째로 덮으므로
+ * 공유 미리보기(제목·주소·이미지)가 빠지지 않게 페이지마다 한 번에 채운다.
+ */
+export function pageMeta(p: { title: string; description: string; path: string; keywords?: string[] }): Metadata {
+  const full = `${p.title} | ${SITE_NAME}`;
+  return {
+    title: p.title,
+    description: p.description,
+    ...(p.keywords ? { keywords: p.keywords } : {}),
+    alternates: { canonical: p.path },
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: "ko_KR",
+      title: full,
+      description: p.description,
+      url: p.path,
+      images: [OG_IMAGE],
+    },
+    twitter: { card: "summary_large_image", title: full, description: p.description, images: [OG_IMAGE.url] },
+  };
+}
+
+type Crumb = [name: string, path: string];
+
+/** 검색 결과에 '홈 › 가이드 › …' 경로로 보이게 하는 BreadcrumbList */
+export function breadcrumbLd(site: string, crumbs: Crumb[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [["KosNas", "/"] as Crumb, ...crumbs].map(([name, path], i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name,
+      item: `${site}${path === "/" ? "" : path}`,
+    })),
+  };
+}
+
+/** 사이트 이름(검색 결과의 'KosNas' 표시)과 운영 주체 */
+export function siteLd(site: string, description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${site}/#website`,
+        url: site,
+        name: SITE_NAME,
+        alternateName: ["코스나스", "kosnas.com"],
+        description,
+        inLanguage: "ko-KR",
+        publisher: { "@id": `${site}/#org` },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${site}/#org`,
+        name: SITE_NAME,
+        url: site,
+        logo: { "@type": "ImageObject", url: `${site}/icon-512.png`, width: 512, height: 512 },
+        email: "contact@kosnas.com",
+      },
+    ],
+  };
+}

@@ -6,6 +6,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      indexnow_all:
+        description: "IndexNow 에 모든 주소를 알린다(처음 한 번·주소 구조가 바뀐 뒤)"
+        type: boolean
+        default: false
 
 concurrency: deploy
 
@@ -37,3 +42,8 @@ jobs:
             echo "$u -> $code"; cat body.txt
             grep -qxF "$want" body.txt || { echo "::error::$u 내용이 다릅니다"; exit 1; }
           done
+      - name: IndexNow 알림(네이버·빙)
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          INDEXNOW_ALL: ${{ inputs.indexnow_all && '1' || '' }}
+        run: node scripts/indexnow.mjs

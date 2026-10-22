@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { CONTACT_EMAIL, TextPage } from "@/components/TextPage";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "문의",
   description: "KosNas 오류 제보, 자료 수정 요청, 제안을 보내는 곳.",
-  alternates: { canonical: "/contact" },
-};
+  path: "/contact",
+});
 
 export default function Contact() {
   return (

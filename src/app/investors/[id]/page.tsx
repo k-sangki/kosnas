@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Holdings, Sold } from "@/components/Investors13F";
@@ -18,11 +21,11 @@ export async function generateMetadata({ params }: PageProps<"/investors/[id]">)
     .slice(0, 5)
     .map((h) => label(h))
     .join(", ");
-  return {
+  return pageMeta({
     title: `${inv.person} 포트폴리오 - ${inv.firm} 13F 보유 종목 (${quarter(inv.period)})`,
     description: `${inv.person}(${inv.firm})의 ${quarter(inv.period)} 말 13F 보유 종목 ${inv.count}개와 지난 분기 대비 새로 산 종목·판 종목. 상위: ${top}.`,
-    alternates: { canonical: `/investors/${inv.id}` },
-  };
+    path: `/investors/${inv.id}`,
+  });
 }
 
 export default async function InvestorPage({ params }: PageProps<"/investors/[id]">) {
@@ -33,6 +36,7 @@ export default async function InvestorPage({ params }: PageProps<"/investors/[id
     <div className="shell">
       <SiteHeader active="us" />
       <main className="stack">
+        <JsonLd data={breadcrumbLd(SITE_URL, [["유명 투자자", "/investors"], [`${inv.person} 포트폴리오`, `/investors/${inv.id}`]])} />
         <p className="muted">
           <Link href="/us">← 미장 탭</Link>
         </p>
