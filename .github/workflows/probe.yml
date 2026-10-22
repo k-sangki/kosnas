@@ -1,0 +1,28 @@
+name: Probe candles
+on:
+  push:
+    branches: [probe-candles]
+permissions:
+  contents: write
+jobs:
+  p:
+    if: "!contains(github.event.head_commit.message, 'data')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          import json, urllib.request, time
+          def post(b):
+              r = urllib.request.Request("https://api.hyperliquid.xyz/info", data=json.dumps(b).encode(), headers={"content-type": "application/json"})
+              return json.load(urllib.request.urlopen(r, timeout=60))
+          now = int(time.time() * 1000)
+          out = {}
+          for coin in ["xyz:KR200", "xyz:EWY", "xyz:KRW"]:
+              for iv, back in [("5m", 17 * 86400_000), ("1m", 3 * 86400_000)]:
+                  out[f"{coin}|{iv}"] = post({"type": "candleSnapshot", "req": {"coin": coin, "interval": iv, "startTime": now - back, "endTime": now}})
+                  time.sleep(1)
+              out[f"{coin}|funding"] = post({"type": "fundingHistory", "coin": coin, "startTime": now - 17 * 86400_000})
+          json.dump(out, open("candles.json", "w"))
+          PY
+          git config user.name bot; git config user.email a@b.c; git add candles.json; git commit -qm "data"; git push -q
