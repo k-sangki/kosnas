@@ -13,6 +13,9 @@ const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
 const PAD = { l: 8, r: 58, t: 14, b: 26 };
 
+/** 등락률 기준값 이름: KRX 주간 종가를 받았으면 그것, 아니면 15:45 추정값 */
+const baseName = (d: NightData) => (d.baseKind === "close" ? "주간 종가" : "15:45 기준");
+
 function Chart({ d }: { d: NightData }) {
   const [hover, setHover] = useState<number | null>(null);
   const ref = useRef<SVGSVGElement>(null);
@@ -65,7 +68,7 @@ function Chart({ d }: { d: NightData }) {
   const yt = [0, 1, 2, 3, 4].map((i) => lo + ystep * i);
   const us = usOpenIn(d.window);
   const night = d.window.start + (2 * 60 + 15) * 60_000; // 18:00 야간 개장
-  const nightEnd = d.window.end - 3 * 3600_000; // 06:00 야간 마감
+  const nightEnd = d.nightClose ?? d.window.end - 3 * 3600_000; // 06:00 야간 마감(금요일 밤은 토요일)
   const hp = hover != null ? pts[hover] : null;
 
   const onMove = (e: React.PointerEvent) => {
@@ -134,7 +137,7 @@ function Chart({ d }: { d: NightData }) {
           </>
         ) : (
           <>
-            <span className="key est-key" /> 추정(EWY·KR200) <span className="key kr-key" /> KR200 무기한선물 <span className="key base-key" /> 15:45 기준
+            <span className="key est-key" /> 추정 <span className="key kr-key" /> KR200 무기한선물 <span className="key base-key" /> {baseName(d)}
           </>
         )}
       </p>
@@ -247,7 +250,7 @@ function Main({ d }: { d: NightData }) {
         </div>
         <dl className="night-stats">
           <div>
-            <dt>기준(15:45)</dt>
+            <dt>{baseName(d)}</dt>
             <dd>{fmt(d.base)}</dd>
           </div>
           {d.at0600 != null && (
@@ -272,8 +275,11 @@ function Main({ d }: { d: NightData }) {
       </div>
       <Chart d={d} />
       <p className="muted small-note">
-        기준값은 15:45의 KR200 무기한선물 가격입니다. KRX 주간 선물 종가와는 지난 밤들 평균 0.3% 안팎 차이가 나서, 선물 종가를 기준으로 삼는 다른 화면과 그만큼
-        등락률이 다르게 보일 수 있습니다.
+        {d.method === "blend"
+          ? "기준값은 15:45의 KR200 무기한선물 가격입니다. 기준가 자료를 받지 못해 이전 방식으로 계산했습니다. KRX 주간 선물 종가와는 평균 0.3% 안팎 차이가 날 수 있습니다."
+          : d.baseKind === "close"
+            ? "등락률은 KRX 코스피200 선물 주간 종가 대비입니다. 06:00까지는 KR200 무기한선물 기준가를 선물 수준으로 환산한 값이고, 그 뒤로는 EWY·KR200 무기한선물의 움직임을 반반 섞어 이어 갑니다."
+            : "등락률은 15:45 추정값 대비입니다. KRX 주간 선물 종가가 반영되기 전(16:10쯤까지)이거나 분기 만기일, 또는 종가를 받지 못한 때입니다."}
       </p>
     </>
   );
