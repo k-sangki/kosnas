@@ -15,15 +15,16 @@ export function RecentMoves({ limit, more = false }: { limit?: number; more?: bo
         {rows.map((m) => {
           const a = action(m);
           const inv = who(m.investor);
-          const amount = m.value ? usd(m.value) : m.shares ? shares(m.shares) : "";
+          const amount = m.value ? usd(m.value) : m.shares ? `${shares(m.shares)}${m.kind === "stake" ? " 보유" : ""}` : "";
+          const issuer = m.issuer?.replace(/\s*\/[A-Z]{2,}\/$/, "") ?? "";
           const when =
             m.kind === "stake" ? (m.event_date ? `기준 ${md(m.event_date)}` : "") : m.from === m.to ? `거래 ${md(m.from)}` : `거래 ${md(m.from)}~${md(m.to)}`;
           return (
             <li key={m.acc}>
               <a href={m.url} target="_blank" rel="noopener noreferrer" className="inv-move">
                 <span className="inv-stock">
-                  <b>{m.ticker || m.issuer}</b>
-                  <small className="muted">{m.ticker ? m.issuer : ""}</small>
+                  <b>{m.ticker || issuer}</b>
+                  <small className="muted">{m.ticker ? issuer : ""}</small>
                 </span>
                 <span className={`inv-act ${a.tone}`}>
                   {a.text}
