@@ -2227,11 +2227,6 @@ button.ft-row {
   font-size: 12px;
   font-weight: 700;
 }
-.chat-online {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-}
 .chat-chev {
   width: 8px;
   height: 8px;

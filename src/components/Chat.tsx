@@ -45,7 +45,6 @@ type Conn = "connecting" | "open" | "closed";
 function useRoom() {
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [conn, setConn] = useState<Conn>("connecting");
-  const [online, setOnline] = useState<number | null>(null);
   const [myTag, setMyTag] = useState("");
   const [error, setError] = useState("");
   const ws = useRef<WebSocket | null>(null);
@@ -72,15 +71,12 @@ function useRoom() {
         if (e.type === "init") {
           setMsgs(e.messages);
           setMyTag(e.tag);
-          setOnline(e.online);
         } else if (e.type === "msg") setMsgs((v) => [...v.slice(-199), e.message]);
         else if (e.type === "hide") setMsgs((v) => v.filter((x) => x.id !== e.id));
-        else if (e.type === "online") setOnline(e.online);
         else if (e.type === "error") setError(e.text);
       };
       s.onclose = () => {
         if (ws.current === s) ws.current = null;
-        setOnline(null);
         if (stop) return;
         setConn("closed");
         timer = setTimeout(connect, wait);
@@ -111,7 +107,7 @@ function useRoom() {
     return true;
   };
 
-  return { msgs, conn, online, myTag, error, send };
+  return { msgs, conn, myTag, error, send };
 }
 
 export function Chat() {
@@ -147,7 +143,6 @@ export function Chat() {
           <span className="chat-title">
             <i className={`chat-dot${room.conn === "open" ? " live" : ""}`} aria-hidden />
             실시간 채팅
-            {room.online != null && <span className="chat-online">{room.online}명 접속</span>}
           </span>
           {!open && latest && (
             <span className="chat-peek">
