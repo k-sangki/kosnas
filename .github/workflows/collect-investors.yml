@@ -1,0 +1,42 @@
+name: Collect investors (13F)
+
+# 유명 투자자 13F 보유 종목을 매일 07:30(KST)에 확인한다. 새 보고서가 있을 때만 바뀌고, 바뀌면 main에 올려 배포한다.
+on:
+  schedule:
+    - cron: "30 22 * * *"
+  workflow_dispatch:
+  push:
+    branches: [collect-investors-first]
+
+concurrency: collect-investors
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 13F 받기
+        run: python collector/investors_13f.py --out src/data/investors.json --tickers src/data/cusip-tickers.json
+      - name: main에 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add src/data/investors.json src/data/cusip-tickers.json
+          git diff --cached --quiet && exit 0
+          git config user.name "kosnas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -qm "유명 투자자 13F $(jq -r '.updated' src/data/investors.json)"
+          git pull -q --rebase origin main
+          git push -q origin HEAD:main
+          # 봇이 올린 커밋은 배포를 깨우지 않으니 직접 부른다
+          gh workflow run deploy.yml --ref main
