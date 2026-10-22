@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Crowd, InvestorList, SectorFlows } from "@/components/Investors";
+import { ArkTrades, RecentMoves } from "@/components/Investors";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
-import { mainPeriod, quarter } from "@/lib/investors";
+import { DATA } from "@/lib/investors";
 
 export const metadata: Metadata = {
-  title: "유명 투자자 포트폴리오 - 워런 버핏·마이클 버리 13F 보유 종목",
+  title: "유명 투자자 최근 매매 - 워런 버핏·캐시 우드 지분 공시와 매일 매매",
   description:
-    "워런 버핏, 빌 애크먼, 스탠리 드러켄밀러, 마이클 버리, 캐시 우드 같은 유명 투자자가 SEC 13F 보고서로 신고한 미국 주식 보유 종목과 지난 분기 대비 새로 산 종목·판 종목.",
-  keywords: ["13F", "버핏 포트폴리오", "워런 버핏 보유 종목", "마이클 버리 포트폴리오", "유명 투자자 포트폴리오", "헤지펀드 보유 종목", "캐시 우드"],
+    "워런 버핏, 캐시 우드, 칼 아이칸, 댄 로브 같은 유명 투자자가 최근 30일 동안 SEC에 낸 지분 공시(13D·13G)와 내부자 매매 공시(Form 4), ARK 펀드의 매일 매매를 정리했습니다.",
+  keywords: ["버핏 매수", "캐시 우드 매매", "ARK 매매", "13D", "13G", "Form 4", "유명 투자자 매매", "헤지펀드 지분 공시"],
   alternates: { canonical: "/investors" },
 };
 
@@ -17,49 +17,41 @@ export default function InvestorsPage() {
     <div className="shell">
       <SiteHeader active="us" />
       <main className="stack">
-        <h1 className="page-title">유명 투자자 포트폴리오</h1>
+        <h1 className="page-title">유명 투자자 최근 매매</h1>
         <p className="lead">
-          미국 기관 투자자가 분기마다 SEC에 신고하는 13F 보고서로 유명 투자자들이 {quarter(mainPeriod())} 말에 무엇을 들고 있었는지, 지난 분기보다 무엇을 새로
-          사고 팔았는지 정리했습니다. 이름을 누르면 전체 보유 종목이 나옵니다.
+          유명 투자자 {DATA.investors.length}명이 최근 {DATA.window}일 동안 미국 증권거래위원회(SEC)에 낸 지분·매매 공시와, 캐시 우드의 ARK 펀드가 매일 공개하는
+          보유 내역에서 찾은 매매입니다. 줄을 누르면 SEC 원문이 열립니다.
         </p>
-        <InvestorList title="투자자" />
-        <SectorFlows />
-        <Crowd kind="buy" />
-        <Crowd kind="sell" />
+        <RecentMoves />
+        <div id="ark">
+          <ArkTrades />
+        </div>
         <section className="card seo-text">
-          <h2 className="card-title">13F 보고서란</h2>
-          <p>
-            미국에서 운용하는 주식 자산이 1억 달러가 넘는 기관 투자자는 분기가 끝나고 45일 안에 미국 증권거래위원회(SEC)에 13F-HR 보고서를 내야 합니다. 이
-            보고서에는 분기 마지막 날 기준으로 들고 있던 미국 상장 주식, ETF, 상장 옵션의 종목과 주식 수, 평가액이 들어 있습니다. 누구나 SEC의 EDGAR 시스템에서
-            볼 수 있는 공개 자료라서, 이름난 투자자가 어떤 종목에 돈을 걸었는지 확인하는 가장 정확한 방법으로 널리 쓰입니다.
-          </p>
-          <h2 className="card-title">읽을 때 알아 둘 점</h2>
+          <h2 className="card-title">어떤 공시를 보나요</h2>
           <ul>
             <li>
-              <b>늦은 자료입니다.</b> 분기 말 기준이고 신고는 최대 45일 뒤에 나오므로, 보고서가 공개될 때는 이미 한두 달이 지난 보유 현황입니다. 그 사이 팔았을
-              수도 있습니다.
+              <b>13D·13G(지분 5% 넘는 보유 신고).</b> 한 회사 주식을 5% 넘게 가지면 내는 보고서입니다. 경영에 관여할 수 있는 투자자는 13D를 사건 뒤 10일 안에
+              내고, 지분이 1%p 넘게 바뀌면 2영업일 안에 정정합니다. 소극적인 투자자는 13G로 더 느슨하게 신고합니다. 이 화면은 지분율이 앞 보고서보다 늘었는지
+              줄었는지를 함께 보여줍니다.
             </li>
             <li>
-              <b>미국 상장 주식만 들어 있습니다.</b> 현금, 채권, 해외 주식, 공매도 포지션은 보고서에 없습니다. 그래서 비중은 회사 전체 자산이 아니라 신고한 미국
-              주식 안에서의 비중입니다.
+              <b>Form 4(대주주·임원 매매 신고).</b> 한 회사 지분을 10% 넘게 가진 투자자는 사고판 뒤 2영업일 안에 거래 날짜, 주식 수, 가격을 신고합니다. 장내에서
+              사고판 것(매수·매도)이 있으면 그것만, 없으면 그 밖의 취득·처분을 적습니다.
             </li>
             <li>
-              <b>옵션은 기초 주식 가치로 적힙니다.</b> 풋옵션은 주가 하락에 거는 포지션이라, 비중이 크게 보여도 그 종목을 좋게 본다는 뜻이 아닙니다.
-            </li>
-            <li>
-              <b>평가액은 분기 말 주가 기준입니다.</b> 주식 수가 같아도 주가가 오르면 평가액과 비중이 늘어나므로, 사고판 여부는 주식 수 변화로 봅니다.
+              <b>ARK 매일 보유 내역.</b> ARK 인베스트는 ETF마다 그날 들고 있는 종목과 주식 수를 공개합니다. KosNas가 이를 매일 받아 전날과 비교합니다. ETF는
+              투자자가 돈을 넣고 빼면 모든 종목 수량이 같은 비율로 바뀌므로, 그 몫을 빼고도 수량이 1% 넘게 바뀐 종목만 매매로 봅니다. 금액은 그날 평가액으로
+              계산한 추정치입니다.
             </li>
           </ul>
-          <h2 className="card-title">이 화면은 어떻게 만드나요</h2>
+          <h2 className="card-title">왜 분기 보고서(13F)는 쓰지 않나요</h2>
           <p>
-            KosNas가 매일 아침 SEC EDGAR에서 투자자마다 가장 최근 13F-HR 원본 보고서와 그 앞 분기 보고서를 받아, 같은 종목끼리 주식 수를 더하고 두 분기를
-            비교합니다. 주식 수가 늘었으면 추가, 줄었으면 축소, 지난 분기에 없던 종목은 신규, 이번 분기에 사라진 종목은 매도로 표시합니다. 정정
-            보고서(13F-HR/A)는 반영하지 않습니다. 13F에는 종목 기호가 없어 증권 식별 번호(CUSIP)를 OpenFIGI로 기호에 맞췄고, 찾지 못한 종목은 회사 이름으로
-            적었습니다.
+            기관 투자자의 분기 보유 보고서(13F)는 분기가 끝나고 45일 뒤에 나와서, 볼 때는 이미 두세 달에서 넉 달 지난 보유 현황입니다. KosNas는 최근 한 달 안에
+            나온 공시만 보여줍니다. 그래서 큰 지분을 갖지 않은 종목의 매매나, 지분 공시 의무가 없는 작은 매매는 여기에 나오지 않습니다.
           </p>
           <p>
-            유명 투자자가 샀다고 해서 그 종목이 오른다는 뜻은 아니며, KosNas는 특정 종목의 매수·매도를 권하지 않습니다. 미국 증시 흐름은{" "}
-            <Link href="/us">미장</Link>에서 볼 수 있습니다.
+            유명 투자자가 샀다고 해서 그 종목이 오른다는 뜻은 아니며, KosNas는 특정 종목의 매수·매도를 권하지 않습니다. 원천은 SEC EDGAR와 ARK 인베스트의 공개
+            자료이고, 매일 아침과 저녁에 다시 받습니다. 미국 증시 흐름은 <Link href="/us">미장</Link>에서 볼 수 있습니다.
           </p>
         </section>
       </main>

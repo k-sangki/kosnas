@@ -1899,140 +1899,52 @@ button.ft-row {
 }
 
 /* ---------- 유명 투자자 ---------- */
-.inv-list,
-.inv-holdings {
+.inv-moves {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.inv-list li + li,
-.inv-holdings li + li {
+.inv-moves li + li {
   border-top: 1px solid var(--line);
 }
-.inv-row {
+.inv-move {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 10px;
-  grid-template-areas: "who moves tri" "top top tri";
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "stock act" "by by";
   align-items: center;
-  gap: 4px 10px;
-  padding: 11px 0;
+  gap: 2px 10px;
+  padding: 10px 0;
   font-size: 14px;
 }
-.inv-who {
-  grid-area: who;
+.inv-stock {
+  grid-area: stock;
   display: flex;
   align-items: baseline;
   gap: 6px;
   min-width: 0;
 }
-.inv-who small {
+.inv-stock small,
+.inv-by small {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.inv-top {
-  grid-area: top;
+.inv-act {
+  grid-area: act;
   display: flex;
-  flex-wrap: wrap;
-  gap: 2px 12px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.inv-moves {
-  grid-area: moves;
-  display: flex;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 700;
-}
-.inv-row .tri {
-  grid-area: tri;
-}
-.tri-right {
-  transform: rotate(-90deg);
-}
-.inv-holdings li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto 52px;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 0;
-  font-size: 14px;
-}
-.inv-holdings li:not(:has(.rank-no)) {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-.inv-h-name {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.inv-h-name b {
-  display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
-}
-.inv-h-name small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.inv-chg {
-  justify-self: end;
-}
-.inv-facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  margin: 0;
-}
-.inv-facts dt {
-  font-size: 12px;
-  color: var(--muted);
-}
-.inv-facts dd {
-  margin: 2px 0 0;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 13px;
 }
-.sf-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.inv-act small {
+  font-weight: 400;
 }
-.sf-list li {
-  padding: 9px 0;
-}
-.sf-list li + li {
-  border-top: 1px solid var(--line);
-}
-.sf-head {
+.inv-by {
+  grid-area: by;
   display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-}
-.sf-bar {
-  position: relative;
-  height: 6px;
-  margin: 6px 0 4px;
-  background: var(--line);
-  border-radius: 3px;
-}
-.sf-bar i {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  border-radius: 3px;
-}
-.sf-bar .pos {
-  left: 50%;
-  background: var(--up);
-}
-.sf-bar .neg {
-  right: 50%;
-  background: var(--down);
-}
-.sf-list small {
-  display: block;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
   font-size: 12px;
 }

@@ -1,72 +1,68 @@
 import raw from "@/data/investors.json";
 
-/** 유명 투자자 13F 보유 자료(collector/investors_13f.py가 만든다) */
-export type Holding = {
-  name: string;
-  ticker: string | null;
-  cls: string;
-  cusip: string;
-  /** 평가액(달러, 분기 말 기준) */
-  value: number;
-  shares: number;
-  put_call?: "Put" | "Call";
-  /** 주식이 아니라 원금 단위(전환사채 등) */
-  prn?: boolean;
-  weight?: number;
-  change?: "new" | "add" | "reduce" | "same" | null;
-  prev_shares?: number | null;
-};
+/** 유명 투자자 최근 30일 공시(collector/investors_recent.py가 만든다) */
+export type MoveKind = "buy" | "sell" | "acquire" | "dispose" | "stake";
 
-export type Investor = {
-  id: string;
-  cik: number;
-  person: string;
-  firm: string;
-  sec_name: string;
-  period: string;
+export type Move = {
+  investor: string;
+  form: string;
+  /** 공시일 */
   filed: string;
-  prev_period: string | null;
-  total: number;
-  count: number;
-  new_count: number;
-  add_count: number;
-  reduce_count: number;
-  sold_count: number;
-  holdings: Holding[];
-  sold: Holding[];
+  acc: string;
+  /** SEC 원문 */
+  url: string;
+  kind: MoveKind;
+  issuer: string | null;
+  ticker: string;
+  shares: number | null;
+  /** Form 4: 매매 금액(달러)·평균 가격·매매 뒤 보유 주식 수·거래 날짜 */
+  value?: number | null;
+  price?: number | null;
+  after?: number | null;
+  from?: string | null;
+  to?: string | null;
+  /** 13D·13G: 지분율(%)·앞 보고서 지분율·사건 날짜·정정 여부·13D(경영 참여 가능) 여부 */
+  pct?: number | null;
+  prev_pct?: number | null;
+  event_date?: string | null;
+  amend?: boolean;
+  active?: boolean;
 };
 
-export type SectorFlow = {
-  sector: string;
-  /** 이번 분기 산 금액(달러, +) */
-  buy: number;
-  /** 판 금액(달러, -) */
-  sell: number;
-  net: number;
-  buyers: string[];
-  sellers: string[];
-  top_buy: string[];
-  top_sell: string[];
+export type ArkTrade = {
+  date: string;
+  fund: string;
+  ticker: string;
+  name: string;
+  kind: "new" | "exit" | "buy" | "sell";
+  shares: number;
+  value: number;
 };
 
 type Data = {
-  updated: string | null;
-  failed?: string[];
-  sectors?: { period: string; investors: number; sectors: SectorFlow[] } | null;
-  investors: Investor[];
+  updated: string;
+  since: string;
+  window: number;
+  failed: string[];
+  investors: { id: string; name: string; firm: string }[];
+  events: Move[];
+  ark: { started: string | null; asof: string | null; trades: ArkTrade[] };
 };
 
-const DATA = raw as unknown as Data;
+export const DATA = raw as unknown as Data;
+export const MOVES: Move[] = DATA.events;
+export const ARK = DATA.ark;
+const WHO = new Map(DATA.investors.map((i) => [i.id, i]));
+export const who = (id: string) => WHO.get(id);
 
-export const INVESTORS: Investor[] = DATA.investors;
-export const SECTOR_FLOWS = DATA.sectors ?? null;
-export const findInvestor = (id: string) => INVESTORS.find((i) => i.id === id);
+/** 최근 기간 공시가 하나도 없는 투자자 */
+export const quiet = () => DATA.investors.filter((i) => !MOVES.some((m) => m.investor === i.id));
 
-/** 2026-06-30 → 2026년 2분기 */
-export function quarter(period: string | null) {
-  if (!period) return "";
-  const [y, m] = period.split("-").map(Number);
-  return `${y}년 ${Math.ceil(m / 3)}분기`;
+/** 2026-10-07 → 10월 7일 */
+export function md(d: string | null | undefined) {
+  if (!d) return "";
+  const [, m, day] = d.split("-").map(Number);
+  return `${m}월 ${day}일`;
 }
 
 /** 달러 금액을 억·만 단위로 */
@@ -76,44 +72,41 @@ export function usd(v: number): string {
     const e = v / 1e8;
     return `${e >= 100 ? Math.round(e).toLocaleString() : e.toFixed(1)}억 달러`;
   }
-  return `${Math.round(v / 1e4).toLocaleString()}만 달러`;
+  if (v >= 1e4) return `${Math.round(v / 1e4).toLocaleString()}만 달러`;
+  return `${Math.round(v).toLocaleString()}달러`;
 }
 
-/** 이름 대신 쓸 기호(못 찾았으면 회사 이름) */
-export const label = (h: Holding) => h.ticker ?? h.name;
-
-export const optionTag = (h: Holding) => (h.put_call === "Put" ? "풋옵션" : h.put_call === "Call" ? "콜옵션" : h.prn ? "채권" : "");
-
-/** 전 분기 대비 주식 수 변화(%) */
-export function sharePct(h: Holding) {
-  if (!h.prev_shares || h.change === "new") return null;
-  return (h.shares / h.prev_shares - 1) * 100;
+/** 주식 수를 만·억 주로 */
+export function shares(v: number): string {
+  if (v >= 1e8) return `${(v / 1e8).toFixed(1)}억 주`;
+  if (v >= 1e4) return `${Math.round(v / 1e4).toLocaleString()}만 주`;
+  return `${Math.round(v).toLocaleString()}주`;
 }
 
-/** 이번 분기 여러 투자자가 함께 사거나 판 종목 */
-export function crowd(kind: "buy" | "sell", n = 10) {
-  const by = new Map<string, { h: Holding; who: string[] }>();
-  for (const inv of INVESTORS) {
-    const rows =
-      kind === "buy"
-        ? inv.holdings.filter((h) => !h.put_call && !h.prn && (h.change === "new" || h.change === "add"))
-        : [...inv.holdings.filter((h) => !h.put_call && !h.prn && h.change === "reduce"), ...inv.sold.filter((h) => !h.put_call && !h.prn)];
-    for (const h of rows) {
-      const k = h.cusip;
-      const e = by.get(k) ?? { h, who: [] };
-      if (!e.who.includes(inv.person)) e.who.push(inv.person);
-      by.set(k, e);
-    }
+/** 공시 한 줄의 동작 이름과 색 */
+export function action(m: Move): { text: string; tone: "up" | "down" | "" } {
+  switch (m.kind) {
+    case "buy":
+      return { text: "장내 매수", tone: "up" };
+    case "sell":
+      return { text: "장내 매도", tone: "down" };
+    case "acquire":
+      return { text: "주식 취득", tone: "up" };
+    case "dispose":
+      return { text: "주식 처분", tone: "down" };
   }
-  return [...by.values()]
-    .filter((e) => e.who.length >= 2)
-    .sort((a, b) => b.who.length - a.who.length || b.h.value - a.h.value)
-    .slice(0, n);
+  const pct = m.pct != null ? `${m.pct}%` : "";
+  if (m.amend && m.prev_pct != null && m.pct != null) {
+    if (m.pct === m.prev_pct) return { text: `지분 ${pct} 유지`, tone: "" };
+    return { text: `지분 ${m.prev_pct}% → ${pct}`, tone: m.pct > m.prev_pct ? "up" : "down" };
+  }
+  if (m.amend) return { text: `지분 ${pct} 변경 신고`, tone: "" };
+  return { text: `지분 ${pct} 새로 신고`, tone: "up" };
 }
 
-/** 가장 많은 투자자가 고른 분기(보통 가장 최근 분기) */
-export function mainPeriod() {
-  const c = new Map<string, number>();
-  INVESTORS.forEach((i) => c.set(i.period, (c.get(i.period) ?? 0) + 1));
-  return [...c.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-}
+export const ARK_KIND: Record<ArkTrade["kind"], { text: string; tone: "up" | "down" }> = {
+  new: { text: "신규 매수", tone: "up" },
+  buy: { text: "추가 매수", tone: "up" },
+  sell: { text: "일부 매도", tone: "down" },
+  exit: { text: "전량 매도", tone: "down" },
+};

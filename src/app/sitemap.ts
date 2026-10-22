@@ -1,23 +1,10 @@
 import type { MetadataRoute } from "next";
 import { MARKETS, sectorData } from "@/lib/sectors";
 import { GUIDES } from "@/lib/guides";
-import { INVESTORS } from "@/lib/investors";
 import { SITE_URL } from "./layout";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = [
-    "",
-    "/kr",
-    "/night",
-    "/us",
-    ...GUIDES.map((g) => `/guide/${g.slug}`),
-    "/guide",
-    "/investors",
-    ...INVESTORS.map((i) => `/investors/${i.id}`),
-    "/about",
-    "/privacy",
-    "/contact",
-  ];
+  const pages = ["", "/kr", "/night", "/us", ...GUIDES.map((g) => `/guide/${g.slug}`), "/guide", "/investors", "/about", "/privacy", "/contact"];
   const sectors = MARKETS.flatMap((m) => sectorData(m).sectors.map((s) => `/${m}/sector/${s.id}`));
   const now = new Date();
   // 실시간 화면은 자주 바뀐다고 알려 검색 로봇이 자주 오게 한다
