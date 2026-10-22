@@ -9,6 +9,8 @@ import type { Industry, SectorData } from "@/lib/sectors";
 const PERIODS = ["5", "10", "20", "30", "60"];
 const BASE = "20";
 const AGO = 5;
+/** 처음에 보이는 줄 수. 그 아래는 '더보기'로 펼치고, 캡처 이미지에는 넣지 않는다 */
+const TOP = 15;
 
 interface Row {
   id: string;
@@ -109,6 +111,7 @@ function Chg({ c }: { c: number | null }) {
 export function FlowTable({ data }: { data: SectorData }) {
   const [sortBy, setSortBy] = useState(BASE);
   const [open, setOpen] = useState<string | null>(null);
+  const [all, setAll] = useState(false);
   const rows = stats(data);
   const kids = industryRows(data.industries ?? []);
   const byX = <T extends Row>(xs: T[]) => [...xs].sort((a, b) => (b.x[sortBy] ?? -1e9) - (a.x[sortBy] ?? -1e9));
@@ -145,6 +148,47 @@ export function FlowTable({ data }: { data: SectorData }) {
     </>
   );
 
+  const row = (r: Row) => {
+    const ks = kids.get(r.id);
+    if (!ks)
+      return (
+        <Link key={r.id} href={`/${data.market}/sector/${r.id}`} className="ft-row">
+          <span className="ft-name">
+            <i className="ft-tri none" />
+            {r.name}
+          </span>
+          {cells(r)}
+        </Link>
+      );
+    const isOpen = open === r.id;
+    return (
+      <div key={r.id} className={`ft-group${isOpen ? " open" : ""}`}>
+        <button className="ft-row" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : r.id)}>
+          <span className="ft-name">
+            <i className="ft-tri" />
+            {r.name}
+          </span>
+          {cells(r)}
+        </button>
+        {isOpen && (
+          <div className="ft-kids">
+            {byX(ks).map((k) => (
+              <Link key={k.id} href={`/${data.market}/sector/${r.id}#ind-${k.id}`} className="ft-row kid">
+                <span className="ft-name">
+                  {k.name} <span className="muted">{k.count}</span>
+                </span>
+                {cells(k)}
+              </Link>
+            ))}
+            <Link href={`/${data.market}/sector/${r.id}`} className="ft-more">
+              {r.name} 종목 보기 →
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <section className="card ft-card">
       <h2 className="card-title">섹터 순위</h2>
@@ -174,46 +218,24 @@ export function FlowTable({ data }: { data: SectorData }) {
         ))}
         <span>순위</span>
       </div>
-      {sorted.map((r) => {
-        const ks = kids.get(r.id);
-        if (!ks)
-          return (
-            <Link key={r.id} href={`/${data.market}/sector/${r.id}`} className="ft-row">
-              <span className="ft-name">
-                <i className="ft-tri none" />
-                {r.name}
-              </span>
-              {cells(r)}
-            </Link>
-          );
-        const isOpen = open === r.id;
-        return (
-          <div key={r.id} className={`ft-group${isOpen ? " open" : ""}`}>
-            <button className="ft-row" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : r.id)}>
-              <span className="ft-name">
-                <i className="ft-tri" />
-                {r.name}
-              </span>
-              {cells(r)}
-            </button>
-            {isOpen && (
-              <div className="ft-kids">
-                {byX(ks).map((k) => (
-                  <Link key={k.id} href={`/${data.market}/sector/${r.id}#ind-${k.id}`} className="ft-row kid">
-                    <span className="ft-name">
-                      {k.name} <span className="muted">{k.count}</span>
-                    </span>
-                    {cells(k)}
-                  </Link>
-                ))}
-                <Link href={`/${data.market}/sector/${r.id}`} className="ft-more">
-                  {r.name} 종목 보기 →
-                </Link>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {sorted.slice(0, TOP).map(row)}
+      {sorted.length > TOP && (
+        <div className="no-capture">
+          {all && sorted.slice(TOP).map(row)}
+          <button type="button" className="ft-all" aria-expanded={all} onClick={() => setAll(!all)}>
+            {all ? "접기" : `더보기 · ${TOP + 1}~${sorted.length}위`}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** 섹터 순위 표 읽는 법. 표와 따로 두어 캡처 이미지에는 들어가지 않는다 */
+export function FlowTableNote() {
+  return (
+    <section className="card">
+      <h2 className="card-title">섹터 순위 보는 법</h2>
       <p className="muted small-note">
         색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 짧은 기간(왼쪽)과 긴 기간(오른쪽)을 나란히 보면 흐름이 보입니다. 기간을 누르면 그
         기간 순으로 정렬합니다. 미니 그래프는 고른 기간 강도의 매일 추이, 순위는 {BASE}일 강도 기준 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그

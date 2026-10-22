@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
 import { CaptureArea } from "./CaptureArea";
-import { FlowTable } from "./FlowTable";
+import { FlowTable, FlowTableNote } from "./FlowTable";
 import { SectorBoard } from "./SectorBoard";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
@@ -127,6 +127,7 @@ export function MarketContent({ market }: { market: Market }) {
       >
         {!data.sample && <FlowTable data={light} />}
       </CaptureArea>
+      {!data.sample && <FlowTableNote />}
       <SectorBoard data={light} />
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
