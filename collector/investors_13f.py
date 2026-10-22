@@ -24,6 +24,7 @@ UA = "KosNas contact@kosnas.com"
 SUBMISSIONS = "https://data.sec.gov/submissions/CIK{:010d}.json"
 ARCHIVE = "https://www.sec.gov/Archives/edgar/data/{}/{}/"
 OPENFIGI = "https://api.openfigi.com/v3/mapping"
+COMPANY_TICKERS = "https://www.sec.gov/files/company_tickers.json"
 
 # (id, CIK, 사람, 회사 한글 설명) — 이 순서대로 보여 준다(국내 개인 투자자가 많이 찾는 사람 먼저)
 INVESTORS = [
@@ -182,7 +183,7 @@ def pick_ticker(data):
 
 
 def map_tickers(cusips, cache):
-    """CUSIP → 종목 기호(OpenFIGI). 못 찾은 것(None)은 다음에 다시 묻는다"""
+    """CUSIP → 종목 기호(OpenFIGI). 못 찾은 것은 빈 문자열"""
     todo = sorted(c for c in set(cusips) if c and cache.get(c) is None)
     key = os.environ.get("OPENFIGI_API_KEY")
     batch = 100 if key else 10
@@ -203,7 +204,150 @@ def map_tickers(cusips, cache):
             for c, r in zip(part, res):
                 cache[c] = pick_ticker(r.get("data") or [])
             time.sleep(wait)
+    # 두 번 다 못 찾은 것은 빈 문자열로 적어 매일 다시 묻지 않는다
+    for c in todo:
+        if cache.get(c) is None:
+            cache[c] = ""
     return cache
+
+
+def flow_rows(holdings, sold):
+    """종목별 이번 분기 사고판 금액(달러): (CUSIP, 금액). 늘린 주식 수 × 분기 말 주가, 새로 산 것은 평가액, 모두 판 것은 전 분기 평가액.
+    옵션·채권은 뺀다(방향이나 단위가 주식과 다르다)"""
+    out = []
+    for h in holdings:
+        if h["put_call"] or h.get("prn") or h["change"] in (None, "same") or h["shares"] <= 0:
+            continue
+        price = h["value"] / h["shares"]
+        out.append((h["cusip"], h["value"] if h["change"] == "new" else (h["shares"] - h["prev_shares"]) * price))
+    out += [(s["cusip"], -s["prev_value"]) for s in sold if not s["put_call"] and not s.get("prn")]
+    return out
+
+
+# SEC 업종 코드(SIC) → 섹터. 범위는 앞에서부터 처음 맞는 것
+SIC_SECTORS = [
+    ((3674, 3674), "반도체"),
+    ((2833, 2836), "헬스케어"),
+    ((3841, 3851), "헬스케어"),
+    ((8000, 8099), "헬스케어"),
+    ((6324, 6324), "헬스케어"),
+    ((5122, 5122), "헬스케어"),
+    ((3570, 3579), "기술"),
+    ((3660, 3699), "기술"),
+    ((3820, 3829), "기술"),
+    ((7370, 7379), "기술"),
+    ((1300, 1399), "에너지"),
+    ((2900, 2999), "에너지"),
+    ((4610, 4619), "에너지"),
+    ((4920, 4925), "에너지"),
+    ((4800, 4899), "통신·미디어"),
+    ((2700, 2799), "통신·미디어"),
+    ((7810, 7829), "통신·미디어"),
+    ((4900, 4999), "유틸리티"),
+    ((6798, 6798), "부동산"),
+    ((6500, 6599), "부동산"),
+    ((6000, 6799), "금융"),
+    ((2000, 2199), "필수소비재"),
+    ((2840, 2844), "필수소비재"),
+    ((5400, 5499), "필수소비재"),
+    ((5900, 5912), "필수소비재"),
+    ((3711, 3716), "경기소비재"),
+    ((5000, 5999), "경기소비재"),
+    ((7000, 7099), "경기소비재"),
+    ((5800, 5899), "경기소비재"),
+    ((2200, 2399), "경기소비재"),
+    ((3940, 3949), "경기소비재"),
+    ((1000, 1099), "소재"),
+    ((1400, 1499), "소재"),
+    ((2600, 2699), "소재"),
+    ((2800, 2899), "소재"),
+    ((3300, 3399), "소재"),
+    ((1500, 1799), "산업재"),
+    ((3400, 3599), "산업재"),
+    ((3700, 3799), "산업재"),
+    ((4000, 4799), "산업재"),
+    ((8700, 8799), "산업재"),
+    ((7380, 7389), "산업재"),
+]
+# 업종 코드가 실제 사업과 어긋나는 큰 종목
+TICKER_SECTORS = {"V": "금융", "MA": "금융", "PYPL": "금융", "AXP": "금융", "GOOGL": "기술", "GOOG": "기술", "META": "기술", "AMZN": "경기소비재"}
+FUND_WORDS = re.compile(r"\b(ETF|TRUST|FUND|INDEX|SPDR|ISHARES|PORTFOLIO|SELECT SECTOR|INVESCO QQQ)\b", re.I)
+
+
+def sic_sector(sic):
+    for (lo, hi), name in SIC_SECTORS:
+        if lo <= sic <= hi:
+            return name
+    return "기타"
+
+
+def sectors_for(rows, tickers, sic_cache):
+    """CUSIP → 섹터. 기호 → SEC CIK → 업종 코드(SIC) 순으로 찾고 코드는 --sic 파일에 쌓아 둔다"""
+    need = sorted({tickers.get(c) for c, _ in rows if tickers.get(c)} - set(sic_cache))
+    if need:
+        cik = {v["ticker"].replace("-", "."): v["cik_str"] for v in json.loads(get(COMPANY_TICKERS)).values()}
+        print(f"SEC 업종 코드: 새 종목 {len(need)}개", file=sys.stderr)
+        for t in need:
+            c = cik.get(t)
+            try:
+                sic_cache[t] = int(sec_json(SUBMISSIONS.format(c)).get("sic") or 0) if c else 0
+            except Exception as e:  # noqa: BLE001
+                print(f"  {t}: {e}", file=sys.stderr)
+    return sic_cache
+
+
+def sector_of(name, ticker, sic_cache):
+    if ticker in TICKER_SECTORS:
+        return TICKER_SECTORS[ticker]
+    sic = sic_cache.get(ticker) if ticker else 0
+    if sic:
+        return sic_sector(sic)
+    return "ETF·지수" if FUND_WORDS.search(name or "") else "기타"
+
+
+def sector_flows(inv_flows, names, tickers, sic_cache):
+    """투자자 한 명의 섹터별 {섹터: [산 금액, 판 금액, {기호: 금액}]}"""
+    out = {}
+    for c, v in inv_flows:
+        t = tickers.get(c) or None
+        sec = sector_of(names.get(c), t, sic_cache)
+        e = out.setdefault(sec, [0.0, 0.0, {}])
+        e[0 if v > 0 else 1] += v
+        k = t or names.get(c, c)
+        e[2][k] = e[2].get(k, 0) + v
+    return {k: [round(b), round(s), {n: round(x) for n, x in sorted(m.items(), key=lambda i: -abs(i[1]))[:8]}] for k, (b, s, m) in out.items()}
+
+
+def summarize(investors):
+    """가장 많은 투자자가 고른 분기만 모아 섹터별 순매수·산 사람·판 사람"""
+    periods = [i["period"] for i in investors if i.get("sector_flows")]
+    if not periods:
+        return None
+    period = max(set(periods), key=periods.count)
+    agg = {}
+    for inv in investors:
+        if inv["period"] != period or not inv.get("sector_flows"):
+            continue
+        for sec, (b, s, m) in inv["sector_flows"].items():
+            e = agg.setdefault(sec, {"sector": sec, "buy": 0, "sell": 0, "buyers": [], "sellers": [], "_m": {}})
+            e["buy"] += b
+            e["sell"] += s
+            if b + s > 0:
+                e["buyers"].append(inv["person"])
+            elif b + s < 0:
+                e["sellers"].append(inv["person"])
+            for n, x in m.items():
+                e["_m"][n] = e["_m"].get(n, 0) + x
+    rows = []
+    for e in agg.values():
+        m = sorted(e.pop("_m").items(), key=lambda i: i[1])
+        e["net"] = e["buy"] + e["sell"]
+        e["top_buy"] = [n for n, x in reversed(m) if x > 0][:3]
+        e["top_sell"] = [n for n, x in m if x < 0][:3]
+        rows.append(e)
+    rows.sort(key=lambda e: -e["net"])
+    n = sum(1 for i in investors if i["period"] == period and i.get("sector_flows"))
+    return {"period": period, "investors": n, "sectors": rows}
 
 
 def round_row(r, ticker):
@@ -242,6 +386,7 @@ def build_one(spec, old):
     cur = aggregate(info_table(cik, cur_acc, filed))
     pv = aggregate(info_table(cik, prev[0], prev[2])) if prev else None
     holdings, sold, total = compare(cur, pv)
+    flows = [] if pv is None else flow_rows(holdings, sold)
     return {
         "id": iid,
         "cik": cik,
@@ -261,13 +406,16 @@ def build_one(spec, old):
         "sold_count": len(sold),
         "_holdings": holdings[:KEEP],
         "_sold": sold[:KEEP_SOLD],
-    }, [h["cusip"] for h in holdings[:KEEP]] + [s["cusip"] for s in sold[:KEEP_SOLD]]
+        "_flows": flows,
+        "_names": {r["cusip"]: r["name"] for r in holdings + sold},
+    }, [h["cusip"] for h in holdings[:KEEP]] + [s["cusip"] for s in sold[:KEEP_SOLD]] + [f[0] for f in flows]
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--tickers", required=True)
+    ap.add_argument("--sic", required=True, help="종목 기호 → SEC 업종 코드 캐시")
     ap.add_argument("--only", help="이 id만(시험용)")
     ap.add_argument("--force", action="store_true", help="보고서가 같아도 다시 받는다")
     a = ap.parse_args()
@@ -276,6 +424,7 @@ def main():
     if os.path.exists(a.out):
         old = {x["id"]: x for x in json.load(open(a.out, encoding="utf-8"))["investors"]}
     cache = json.load(open(a.tickers, encoding="utf-8")) if os.path.exists(a.tickers) else {}
+    sic_cache = json.load(open(a.sic, encoding="utf-8")) if os.path.exists(a.sic) else {}
 
     out, cusips, failed = [], [], []
     for spec in INVESTORS:
@@ -293,19 +442,26 @@ def main():
         cusips += cs
 
     map_tickers(cusips, cache)
+    tick = {c: (t or None) for c, t in cache.items()}
+    flows = [f for inv in out for f in inv.get("_flows", [])]
+    sectors_for(flows, tick, sic_cache)
     for inv in out:
         if "_holdings" in inv:
-            inv["holdings"] = [round_row(h, cache.get(h["cusip"])) for h in inv.pop("_holdings")]
-            inv["sold"] = [round_row(s, cache.get(s["cusip"])) for s in inv.pop("_sold")]
+            names = {h["cusip"]: h["name"] for h in inv["_holdings"] + inv["_sold"]}
+            names.update(inv.pop("_names", {}))
+            inv["sector_flows"] = sector_flows(inv.pop("_flows"), names, tick, sic_cache) if inv["prev_period"] else None
+            inv["holdings"] = [round_row(h, tick.get(h["cusip"])) for h in inv.pop("_holdings")]
+            inv["sold"] = [round_row(s, tick.get(s["cusip"])) for s in inv.pop("_sold")]
         else:  # 그대로 쓴 것: 새로 찾은 기호만 채운다
             for h in inv["holdings"] + inv["sold"]:
                 if not h.get("ticker"):
-                    h["ticker"] = cache.get(h["cusip"])
+                    h["ticker"] = tick.get(h["cusip"])
 
     if not out:
         sys.exit("받은 투자자가 없다")
     json.dump(dict(sorted(cache.items())), open(a.tickers, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
-    body = {"updated": dt.date.today().isoformat(), "failed": failed, "investors": out}
+    json.dump(dict(sorted(sic_cache.items())), open(a.sic, "w", encoding="utf-8"), indent=0)
+    body = {"updated": dt.date.today().isoformat(), "failed": failed, "sectors": summarize(out), "investors": out}
     json.dump(body, open(a.out, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     print(f"{len(out)}명, 실패 {failed}", file=sys.stderr)
 
