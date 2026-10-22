@@ -247,7 +247,7 @@ function Main({ d }: { d: NightData }) {
         </div>
         <dl className="night-stats">
           <div>
-            <dt>지수 기준(15:45)</dt>
+            <dt>기준(15:45)</dt>
             <dd>{fmt(d.base)}</dd>
           </div>
           {d.at0600 != null && (
@@ -272,8 +272,8 @@ function Main({ d }: { d: NightData }) {
       </div>
       <Chart d={d} />
       <p className="muted small-note">
-        코스피200 지수 수준으로 환산한 추정치입니다. 기준값은 15:45의 지수 쪽 값이라 KRX 주간 선물 종가나 야간선물 시세와는 선물과 지수의 가격 차(베이시스)만큼,
-        보통 몇 포인트 다르게 보입니다. 등락률은 같은 지수 기준끼리 잰 값입니다.
+        기준값은 15:45의 KR200 무기한선물 가격입니다. KRX 주간 선물 종가와는 지난 밤들 평균 0.3% 안팎 차이가 나서, 선물 종가를 기준으로 삼는 다른 화면과 그만큼
+        등락률이 다르게 보일 수 있습니다.
       </p>
     </>
   );
