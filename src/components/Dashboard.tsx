@@ -29,7 +29,6 @@ const TILES: Tile[] = [
   { id: "SOXX", label: "반도체(SOXX)", kind: "tv", symbol: "NASDAQ:SOXX" },
   { id: "GOLD", label: "금", kind: "tv", symbol: "TVC:GOLD" },
   { id: "DXY", label: "달러 인덱스", kind: "tv", symbol: "TVC:DXY" },
-  { id: "US10Y", label: "미국 10년물 금리", kind: "tv", symbol: "TVC:US10Y" },
   { id: "BTC", label: "비트코인", kind: "tv", symbol: "BITSTAMP:BTCUSD" },
   // 주말·새벽에도 거래되는 무기한선물. 등락은 24시간 전 대비
   { id: "P-CL", label: "유가(WTI) · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
@@ -44,7 +43,7 @@ const TILES: Tile[] = [
   { id: "P-DXY", label: "달러 인덱스 · 24시간", kind: "hl", coin: "DXY", sub: XSUB },
 ];
 const BY_ID = new Map(TILES.map((t) => [t.id, t]));
-const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "P-CL", "QQQ", "US10Y"];
+const DEFAULT = ["SMSN", "SKHX", "XYZ100", "P-CL"];
 
 // ---- 이 브라우저에만 남기는 카드 목록 ----
 const KEY = "kosnas:dashboard:v2";
@@ -52,11 +51,13 @@ const OLD = "kosnas:dashboard:v1";
 /**
  * 기본 배치가 바뀐 것을 예전에 저장한 배치에도 한 번씩만 반영한다(그 뒤에 사용자가 바꾼 것은 건드리지 않는다).
  * 유가: 주말에 멈추는 USO·WTI(트레이딩뷰) 대신 주말에도 거래되는 WTI 무기한선물
+ * default-4: 예전에 저장한 배치도 새 기본(삼성전자·SK하이닉스·나스닥 100·WTI)으로 한 번 맞춘다
  */
 const STEPS: [string, (v: string[]) => string[]][] = [
   ["WTI", (v) => (v.includes("WTI") ? v : [...v, "WTI"])],
-  ["US10Y", (v) => (v.includes("US10Y") ? v : [...v, "US10Y"])],
   ["oil-24h", (v) => (v.includes("P-CL") ? v : v.map((x) => (x === "USO" ? "P-CL" : x))).filter((x) => x !== "WTI" && x !== "USO")],
+  // 기본을 네 장으로 줄였다(10년물 금리는 트레이딩뷰 위젯이 외부 사이트에 보여 주지 않아 뺐다)
+  ["default-4", () => DEFAULT],
 ];
 const ADDED_KEY = "kosnas:dashboard:added";
 function migrate() {
@@ -172,7 +173,6 @@ const ICONS: Record<string, () => React.ReactElement> = {
   BRENT: Drop,
   GOLD: () => <Badge t="Au" bg="#c9971c" />,
   DXY: () => <Badge t="$" bg="#2e7d32" size={11} />,
-  US10Y: () => <Badge t="%" bg="#5c6bc0" size={11} />,
   BTC: () => <Badge t="₿" bg="#f7931a" size={11} />,
   "P-CL": Drop,
   "P-BRENT": Drop,
@@ -203,7 +203,6 @@ const LOGOS: Record<string, string> = {
   BRENT: "brent-oil",
   GOLD: "metal/gold",
   DXY: "indices/u-s-dollar-index",
-  US10Y: "country/US",
   BTC: "crypto/XTVCBTC",
   "P-CL": "crude-oil",
   "P-BRENT": "brent-oil",
