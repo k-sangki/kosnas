@@ -43,7 +43,7 @@ const TILES: Tile[] = [
   { id: "P-DXY", label: "달러 인덱스 · 24시간", kind: "hl", coin: "DXY", sub: XSUB },
 ];
 const BY_ID = new Map(TILES.map((t) => [t.id, t]));
-const DEFAULT = ["SMSN", "SKHX", "XYZ100", "P-CL"];
+const DEFAULT = ["SMSN", "SKHX", "XYZ100", "P-CL", "BTC"];
 
 // ---- 이 브라우저에만 남기는 카드 목록 ----
 const KEY = "kosnas:dashboard:v2";
@@ -52,12 +52,14 @@ const OLD = "kosnas:dashboard:v1";
  * 기본 배치가 바뀐 것을 예전에 저장한 배치에도 한 번씩만 반영한다(그 뒤에 사용자가 바꾼 것은 건드리지 않는다).
  * 유가: 주말에 멈추는 USO·WTI(트레이딩뷰) 대신 주말에도 거래되는 WTI 무기한선물
  * default-4: 예전에 저장한 배치도 새 기본(삼성전자·SK하이닉스·나스닥 100·WTI)으로 한 번 맞춘다
+ * btc-5th: 비트코인을 다섯 번째 자리에
  */
 const STEPS: [string, (v: string[]) => string[]][] = [
   ["WTI", (v) => (v.includes("WTI") ? v : [...v, "WTI"])],
   ["oil-24h", (v) => (v.includes("P-CL") ? v : v.map((x) => (x === "USO" ? "P-CL" : x))).filter((x) => x !== "WTI" && x !== "USO")],
   // 기본을 네 장으로 줄였다(10년물 금리는 트레이딩뷰 위젯이 외부 사이트에 보여 주지 않아 뺐다)
   ["default-4", () => DEFAULT],
+  ["btc-5th", (v) => (v.includes("BTC") ? v : [...v.slice(0, 4), "BTC", ...v.slice(4)])],
 ];
 const ADDED_KEY = "kosnas:dashboard:added";
 function migrate() {
