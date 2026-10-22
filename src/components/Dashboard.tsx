@@ -31,19 +31,28 @@ const TILES: Tile[] = [
   { id: "BTC", label: "비트코인", kind: "tv", symbol: "BITSTAMP:BTCUSD" },
 ];
 const BY_ID = new Map(TILES.map((t) => [t.id, t]));
-const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ", "WTI"];
+const DEFAULT = ["SMSN", "SKHX", "EWY", "XYZ100", "SP500", "KRW", "USO", "QQQ", "WTI", "US10Y"];
 
 // ---- 이 브라우저에만 남기는 카드 목록 ----
 const KEY = "kosnas:dashboard:v2";
-/** v1에 저장한 배치에는 나중에 기본 카드가 된 WTI가 없다 — 한 번만 붙여 옮긴다 */
 const OLD = "kosnas:dashboard:v1";
+/** 나중에 기본 카드가 된 것. 예전에 저장한 배치에도 한 번만 붙인다(뺀 뒤에 다시 붙이지는 않는다) */
+const ADDED = ["WTI", "US10Y"];
+const ADDED_KEY = "kosnas:dashboard:added";
 function migrate() {
   try {
     const old = localStorage.getItem(OLD);
-    if (old == null || localStorage.getItem(KEY) != null) return;
-    const v = JSON.parse(old) as unknown;
-    if (Array.isArray(v)) localStorage.setItem(KEY, JSON.stringify(v.includes("WTI") ? v : [...v, "WTI"]));
-    localStorage.removeItem(OLD);
+    if (old != null) {
+      if (localStorage.getItem(KEY) == null) localStorage.setItem(KEY, old);
+      localStorage.removeItem(OLD);
+    }
+    const done = JSON.parse(localStorage.getItem(ADDED_KEY) ?? "[]") as string[];
+    const todo = ADDED.filter((x) => !done.includes(x));
+    if (!todo.length) return;
+    const raw = localStorage.getItem(KEY);
+    const v = raw ? (JSON.parse(raw) as unknown) : null;
+    if (Array.isArray(v)) localStorage.setItem(KEY, JSON.stringify([...v, ...todo.filter((x) => !v.includes(x))]));
+    localStorage.setItem(ADDED_KEY, JSON.stringify(ADDED));
   } catch {}
 }
 const listeners = new Set<() => void>();
