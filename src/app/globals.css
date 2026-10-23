@@ -1287,6 +1287,20 @@ body:has(.fab-bar) .foot {
 .tile-spark.down polyline {
   stroke: var(--down);
 }
+.tile-spark-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--ink-2);
+}
+.tile-spark-dot.up {
+  background: var(--up);
+}
+.tile-spark-dot.down {
+  background: var(--down);
+}
 .tile-spark .base {
   stroke: var(--muted);
   stroke-dasharray: 2 2;

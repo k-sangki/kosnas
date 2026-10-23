@@ -3,6 +3,7 @@ import fx from "./fixtures/night-20261020.json";
 import fx22 from "./fixtures/night-20261022.json";
 import {
   assemble,
+  windowSpark,
   carryFactor,
   frontExpiry,
   isExpiryDay,
@@ -199,5 +200,18 @@ describe("기준가 방식 06:00 뒤", () => {
       },
     )!;
     expect(d.est).toBeCloseTo(v06 * Math.sqrt((156 / 150) * (877.2 / 860)), 1);
+  });
+});
+
+describe("windowSpark", () => {
+  const win = { start: 0, end: 1000, live: true };
+  it("가로 위치는 야간 구간 안의 시각 비율이라 지금 뒤는 비어 있다", () => {
+    expect(windowSpark(win, 10, [[100, 11], [200, 12]], [300, 13])).toEqual({ spark: [10, 11, 12, 13], sparkT: [0, 0.1, 0.2, 0.3] });
+  });
+  it("구간이 끝났으면 끝까지 찬다", () => {
+    expect(windowSpark({ ...win, live: false }, 10, [[500, 11], [1000, 12]], null)?.sparkT).toEqual([0, 0.5, 1]);
+  });
+  it("점이 하나뿐이면 그리지 않는다", () => {
+    expect(windowSpark(win, 10, [], null)).toBeUndefined();
   });
 });
