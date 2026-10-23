@@ -20,6 +20,19 @@ import {
 type Att = { tag: string };
 type Row = { id: number; at: number; nick: string; tag: string; text: string; reply_id: number | null; reply_nick: string | null; reply_text: string | null };
 
+/**
+ * 운영자 키의 해시(키 자체는 저장소에 없다). 키를 바꾸려면:
+ * printf %s "kosnas-chat-admin:<새 키>" | sha256sum 결과로 바꾼다.
+ */
+const ADMIN_HASH = "8f07591cc9cde0fbb483bbe8771477cd0de3b6b0acc28ca56abc9579cefc528b";
+const BAN_MS = 24 * 3600_000;
+
+async function isAdmin(key: unknown) {
+  if (typeof key !== "string" || !key) return false;
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`kosnas-chat-admin:${key}`));
+  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("") === ADMIN_HASH;
+}
+
 async function tagOf(ip: string, now: number) {
   const day = new Date(now + 9 * 3600_000).toISOString().slice(0, 10);
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`kosnas-chat:${day}:${ip}`));
@@ -44,7 +57,8 @@ export class ChatRoom extends DurableObject {
     ctx.storage.sql.exec(
       `CREATE TABLE IF NOT EXISTS msg (id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, nick TEXT NOT NULL, tag TEXT NOT NULL,
         text TEXT NOT NULL, reply_id INTEGER, reply_nick TEXT, reply_text TEXT, hidden INTEGER NOT NULL DEFAULT 0);
-       CREATE TABLE IF NOT EXISTS report (msg_id INTEGER NOT NULL, tag TEXT NOT NULL, PRIMARY KEY (msg_id, tag));`,
+       CREATE TABLE IF NOT EXISTS report (msg_id INTEGER NOT NULL, tag TEXT NOT NULL, PRIMARY KEY (msg_id, tag));
+       CREATE TABLE IF NOT EXISTS ban (tag TEXT PRIMARY KEY, until INTEGER NOT NULL);`,
     );
   }
 
@@ -90,6 +104,7 @@ export class ChatRoom extends DurableObject {
     const now = Date.now();
     const sql = this.ctx.storage.sql;
     if (e?.type === "send") {
+      if (sql.exec(`SELECT 1 FROM ban WHERE tag = ? AND until > ?`, tag, now).toArray().length) return err("운영 정책 위반으로 글쓰기가 제한됐어요.");
       const nick = cleanNick(e.nick);
       if (!nick) return err("닉네임을 입력해 주세요.");
       const times = this.sent.get(tag) ?? [];
@@ -118,6 +133,20 @@ export class ChatRoom extends DurableObject {
       sql.exec(`DELETE FROM report WHERE msg_id NOT IN (SELECT id FROM msg)`);
       this.sent.set(tag, [...times.filter((t) => now - t < 60_000), now]);
       this.broadcast({ type: "msg", message: { id, at: now, nick, tag, text: c.text, ...(reply ? { reply } : {}) } });
+    } else if (e?.type === "admin" && typeof e.id === "number") {
+      if (!(await isAdmin(e.key))) return err("운영자 키가 맞지 않아요.");
+      const m = sql.exec<{ tag: string }>(`SELECT tag FROM msg WHERE id = ?`, e.id).toArray()[0];
+      if (!m) return;
+      const ids =
+        e.action === "ban"
+          ? sql.exec<{ id: number }>(`SELECT id FROM msg WHERE tag = ? AND hidden = 0`, m.tag).toArray().map((r) => r.id)
+          : [e.id];
+      if (e.action === "ban") sql.exec(`INSERT OR REPLACE INTO ban (tag, until) VALUES (?, ?)`, m.tag, now + BAN_MS);
+      sql.exec(`DELETE FROM ban WHERE until < ?`, now);
+      for (const id of ids) {
+        sql.exec(`UPDATE msg SET hidden = 1 WHERE id = ?`, id);
+        this.broadcast({ type: "hide", id });
+      }
     } else if (e?.type === "report" && typeof e.id === "number") {
       const m = sql.exec<{ tag: string }>(`SELECT tag FROM msg WHERE id = ? AND hidden = 0`, e.id).toArray()[0];
       if (!m || m.tag === tag) return;

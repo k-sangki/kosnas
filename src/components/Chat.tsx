@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MAX_NICK, MAX_TEXT, randomNick, type ChatMsg, type ClientEvent, type ServerEvent } from "@/lib/chat";
 
 /**
@@ -8,7 +8,11 @@ import { MAX_NICK, MAX_TEXT, randomNick, type ChatMsg, type ClientEvent, type Se
  * 접힌 상태에서도 읽지 않은 새 글 수를 보인다. 마지막으로 본 글 번호는 이 브라우저에 저장한다.
  * 닉네임은 B급 이름을 하나 골라 이 브라우저에 저장하고, 직접 바꿀 수 있다. 캡처에는 들어가지 않는다.
  */
+/** 애드센스 승인 전까지 꺼 둔다(2026-10-23 SK 결정). 꺼져 있어도 운영자 키가 있는 브라우저에는 보인다 */
+export const CHAT_ENABLED = false;
+
 const NICK_KEY = "kosnas:chat:nick";
+const ADMIN_KEY = "kosnas:chat:admin";
 const SEEN_KEY = "kosnas:chat:seen";
 /** 처음 온 사람에게는 최근 이만큼 사이의 글만 새 글로 센다 */
 const FIRST_VISIT_MS = 3 * 3600_000;
@@ -110,7 +114,34 @@ function useRoom() {
   return { msgs, conn, myTag, error, send };
 }
 
+/**
+ * 운영자 키. 한 번 https://kosnas.com/?chatadmin=<키> 로 열면 이 브라우저에 저장되고 주소에서는 지운다.
+ * ?chatadmin=off 로 열면 지운다. 키가 맞는지는 서버가 운영 동작 때 확인한다.
+ */
+function readAdmin() {
+  try {
+    const u = new URL(location.href);
+    const k = u.searchParams.get("chatadmin");
+    if (k != null) {
+      if (k === "off" || !k) localStorage.removeItem(ADMIN_KEY);
+      else localStorage.setItem(ADMIN_KEY, k);
+      u.searchParams.delete("chatadmin");
+      history.replaceState(history.state, "", u.toString());
+    }
+    return localStorage.getItem(ADMIN_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+const noop = () => () => {};
+
 export function Chat() {
+  const admin = useSyncExternalStore(noop, readAdmin, () => "");
+  if (!CHAT_ENABLED && !admin) return null;
+  return <ChatCard admin={admin} />;
+}
+
+function ChatCard({ admin }: { admin: string }) {
   const room = useRoom();
   const [open, setOpen] = useState(false);
   // 마지막으로 본 글 번호(브라우저 저장). 처음 온 사람은 null
@@ -142,6 +173,7 @@ export function Chat() {
           <span className="chat-title">
             <i className={`chat-dot${room.conn === "open" ? " live" : ""}`} aria-hidden />
             실시간 채팅
+            {!CHAT_ENABLED && <span className="chat-admin-note">운영자에게만 보임</span>}
           </span>
         </span>
         <span className="chat-head-right">
@@ -154,12 +186,12 @@ export function Chat() {
           <span className="chat-chev" aria-hidden />
         </span>
       </button>
-      {open && <ChatBody room={room} />}
+      {open && <ChatBody room={room} admin={admin} />}
     </section>
   );
 }
 
-function ChatBody({ room }: { room: ReturnType<typeof useRoom> }) {
+function ChatBody({ room, admin }: { room: ReturnType<typeof useRoom>; admin: string }) {
   const { msgs, conn, myTag, error, send } = room;
   // 펼친 뒤에만 그려지므로(서버 렌더 없음) 처음 값을 바로 읽는다
   const [nick, setNick] = useState(loadNick);
@@ -247,6 +279,22 @@ function ChatBody({ room }: { room: ReturnType<typeof useRoom> }) {
                   >
                     {reported.includes(m.id) ? "신고함" : "신고"}
                   </button>
+                )}
+                {admin && (
+                  <>
+                    <button type="button" className="chat-admin" onClick={() => send({ type: "admin", key: admin, action: "delete", id: m.id })}>
+                      삭제
+                    </button>
+                    <button
+                      type="button"
+                      className="chat-admin"
+                      onClick={() => {
+                        if (confirm(`#${m.tag}의 글을 모두 지우고 24시간 동안 글쓰기를 막을까요?`)) send({ type: "admin", key: admin, action: "ban", id: m.id });
+                      }}
+                    >
+                      차단
+                    </button>
+                  </>
                 )}
               </div>
             </div>

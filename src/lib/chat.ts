@@ -34,7 +34,11 @@ export type ServerEvent =
   | { type: "error"; text: string };
 
 /** 화면 → 서버 */
-export type ClientEvent = { type: "send"; nick: string; text: string; replyTo?: number } | { type: "report"; id: number };
+export type ClientEvent =
+  | { type: "send"; nick: string; text: string; replyTo?: number }
+  | { type: "report"; id: number }
+  /** 운영자: 글 하나 지우기 / 그 글을 쓴 사람(그날 꼬리표)을 24시간 막고 그날 글을 모두 지우기 */
+  | { type: "admin"; key: string; action: "delete" | "ban"; id: number };
 
 const FIRST = [
   "물린",
@@ -140,9 +144,33 @@ const BAD = [
   "shit",
 ];
 const BAD_RE = new RegExp(BAD.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "gi");
+const BAD_ONE = new RegExp(BAD_RE.source, "i");
 
 export function mask(s: string) {
   return s.replace(BAD_RE, (w) => "*".repeat(Array.from(w).length));
+}
+
+/**
+ * 기호·숫자를 끼우거나('씨.발', '시1발') 한 글자씩 띄어 쓴('시 발') 욕설. 낱말 사이 띄어쓰기는 붙이지 않는다
+ * ('공시 발표'를 '공시발표'로 붙이면 걸리기 때문). 그대로 가려지는 욕설은 먼저 뺀다.
+ */
+export function evades(text: string) {
+  const words = text
+    .replace(BAD_RE, "")
+    .replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-z\s]/gi, "")
+    .split(/\s+/)
+    .filter(Boolean);
+  const runs: string[] = [];
+  let run = "";
+  for (const w of words) {
+    if (Array.from(w).length === 1) run += w;
+    else {
+      if (run) runs.push(run);
+      run = "";
+    }
+  }
+  if (run) runs.push(run);
+  return [...words, ...runs].some((w) => BAD_ONE.test(w));
 }
 
 /** 보낼 메시지를 검사한다. 통과하면 가린 글, 아니면 이유 */
@@ -150,6 +178,8 @@ export function checkText(s: unknown): { ok: true; text: string } | { ok: false;
   const text = typeof s === "string" ? clean(s, MAX_TEXT) : "";
   if (!text) return { ok: false, why: "내용을 입력해 주세요." };
   if (LINK.test(text)) return { ok: false, why: "링크·연락처는 올릴 수 없어요." };
+  // '시 발', '씨.발'처럼 사이에 공백·기호·숫자를 끼워 피해 가는 욕설은 가리지 않고 받지 않는다
+  if (evades(text)) return { ok: false, why: "욕설은 쓸 수 없어요." };
   return { ok: true, text: mask(text) };
 }
 
