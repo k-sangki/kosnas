@@ -4,6 +4,8 @@ import fx22 from "./fixtures/night-20261022.json";
 import {
   assemble,
   windowSpark,
+  chartEnd,
+  timeTicks,
   carryFactor,
   frontExpiry,
   isExpiryDay,
@@ -213,5 +215,23 @@ describe("windowSpark", () => {
   });
   it("점이 하나뿐이면 그리지 않는다", () => {
     expect(windowSpark(win, 10, [], null)).toBeUndefined();
+  });
+});
+
+describe("chartEnd · timeTicks", () => {
+  // 2026-10-23(금) 15:45 KST ~ 10-26(월) 09:00
+  const fri = nightWindow(Date.UTC(2026, 9, 23, 7, 0));
+  const h = 3600_000;
+  it("주말을 낀 구간도 처음에는 토요일 09:00까지만, 그 뒤로는 마지막 점까지", () => {
+    expect(fri.end - fri.start).toBe(65.25 * h);
+    expect(chartEnd(fri, fri.start + h)).toBe(fri.start + 17.25 * h);
+    expect(chartEnd(fri, fri.start + 30 * h)).toBe(fri.start + 30 * h);
+    expect(chartEnd(fri, fri.end + h)).toBe(fri.end);
+  });
+  it("눈금은 겹치지 않는 간격으로 KST 정시에", () => {
+    const t = timeTicks(fri.start, fri.start + 17.25 * h, 300);
+    expect(t.map((k) => k.label)).toEqual(["18:00", "21:00", "00:00", "03:00", "06:00"]);
+    const w = timeTicks(fri.start, fri.end, 300);
+    expect(w.map((k) => k.label)).toEqual(["토", "12:00", "일", "12:00", "월"]);
   });
 });

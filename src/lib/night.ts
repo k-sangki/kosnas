@@ -264,14 +264,25 @@ export type NightData = {
   updated: number;
 };
 
+/** 평일 하룻밤 구간 길이(15:45~다음 날 09:00) */
+export const NIGHT_SPAN = (17 * 60 + 15) * MIN;
+
+/**
+ * 차트 가로축의 끝. 보통은 구간 끝(다음 거래일 09:00)이지만 주말을 낀 구간(금요일 15:45~월요일 09:00)은
+ * 처음에는 평일과 같은 길이(토요일 09:00)까지만 보이고, 그 뒤로는 마지막 점까지 늘린다.
+ */
+export function chartEnd(win: NightWindow, last: number) {
+  return Math.min(win.end, Math.max(win.start + NIGHT_SPAN, last));
+}
+
 /**
  * 작은 카드의 선 차트 자료. 가로축은 야간 구간 전체(15:45~09:00)라 아직 오지 않은 시간은 비어 보인다.
  * at = 15:45 가격, mid = 구간 안 [시각, 가격], last = 지금 [시각, 가격]
  */
 export function windowSpark(win: NightWindow, at: number, mid: readonly (readonly [number, number])[], last: readonly [number, number] | null) {
-  const span = win.end - win.start;
   const pts = thin([[win.start, at] as const, ...mid, ...(last ? [last] : [])]);
   if (pts.length < 2) return undefined;
+  const span = chartEnd(win, pts[pts.length - 1][0]) - win.start;
   return {
     spark: pts.map((p) => p[1]),
     sparkT: pts.map((p) => Math.round(Math.min(1, Math.max(0, (p[0] - win.start) / span)) * 1000) / 1000),
@@ -399,6 +410,23 @@ export function usOpenIn(win: NightWindow): number | null {
     }
   }
   return null;
+}
+
+/**
+ * 차트 가로 눈금. 글자가 겹치지 않게 1·2·3·6·12·24시간 중 px 간격이 gap 이상인 가장 촘촘한 간격으로,
+ * KST 정시에 맞춘다. 하루를 넘는 축에서 자정은 요일로 쓴다.
+ */
+export function timeTicks(x0: number, x1: number, width: number, gap = 44) {
+  const H = 3600_000;
+  const per = width / ((x1 - x0) / H);
+  const step = ([1, 2, 3, 6, 12, 24].find((h) => h * per >= gap) ?? 24) * H;
+  const out: { at: number; label: string }[] = [];
+  for (let k = Math.ceil((x0 + KST) / step) * step - KST; k < x1; k += step) {
+    const d = new Date(k + KST);
+    const label = x1 - x0 > DAY && d.getUTCHours() === 0 && d.getUTCMinutes() === 0 ? "일월화수목금토"[d.getUTCDay()] : hhmm(k);
+    out.push({ at: k, label });
+  }
+  return out;
 }
 
 /** 시각을 KST HH:MM으로 */
