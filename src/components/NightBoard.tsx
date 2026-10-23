@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { hhmm, usOpenIn, type NightData } from "@/lib/night";
+import { chartEnd, hhmm, timeTicks, usOpenIn, type NightData } from "@/lib/night";
 import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
 import { Chat } from "./Chat";
@@ -33,7 +33,7 @@ function Chart({ d }: { d: NightData }) {
   const H = W < 480 ? 240 : 300;
   const pts = d.points;
   const x0 = d.window.start;
-  const x1 = d.window.end;
+  const x1 = chartEnd(d.window, pts[pts.length - 1][0]);
   const ys = pts.flatMap((p) => (p[2] != null ? [p[1], p[2]] : [p[1]])).concat(d.base);
   let lo = Math.min(...ys);
   let hi = Math.max(...ys);
@@ -60,16 +60,26 @@ function Chart({ d }: { d: NightData }) {
   const kr = path((p) => p[2]);
   const last = pts[pts.length - 1];
   const t = tone(d.chg);
-  // 가로 눈금: 3시간마다
-  const ticks: number[] = [];
-  const first = Math.ceil(x0 / 10_800_000) * 10_800_000;
-  for (let k = first; k < x1; k += 10_800_000) ticks.push(k);
+  // 가로 눈금: 글자가 겹치지 않는 간격으로
+  const ticks = timeTicks(x0, x1, W - PAD.l - PAD.r);
   // 세로 눈금 4개
   const ystep = (hi - lo) / 4;
   const yt = [0, 1, 2, 3, 4].map((i) => lo + ystep * i);
   const us = usOpenIn(d.window);
   const night = d.window.start + (2 * 60 + 15) * 60_000; // 18:00 야간 개장
   const nightEnd = d.nightClose ?? d.window.end - 3 * 3600_000; // 06:00 야간 마감(금요일 밤은 토요일)
+  // 표시선 이름: 마감은 선 왼쪽, 나머지는 오른쪽에 쓰고, 앞 이름과 겹치면 한 줄 아래로 내린다
+  const marks: { at: number; name: string; row: number }[] = [];
+  let edge = -Infinity;
+  let row = 0;
+  for (const [at, name] of [[night, "야간 개장"], ...(us ? [[us, "미국 개장"] as const] : []), [nightEnd, "야간 마감"]] as const) {
+    if (at <= x0 || at >= x1) continue;
+    const w = name.length * 10;
+    const from = at === nightEnd ? px(at) - 4 - w : px(at) + 4;
+    row = from < edge + 4 ? row + 1 : 0;
+    edge = Math.max(edge, from + w);
+    marks.push({ at, name, row });
+  }
   const hp = hover != null ? pts[hover] : null;
 
   const onMove = (e: React.PointerEvent) => {
@@ -102,15 +112,15 @@ function Chart({ d }: { d: NightData }) {
           </g>
         ))}
         {ticks.map((k) => (
-          <text key={k} x={px(k)} y={H - 8} className="xlab" textAnchor="middle">
-            {hhmm(k)}
+          <text key={k.at} x={px(k.at)} y={H - 8} className="xlab" textAnchor="middle">
+            {k.label}
           </text>
         ))}
-        {[[night, "야간 개장"], ...(us ? [[us, "미국 개장"] as const] : []), [nightEnd, "야간 마감"]].map(([at, name]) => (
-          <g key={name as string}>
-            <line x1={px(at as number)} x2={px(at as number)} y1={PAD.t} y2={H - PAD.b} className="mark" />
+        {marks.map(({ at, name, row }) => (
+          <g key={name}>
+            <line x1={px(at)} x2={px(at)} y1={PAD.t} y2={H - PAD.b} className="mark" />
             {/* 마감 표시는 선 왼쪽에 써서 오른쪽 눈금과 겹치지 않게 */}
-            <text x={px(at as number) + (at === nightEnd ? -4 : 4)} y={PAD.t + 10} textAnchor={at === nightEnd ? "end" : "start"} className="mlab">
+            <text x={px(at) + (at === nightEnd ? -4 : 4)} y={PAD.t + 10 + row * 13} textAnchor={at === nightEnd ? "end" : "start"} className="mlab">
               {name}
             </text>
           </g>
