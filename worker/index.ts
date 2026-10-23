@@ -1,15 +1,17 @@
 /**
- * Workers 진입점. 채팅 웹소켓(/api/chat)만 채팅방(Durable Object)으로 보내고 나머지는 OpenNext(Next.js)가 받는다.
+ * Workers 진입점. 채팅 웹소켓(/api/chat)은 채팅방, 투표(/api/poll)는 투표함(둘 다 Durable Object)으로 보내고
+ * 나머지는 OpenNext(Next.js)가 받는다.
  * .open-next/worker.js 는 빌드 때 생긴다.
  */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore 빌드 산출물
 import handler from "../.open-next/worker.js";
 import { ChatRoom } from "./chat-room";
+import { PollRoom } from "./poll-room";
 
-type Env = { CHAT: DurableObjectNamespace<ChatRoom> };
+type Env = { CHAT: DurableObjectNamespace<ChatRoom>; POLL: DurableObjectNamespace<PollRoom> };
 
-export { ChatRoom };
+export { ChatRoom, PollRoom };
 
 const worker = {
   async fetch(req: Request, env: Env, ctx: ExecutionContext) {
@@ -22,6 +24,17 @@ const worker = {
       } catch {}
       if (host !== url.host) return new Response("forbidden", { status: 403 });
       return env.CHAT.get(env.CHAT.idFromName("main")).fetch(req);
+    }
+    if (url.pathname === "/api/poll") {
+      // 표는 같은 주소의 화면에서 보낸 것만 받는다
+      if (req.method === "POST") {
+        let host = "";
+        try {
+          host = new URL(req.headers.get("Origin") ?? "").host;
+        } catch {}
+        if (host !== url.host) return new Response("forbidden", { status: 403 });
+      }
+      return env.POLL.get(env.POLL.idFromName("main")).fetch(req);
     }
     return handler.fetch(req, env, ctx);
   },

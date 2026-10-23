@@ -8,11 +8,18 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // 첫 화면 익명 채팅방(worker/chat-room.ts). SQLite 저장소라 무료 요금제에서도 쓸 수 있다
+  // 첫 화면 익명 채팅방(worker/chat-room.ts)과 '오늘의 한 표' 투표함(worker/poll-room.ts).
+  // SQLite 저장소라 무료 요금제에서도 쓸 수 있다
   "durable_objects": {
-    "bindings": [{ "name": "CHAT", "class_name": "ChatRoom" }]
+    "bindings": [
+      { "name": "CHAT", "class_name": "ChatRoom" },
+      { "name": "POLL", "class_name": "PollRoom" }
+    ]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ChatRoom"] }],
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ChatRoom"] },
+    { "tag": "v2", "new_sqlite_classes": ["PollRoom"] }
+  ],
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
