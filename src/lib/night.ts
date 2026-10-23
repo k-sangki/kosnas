@@ -226,12 +226,14 @@ export type NightInput = {
   krw?: number;
   /** 15:45부터 지금까지의 가격(처음 값이 15:45, 많아야 80개) — 작은 카드의 선 차트 */
   spark?: number[];
+  /** spark 각 점의 시각을 야간 구간(15:45~09:00) 안의 위치(0~1)로 */
+  sparkT?: number[];
 };
 
 /** 많아야 n개로 줄인다(처음·끝은 남긴다) */
-export function thin(v: number[], n = 80) {
+export function thin<T>(v: T[], n = 80) {
   if (v.length <= n) return v;
-  const out: number[] = [];
+  const out: T[] = [];
   for (let k = 0; k < n - 1; k++) out.push(v[Math.floor((k * (v.length - 1)) / (n - 1))]);
   out.push(v[v.length - 1]);
   return out;
@@ -258,9 +260,23 @@ export type NightData = {
   points: NightPoint[];
   inputs: NightInput[];
   /** 지금 가격과 24시간 전 가격, 24시간 선 차트를 싣는 무기한선물(대시보드 추가 카드용) */
-  extra?: Record<string, { price: number; prev: number | null; spark?: number[] }>;
+  extra?: Record<string, { price: number; prev: number | null; spark?: number[]; sparkT?: number[] }>;
   updated: number;
 };
+
+/**
+ * 작은 카드의 선 차트 자료. 가로축은 야간 구간 전체(15:45~09:00)라 아직 오지 않은 시간은 비어 보인다.
+ * at = 15:45 가격, mid = 구간 안 [시각, 가격], last = 지금 [시각, 가격]
+ */
+export function windowSpark(win: NightWindow, at: number, mid: readonly (readonly [number, number])[], last: readonly [number, number] | null) {
+  const span = win.end - win.start;
+  const pts = thin([[win.start, at] as const, ...mid, ...(last ? [last] : [])]);
+  if (pts.length < 2) return undefined;
+  return {
+    spark: pts.map((p) => p[1]),
+    sparkT: pts.map((p) => Math.round(Math.min(1, Math.max(0, (p[0] - win.start) / span)) * 1000) / 1000),
+  };
+}
 
 /** 대시보드에 넣을 수 있는 그 밖의 trade.xyz 무기한선물. 가격은 이미 받는 시세 목록에서 꺼내고, 24시간 선 차트용 15분봉은 5분에 한 번만 받는다 */
 export const EXTRA_COINS = ["CL", "BRENTOIL", "GOLD", "SILVER", "NVDA", "TSLA", "MU", "TSM", "VIX", "DXY"] as const;
@@ -336,15 +352,15 @@ export function assemble(
     // 15:45 전 체결이 없으면 그 뒤 첫 체결을 기준으로 삼는다
     const at = priceAt(cs, win.start)?.c ?? cs.find((k) => k.t + step > win.start)?.c;
     const chg = price != null && at ? round2((price / at - 1) * 100) : null;
-    const mid = cs.filter((k) => k.t + step > win.start && k.t + step <= win.end).map((k) => k.c);
-    const spark = at ? thin([at, ...mid, ...(win.live && price != null ? [price] : [])]) : undefined;
+    const mid = cs.filter((k) => k.t + step > win.start && k.t + step <= win.end).map((k) => [k.t + step, k.c] as const);
+    const s = at ? windowSpark(win, at, mid, win.live && price != null ? [now, price] : null) : undefined;
     return {
       coin: i.coin,
       label: i.label,
       price: price ?? NaN,
       chg,
       ...("krw" in i && i.krw && price != null && krw ? { krw: Math.round(price * krw) } : {}),
-      ...(spark && spark.length > 1 ? { spark } : {}),
+      ...(s ? s : {}),
     };
   }).filter((i) => Number.isFinite(i.price));
   return {

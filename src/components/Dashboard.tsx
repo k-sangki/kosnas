@@ -244,7 +244,7 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   const x = d?.extra?.[t.coin];
   const i =
     d?.inputs.find((v) => v.coin === t.coin) ??
-    (x && { coin: t.coin, price: x.price, chg: x.prev ? (x.price / x.prev - 1) * 100 : null, krw: undefined, spark: x.spark });
+    (x && { coin: t.coin, price: x.price, chg: x.prev ? (x.price / x.prev - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT });
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -259,7 +259,7 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
           {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
           {i.krw && i.chg != null && <span className="tile-won">{won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
         </p>
-        {i.spark && <Spark v={i.spark} />}
+        {i.spark && <Spark v={i.spark} t={i.sparkT} base={x && !d?.inputs.some((v) => v.coin === t.coin) ? (x.prev ?? undefined) : undefined} />}
       </div>
       <p className="tile-sub">{t.sub}</p>
     </>
@@ -295,22 +295,29 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
   );
 }
 
-/** 작은 선 차트. 점선은 첫 값(15:45 값, 주말에도 거래 카드는 24시간 전 가격) */
-function Spark({ v }: { v: number[] }) {
+/**
+ * 작은 선 차트. 가로축은 야간 구간 전체(15:45~다음 거래일 09:00)라 아직 오지 않은 시간은 비어 있고 끝에 지금 점을 찍는다.
+ * 점선은 등락률 기준(보통 15:45 가격, 24시간 카드는 24시간 전 가격). t가 없는 예전 자료는 폭을 다 채운다.
+ */
+function Spark({ v, t, base = v[0] }: { v: number[]; t?: number[]; base?: number }) {
   const W = 64;
   const H = 36;
-  const lo = Math.min(...v);
-  const hi = Math.max(...v);
+  const lo = Math.min(...v, base);
+  const hi = Math.max(...v, base);
   const span = hi - lo || 1;
   const y = (x: number) => 2 + (1 - (x - lo) / span) * (H - 4);
-  const pts = v.map((x, k) => `${((k / (v.length - 1)) * W).toFixed(1)},${y(x).toFixed(1)}`).join(" ");
+  const x = (k: number) => (t && t.length === v.length ? t[k] : k / (v.length - 1)) * W;
+  const pts = v.map((p, k) => `${x(k).toFixed(1)},${y(p).toFixed(1)}`).join(" ");
+  const k = v.length - 1;
   return (
     // 상자 크기는 카드 배치가 정하고 그림은 그 상자를 채운다(그림 비율이 카드 높이를 늘리지 않게)
     <div className="tile-spark-box">
-      <svg className={`tile-spark ${tone(v[v.length - 1] - v[0])}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
-        <line x1={0} x2={W} y1={y(v[0])} y2={y(v[0])} className="base" />
+      <svg className={`tile-spark ${tone(v[k] - base)}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
+        <line x1={0} x2={W} y1={y(base)} y2={y(base)} className="base" />
         <polyline points={pts} />
       </svg>
+      {/* 끝 점은 그림을 늘려도 둥글게 보이도록 SVG 밖에 둔다 */}
+      {x(k) < W - 0.5 && <span className={`tile-spark-dot ${tone(v[k] - base)}`} style={{ left: `${(x(k) / W) * 100}%`, top: `calc(4px + (100% - 8px) * ${(y(v[k]) / H).toFixed(3)})` }} />}
     </div>
   );
 }

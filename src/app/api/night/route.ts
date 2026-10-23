@@ -9,7 +9,7 @@ import {
   markOf,
   nightWindow,
   stepFor,
-  thin,
+  windowSpark,
   type Candle,
   type NightData,
   type NightWindow,
@@ -64,20 +64,22 @@ async function candlesFor(cache: Cache | undefined, base: string, now: number, i
 const EXTRA_TTL = 300;
 const DAY = 24 * 60 * MIN;
 
-/** 대시보드 추가 카드의 24시간 15분봉 종가. 원천 호출을 아끼려고 5분 단위로 묶어 캐시한다 */
-async function extraCandlesFor(cache: Cache | undefined, base: string, now: number) {
+type Close = { t: number; c: number };
+
+/** 대시보드 추가 카드의 15분봉 종가(야간 구간 시작 전부터). 원천 호출을 아끼려고 5분 단위로 묶어 캐시한다 */
+async function extraCandlesFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   const slot = Math.floor(now / (EXTRA_TTL * 1000));
-  const key = new Request(new URL(`/api/night/extra?${slot}`, base).toString());
+  const key = new Request(new URL(`/api/night/extra2?${slot}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
-  if (hit) return (await hit.json()) as Record<string, number[]>;
-  const from = now - DAY;
+  if (hit) return (await hit.json()) as Record<string, Close[]>;
+  const from = Math.min(now - DAY, win.start - 60 * MIN);
   const series = await Promise.all(
     EXTRA_COINS.map((c) =>
       info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin: `${DEX}:${c}`, interval: "15m", startTime: from, endTime: now } }).catch(() => []),
     ),
   );
-  const got: Record<string, number[]> = {};
-  EXTRA_COINS.forEach((c, i) => (got[c] = series[i].sort((a, b) => a.t - b.t).map((k) => Number(k.c)).filter((v) => v > 0)));
+  const got: Record<string, Close[]> = {};
+  EXTRA_COINS.forEach((c, i) => (got[c] = series[i].sort((a, b) => a.t - b.t).map((k) => ({ t: k.t, c: Number(k.c) })).filter((k) => k.c > 0)));
   await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${EXTRA_TTL}` } })).catch(() => undefined);
   return got;
 }
@@ -131,7 +133,7 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     info<[{ universe: { name: string }[] }, HlCtx[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
     candlesFor(cache, base, now, interval, from, Math.min(now, win.end)),
     closeFor(cache, base, now, win),
-    extraCandlesFor(cache, base, now).catch(() => ({}) as Record<string, number[]>),
+    extraCandlesFor(cache, base, now, win).catch(() => ({}) as Record<string, Close[]>),
   ]);
   const marks: Record<string, number | null> = {};
   const extra: NonNullable<NightData["extra"]> = {};
@@ -144,10 +146,13 @@ async function load(now: number, cache: Cache | undefined, base: string) {
       const price = markOf(ctx[1][i]);
       const prev = Number(ctx[1][i]?.prevDayPx);
       if (price) {
-        // 점선(첫 값)은 24시간 전 가격, 끝은 지금 가격
-        const mid = extraCandles[c] ?? [];
-        const spark = mid.length && prev > 0 ? thin([prev, ...mid, price]) : undefined;
-        extra[c] = { price, prev: prev > 0 ? prev : null, ...(spark ? { spark } : {}) };
+        // 선은 야간 구간(15:45~09:00) 위에 15:45 가격부터 지금까지. 점선은 등락률 기준인 24시간 전 가격(화면이 그린다)
+        const cs = extraCandles[c] ?? [];
+        const end = (k: Close) => k.t + 15 * MIN;
+        const at = [...cs].reverse().find((k) => end(k) <= win.start)?.c ?? cs.find((k) => end(k) > win.start)?.c;
+        const mid = cs.filter((k) => end(k) > win.start && end(k) <= Math.min(now, win.end)).map((k) => [end(k), k.c] as const);
+        const s = at ? windowSpark(win, at, mid, win.live ? [now, price] : null) : undefined;
+        extra[c] = { price, prev: prev > 0 ? prev : null, ...(s ?? {}) };
       }
     }
   });
