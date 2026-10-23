@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TvWidget } from "./TvWidget";
+import { US_SECTOR_ETFS as ETFS } from "@/lib/us-sector-etfs";
 
 // 미국 종목 시세는 공개 사이트에 다시 실을 수 있는 원천이 아직 없어, 국장처럼 직접 계산하지 않고
 // 트레이딩뷰 위젯(출처 표시 유지 조건으로 무료)으로 섹터 순환을 보여 준다.
@@ -16,20 +17,6 @@ const PERIODS = [
   { key: "Perf.1M", name: "20일" },
   { key: "Perf.3M", name: "60일" },
 ];
-const ETFS: [string, string][] = [
-  ["AMEX:XLK", "기술"],
-  ["NASDAQ:SMH", "반도체"],
-  ["AMEX:XLC", "커뮤니케이션"],
-  ["AMEX:XLY", "임의소비재"],
-  ["AMEX:XLF", "금융"],
-  ["AMEX:XLV", "헬스케어"],
-  ["AMEX:XLI", "산업재"],
-  ["AMEX:XLE", "에너지"],
-  ["AMEX:XLB", "소재"],
-  ["AMEX:XLU", "유틸리티"],
-  ["AMEX:XLRE", "부동산"],
-  ["AMEX:XLP", "필수소비재"],
-];
 
 export function UsSectors() {
   const [index, setIndex] = useState("SPX500");
@@ -37,7 +24,7 @@ export function UsSectors() {
   return (
     <>
       <section className="card">
-        <h2 className="card-title">섹터 순환 지도</h2>
+        <h2 className="card-title">미장 섹터 순환매 지도</h2>
         <div className="seg filter" role="group" aria-label="지수">
           {INDEXES.map((i) => (
             <button key={i.key} aria-pressed={i.key === index} onClick={() => setIndex(i.key)}>
@@ -93,6 +80,11 @@ export function UsSectors() {
           }}
         />
         <p className="muted small-note">S&P 500 섹터별 SPDR ETF와 반도체 ETF(SMH)의 시세입니다.</p>
+        <p className="muted small-note">
+          미장 섹터:{" "}
+          {ETFS.map(([sym, name]) => `${name}(${sym.split(":")[1]})`).join(" · ")}. 위 지도에서 섹터별 등락률을 비교하면 미국 증시의 순환매가 어느 섹터로
+          옮겨 가는지 볼 수 있습니다.
+        </p>
       </section>
     </>
   );

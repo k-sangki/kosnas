@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, breadcrumbLd, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -28,10 +28,13 @@ export async function generateMetadata({ params }: PageProps<"/[market]/sector/[
   const { market, id } = await params;
   const hit = read(market, id);
   if (!hit) return {};
-  const where = hit.market === "kr" ? "국내" : "미국";
+  const where = hit.market === "kr" ? "국장" : "미장";
+  const name = hit.sector.name;
+  const inds = (sectorData(hit.market).industries ?? []).filter((i) => i.sector === hit.sector.id).map((i) => i.name);
   return pageMeta({
-    title: `${where} ${hit.sector.name} 섹터 순환`,
-    description: `${where} ${hit.sector.name} 섹터의 기간별 강도와 종목별 상대강도 순위.`,
+    title: `${name} 섹터 등락률·순위 - ${where} 섹터 순환매`,
+    description: `${where} ${name} 섹터의 5·10·20·30·60일 등락률과 섹터 순위, 순환매 흐름(주도·약화·소외·관찰)${inds.length ? `, ${inds.join("·")} 산업` : ""}과 종목별 상대강도 순위.`,
+    keywords: [name, `${name} 섹터`, `${name} 섹터 등락`, `${name} 관련주`, ...inds, ...SECTOR_KEYWORDS],
     path: `/${market}/sector/${id}`,
   });
 }
@@ -65,6 +68,13 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
     indMoves[p] = Object.fromEntries(industries.map((i) => [i.id, all.get(i.id) && strip(all.get(i.id)!)]));
   }
   const detailed = sector.stocks.some((s) => s.r);
+  // 같은 시장 섹터 가운데 그 기간 등락률 순위
+  const rank = (p: number) => {
+    const v = sector.ret[p];
+    if (v == null) return "-";
+    const all = data.sectors.filter((s) => s.ret[p] != null);
+    return `${all.filter((s) => s.ret[p]! > v).length + 1}/${all.length}`;
+  };
 
   return (
     <div className="shell">
@@ -79,7 +89,7 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
         <Link href={`/${hit.market}`} className="back">
           ← 섹터 순환
         </Link>
-        <h1 className="page-title">{sector.name}</h1>
+        <h1 className="page-title">{sector.name} 섹터</h1>
         {data.sample && <SampleNotice asof={data.asof} />}
         {sector.intro && (
           <p className="lead">
@@ -89,14 +99,15 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
         )}
         <section className="card">
           <h2 className="card-title">
-            기간별 흐름 <span className="muted">{data.asof} 종가 기준</span>
+            기간별 등락률과 섹터 순위 <span className="muted">{data.asof} 종가 기준</span>
           </h2>
           <table className="ptable">
             <thead>
               <tr>
                 <th>기간</th>
-                <th>수익률</th>
+                <th>등락률</th>
                 <th>강도</th>
+                <th>순위</th>
                 <th>칸</th>
               </tr>
             </thead>
@@ -106,6 +117,7 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
                   <td>{p}일</td>
                   <td className={(sector.ret[p] ?? 0) >= 0 ? "up" : "down"}>{signed(sector.ret[p])}%</td>
                   <td>{signed(sector.x[p])}%p</td>
+                  <td>{rank(p)}</td>
                   <td>{QUADRANTS.find((q) => q.key === sector.q[p])?.name ?? "-"}</td>
                 </tr>
               ))}

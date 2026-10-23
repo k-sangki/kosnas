@@ -879,6 +879,18 @@ body:has(.fab-bar) .foot {
   color: var(--pine);
   text-decoration: underline;
 }
+.sector-index {
+  margin: 0;
+  padding-left: 22px;
+  columns: 2 240px;
+  column-gap: 20px;
+  line-height: 2;
+  font-size: 14px;
+}
+.sector-index a {
+  color: var(--pine);
+  text-decoration: underline;
+}
 .guide-card {
   display: block;
 }

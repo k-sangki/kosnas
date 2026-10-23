@@ -28,6 +28,9 @@ export function pageMeta(p: { title: string; description: string; path: string; 
   };
 }
 
+/** 섹터 화면 공통 검색어 */
+export const SECTOR_KEYWORDS = ["섹터", "순환매", "국장 순환매", "섹터 순위", "섹터 등락", "섹터 등락률", "업종 순위", "업종 등락률", "섹터 순환"];
+
 type Crumb = [name: string, path: string];
 
 /** 검색 결과에 '홈 › 가이드 › …' 경로로 보이게 하는 BreadcrumbList */
