@@ -243,7 +243,107 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-10-22",
-  "trades": []
+  "asof": "2026-10-23",
+  "trades": [
+   {
+    "date": "2026-10-23",
+    "fund": "ARKK",
+    "ticker": "META",
+    "name": "META PLATFORMS INC-CLASS A",
+    "kind": "buy",
+    "shares": 28075,
+    "value": 18216198
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKK",
+    "ticker": "TER",
+    "name": "TERADYNE INC",
+    "kind": "sell",
+    "shares": 57439,
+    "value": 17734252
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKF",
+    "ticker": "META",
+    "name": "META PLATFORMS INC-CLASS A",
+    "kind": "buy",
+    "shares": 3023,
+    "value": 1961474
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKG",
+    "ticker": "SCTX",
+    "name": "SCRIBE THERAPEUTICS INC",
+    "kind": "buy",
+    "shares": 99254,
+    "value": 1782610
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKF",
+    "ticker": "PLTR",
+    "name": "PALANTIR TECHNOLOGIES INC-A",
+    "kind": "sell",
+    "shares": 7936,
+    "value": 1556964
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKQ",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 994671,
+    "value": 994671
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 858143,
+    "value": 858143
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 680384,
+    "value": 680384
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 654269,
+    "value": 654269
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKK",
+    "ticker": "PACB",
+    "name": "PACIFIC BIOSCIENCES OF CALIF",
+    "kind": "buy",
+    "shares": 266168,
+    "value": 548306
+   },
+   {
+    "date": "2026-10-23",
+    "fund": "ARKG",
+    "ticker": "FRNM",
+    "name": "FREENOME INC",
+    "kind": "buy",
+    "shares": 35374,
+    "value": 463400
+   }
+  ]
  }
 }
