@@ -111,9 +111,9 @@ export function MarketContent({ market }: { market: Market }) {
   };
   return (
     <>
-      <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 순환</h1>
+      <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 순위와 순환매</h1>
       <p className="lead">
-        어느 업종에 돈이 몰리고 어느 업종에서 빠지는지, 섹터별 강도와 그 변화를 매일 장 마감 자료로 계산해 보여줍니다.{" "}
+        어느 업종에 돈이 몰리고 어느 업종에서 빠지는지(순환매), 섹터별 등락률과 강도, 섹터 순위를 매일 장 마감 자료로 계산해 보여줍니다.{" "}
         <span className="muted">{data.asof} 종가 기준</span>
       </p>
       {data.sample && <SampleNotice asof={data.asof} />}
@@ -131,9 +131,35 @@ export function MarketContent({ market }: { market: Market }) {
       <SectorBoard data={light} />
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
+      {!data.sample && <SectorIndex data={data} />}
       <AdSlot slot={AD_SLOTS.board} />
       <GuideLinks />
     </>
+  );
+}
+
+/** 모든 섹터 이름과 5·20일 등락률. 섹터 이름으로 찾아온 사람이 바로 그 섹터로 가게 한다 */
+function SectorIndex({ data }: { data: SectorData }) {
+  const where = data.market === "kr" ? "국장" : "미장";
+  const ranked = [...data.sectors].sort((a, b) => (b.ret[20] ?? -Infinity) - (a.ret[20] ?? -Infinity));
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        {where} 섹터 등락률 <span className="muted">20일 등락률 순 · {data.asof} 종가</span>
+      </h2>
+      <ol className="sector-index">
+        {ranked.map((s) => (
+          <li key={s.id}>
+            <Link href={`/${data.market}/sector/${s.id}`}>{s.name} 섹터</Link>
+            <span className="muted">
+              {" "}
+              5일 <span className={(s.ret[5] ?? 0) >= 0 ? "up" : "down"}>{signed(s.ret[5])}%</span> · 20일{" "}
+              <span className={(s.ret[20] ?? 0) >= 0 ? "up" : "down"}>{signed(s.ret[20])}%</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

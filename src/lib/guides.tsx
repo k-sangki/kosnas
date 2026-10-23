@@ -11,8 +11,8 @@ export interface Guide {
 export const GUIDES: Guide[] = [
   {
     slug: "sector-rotation",
-    title: "섹터 순환이란 무엇이고 왜 보나요",
-    description: "시장의 돈이 업종 사이를 옮겨 다니는 섹터 순환의 뜻과 생기는 이유, KosNas가 업종을 나누고 섹터 수익률을 계산하는 방법을 정리했습니다.",
+    title: "섹터 순환(순환매)이란 무엇이고 왜 보나요",
+    description: "시장의 돈이 업종 사이를 옮겨 다니는 섹터 순환(순환매)의 뜻과 생기는 이유, KosNas가 업종을 나누고 섹터 수익률을 계산하는 방법을 정리했습니다.",
     body: (
       <>
         <p>
