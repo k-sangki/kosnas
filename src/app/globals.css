@@ -2427,3 +2427,77 @@ button.ft-row {
 .chat-actions .chat-admin {
   color: var(--up);
 }
+
+/* ---------- 오늘의 한 표 ---------- */
+.poll .card-title {
+  margin-bottom: 4px;
+}
+.poll-when {
+  margin: 0 0 14px;
+}
+.poll-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.poll-btn {
+  padding: 14px 0;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.poll-btn.up {
+  color: var(--up);
+}
+.poll-btn.down {
+  color: var(--down);
+}
+.poll-btn.up.on {
+  border-color: var(--up);
+  background: var(--up-soft);
+}
+.poll-btn.down.on {
+  border-color: var(--down);
+  background: var(--down-soft);
+}
+.poll-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.poll-btn.on:disabled {
+  opacity: 1;
+}
+.poll-result {
+  margin-top: 14px;
+}
+.poll-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--down);
+  overflow: hidden;
+}
+.poll-bar .up-fill {
+  display: block;
+  height: 100%;
+  background: var(--up);
+}
+.poll-share {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.poll-err {
+  margin-top: 12px;
+}
+.poll-last {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
