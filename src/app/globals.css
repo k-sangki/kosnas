@@ -2393,3 +2393,11 @@ button.ft-row {
 .chat button {
   font-family: inherit;
 }
+.chat-admin-note {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.chat-actions .chat-admin {
+  color: var(--up);
+}

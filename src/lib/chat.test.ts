@@ -38,3 +38,18 @@ describe("채팅 규칙", () => {
     expect(quote("가".repeat(50))).toBe(`${"가".repeat(40)}…`);
   });
 });
+
+describe("피해 가는 욕설", () => {
+  it("기호·숫자·한 글자 띄어쓰기는 막는다", () => {
+    expect(checkText("씨.발 진짜").ok).toBe(false);
+    expect(checkText("시1발").ok).toBe(false);
+    expect(checkText("아 시 발 물렸네").ok).toBe(false);
+    expect(checkText("병 신 같은 장").ok).toBe(false);
+  });
+  it("낱말 사이 띄어쓰기는 붙이지 않는다", () => {
+    expect(checkText("오늘 공시 발표 나왔나요").ok).toBe(true);
+    expect(checkText("개 새로운 소식").ok).toBe(true);
+    expect(checkText("니 미래가 밝다").ok).toBe(true);
+    expect(checkText("아 시발 물렸네")).toEqual({ ok: true, text: "아 ** 물렸네" });
+  });
+});
