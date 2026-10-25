@@ -2558,3 +2558,71 @@ button.ft-row {
   font-size: 15px;
   font-weight: 700;
 }
+
+/* 긴 설명 접기(Fold). 본문은 HTML에 남고 제목만 보인다 */
+.fold > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.fold > summary::-webkit-details-marker {
+  display: none;
+}
+.fold > summary::after {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.15s;
+}
+.fold[open] > summary::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+.fold > summary .card-title {
+  margin: 0;
+}
+.fold + .fold {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.fold-body {
+  margin-top: 8px;
+}
+.fold-body > :first-child {
+  margin-top: 0;
+}
+.seo-text .fold > summary h2 {
+  margin: 0;
+}
+.fold-sm {
+  margin-top: 8px;
+}
+.fold-sm > summary {
+  font-size: 12px;
+  color: var(--muted);
+}
+.fold-sm > summary::after {
+  width: 5px;
+  height: 5px;
+  margin-left: 0;
+  border-width: 1.5px;
+}
+.fold-sm .fold-body > p {
+  margin-top: 4px;
+}
+.fold-sm .fold-body p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.dash > .fold-sm {
+  margin: 10px 4px 0;
+}

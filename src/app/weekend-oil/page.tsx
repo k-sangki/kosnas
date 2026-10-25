@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE_URL } from "@/app/layout";
 import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
 import { JsonLd } from "@/components/JsonLd";
+import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { WeekendOil } from "@/components/WeekendOil";
 import { WEEKEND_OIL_FAQ, WEEKEND_OIL_KEYWORDS } from "@/lib/weekend-oil";
@@ -37,37 +38,42 @@ export default function WeekendOilPage() {
         </p>
         <AdSlot slot={AD_SLOTS.board} />
         <section className="card seo-text">
-          <h2 className="card-title">주말 WTI 가격, 어디서 보나요</h2>
-          <p>
-            서부텍사스유(WTI) 가격을 정하는 미국 CME 원유 선물은 한국 시각 토요일 새벽 6시(겨울 7시)에 닫히고 월요일 아침 7시(겨울 8시)에 다시 열립니다. 그래서 주말에는
-            포털·증권사 앱의 WTI 가격이 금요일 마감에 멈춰 있습니다. 이 페이지는 그 시간에도 거래되는 WTI 무기한선물로 주말 WTI 가격을 실시간 추정해, 텍사스유가 주말 동안
-            금요일 마감보다 얼마나 오르거나 내렸는지 바로 보여 줍니다.
-          </p>
-          <h2 className="card-title">WTI 실시간 · 서부텍사스유 실시간 시세</h2>
-          <p>
-            평일에도 같은 화면에서 WTI와 브렌트유 실시간 유가를 24시간 전 대비로 볼 수 있습니다. 미국 정규 시장이 열려 있는 동안에는 CME 선물 가격과 거의 같이 움직이고,
-            30초마다 새로 고칩니다.
-          </p>
-          <h2 className="card-title">어떻게 계산하나요</h2>
-          <p>
-            Hyperliquid의 trade.xyz 시장에는 WTI 원유와 브렌트유를 따르는 무기한선물이 달러로 24시간 거래됩니다. 이 가격을 30초마다 받아 보여 주고, 주말에는 CME가 닫힌
-            금요일 오후 5시(뉴욕 시각) 무렵의 같은 무기한선물 가격과 비교해 등락률을 냅니다. 평일 밤 코스피 흐름은 <Link href="/night">코스피 야간선물 실시간 추정</Link>
-            에서, 유가에 민감한 국내 업종의 최근 등락은 <Link href="/kr">국장 섹터 순위</Link>에서 볼 수 있습니다.
-          </p>
-          <h2 className="card-title">유의할 점</h2>
-          <p>
-            이 값은 CME 공식 시세나 증권사 CFD 가격이 아니라 공개 시장의 무기한선물로 본 참고용 추정치입니다. 주말에는 거래가 적어 가격이 한동안 멈춰 있거나 계단처럼 움직일
-            수 있고, 월요일 정규 시장 시가와 다를 수 있습니다. 특정 상품이나 종목의 매수·매도를 권하지 않습니다.
-          </p>
+          <Fold title="주말 WTI 가격, 어디서 보나요">
+            <p>
+              서부텍사스유(WTI) 가격을 정하는 미국 CME 원유 선물은 한국 시각 토요일 새벽 6시(겨울 7시)에 닫히고 월요일 아침 7시(겨울 8시)에 다시 열립니다. 그래서 주말에는
+              포털·증권사 앱의 WTI 가격이 금요일 마감에 멈춰 있습니다. 이 페이지는 그 시간에도 거래되는 WTI 무기한선물로 주말 WTI 가격을 실시간 추정해, 텍사스유가 주말 동안
+              금요일 마감보다 얼마나 오르거나 내렸는지 바로 보여 줍니다.
+            </p>
+          </Fold>
+          <Fold title="WTI 실시간 · 서부텍사스유 실시간 시세">
+            <p>
+              평일에도 같은 화면에서 WTI와 브렌트유 실시간 유가를 24시간 전 대비로 볼 수 있습니다. 미국 정규 시장이 열려 있는 동안에는 CME 선물 가격과 거의 같이 움직이고,
+              30초마다 새로 고칩니다.
+            </p>
+          </Fold>
+          <Fold title="어떻게 계산하나요">
+            <p>
+              Hyperliquid의 trade.xyz 시장에는 WTI 원유와 브렌트유를 따르는 무기한선물이 달러로 24시간 거래됩니다. 이 가격을 30초마다 받아 보여 주고, 주말에는 CME가 닫힌
+              금요일 오후 5시(뉴욕 시각) 무렵의 같은 무기한선물 가격과 비교해 등락률을 냅니다. 평일 밤 코스피 흐름은 <Link href="/night">코스피 야간선물 실시간 추정</Link>
+              에서, 유가에 민감한 국내 업종의 최근 등락은 <Link href="/kr">국장 섹터 순위</Link>에서 볼 수 있습니다.
+            </p>
+          </Fold>
+          <Fold title="유의할 점">
+            <p>
+              이 값은 CME 공식 시세나 증권사 CFD 가격이 아니라 공개 시장의 무기한선물로 본 참고용 추정치입니다. 주말에는 거래가 적어 가격이 한동안 멈춰 있거나 계단처럼 움직일
+              수 있고, 월요일 정규 시장 시가와 다를 수 있습니다. 특정 상품이나 종목의 매수·매도를 권하지 않습니다.
+            </p>
+          </Fold>
         </section>
         <section className="card seo-text">
-          <h2 className="card-title">자주 묻는 질문</h2>
-          {WEEKEND_OIL_FAQ.map(([q, a]) => (
-            <div key={q}>
-              <h3>{q}</h3>
-              <p>{a}</p>
-            </div>
-          ))}
+          <Fold title="자주 묻는 질문">
+            {WEEKEND_OIL_FAQ.map(([q, a]) => (
+              <div key={q}>
+                <h3>{q}</h3>
+                <p>{a}</p>
+              </div>
+            ))}
+          </Fold>
         </section>
         <section className="card">
           <h2 className="card-title">함께 보기</h2>

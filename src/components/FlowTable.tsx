@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Fold } from "./Fold";
 import { useState, type ReactNode } from "react";
 import type { Industry, SectorData } from "@/lib/sectors";
 
@@ -235,12 +236,13 @@ export function FlowTable({ data }: { data: SectorData }) {
 export function FlowTableNote() {
   return (
     <section className="card">
-      <h2 className="card-title">섹터 순위 보는 법</h2>
-      <p className="muted small-note">
-        색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 짧은 기간(왼쪽)과 긴 기간(오른쪽)을 나란히 보면 흐름이 보입니다. 기간을 누르면 그
-        기간 순으로 정렬합니다. 미니 그래프는 고른 기간 강도의 매일 추이, 순위는 {BASE}일 강도 기준 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그
-        안의 산업(DART 업종 코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
-      </p>
+      <Fold title="섹터 순위 보는 법">
+        <p className="muted small-note">
+          색칸은 그 기간 섹터 평균 대비 강도(%p, 빨강 강함 · 파랑 약함)입니다. 짧은 기간(왼쪽)과 긴 기간(오른쪽)을 나란히 보면 흐름이 보입니다. 기간을 누르면 그
+          기간 순으로 정렬합니다. 미니 그래프는 고른 기간 강도의 매일 추이, 순위는 {BASE}일 강도 기준 {AGO}거래일 전 대비 변화입니다. ▸가 있는 섹터를 누르면 그
+          안의 산업(DART 업종 코드로 나눔, 강도는 산업끼리의 평균 대비)이 펼쳐집니다.
+        </p>
+      </Fold>
     </section>
   );
 }
