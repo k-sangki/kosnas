@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AD_SLOTS, AdSlot } from "./AdSlot";
 import { CaptureArea } from "./CaptureArea";
 import { FlowTable, FlowTableNote } from "./FlowTable";
+import { Fold } from "./Fold";
 import { SectorBoard } from "./SectorBoard";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
@@ -57,46 +58,51 @@ function DailySummary({ data }: { data: SectorData }) {
   const [y, m, d] = data.asof.split("-").map(Number);
   return (
     <section className="card seo-text">
-      <h2 className="card-title">
-        {m}월 {d}일 섹터 순환 요약
-      </h2>
-      <p>
-        {y}년 {m}월 {d}일 종가 기준 최근 20거래일 동안 섹터 평균보다 가장 강했던 곳은 {top.name}(수익률 {signed(top.ret[P])}%, 평균 대비 {signed(top.x[P])}
-        %p)이고, 가장 약했던 곳은 {bottom.name}({signed(bottom.ret[P])}%, {signed(bottom.x[P])}%p)입니다.{" "}
-        {lead.length > 0 && (
+      <Fold
+        title={
           <>
-            평균보다 강하면서 더 강해지는 주도 칸에는 {names(lead.slice(0, 4).map((s) => s.name))} 등 {lead.length}개 섹터가 있습니다.{" "}
+            {m}월 {d}일 섹터 순환 요약
           </>
-        )}
-        {lag.length > 0 && (
-          <>
-            반대로 평균보다 약하고 더 약해지는 소외 칸에는 {names(lag.slice(0, 4).map((s) => s.name))} 등 {lag.length}개 섹터가 있습니다.
-          </>
-        )}
-      </p>
-      {(up || down) && (
+        }
+      >
         <p>
-          {up && (
+          {y}년 {m}월 {d}일 종가 기준 최근 20거래일 동안 섹터 평균보다 가장 강했던 곳은 {top.name}(수익률 {signed(top.ret[P])}%, 평균 대비 {signed(top.x[P])}
+          %p)이고, 가장 약했던 곳은 {bottom.name}({signed(bottom.ret[P])}%, {signed(bottom.x[P])}%p)입니다.{" "}
+          {lead.length > 0 && (
             <>
-              지난 20일 동안 주도 쪽으로 가장 곧고 빠르게 움직인 섹터는 {up.name}(이동 강도 {moves.get(up.id)!.score})이고,{" "}
+              평균보다 강하면서 더 강해지는 주도 칸에는 {names(lead.slice(0, 4).map((s) => s.name))} 등 {lead.length}개 섹터가 있습니다.{" "}
             </>
           )}
-          {down && (
+          {lag.length > 0 && (
             <>
-              소외 쪽으로 가장 빠르게 움직인 섹터는 {down.name}(이동 강도 {moves.get(down.id)!.score})입니다.
+              반대로 평균보다 약하고 더 약해지는 소외 칸에는 {names(lag.slice(0, 4).map((s) => s.name))} 등 {lag.length}개 섹터가 있습니다.
             </>
           )}
         </p>
-      )}
-      {b?.KOSPI && b?.KOSDAQ && (
-        <p>
-          시장 전체로는 이날 코스피 보통주 {b.KOSPI.up.toLocaleString()}종목이 오르고 {b.KOSPI.down.toLocaleString()}종목이 내렸으며, 50일 이동평균선 위에 있는
-          종목은 {b.KOSPI.above50}%입니다. 코스닥은 {b.KOSDAQ.up.toLocaleString()}종목 상승, {b.KOSDAQ.down.toLocaleString()}종목 하락에 50일선 위 종목{" "}
-          {b.KOSDAQ.above50}%입니다. 52주 신고가는 코스피 {b.KOSPI.newHighs}
-          종목, 코스닥 {b.KOSDAQ.newHighs}종목에서 나왔습니다.
-        </p>
-      )}
-      <p className="muted small-note">이 요약은 위 숫자로 매일 자동으로 만들며, 지나간 시세를 정리한 것일 뿐 앞으로의 움직임을 예측하지 않습니다.</p>
+        {(up || down) && (
+          <p>
+            {up && (
+              <>
+                지난 20일 동안 주도 쪽으로 가장 곧고 빠르게 움직인 섹터는 {up.name}(이동 강도 {moves.get(up.id)!.score})이고,{" "}
+              </>
+            )}
+            {down && (
+              <>
+                소외 쪽으로 가장 빠르게 움직인 섹터는 {down.name}(이동 강도 {moves.get(down.id)!.score})입니다.
+              </>
+            )}
+          </p>
+        )}
+        {b?.KOSPI && b?.KOSDAQ && (
+          <p>
+            시장 전체로는 이날 코스피 보통주 {b.KOSPI.up.toLocaleString()}종목이 오르고 {b.KOSPI.down.toLocaleString()}종목이 내렸으며, 50일 이동평균선 위에
+            있는 종목은 {b.KOSPI.above50}%입니다. 코스닥은 {b.KOSDAQ.up.toLocaleString()}종목 상승, {b.KOSDAQ.down.toLocaleString()}종목 하락에 50일선 위 종목{" "}
+            {b.KOSDAQ.above50}%입니다. 52주 신고가는 코스피 {b.KOSPI.newHighs}
+            종목, 코스닥 {b.KOSDAQ.newHighs}종목에서 나왔습니다.
+          </p>
+        )}
+        <p className="muted small-note">이 요약은 위 숫자로 매일 자동으로 만들며, 지나간 시세를 정리한 것일 뿐 앞으로의 움직임을 예측하지 않습니다.</p>
+      </Fold>
     </section>
   );
 }

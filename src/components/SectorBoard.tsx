@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Fold } from "./Fold";
 import { useMemo, useState } from "react";
 import {
   ACCEL,
@@ -350,14 +351,16 @@ export function SectorBoard({ data }: { data: SectorData }) {
             </Link>
           </div>
         ) : (
-          <p className="muted small-note">
-            가로는 강도({word} 수익률 − {word} 평균), 세로는 변화(바로 앞 같은 기간 대비 강도 변화)입니다. 점 색은 이동 강도로, 주도 쪽으로 가장 강하게 가는
-            {word}가 가장 진한 빨강, 소외 쪽으로 가장 강하게 가는 {word}가 가장 진한 파랑이고 움직임이 약할수록 회색에 가까워요. 점을 누르면 그 기간 동안의
-            이동선이 보입니다. RS↑n은 기본 필터를 통과한 종목 중 상대강도 {RS_LEADER} 이상인 종목 수예요(0이면 흐리게 — 움직였어도 이끄는 종목이 없다는 뜻).{" "}
-            <Link href="/guide/quadrant" className="inline-link">
-              네 칸 읽는 법
-            </Link>
-          </p>
+          <Fold small title="그래프 읽는 법">
+            <p>
+              가로는 강도({word} 수익률 − {word} 평균), 세로는 변화(바로 앞 같은 기간 대비 강도 변화)입니다. 점 색은 이동 강도로, 주도 쪽으로 가장 강하게 가는
+              {word}가 가장 진한 빨강, 소외 쪽으로 가장 강하게 가는 {word}가 가장 진한 파랑이고 움직임이 약할수록 회색에 가까워요. 점을 누르면 그 기간 동안의
+              이동선이 보입니다. RS↑n은 기본 필터를 통과한 종목 중 상대강도 {RS_LEADER} 이상인 종목 수예요(0이면 흐리게 — 움직였어도 이끄는 종목이 없다는 뜻).{" "}
+              <Link href="/guide/quadrant" className="inline-link">
+                네 칸 읽는 법
+              </Link>
+            </p>
+          </Fold>
         )}
       </section>
 
@@ -497,11 +500,13 @@ export function SectorBoard({ data }: { data: SectorData }) {
           </section>
         </>
       )}
-      <p className="muted small-note">
-        이 화면은 지금 어디가 강하고 어디로 거래가 몰리는지 보는 곳입니다. 지나간 자료로 따져 보면 &lsquo;관찰&rsquo; 칸 섹터가 다음 20일에 평균보다 뚜렷하게
-        앞서지 않았고, 이동 강도가 높았던 섹터나 시총·거래대금 비중이 늘어난 섹터도 다음 수익을 앞서 보여 주지 못했습니다. 다음 주도 섹터를 맞히는 신호가 아니라
-        흐름을 읽는 참고 자료로 보세요.
-      </p>
+      <Fold small title="이 화면을 볼 때 참고할 점">
+        <p>
+          이 화면은 지금 어디가 강하고 어디로 거래가 몰리는지 보는 곳입니다. 지나간 자료로 따져 보면 &lsquo;관찰&rsquo; 칸 섹터가 다음 20일에 평균보다 뚜렷하게
+          앞서지 않았고, 이동 강도가 높았던 섹터나 시총·거래대금 비중이 늘어난 섹터도 다음 수익을 앞서 보여 주지 못했습니다. 다음 주도 섹터를 맞히는 신호가 아니라
+          흐름을 읽는 참고 자료로 보세요.
+        </p>
+      </Fold>
     </>
   );
 }

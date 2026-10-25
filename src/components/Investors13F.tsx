@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { INVESTORS, SECTOR_FLOWS, crowd, label, mainPeriod, optionTag, quarter, sharePct, usd, type Holding, type Investor } from "@/lib/investors13f";
+import { Fold } from "./Fold";
 
 /** 투자자 목록(미장 맨 위와 /investors가 같이 쓴다) */
 export function InvestorList({ title = "유명 투자자 포트폴리오", limit }: { title?: string; limit?: number }) {
@@ -167,10 +168,12 @@ export function SectorFlows() {
           </li>
         ))}
       </ul>
-      <p className="small-note muted">
-        위 투자자들의 13F 보고서에서 이번 분기에 늘린 주식 수 × 분기 말 주가, 새로 산 종목의 평가액, 모두 판 종목의 전 분기 평가액을 섹터별로 더한 순매수입니다.
-        옵션과 채권은 뺐고, 섹터는 SEC 업종 코드로 나눴습니다. 운용 규모가 큰 곳(브리지워터 등)의 영향이 큽니다.
-      </p>
+      <Fold small title="계산 방법">
+        <p>
+          위 투자자들의 13F 보고서에서 이번 분기에 늘린 주식 수 × 분기 말 주가, 새로 산 종목의 평가액, 모두 판 종목의 전 분기 평가액을 섹터별로 더한
+          순매수입니다. 옵션과 채권은 뺐고, 섹터는 SEC 업종 코드로 나눴습니다. 운용 규모가 큰 곳(브리지워터 등)의 영향이 큽니다.
+        </p>
+      </Fold>
     </section>
   );
 }

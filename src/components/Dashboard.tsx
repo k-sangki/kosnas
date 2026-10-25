@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Fold } from "./Fold";
 import { useRouter } from "next/navigation";
 import type { NightData } from "@/lib/night";
 import { NIGHT_STOCKS } from "@/lib/night-stocks";
@@ -562,11 +563,13 @@ export function Dashboard({ d }: { d: NightData | null }) {
           </button>
         </div>
       )}
-      <p className="muted small-note no-capture">
-        카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45
-        대비입니다(“주말에도 거래” 카드는 24시간 전 대비). 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
-        보여 주는 시세(미국 전일 종가 대비)입니다. 카드 배치는 이 브라우저에만 저장됩니다.
-      </p>
+      <Fold small title="카드 안내" className="no-capture">
+        <p>
+          카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45
+          대비입니다(“주말에도 거래” 카드는 24시간 전 대비). 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
+          보여 주는 시세(미국 전일 종가 대비)입니다. 카드 배치는 이 브라우저에만 저장됩니다.
+        </p>
+      </Fold>
     </section>
   );
 }

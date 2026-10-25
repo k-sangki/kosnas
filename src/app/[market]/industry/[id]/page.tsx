@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
 import { SampleNotice } from "@/components/MarketPage";
+import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
 import { BASE_FILTER, MARKETS, QUADRANTS, findIndustry, findSector, industryPages, sectorData, signed, type Market } from "@/lib/sectors";
@@ -138,12 +139,13 @@ export default async function IndustryPage({ params }: PageProps<"/[market]/indu
           </p>
         </section>
         <section className="card seo-text">
-          <h2 className="card-title">이 숫자를 읽는 법</h2>
-          <p>
-            산업은 같은 섹터 안에서도 실적이 함께 움직이는 회사끼리 다시 나눈 묶음입니다. 섹터 전체가 약해도 그 안의 한 산업만 먼저 강해지는 일이 많아, 순환매를 볼 때는
-            섹터 다음에 산업을 봅니다. 네 칸(주도·약화·소외·관찰)의 뜻은 <Link href="/guide/quadrant">네 칸 읽는 법</Link>, 섹터와 산업을 나누는 기준은{" "}
-            <Link href="/guide/industry">섹터와 산업은 어떻게 나누나요</Link>에 정리했습니다. 특정 종목의 매수·매도를 권하지 않습니다.
-          </p>
+          <Fold title="이 숫자를 읽는 법">
+            <p>
+              산업은 같은 섹터 안에서도 실적이 함께 움직이는 회사끼리 다시 나눈 묶음입니다. 섹터 전체가 약해도 그 안의 한 산업만 먼저 강해지는 일이 많아, 순환매를 볼 때는
+              섹터 다음에 산업을 봅니다. 네 칸(주도·약화·소외·관찰)의 뜻은 <Link href="/guide/quadrant">네 칸 읽는 법</Link>, 섹터와 산업을 나누는 기준은{" "}
+              <Link href="/guide/industry">섹터와 산업은 어떻게 나누나요</Link>에 정리했습니다. 특정 종목의 매수·매도를 권하지 않습니다.
+            </p>
+          </Fold>
         </section>
         {siblings.length > 0 && (
           <section className="card">

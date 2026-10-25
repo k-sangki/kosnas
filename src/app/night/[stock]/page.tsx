@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "@/app/layout";
 import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
 import { JsonLd } from "@/components/JsonLd";
+import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockNight } from "@/components/StockNight";
 import { NIGHT_STOCKS, findNightStock, nightStockFaq } from "@/lib/night-stocks";
@@ -58,27 +59,30 @@ export default async function NightStockPage({ params }: PageProps<"/night/[stoc
         </p>
         <AdSlot slot={AD_SLOTS.board} />
         <section className="card seo-text">
-          <h2 className="card-title">어떻게 계산하나요</h2>
-          <p>
-            Hyperliquid의 trade.xyz 시장에는 {s.name} 한 주를 따르는 무기한선물이 달러로 거래됩니다. 이 가격에 같은 시장의 원/달러 무기한선물 값을 곱해 원화로 바꾸고,
-            국내 정규장이 끝난 15:45 무렵 가격과 비교해 등락률을 냅니다. 지수 전체의 밤사이 흐름은{" "}
-            <Link href="/night">코스피 야간선물 실시간 추정</Link>에서, {s.name}가 속한 반도체 섹터의 최근 등락과 순위는{" "}
-            <Link href={`/kr/sector/${s.sector}`}>반도체 섹터 페이지</Link>에서 볼 수 있습니다.
-          </p>
-          <h2 className="card-title">유의할 점</h2>
-          <p>
-            이 값은 한국거래소나 넥스트레이드 시세가 아니라 해외 무기한선물로 계산한 참고용 추정치입니다. 거래량이 적은 시간에는 몇 분씩 가격이 멈춰 있을 수 있고,
-            다음 날 국내 시가와 다를 수 있습니다. 특정 종목의 매수·매도를 권하지 않습니다.
-          </p>
+          <Fold title="어떻게 계산하나요">
+            <p>
+              Hyperliquid의 trade.xyz 시장에는 {s.name} 한 주를 따르는 무기한선물이 달러로 거래됩니다. 이 가격에 같은 시장의 원/달러 무기한선물 값을 곱해 원화로 바꾸고,
+              국내 정규장이 끝난 15:45 무렵 가격과 비교해 등락률을 냅니다. 지수 전체의 밤사이 흐름은{" "}
+              <Link href="/night">코스피 야간선물 실시간 추정</Link>에서, {s.name}가 속한 반도체 섹터의 최근 등락과 순위는{" "}
+              <Link href={`/kr/sector/${s.sector}`}>반도체 섹터 페이지</Link>에서 볼 수 있습니다.
+            </p>
+          </Fold>
+          <Fold title="유의할 점">
+            <p>
+              이 값은 한국거래소나 넥스트레이드 시세가 아니라 해외 무기한선물로 계산한 참고용 추정치입니다. 거래량이 적은 시간에는 몇 분씩 가격이 멈춰 있을 수 있고,
+              다음 날 국내 시가와 다를 수 있습니다. 특정 종목의 매수·매도를 권하지 않습니다.
+            </p>
+          </Fold>
         </section>
         <section className="card seo-text">
-          <h2 className="card-title">자주 묻는 질문</h2>
-          {faq.map(([q, a]) => (
-            <div key={q}>
-              <h3>{q}</h3>
-              <p>{a}</p>
-            </div>
-          ))}
+          <Fold title="자주 묻는 질문">
+            {faq.map(([q, a]) => (
+              <div key={q}>
+                <h3>{q}</h3>
+                <p>{a}</p>
+              </div>
+            ))}
+          </Fold>
         </section>
         <section className="card">
           <h2 className="card-title">함께 보기</h2>
