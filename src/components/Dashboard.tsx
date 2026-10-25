@@ -499,7 +499,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
               {...(go && {
                 role: "link",
                 tabIndex: 0,
-                "aria-label": `${t.label} ${href.startsWith("/night") ? "밤사이 가격" : "주말 유가"} 보기`,
+                "aria-label": `${t.label} ${href?.startsWith("/night") ? "밤사이 가격" : "주말 유가"} 보기`,
                 onClick: () => !dragged.current && go(),
                 onKeyDown: (e: React.KeyboardEvent) => e.key === "Enter" && go(),
               })}
