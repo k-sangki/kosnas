@@ -1,6 +1,9 @@
 import {
   DEX,
   EXTRA_COINS,
+  WEEKEND_COINS,
+  chartEnd,
+  weekendRef,
   HL_INFO,
   INPUTS,
   assemble,
@@ -150,8 +153,12 @@ async function load(now: number, cache: Cache | undefined, base: string) {
         const end = (k: Close) => k.t + 15 * MIN;
         const at = [...cs].reverse().find((k) => end(k) <= win.start)?.c ?? cs.find((k) => end(k) > win.start)?.c;
         const mid = cs.filter((k) => end(k) > win.start && end(k) <= Math.min(now, win.end)).map((k) => [end(k), k.c] as const);
-        const s = at ? windowSpark(win, at, mid, win.live ? [now, price] : null) : undefined;
-        extra[c] = { price, prev: prev > 0 ? prev : null, ...(s ?? {}) };
+        const last = win.live ? ([now, price] as const) : null;
+        const s = at ? windowSpark(win, at, mid, last) : undefined;
+        const wk = (WEEKEND_COINS as readonly string[]).includes(c)
+          ? weekendRef(win, now, cs, chartEnd(win, last?.[0] ?? mid[mid.length - 1]?.[0] ?? win.start) - win.start)
+          : null;
+        extra[c] = { price, prev: prev > 0 ? prev : null, ...(s ?? {}), ...(wk ? { wk } : {}) };
       }
     }
   });

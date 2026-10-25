@@ -17,6 +17,8 @@ import {
   usOpenIn,
   valueAt,
   hhmm,
+  cmeFridayClose,
+  weekendRef,
   type Candle,
 } from "./night";
 
@@ -233,5 +235,32 @@ describe("chartEnd · timeTicks", () => {
     expect(t.map((k) => k.label)).toEqual(["18:00", "21:00", "00:00", "03:00", "06:00"]);
     const w = timeTicks(fri.start, fri.end, 300);
     expect(w.map((k) => k.label)).toEqual(["토", "12:00", "일", "12:00", "월"]);
+  });
+});
+
+describe("주말 원자재 기준(금요일 CME 마감)", () => {
+  const utc = (s: string) => Date.parse(`${s}Z`);
+  it("서머타임이면 21:00Z, 아니면 22:00Z", () => {
+    expect(cmeFridayClose(kst("2026-10-23T00:00:00"))).toBe(utc("2026-10-23T21:00:00"));
+    expect(cmeFridayClose(kst("2026-11-06T00:00:00"))).toBe(utc("2026-11-06T22:00:00"));
+  });
+  it("금요일 밤 구간이고 마감 뒤일 때만, 마감까지 끝난 마지막 15분봉 종가", () => {
+    const cs: Candle[] = [
+      { t: utc("2026-10-23T20:30:00"), c: 103.0 },
+      { t: utc("2026-10-23T20:45:00"), c: 103.4 },
+      { t: utc("2026-10-23T21:00:00"), c: 103.9 },
+    ];
+    const sun = kst("2026-10-25T23:30:00");
+    const w = nightWindow(sun);
+    const r = weekendRef(w, sun, cs, chartEnd(w, sun) - w.start);
+    expect(r?.close).toBe(103.4);
+    expect(r?.at).toBe(utc("2026-10-23T21:00:00"));
+    expect(r!.atT).toBeGreaterThan(0);
+    expect(r!.atT).toBeLessThan(1);
+    // 금요일 마감 전, 평일 밤
+    const fri = kst("2026-10-24T05:00:00");
+    expect(weekendRef(nightWindow(fri), fri, cs, 1)).toBeNull();
+    const tue = kst("2026-10-20T23:00:00");
+    expect(weekendRef(nightWindow(tue), tue, cs, 1)).toBeNull();
   });
 });

@@ -260,7 +260,7 @@ export type NightData = {
   points: NightPoint[];
   inputs: NightInput[];
   /** 지금 가격과 24시간 전 가격, 24시간 선 차트를 싣는 무기한선물(대시보드 추가 카드용) */
-  extra?: Record<string, { price: number; prev: number | null; spark?: number[]; sparkT?: number[] }>;
+  extra?: Record<string, { price: number; prev: number | null; spark?: number[]; sparkT?: number[]; wk?: WeekendRef }>;
   updated: number;
 };
 
@@ -293,6 +293,33 @@ export function windowSpark(win: NightWindow, at: number, mid: readonly (readonl
 export const EXTRA_COINS = ["CL", "BRENTOIL", "GOLD", "SILVER", "NVDA", "TSLA", "MU", "TSM", "VIX", "DXY"] as const;
 
 type Ctx = { markPx?: string; oraclePx?: string; prevDayPx?: string };
+
+/** 주말 원자재 카드의 기준: CME가 금요일에 닫힐 때의 무기한선물 가격. at = 그 시각, atT = 선 차트 가로축 위치(0~1) */
+export type WeekendRef = { close: number; at: number; atT: number };
+
+/** 주말에 금요일 마감 대비로 보여 줄 원자재(WTI·브렌트·금·은) */
+export const WEEKEND_COINS = ["CL", "BRENTOIL", "GOLD", "SILVER"] as const;
+
+/** 그 금요일(KST 자정) 미국 동부 17:00 = CME 원유·금 선물의 주간 마감. 서머타임이면 21:00Z, 아니면 22:00Z */
+export function cmeFridayClose(friday: number) {
+  const edt = friday + 30 * HOUR; // KST 자정 = 전날 15:00Z → +30시간 = 금요일 21:00Z
+  const h = Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(edt));
+  return h === 17 ? edt : edt + HOUR;
+}
+
+/**
+ * 주말(금요일 CME 마감 뒤 ~ 월요일 국내 09:00)이면 금요일 마감 때 가격. 아니면 null.
+ * cs = 15분봉 종가(시작 시각), 마감 시각까지 끝난 마지막 봉을 쓴다.
+ */
+export function weekendRef(win: NightWindow, now: number, cs: readonly Candle[], span: number): WeekendRef | null {
+  if (kstWeekday(win.start) !== 5) return null;
+  const at = cmeFridayClose(kstMidnight(win.start));
+  if (now < at || now >= win.end) return null;
+  let close: number | undefined;
+  for (const k of cs) if (k.t + 15 * MIN <= at) close = k.c;
+  if (!close) return null;
+  return { close, at, atT: Math.round(Math.min(1, Math.max(0, (at - win.start) / span)) * 1000) / 1000 };
+}
 
 /** 무기한선물 지금 가격(표시 가격 → 오라클 순) */
 export function markOf(ctx: Ctx | undefined) {

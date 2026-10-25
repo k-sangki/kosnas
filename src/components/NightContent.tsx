@@ -69,7 +69,8 @@ export function NightContent() {
         </p>
         <p className="muted small-note">
           종목별 밤사이 가격: <Link href="/night/samsung-electronics">삼성전자 야간 시세</Link> ·{" "}
-          <Link href="/night/sk-hynix">SK하이닉스 야간 시세</Link>
+          <Link href="/night/sk-hynix">SK하이닉스 야간 시세</Link> ·{" "}
+          <Link href="/weekend-oil">주말 유가(WTI)</Link>
         </p>
       </section>
       <script

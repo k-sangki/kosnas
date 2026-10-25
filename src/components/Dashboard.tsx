@@ -244,9 +244,12 @@ const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
 function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | null }) {
   const x = d?.extra?.[t.coin];
+  // 주말(금요일 CME 마감 뒤)에는 원자재 카드를 금요일 마감 대비로 본다
+  const wk = !d?.inputs.some((v) => v.coin === t.coin) ? x?.wk : undefined;
+  const ref = wk ? wk.close : x?.prev;
   const i =
     d?.inputs.find((v) => v.coin === t.coin) ??
-    (x && { coin: t.coin, price: x.price, chg: x.prev ? (x.price / x.prev - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT });
+    (x && { coin: t.coin, price: x.price, chg: ref ? (x.price / ref - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT });
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -261,9 +264,9 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
           {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
           {i.krw && i.chg != null && <span className="tile-won">{won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
         </p>
-        {i.spark && <Spark v={i.spark} t={i.sparkT} base={x && !d?.inputs.some((v) => v.coin === t.coin) ? (x.prev ?? undefined) : undefined} />}
+        {i.spark && <Spark v={i.spark} t={i.sparkT} base={wk ? wk.close : x && !d?.inputs.some((v) => v.coin === t.coin) ? (x.prev ?? undefined) : undefined} />}
       </div>
-      <p className="tile-sub">{t.sub}</p>
+      <p className="tile-sub">{wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : t.sub}</p>
     </>
   );
 }
@@ -327,7 +330,12 @@ function Spark({ v, t, base = v[0] }: { v: number[]; t?: number[]; base?: number
 const LONG_PRESS = 350;
 
 /** 한 번 탭하면 그 종목의 밤사이 가격 페이지로 가는 카드 */
-const PAGE: Record<string, string> = Object.fromEntries(NIGHT_STOCKS.map((s) => [s.coin, `/night/${s.slug}`]));
+const PAGE: Record<string, string> = {
+  ...Object.fromEntries(NIGHT_STOCKS.map((s) => [s.coin, `/night/${s.slug}`])),
+  // 유가 카드는 주말 유가 페이지로
+  "P-CL": "/weekend-oil",
+  "P-BRENT": "/weekend-oil",
+};
 
 /**
  * 카드 끌어 옮기기. 마우스는 누른 채 조금 움직이면, 손가락은 길게 누르면(아이폰 홈 화면처럼) 집어 든다.
@@ -491,7 +499,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
               {...(go && {
                 role: "link",
                 tabIndex: 0,
-                "aria-label": `${t.label} 밤사이 가격 보기`,
+                "aria-label": `${t.label} ${href?.startsWith("/night") ? "밤사이 가격" : "주말 유가"} 보기`,
                 onClick: () => !dragged.current && go(),
                 onKeyDown: (e: React.KeyboardEvent) => e.key === "Enter" && go(),
               })}

@@ -26,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     at("", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     at("/night", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     ...NIGHT_STOCKS.map((s) => at(`/night/${s.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
+    at("/weekend-oil", { lastModified: now, changeFrequency: "hourly", priority: 0.8 }),
     at("/kr", { lastModified: kr, changeFrequency: "daily", priority: 0.9 }),
     at("/us", { lastModified: now, changeFrequency: "hourly", priority: 0.8 }),
     ...MARKETS.flatMap((m) =>
