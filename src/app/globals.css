@@ -1303,6 +1303,9 @@ body:has(.fab-bar) .foot {
 .tile-spark.down polyline {
   stroke: var(--down);
 }
+.tile.linked {
+  cursor: pointer;
+}
 .tile-spark-dot {
   position: absolute;
   width: 6px;
