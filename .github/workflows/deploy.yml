@@ -42,6 +42,15 @@ jobs:
             echo "$u -> $code"; cat body.txt
             grep -qxF "$want" body.txt || { echo "::error::$u 내용이 다릅니다"; exit 1; }
           done
+      - name: 검색로봇이 가져가는 주소 확인
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          # 네이버 서치어드바이저가 /favicon.ico 400 을 '수집제한'으로 잡았다(2026-10-21~22)
+          for p in favicon.ico robots.txt sitemap.xml; do
+            code=$(curl -sS -o /dev/null -A "Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)" -w '%{http_code}' "https://kosnas.com/$p")
+            echo "/$p -> $code"
+            [ "$code" = 200 ] || { echo "::error::/$p 응답 $code"; exit 1; }
+          done
       - name: IndexNow 알림(네이버·빙)
         if: env.CLOUDFLARE_API_TOKEN != ''
         env:
