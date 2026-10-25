@@ -1,0 +1,33 @@
+name: probe-weekend-wti
+on: { push: { branches: [probe-weekend-wti] } }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cat > p.py <<'PY'
+          import json, time, urllib.request, datetime as dt
+          def post(b):
+              r = urllib.request.Request("https://api.hyperliquid.xyz/info", json.dumps(b).encode(), {"content-type":"application/json"})
+              return json.load(urllib.request.urlopen(r, timeout=30))
+          dexs = post({"type":"perpDexs"})
+          print("DEXS", [d and d.get("name") for d in dexs])
+          for d in dexs:
+              if not d: continue
+              try:
+                  m, c = post({"type":"metaAndAssetCtxs","dex":d["name"]})
+              except Exception as e:
+                  print(d["name"], e); continue
+              for u, x in zip(m["universe"], c):
+                  n = u["name"].upper()
+                  if any(k in n for k in ["CL", "OIL", "WTI", "CRUDE", "BRENT"]):
+                      print("CTX", u["name"], {k: x.get(k) for k in ["markPx","oraclePx","midPx","prevDayPx","dayNtlVlm","openInterest","premium","impactPxs"]})
+          now = int(time.time()*1000)
+          for coin in ["xyz:CL", "xyz:BRENTOIL"]:
+              ks = post({"type":"candleSnapshot","req":{"coin":coin,"interval":"1h","startTime":now-80*3600*1000,"endTime":now}})
+              for k in ks:
+                  print(coin, dt.datetime.utcfromtimestamp(k["t"]/1000).strftime("%a %m-%d %H:%MZ"), k["o"], k["h"], k["l"], k["c"], k["v"], k["n"])
+          PY
+          python3 p.py
+      - run: |
+          for q in "weekend oil" "weekend crude" "WTI365" "USOIL 24" "oil 24/7"; do echo "== $q"; curl -sS -m 20 -G "https://symbol-search.tradingview.com/symbol_search/v3/" --data-urlencode "text=$q" -d hl=0 -d lang=en -d domain=production -H 'origin: https://www.tradingview.com' -H 'referer: https://www.tradingview.com/' -H 'user-agent: Mozilla/5.0' | head -c 3000; echo; done
