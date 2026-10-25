@@ -1,6 +1,7 @@
 import { INVESTORS } from "@/lib/investors13f";
 import type { MetadataRoute } from "next";
-import { MARKETS, sectorData } from "@/lib/sectors";
+import { MARKETS, industryPages, sectorData } from "@/lib/sectors";
+import { NIGHT_STOCKS } from "@/lib/night-stocks";
 import { GUIDES } from "@/lib/guides";
 import { DATA as RECENT } from "@/lib/investors";
 import F13 from "@/data/investors-13f.json";
@@ -24,10 +25,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     at("", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     at("/night", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
+    ...NIGHT_STOCKS.map((s) => at(`/night/${s.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
     at("/kr", { lastModified: kr, changeFrequency: "daily", priority: 0.9 }),
     at("/us", { lastModified: now, changeFrequency: "hourly", priority: 0.8 }),
     ...MARKETS.flatMap((m) =>
       sectorData(m).sectors.map((s) => at(`/${m}/sector/${s.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.7 })),
+    ),
+    ...MARKETS.flatMap((m) =>
+      industryPages(m).map((i) => at(`/${m}/industry/${i.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.6 })),
     ),
     at("/investors", { lastModified: recent, changeFrequency: "daily", priority: 0.7 }),
     ...INVESTORS.map((i) => at(`/investors/${i.id}`, { lastModified: f13, changeFrequency: "weekly", priority: 0.5 })),

@@ -222,3 +222,17 @@ export function accelOf(u: Unit, period: number) {
   const kind: Accel = v1 > 0 ? (v2 > v1 ? "speedup" : v2 > 0 ? "slowdown" : "rollover") : v2 > 0 ? "rebound" : v2 < v1 ? "weaker" : "easing";
   return { kind, h1: h[0], h2: h[1], v1, v2, change: v2 - v1 };
 }
+
+/**
+ * 산업 페이지(/kr/industry/{id})로 따로 내는 산업. 섹터에 산업이 하나뿐이면 섹터 페이지와 같은 내용이라,
+ * '… 기타' 묶음은 검색어가 될 이름이 아니라 뺀다. id는 수집기 분류표의 순서라 자료가 바뀌어도 그대로다.
+ */
+export function industryPages(market: Market): Industry[] {
+  const d = DATA[market];
+  const all = d.industries ?? [];
+  return all.filter((i) => !i.name.endsWith(" 기타") && all.filter((x) => x.sector === i.sector).length > 1);
+}
+
+export function findIndustry(market: Market, id: string): Industry | undefined {
+  return industryPages(market).find((i) => i.id === id);
+}

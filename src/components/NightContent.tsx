@@ -67,6 +67,10 @@ export function NightContent() {
         <p className="muted small-note">
           더 자세한 설명은 <Link href="/guide/night-estimate">코스피 야간선물 추정 읽는 법</Link>에 있습니다.
         </p>
+        <p className="muted small-note">
+          종목별 밤사이 가격: <Link href="/night/samsung-electronics">삼성전자 야간 시세</Link> ·{" "}
+          <Link href="/night/sk-hynix">SK하이닉스 야간 시세</Link>
+        </p>
       </section>
       <script
         type="application/ld+json"

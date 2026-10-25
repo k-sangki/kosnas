@@ -10,7 +10,7 @@ import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { SectorDetail, type MoveBy } from "@/components/SectorDetail";
 import { StockList } from "@/components/StockList";
 import { SECTOR_NOTES } from "@/lib/sector-notes";
-import { MARKETS, QUADRANTS, findSector, moveScores, ready, sectorData, signed, type Market } from "@/lib/sectors";
+import { MARKETS, QUADRANTS, findSector, industryPages, moveScores, ready, sectorData, signed, type Market } from "@/lib/sectors";
 
 export const dynamicParams = false;
 
@@ -127,6 +127,20 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
             50일선 위 종목 {sector.above50}% · 52주 신고가 {sector.newHighs}종목
           </p>
         </section>
+        {industryPages(hit.market).some((i) => i.sector === sector.id) && (
+          <section className="card">
+            <h2 className="card-title">산업별 관련주</h2>
+            <ul className="guide-links">
+              {industryPages(hit.market)
+                .filter((i) => i.sector === sector.id)
+                .map((i) => (
+                  <li key={i.id}>
+                    <Link href={`/${hit.market}/industry/${i.id}`}>{i.name} 관련주 등락률·순위</Link>
+                  </li>
+                ))}
+            </ul>
+          </section>
+        )}
         {note && (
           <section className="card seo-text">
             <h2 className="card-title">{sector.name} 섹터를 움직이는 것</h2>
