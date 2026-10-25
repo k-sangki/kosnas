@@ -330,7 +330,12 @@ function Spark({ v, t, base = v[0] }: { v: number[]; t?: number[]; base?: number
 const LONG_PRESS = 350;
 
 /** 한 번 탭하면 그 종목의 밤사이 가격 페이지로 가는 카드 */
-const PAGE: Record<string, string> = Object.fromEntries(NIGHT_STOCKS.map((s) => [s.coin, `/night/${s.slug}`]));
+const PAGE: Record<string, string> = {
+  ...Object.fromEntries(NIGHT_STOCKS.map((s) => [s.coin, `/night/${s.slug}`])),
+  // 유가 카드는 주말 유가 페이지로
+  "P-CL": "/weekend-oil",
+  "P-BRENT": "/weekend-oil",
+};
 
 /**
  * 카드 끌어 옮기기. 마우스는 누른 채 조금 움직이면, 손가락은 길게 누르면(아이폰 홈 화면처럼) 집어 든다.
@@ -494,7 +499,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
               {...(go && {
                 role: "link",
                 tabIndex: 0,
-                "aria-label": `${t.label} 밤사이 가격 보기`,
+                "aria-label": `${t.label} ${href.startsWith("/night") ? "밤사이 가격" : "주말 유가"} 보기`,
                 onClick: () => !dragged.current && go(),
                 onKeyDown: (e: React.KeyboardEvent) => e.key === "Enter" && go(),
               })}
