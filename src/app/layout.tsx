@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { JsonLd } from "@/components/JsonLd";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { OG_IMAGE, SITE_NAME, siteLd } from "@/lib/seo";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <JsonLd data={siteLd(SITE_URL, DESCRIPTION)} />
         {children}
+        <PullToRefresh />
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga4" strategy="afterInteractive">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
