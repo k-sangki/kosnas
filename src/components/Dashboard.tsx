@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import type { NightData } from "@/lib/night";
+import { NIGHT_STOCKS } from "@/lib/night-stocks";
 import { TvWidget } from "./TvWidget";
 
 /**
@@ -327,6 +329,9 @@ function Spark({ v, t, base = v[0] }: { v: number[]; t?: number[]; base?: number
 
 const LONG_PRESS = 350;
 
+/** 한 번 탭하면 그 종목의 밤사이 가격 페이지로 가는 카드 */
+const PAGE: Record<string, string> = Object.fromEntries(NIGHT_STOCKS.map((s) => [s.coin, `/night/${s.slug}`]));
+
 /**
  * 카드 끌어 옮기기. 마우스는 누른 채 조금 움직이면, 손가락은 길게 누르면(아이폰 홈 화면처럼) 집어 든다.
  * 끄는 동안 순서를 바로 바꿔 보여 주고, 놓으면 저장한다.
@@ -346,6 +351,8 @@ function useDrag(ids: string[], grid: React.RefObject<HTMLDivElement | null>) {
     on: boolean;
     off?: () => void;
   } | null>(null);
+  /** 방금 누른 카드를 집어 들었는가(끌기 뒤의 클릭은 탭으로 치지 않는다) */
+  const dragged = useRef(false);
   const list = order ?? ids;
   const listRef = useRef(list);
   useLayoutEffect(() => {
@@ -376,6 +383,7 @@ function useDrag(ids: string[], grid: React.RefObject<HTMLDivElement | null>) {
     const s = st.current;
     if (!s) return;
     s.on = true;
+    dragged.current = true;
     try {
       s.el.setPointerCapture(s.pid);
     } catch {}
@@ -399,6 +407,7 @@ function useDrag(ids: string[], grid: React.RefObject<HTMLDivElement | null>) {
   const props = (id: string) => ({
     onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
       if (e.button !== 0 || (e.target as HTMLElement).closest("button, a")) return;
+      dragged.current = false;
       const el = e.currentTarget;
       const r = el.getBoundingClientRect();
       last.current = { x: e.clientX, y: e.clientY };
@@ -449,7 +458,7 @@ function useDrag(ids: string[], grid: React.RefObject<HTMLDivElement | null>) {
     }
   }
 
-  return { list, held, props };
+  return { list, held, props, dragged };
 }
 
 export function Dashboard({ d }: { d: NightData | null }) {
@@ -457,7 +466,8 @@ export function Dashboard({ d }: { d: NightData | null }) {
   const [edit, setEdit] = useState(false);
   const [picking, setPicking] = useState(false);
   const grid = useRef<HTMLDivElement>(null);
-  const { list, held, props } = useDrag(ids, grid);
+  const { list, held, props, dragged } = useDrag(ids, grid);
+  const router = useRouter();
   const rest = TILES.filter((t) => !ids.includes(t.id));
   // 캡처 이미지에는 앞쪽 무기한선물 카드 6개만 넣는다
   const inCapture = new Set(list.filter((id) => BY_ID.get(id)!.kind === "hl").slice(0, 6));
@@ -473,8 +483,22 @@ export function Dashboard({ d }: { d: NightData | null }) {
       <div className={`dash-grid${edit ? " editing" : ""}`} ref={grid}>
         {list.map((id) => {
           const t = BY_ID.get(id)!;
+          const href = !edit ? PAGE[id] : undefined;
+          const go = href ? () => router.push(href) : undefined;
           return (
-            <article key={id} data-tile={id} className={`tile${held === id ? " held" : ""}${inCapture.has(id) ? "" : " no-capture"}`} {...props(id)}>
+            <article
+              key={id}
+              data-tile={id}
+              className={`tile${held === id ? " held" : ""}${inCapture.has(id) ? "" : " no-capture"}${href ? " linked" : ""}`}
+              {...props(id)}
+              {...(go && {
+                role: "link",
+                tabIndex: 0,
+                "aria-label": `${t.label} 밤사이 가격 보기`,
+                onClick: () => !dragged.current && go(),
+                onKeyDown: (e: React.KeyboardEvent) => e.key === "Enter" && go(),
+              })}
+            >
               <h3 className="tile-label">
                 <Icon id={id} />
                 {t.label}
