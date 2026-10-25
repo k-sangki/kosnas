@@ -9,9 +9,9 @@ import { WEEKEND_OIL_FAQ, WEEKEND_OIL_KEYWORDS } from "@/lib/weekend-oil";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 export const metadata: Metadata = pageMeta({
-  title: "주말 유가 실시간 - 주말 WTI·브렌트유 시세",
+  title: "주말 유가 실시간 · 주말에도 확인하는 WTI 유가 추정치",
   description:
-    "주말 유가 지금 얼마? 미국 원유 시장이 닫힌 토·일요일에도 24시간 거래되는 WTI·브렌트유 무기한선물 가격을 실시간으로 보여 줍니다. 금요일 뉴욕 마감 대비 등락과 주말 흐름 차트.",
+    "주말에도 확인할 수 있는 실시간 유가. 미국 원유 시장이 쉬는 토·일요일에도 24시간 거래되는 WTI(서부텍사스유)·브렌트유 가격으로 주말 WTI 가격과 금요일 마감 대비 등락을 실시간 추정합니다. 평일에는 WTI 실시간 시세.",
   keywords: WEEKEND_OIL_KEYWORDS,
   path: "/weekend-oil",
 });
@@ -31,12 +31,23 @@ export default function WeekendOilPage() {
         />
         <WeekendOil />
         <p className="lead">
-          국제유가는 금요일 밤 미국 시장이 닫히면 월요일 아침까지 대부분의 화면에서 멈춥니다. 그 사이에도 해외에서 거래되는 WTI·브렌트유 무기한선물로 주말 유가가 금요일
+          <b>주말에도 확인할 수 있는 실시간 유가</b>입니다. 국제유가는 금요일 밤 미국 시장이 닫히면 월요일 아침까지 대부분의 화면에서 멈춥니다. 그 사이에도 해외에서 거래되는 WTI·브렌트유 무기한선물로 주말 유가가 금요일
           마감보다 오르고 있는지, 내리고 있는지 실시간으로 봅니다. 주말에 나온 중동 뉴스나 산유국 발표가 월요일 유가와 정유·화학·항공주에 어떻게 이어질지 미리 가늠할 때
           씁니다.
         </p>
         <AdSlot slot={AD_SLOTS.board} />
         <section className="card seo-text">
+          <h2 className="card-title">주말 WTI 가격, 어디서 보나요</h2>
+          <p>
+            서부텍사스유(WTI) 가격을 정하는 미국 CME 원유 선물은 한국 시각 토요일 새벽 6시(겨울 7시)에 닫히고 월요일 아침 7시(겨울 8시)에 다시 열립니다. 그래서 주말에는
+            포털·증권사 앱의 WTI 가격이 금요일 마감에 멈춰 있습니다. 이 페이지는 그 시간에도 거래되는 WTI 무기한선물로 주말 WTI 가격을 실시간 추정해, 텍사스유가 주말 동안
+            금요일 마감보다 얼마나 오르거나 내렸는지 바로 보여 줍니다.
+          </p>
+          <h2 className="card-title">WTI 실시간 · 서부텍사스유 실시간 시세</h2>
+          <p>
+            평일에도 같은 화면에서 WTI와 브렌트유 실시간 유가를 24시간 전 대비로 볼 수 있습니다. 미국 정규 시장이 열려 있는 동안에는 CME 선물 가격과 거의 같이 움직이고,
+            30초마다 새로 고칩니다.
+          </p>
           <h2 className="card-title">어떻게 계산하나요</h2>
           <p>
             Hyperliquid의 trade.xyz 시장에는 WTI 원유와 브렌트유를 따르는 무기한선물이 달러로 24시간 거래됩니다. 이 가격을 30초마다 받아 보여 주고, 주말에는 CME가 닫힌
