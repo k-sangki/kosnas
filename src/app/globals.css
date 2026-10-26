@@ -196,10 +196,57 @@ a {
     font-size: 13px;
   }
 }
+.install-guide > b {
+  font-size: 18px;
+}
+.install-guide p {
+  margin: 12px 0 16px;
+  font-size: 16px;
+  line-height: 1.6;
+}
 .install-guide ol {
   margin: 12px 0 16px;
-  padding-left: 20px;
-  line-height: 1.7;
+  padding-left: 22px;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.install-guide li + li {
+  margin-top: 4px;
+}
+.ios-share-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: -4px;
+  color: var(--rain);
+}
+/* 아이폰 사파리의 공유 버튼은 화면 아래에 있다: 안내 창을 띄워 올리고 그 아래에서 가리킨다 */
+.sheet-bg.install-ios {
+  align-items: center;
+  padding: 16px 16px 80px;
+}
+.sheet-bg.install-ios .sheet {
+  border-radius: 24px;
+}
+.install-arrow {
+  position: fixed;
+  left: 50%;
+  bottom: calc(4px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 34px;
+  font-weight: 800;
+  pointer-events: none;
+  animation: install-bob 1s ease-in-out infinite;
+}
+@keyframes install-bob {
+  50% {
+    transform: translate(-50%, 6px);
+  }
+}
+@media (min-width: 768px) {
+  .install-arrow {
+    display: none;
+  }
 }
 .ios-share {
   display: inline-block;
