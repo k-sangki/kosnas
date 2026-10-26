@@ -136,8 +136,12 @@ export function Poll() {
             <i className="up-fill" style={{ width: `${total ? pctOf(r.up, r.down) : 50}%` }} />
           </div>
           <p className="poll-share">
-            <span className="up">오른다 {pctOf(r.up, r.down)}%</span>
-            <span className="down">내린다 {total ? 100 - pctOf(r.up, r.down) : 0}%</span>
+            <span className="up">
+              오른다 {pctOf(r.up, r.down)}% <small className="poll-n">{r.up.toLocaleString()}명</small>
+            </span>
+            <span className="down">
+              <small className="poll-n">{r.down.toLocaleString()}명</small> 내린다 {total ? 100 - pctOf(r.up, r.down) : 0}%
+            </span>
           </p>
           {r.open && <p className="muted small-note">마감 전에는 다른 쪽을 눌러 바꿀 수 있어요.</p>}
         </div>
