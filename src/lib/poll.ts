@@ -113,8 +113,11 @@ export function closeAt(candles: { t: number; c: number }[], when: number, span 
 
 export type PastRound = { target: string; up: number; down: number; pct: number | null };
 
+/** 장중(09:00~15:45) 지금 가격이면 어느 쪽인지. 숫자는 싣지 않는다 */
+export type Live = Side | "flat" | null;
+
 export type PollState = {
-  round: { target: string; open: boolean; closes: number; end: number; up: number; down: number; mine: Side | null };
+  round: { target: string; open: boolean; closes: number; end: number; up: number; down: number; mine: Side | null; live?: Live };
   /** 판정이 끝난 회차, 최근 것부터 */
   past: PastRound[];
 };
@@ -131,6 +134,25 @@ export function hitRate(past: PastRound[]) {
     if (o === m) hit++;
   }
   return { n, hit };
+}
+
+/** 지금까지 가격으로 본 방향: 판정과 같은 보합 문턱 */
+export function liveSide(pct: number | null): Live {
+  if (pct == null) return null;
+  return outcome(pct) ?? "flat";
+}
+
+/** 내 연속 적중: 최근 회차부터, 내가 누르지 않은 회차와 보합은 건너뛰고 첫 빗나감에서 멈춘다 */
+export function myStreak(past: PastRound[], mine: Record<string, Side>) {
+  let n = 0;
+  for (const p of past) {
+    const o = outcome(p.pct);
+    const m = mine[p.target];
+    if (!o || !m) continue;
+    if (m !== o) break;
+    n++;
+  }
+  return n;
 }
 
 export function isSide(v: unknown): v is Side {
