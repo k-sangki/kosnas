@@ -23,6 +23,7 @@ from fetch import dart_corp_codes, dart_ksic, fsc_range  # noqa: E402
 
 KEEP_DAYS = 300  # 252일 신고가·12개월 상대강도 + 여유
 BACKFILL_CAL_DAYS = 450
+MIN_ROWS_RATIO = 0.95  # 새 날 종목 수가 직전 날의 이만큼은 돼야 다 올라온 것으로 본다
 # 한 번 실행에서 받는 데 쓰는 시간. 넘으면 받은 데까지 저장하고 다음 실행이 이어 받는다
 BUDGET_SEC = int(os.environ.get("COLLECT_BUDGET_SEC", 50 * 60))
 START = time.monotonic()
@@ -67,6 +68,11 @@ def update_prices(state: Path, key: str, days: dict, today: dt.date):
             return False
         got = fsc_range(key, a.strftime("%Y%m%d"), b.strftime("%Y%m%d"))
         for day, rows in sorted(got.items()):
+            # 13시 전후에는 일부 종목만 올라와 있을 수 있다. 한 번 저장한 날은 다시 받지 않으므로
+            # 직전 날보다 종목 수가 크게 적으면 저장하지 않고 다음 실행에서 다시 받는다
+            if days and len(rows) < MIN_ROWS_RATIO * len(days[max(days)]):
+                notice(f"{day} 시세가 {len(rows)}종목뿐이라(직전 {len(days[max(days)])}) 다음 실행에서 다시 받습니다")
+                return True
             days[day] = rows
             save_day(state, day, rows)
     # 오래된 날은 지운다
