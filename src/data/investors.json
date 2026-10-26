@@ -1,6 +1,6 @@
 {
- "updated": "2026-10-25",
- "since": "2026-09-25",
+ "updated": "2026-10-26",
+ "since": "2026-09-26",
  "window": 30,
  "failed": [],
  "investors": [
@@ -207,54 +207,6 @@
    "filed": "2026-09-30",
    "acc": "0001193125-26-409451",
    "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526409451/xslF345X06/ownership.xml"
-  },
-  {
-   "kind": "acquire",
-   "shares": 40531194.0,
-   "value": 284196626,
-   "price": 7.01,
-   "after": 658924537.0,
-   "from": "2026-09-23",
-   "to": "2026-09-23",
-   "issuer": "ICAHN ENTERPRISES L.P.",
-   "ticker": "IEP",
-   "investor": "icahn",
-   "form": "4",
-   "filed": "2026-09-25",
-   "acc": "0001539497-26-002606",
-   "url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726002606/xslF345X06/ownership.xml"
-  },
-  {
-   "kind": "buy",
-   "shares": 1679700.0,
-   "value": 136382789,
-   "price": 81.19,
-   "after": 25378134.0,
-   "from": "2026-09-23",
-   "to": "2026-09-25",
-   "issuer": "LENNAR CORP /NEW/",
-   "ticker": "LEN",
-   "investor": "buffett",
-   "form": "4",
-   "filed": "2026-09-25",
-   "acc": "0001193125-26-403089",
-   "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526403089/xslF345X06/ownership.xml"
-  },
-  {
-   "kind": "stake",
-   "issuer": "Icahn Enterprises L.P.",
-   "ticker": "IEP",
-   "pct": 87.69,
-   "shares": 658924537.0,
-   "event_date": "2026-09-23",
-   "amend": true,
-   "active": true,
-   "prev_pct": 87.28,
-   "investor": "icahn",
-   "form": "SCHEDULE 13D/A",
-   "filed": "2026-09-25",
-   "acc": "0001539497-26-002605",
-   "url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726002605/xslSCHEDULE_13D_X02/primary_doc.xml"
   }
  ],
  "ark": {
