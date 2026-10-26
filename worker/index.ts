@@ -6,7 +6,7 @@
  * 무료 요금제의 요청당 CPU 10ms 안에 들도록 Next.js를 되도록 거치지 않는다(2026-10-24, P50 83ms였다):
  * - /api/night·/api/us 는 여기서 바로 처리한다(엣지 캐시 적중이면 1ms 안팎).
  * - 페이지는 모두 빌드 때 만든 정적 페이지라, Next.js가 한 번 만든 응답(HTML·RSC)을 배포 버전별로 엣지 캐시에 담아 다시 쓴다.
- * - www 는 Next.js 대신 여기서 kosnas.com 으로 보낸다.
+ * - www·http 는 Next.js 대신 여기서 https://kosnas.com 으로 한 번에 보낸다(검색엔진이 http 주소를 따로 모으지 않게).
  */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore 빌드 산출물
@@ -75,9 +75,17 @@ async function page(req: Request, env: Env, ctx: ExecutionContext) {
 const worker = {
   async fetch(req: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(req.url);
-    if (url.hostname === "www.kosnas.com") {
+    if (url.hostname === "www.kosnas.com" || (url.hostname === "kosnas.com" && url.protocol === "http:")) {
       url.hostname = "kosnas.com";
-      return Response.redirect(url.toString(), 308);
+      url.protocol = "https:";
+      return Response.redirect(url.toString(), 301);
+    }
+    if (url.pathname === "/manifest.webmanifest") {
+      // 앱 설치용 파일이라 검색 결과에 넣지 않는다
+      const res = (await handler.fetch(req, env, ctx)) as Response;
+      const out = new Response(res.body, res);
+      out.headers.set("X-Robots-Tag", "noindex");
+      return out;
     }
     if (url.pathname === "/api/night") return nightGET(req);
     if (url.pathname === "/api/us") return usGET(req);
