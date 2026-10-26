@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<"/night/[stock]">):
   const s = findNightStock((await params).stock);
   if (!s) return {};
   return pageMeta({
-    title: `${s.name} 야간 시세 실시간 추정 - ${s.name} 밤사이 주가`,
+    title: `${s.name} 야간 시세 실시간 추정 - ${s.name} 야간선물·밤사이 주가`,
     description: `${s.name} 야간 주가 지금 얼마? 국내 장이 끝난 뒤부터 다음 날 아침까지 해외에서 24시간 거래되는 ${s.name} 무기한선물 가격을 원화로 바꿔 실시간으로 보여 줍니다. 15:45 대비 등락과 밤사이 흐름 차트.`,
     keywords: s.keywords,
     path: `/night/${s.slug}`,
