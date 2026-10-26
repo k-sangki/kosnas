@@ -211,8 +211,134 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-10-23",
+  "asof": "2026-10-26",
   "trades": [
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "GOOG",
+    "name": "ALPHABET INC-CL C",
+    "kind": "sell",
+    "shares": 65786,
+    "value": 20872563
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "buy",
+    "shares": 18445,
+    "value": 18075228
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "KALSHI INC.",
+    "kind": "buy",
+    "shares": 6525,
+    "value": 6958420
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 3884833,
+    "value": 3884833
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "PLTR",
+    "name": "PALANTIR TECHNOLOGIES INC-A",
+    "kind": "sell",
+    "shares": 15257,
+    "value": 3001838
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "SHOP",
+    "name": "SHOPIFY INC - CLASS A",
+    "kind": "sell",
+    "shares": 17736,
+    "value": 2991668
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "NET",
+    "name": "CLOUDFLARE INC - CLASS A",
+    "kind": "sell",
+    "shares": 9138,
+    "value": 2976553
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKG",
+    "ticker": "FRNM",
+    "name": "FREENOME INC",
+    "kind": "buy",
+    "shares": 169467,
+    "value": 2164087
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "exit",
+    "shares": 2142292,
+    "value": 2142292
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "PACB",
+    "name": "PACIFIC BIOSCIENCES OF CALIF",
+    "kind": "buy",
+    "shares": 202241,
+    "value": 426729
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 413451,
+    "value": 413451
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKG",
+    "ticker": "SCTX",
+    "name": "SCRIBE THERAPEUTICS INC",
+    "kind": "buy",
+    "shares": 22431,
+    "value": 345555
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 69356,
+    "value": 69356
+   },
+   {
+    "date": "2026-10-26",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "BRERA HOLDINGS PLC WTS",
+    "kind": "buy",
+    "shares": 31286,
+    "value": 35979
+   },
    {
     "date": "2026-10-23",
     "fund": "ARKK",
