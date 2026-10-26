@@ -2502,6 +2502,30 @@ button.ft-row {
 .poll-err {
   margin-top: 12px;
 }
+.poll-live {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+  font-size: 15px;
+  font-weight: 700;
+}
+.poll-live.hit {
+  color: var(--mint-ink);
+  background: var(--mint-soft);
+}
+.poll-live.miss {
+  color: var(--ink-2);
+}
+.poll-live .muted {
+  font-size: 13px;
+  font-weight: 500;
+}
+.poll-streak {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
 .poll-last {
   margin: 14px 0 0;
   padding-top: 12px;

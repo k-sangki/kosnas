@@ -6,7 +6,9 @@ import {
   currentRound,
   isSide,
   isVoter,
+  liveSide,
   roundFor,
+  type Live,
   type PastRound,
   type PollState,
   type Side,
@@ -43,8 +45,27 @@ async function settlePct(target: string): Promise<number | null> {
   return a && b ? (b / a - 1) * 100 : null;
 }
 
+/** 장중 지금 등락률(%): 기준 15:45 종가 대비 마지막 15분봉 종가 */
+async function livePct(target: string, now: number): Promise<number | null> {
+  const r = roundFor(target);
+  const res = await fetch(HL_INFO, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ type: "candleSnapshot", req: { coin: "xyz:KR200", interval: "15m", startTime: r.start - 3 * 3600_000, endTime: now } }),
+  });
+  if (!res.ok) return null;
+  const rows = (await res.json()) as { t: number; c: string }[];
+  const candles = rows.map((k) => ({ t: k.t, c: Number(k.c) })).filter((k) => k.c > 0).sort((a, b) => a.t - b.t);
+  const a = closeAt(candles, r.start);
+  const b = candles.at(-1)?.c;
+  return a && b ? (b / a - 1) * 100 : null;
+}
+
+const LIVE_TTL = 60_000;
+
 export class PollRoom extends DurableObject {
   private tried = new Map<string, number>();
+  private live: { target: string; at: number; side: Live } | null = null;
 
   constructor(ctx: DurableObjectState, env: Cloudflare.Env) {
     super(ctx, env);
@@ -77,7 +98,17 @@ export class PollRoom extends DurableObject {
     }
   }
 
-  private state(now: number, voter: string | null): PollState {
+  /** 투표 마감 뒤 판정 전까지만, 1분에 한 번 원천을 본다 */
+  private async liveNow(now: number): Promise<Live> {
+    const r = currentRound(now);
+    if (now < r.closes || now >= r.end) return null;
+    if (this.live?.target === r.target && now - this.live.at < LIVE_TTL) return this.live.side;
+    const side = liveSide(await livePct(r.target, now).catch(() => null));
+    this.live = { target: r.target, at: now, side };
+    return side;
+  }
+
+  private state(now: number, voter: string | null, live: Live = null): PollState {
     const r = currentRound(now);
     const mine = voter
       ? (this.ctx.storage.sql.exec<{ side: string }>(`SELECT side FROM vote WHERE target = ? AND voter = ?`, r.target, voter).toArray()[0]?.side ?? null)
@@ -87,7 +118,7 @@ export class PollRoom extends DurableObject {
       .toArray()
       .map((x) => ({ target: x.target, pct: x.pct, ...this.counts(x.target) }));
     return {
-      round: { target: r.target, open: now < r.closes, closes: r.closes, end: r.end, ...this.counts(r.target), mine: isSide(mine) ? mine : null },
+      round: { target: r.target, open: now < r.closes, closes: r.closes, end: r.end, ...this.counts(r.target), mine: isSide(mine) ? mine : null, live },
       past,
     };
   }
@@ -98,7 +129,7 @@ export class PollRoom extends DurableObject {
     if (req.method === "GET") {
       await this.settle(now);
       const v = url.searchParams.get("voter");
-      return Response.json(this.state(now, isVoter(v) ? v : null), { headers: { "Cache-Control": "no-store" } });
+      return Response.json(this.state(now, isVoter(v) ? v : null, await this.liveNow(now)), { headers: { "Cache-Control": "no-store" } });
     }
     if (req.method !== "POST") return new Response("method", { status: 405 });
     let body: { voter?: unknown; side?: unknown };

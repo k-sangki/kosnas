@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { hitRate, majority, outcome, type PollState, type Side } from "@/lib/poll";
+import { hitRate, majority, myStreak, outcome, type PollState, type Side } from "@/lib/poll";
 
 /**
  * 첫 화면 '오늘의 한 표'. 버튼 두 개만 보이고, 누른 뒤에야 비율을 보인다(먼저 보면 따라 누르기 쉽다).
@@ -94,6 +94,10 @@ export function Poll() {
     setMine(loadMine());
   };
 
+  const streak = myStreak(s.past, mine);
+  // 투표 마감 뒤 판정 전: 내가 누른 쪽이 지금 가격으로 맞는지 한 줄만(숫자는 보이지 않는다)
+  const live = !r.open && my && r.live ? (r.live === "flat" ? "flat" : r.live === my ? "hit" : "miss") : null;
+
   const last = s.past[0];
   const lastOut = last && outcome(last.pct);
   const crowd = hitRate(s.past);
@@ -138,6 +142,13 @@ export function Poll() {
           {r.open && <p className="muted small-note">마감 전에는 다른 쪽을 눌러 바꿀 수 있어요.</p>}
         </div>
       )}
+      {live && (
+        <p className={`poll-live ${live}`}>
+          {live === "hit" ? "지금 가격이면 적중 중이에요" : live === "miss" ? "지금 가격이면 빗나가는 중이에요" : "지금은 보합 근처예요"}
+          <span className="muted"> · 15:45에 확정</span>
+        </p>
+      )}
+      {streak >= 2 && <p className="poll-streak">🔥 {streak}연속 적중</p>}
       {err && <p className="notice poll-err">{err}</p>}
       {last && (
         <p className="poll-last">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { closeAt, currentRound, hitRate, majority, outcome, roundFor } from "./poll";
+import { closeAt, currentRound, hitRate, liveSide, majority, myStreak, outcome, roundFor } from "./poll";
 
 const kst = (s: string) => Date.parse(`${s}+09:00`);
 
@@ -49,5 +49,24 @@ describe("오늘의 한 표 회차", () => {
         { target: "d", up: 1, down: 0, pct: 0 },
       ]),
     ).toEqual({ n: 2, hit: 1 });
+  });
+
+  it("장중 방향은 판정과 같은 보합 문턱", () => {
+    expect(liveSide(null)).toBeNull();
+    expect(liveSide(0.01)).toBe("flat");
+    expect(liveSide(0.3)).toBe("up");
+    expect(liveSide(-0.3)).toBe("down");
+  });
+
+  it("연속 적중은 안 누른 회차·보합을 건너뛰고 첫 빗나감에서 멈춘다", () => {
+    const past = [
+      { target: "e", up: 1, down: 0, pct: 0.5 },
+      { target: "d", up: 1, down: 0, pct: 0 },
+      { target: "c", up: 1, down: 0, pct: -0.5 },
+      { target: "b", up: 1, down: 0, pct: 0.5 },
+      { target: "a", up: 1, down: 0, pct: 0.5 },
+    ];
+    expect(myStreak(past, { e: "up", d: "down", c: "down", b: "down", a: "up" })).toBe(2);
+    expect(myStreak(past, { e: "down" })).toBe(0);
   });
 });
