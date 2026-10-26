@@ -32,7 +32,7 @@ const TILES: Tile[] = [
   { id: "SOXX", label: "반도체(SOXX)", kind: "tv", symbol: "NASDAQ:SOXX" },
   { id: "GOLD", label: "금", kind: "tv", symbol: "TVC:GOLD" },
   { id: "DXY", label: "달러 인덱스", kind: "tv", symbol: "TVC:DXY" },
-  { id: "BTC", label: "비트코인", kind: "tv", symbol: "BITSTAMP:BTCUSD" },
+  { id: "BTC", label: "비트코인", kind: "hl", coin: "BTC", unit: "$", sub: XSUB },
   // 주말·새벽에도 거래되는 무기한선물. 등락은 24시간 전 대비
   { id: "P-CL", label: "유가(WTI) · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
   { id: "P-BRENT", label: "브렌트유 · 24시간", kind: "hl", coin: "BRENTOIL", unit: "$", sub: XSUB },

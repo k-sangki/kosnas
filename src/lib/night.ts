@@ -297,6 +297,9 @@ type Ctx = { markPx?: string; oraclePx?: string; prevDayPx?: string };
 /** 주말 원자재 카드의 기준: CME가 금요일에 닫힐 때의 무기한선물 가격. at = 그 시각, atT = 선 차트 가로축 위치(0~1) */
 export type WeekendRef = { close: number; at: number; atT: number };
 
+/** trade.xyz가 아니라 Hyperliquid 기본 거래소에서 받는 무기한선물(대시보드 추가 카드용, 이름 앞에 dex가 붙지 않는다) */
+export const MAIN_COINS = ["BTC"] as const;
+
 /** 주말에 금요일 마감 대비로 보여 줄 원자재(WTI·브렌트·금·은) */
 export const WEEKEND_COINS = ["CL", "BRENTOIL", "GOLD", "SILVER"] as const;
 

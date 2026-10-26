@@ -1,6 +1,7 @@
 import {
   DEX,
   EXTRA_COINS,
+  MAIN_COINS,
   WEEKEND_COINS,
   chartEnd,
   weekendRef,
@@ -71,17 +72,19 @@ type Close = { t: number; c: number };
 /** 대시보드 추가 카드의 15분봉 종가(야간 구간 시작 전부터). 원천 호출을 아끼려고 5분 단위로 묶어 캐시한다 */
 async function extraCandlesFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   const slot = Math.floor(now / (EXTRA_TTL * 1000));
-  const key = new Request(new URL(`/api/night/extra2?${slot}`, base).toString());
+  const key = new Request(new URL(`/api/night/extra3?${slot}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
   if (hit) return (await hit.json()) as Record<string, Close[]>;
-  const from = Math.min(now - DAY, win.start - 60 * MIN);
+  // 기본 거래소 코인은 24시간 전 가격도 이 봉에서 찾으므로 15분 더 앞부터
+  const from = Math.min(now - DAY - 15 * MIN, win.start - 60 * MIN);
+  const all = [...EXTRA_COINS.map((c) => [c, `${DEX}:${c}`]), ...MAIN_COINS.map((c) => [c, c])];
   const series = await Promise.all(
-    EXTRA_COINS.map((c) =>
-      info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin: `${DEX}:${c}`, interval: "15m", startTime: from, endTime: now } }).catch(() => []),
+    all.map(([, coin]) =>
+      info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin, interval: "15m", startTime: from, endTime: now } }).catch(() => []),
     ),
   );
   const got: Record<string, Close[]> = {};
-  EXTRA_COINS.forEach((c, i) => (got[c] = series[i].sort((a, b) => a.t - b.t).map((k) => ({ t: k.t, c: Number(k.c) })).filter((k) => k.c > 0)));
+  all.forEach(([c], i) => (got[c] = series[i].sort((a, b) => a.t - b.t).map((k) => ({ t: k.t, c: Number(k.c) })).filter((k) => k.c > 0)));
   await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${EXTRA_TTL}` } })).catch(() => undefined);
   return got;
 }
@@ -131,14 +134,27 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   const interval = step === 60_000 ? "1m" : "5m";
   // 거래가 드문 종목(원/달러 등)도 15:45 직전 체결가를 찾도록 두 시간 앞부터 받는다
   const from = win.start - 120 * MIN;
-  const [ctx, { candles, prem }, close, extraCandles] = await Promise.all([
+  const [ctx, { candles, prem }, close, extraCandles, mids] = await Promise.all([
     info<[{ universe: { name: string }[] }, HlCtx[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
     candlesFor(cache, base, now, interval, from, Math.min(now, win.end)),
     closeFor(cache, base, now, win),
     extraCandlesFor(cache, base, now, win).catch(() => ({}) as Record<string, Close[]>),
+    info<Record<string, string>>({ type: "allMids" }).catch(() => ({}) as Record<string, string>),
   ]);
   const marks: Record<string, number | null> = {};
   const extra: NonNullable<NightData["extra"]> = {};
+  /** 선은 야간 구간(15:45~09:00) 위에 15:45 가격부터 지금까지. 점선은 등락률 기준인 24시간 전 가격(화면이 그린다) */
+  const extraOf = (c: string, price: number, prev: number, cs: Close[]) => {
+    const end = (k: Close) => k.t + 15 * MIN;
+    const at = [...cs].reverse().find((k) => end(k) <= win.start)?.c ?? cs.find((k) => end(k) > win.start)?.c;
+    const mid = cs.filter((k) => end(k) > win.start && end(k) <= Math.min(now, win.end)).map((k) => [end(k), k.c] as const);
+    const last = win.live ? ([now, price] as const) : null;
+    const s = at ? windowSpark(win, at, mid, last) : undefined;
+    const wk = (WEEKEND_COINS as readonly string[]).includes(c)
+      ? weekendRef(win, now, cs, chartEnd(win, last?.[0] ?? mid[mid.length - 1]?.[0] ?? win.start) - win.start)
+      : null;
+    return { price, prev: prev > 0 ? prev : null, ...(s ?? {}), ...(wk ? { wk } : {}) };
+  };
   let kr200: HlCtx | undefined;
   ctx[0].universe.forEach((u, i) => {
     const c = u.name.replace(`${DEX}:`, "");
@@ -147,21 +163,17 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     if ((EXTRA_COINS as readonly string[]).includes(c)) {
       const price = markOf(ctx[1][i]);
       const prev = Number(ctx[1][i]?.prevDayPx);
-      if (price) {
-        // 선은 야간 구간(15:45~09:00) 위에 15:45 가격부터 지금까지. 점선은 등락률 기준인 24시간 전 가격(화면이 그린다)
-        const cs = extraCandles[c] ?? [];
-        const end = (k: Close) => k.t + 15 * MIN;
-        const at = [...cs].reverse().find((k) => end(k) <= win.start)?.c ?? cs.find((k) => end(k) > win.start)?.c;
-        const mid = cs.filter((k) => end(k) > win.start && end(k) <= Math.min(now, win.end)).map((k) => [end(k), k.c] as const);
-        const last = win.live ? ([now, price] as const) : null;
-        const s = at ? windowSpark(win, at, mid, last) : undefined;
-        const wk = (WEEKEND_COINS as readonly string[]).includes(c)
-          ? weekendRef(win, now, cs, chartEnd(win, last?.[0] ?? mid[mid.length - 1]?.[0] ?? win.start) - win.start)
-          : null;
-        extra[c] = { price, prev: prev > 0 ? prev : null, ...(s ?? {}), ...(wk ? { wk } : {}) };
-      }
+      if (price) extra[c] = extraOf(c, price, prev, extraCandles[c] ?? []);
     }
   });
+  // 기본 거래소 코인(비트코인): 지금 가격은 중간가, 24시간 전 가격은 그때 끝난 15분봉 종가
+  for (const c of MAIN_COINS) {
+    const price = Number(mids[c]);
+    const cs = extraCandles[c] ?? [];
+    let prev = 0;
+    for (const k of cs) if (k.t + 15 * MIN <= now - DAY) prev = k.c;
+    if (price > 0) extra[c] = extraOf(c, price, prev, cs);
+  }
   const num = (v: string | null | undefined) => (v != null && Number.isFinite(Number(v)) ? Number(v) : null);
   const oracle = num(kr200?.oraclePx);
   const data = assemble(now, win, candles, marks, step, {
