@@ -26,6 +26,8 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
   }, []);
 
   const all: ScreenStock[] = useMemo(() => (data ? data.list.map((s) => ({ ...s, ind: s.industry })) : []), [data]);
+  // 수집이 아직 안 된 자료(거래량·실적)를 쓰는 조건은 고를 수 없게 한다
+  const has = useMemo(() => ({ vol: all.some((s) => s.volRatio != null), earn: all.some((s) => s.earnP != null) }), [all]);
   const searching = q.trim().length > 0;
   const result = useMemo(() => (searching ? searchStocks(all, q) : applyFilters(all, f)), [all, f, q, searching]);
   const set = (p: Partial<Filters>) => {
@@ -91,11 +93,21 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
                   </summary>
                   <p className="muted small-note">{g.hint}</p>
                   <div className="chips">
-                    {g.items.map((t) => (
-                      <button key={t.key} className="rs-toggle" aria-pressed={f.on.includes(t.key)} onClick={() => toggle([t.key], !f.on.includes(t.key))}>
-                        {t.name}
-                      </button>
-                    ))}
+                    {g.items.map((t) => {
+                      const off = !!data && !!t.needs && !has[t.needs];
+                      return (
+                        <button
+                          key={t.key}
+                          className="rs-toggle"
+                          disabled={off}
+                          aria-pressed={f.on.includes(t.key)}
+                          onClick={() => toggle([t.key], !f.on.includes(t.key))}
+                        >
+                          {t.name}
+                          {off && " · 자료 준비 중"}
+                        </button>
+                      );
+                    })}
                     {g.key === "trend" && (
                       <button className="rs-toggle all" onClick={() => toggle(keys, n < keys.length)}>
                         {n < keys.length ? "모두 켜기" : "모두 끄기"}

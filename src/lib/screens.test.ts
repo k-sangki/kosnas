@@ -43,6 +43,8 @@ describe("종목 검색", () => {
     expect(applyFilters(list, { ...DEFAULT_FILTERS, on: [...DEFAULT_FILTERS.on, "high10", "a50"] }).map((s) => s.name)).toEqual(["삼성전자"]);
     expect(applyFilters(list, { ...DEFAULT_FILTERS, on: ["a150", "m50"] }).map((s) => s.name)).toEqual(["SK하이닉스"]);
     expect(applyFilters(list, { ...DEFAULT_FILTERS, on: [...DEFAULT_FILTERS.on, "nofin"], sector: "semi" }).length).toBe(2);
+    const earn = [st({ name: "가", opEok: 10, opPrevEok: -2, revYoY: 25, volRatio: 2 }), st({ name: "나", opEok: -1, volRatio: 1 })];
+    expect(applyFilters(earn, { ...DEFAULT_FILTERS, on: ["turn", "rev20", "vol15"] }).map((s) => s.name)).toEqual(["가"]);
     expect(applyFilters(list, { ...DEFAULT_FILTERS, sort: "cap" }).map((s) => s.name)).toEqual(["삼성전자", "삼성물산"]);
   });
 
