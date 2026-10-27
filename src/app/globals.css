@@ -2703,23 +2703,48 @@ button.ft-row {
   margin: 10px 4px 0;
 }
 
-/* ---------- 국장 하위 탭 · 종목 검색 ---------- */
-.sub-tabs {
+/* ---------- 국장 하위 탭(화면 아래 탭 막대) · 종목 검색 ---------- */
+.bottom-tabs {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  gap: 18px;
-  border-bottom: 1px solid var(--line);
+  justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--card);
+  border-top: 1px solid var(--line);
 }
-.sub-tabs a {
-  padding: 4px 2px 10px;
-  margin-bottom: -1px;
-  border-bottom: 2px solid transparent;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--muted);
+.bottom-tabs a {
+  flex: 0 1 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 0 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--kr-line);
 }
-.sub-tabs a[aria-current="page"] {
-  color: var(--pine);
-  border-bottom-color: var(--pine);
+.bottom-tabs svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bottom-tabs a[aria-current="page"] {
+  color: var(--ink);
+}
+/* 아래 탭 막대가 있는 화면: 본문과 떠 있는 버튼을 막대 위로 */
+.shell:has(.bottom-tabs) {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
+.shell:has(.bottom-tabs) .fab-bar {
+  bottom: calc(76px + env(safe-area-inset-bottom));
 }
 .screen-filters {
   display: flex;
@@ -2758,6 +2783,43 @@ button.ft-row {
 }
 .screen-filters .rs-toggle {
   margin: 0;
+}
+.screen-group {
+  padding: 10px 0 2px;
+  border-top: 1px solid var(--line);
+}
+.screen-group > summary {
+  cursor: pointer;
+  font-size: 14px;
+  list-style: none;
+}
+.screen-group > summary::-webkit-details-marker {
+  display: none;
+}
+.screen-group > summary::after {
+  content: "";
+  display: inline-block;
+  margin-left: 6px;
+  border: 4px solid transparent;
+  border-top-color: var(--muted);
+  transform: translateY(2px);
+}
+.screen-group[open] > summary::after {
+  transform: translateY(-2px) rotate(180deg);
+}
+.screen-group > p {
+  margin: 4px 0 8px;
+}
+.screen-group .rs-toggle.all {
+  background: none;
+  color: var(--pine-2);
+  font-weight: 700;
+}
+.text-btn {
+  align-self: flex-end;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: underline;
 }
 .more-btn {
   width: 100%;

@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { loadKrStocks, type KrStocks } from "@/lib/kr-stocks";
-import { DEFAULT_FILTERS, SORTS, applyFilters, searchStocks, toListStock, type Filters, type ScreenStock } from "@/lib/screens";
+import { DEFAULT_FILTERS, GROUPS, SORTS, applyFilters, searchStocks, toListStock, type Filters, type ScreenStock } from "@/lib/screens";
 import { StockList } from "./StockList";
 
 const PAGE = 50;
 const RS_STEPS = [0, 70, 80, 90];
-const HIGH_STEPS = [0, 5, 10, 20];
 
 /**
  * 국장 종목 검색. 종목 자료(kr-stocks.json, 섹터 화면이 차트용으로 받는 것과 같은 파일)를 한 번 받아
@@ -33,6 +32,8 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
     setF((x) => ({ ...x, ...p }));
     setShown(PAGE);
   };
+  const toggle = (keys: string[], on: boolean) => set({ on: on ? [...new Set([...f.on, ...keys])] : f.on.filter((k) => !keys.includes(k)) });
+  const changed = JSON.stringify(f) !== JSON.stringify(DEFAULT_FILTERS);
   const period = f.sort === "chg" ? 5 : f.sort === "rs" ? 60 : 20;
 
   return (
@@ -70,16 +71,6 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
               </div>
             </div>
             <div className="screen-row">
-              <span className="screen-label">52주 고점</span>
-              <div className="seg small" role="group" aria-label="52주 고점 대비">
-                {HIGH_STEPS.map((v) => (
-                  <button key={v} aria-pressed={f.nearHigh === v} onClick={() => set({ nearHigh: v })}>
-                    {v ? `−${v}%` : "전체"}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="screen-row">
               <span className="screen-label">섹터</span>
               <select className="screen-select" value={f.sector} onChange={(e) => set({ sector: e.target.value })} aria-label="섹터">
                 <option value="">전체 섹터</option>
@@ -90,14 +81,30 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
                 ))}
               </select>
             </div>
-            <div className="chips">
-              <button className="rs-toggle" aria-pressed={f.above50} onClick={() => set({ above50: !f.above50 })}>
-                50일선 위
-              </button>
-              <button className="rs-toggle" aria-pressed={f.base} onClick={() => set({ base: !f.base })}>
-                기본 필터 통과만
-              </button>
-            </div>
+            {GROUPS.map((g) => {
+              const keys = g.items.map((t) => t.key);
+              const n = keys.filter((k) => f.on.includes(k)).length;
+              return (
+                <details key={g.key} className="screen-group" open={g.key === "base"}>
+                  <summary>
+                    <b>{g.name}</b> <span className={n ? "rs-count" : "muted"}>{n ? `${n}개 켜짐` : "꺼짐"}</span>
+                  </summary>
+                  <p className="muted small-note">{g.hint}</p>
+                  <div className="chips">
+                    {g.items.map((t) => (
+                      <button key={t.key} className="rs-toggle" aria-pressed={f.on.includes(t.key)} onClick={() => toggle([t.key], !f.on.includes(t.key))}>
+                        {t.name}
+                      </button>
+                    ))}
+                    {g.key === "trend" && (
+                      <button className="rs-toggle all" onClick={() => toggle(keys, n < keys.length)}>
+                        {n < keys.length ? "모두 켜기" : "모두 끄기"}
+                      </button>
+                    )}
+                  </div>
+                </details>
+              );
+            })}
             <div className="screen-row">
               <span className="screen-label">정렬</span>
               <div className="seg small" role="group" aria-label="정렬">
@@ -108,6 +115,11 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
                 ))}
               </div>
             </div>
+            {changed && (
+              <button className="text-btn" onClick={() => set(DEFAULT_FILTERS)}>
+                조건 처음으로
+              </button>
+            )}
           </div>
         )}
       </section>

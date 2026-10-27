@@ -20,6 +20,11 @@ export interface ScreenStock {
   capEok: number | null;
   base: boolean;
   spark?: (number | null)[];
+  /** 52주 저가 대비(%) · 추세 비트 · 20일 최소 거래대금(억) · 시세가 있는 거래일 수 — 종목 검색 자료에만 있다 */
+  fromLow?: number | null;
+  trend?: number | null;
+  minValEok?: number | null;
+  days?: number | null;
 }
 
 export type SortKey = "rs" | "chg" | "r20" | "cap" | "high";
@@ -32,18 +37,80 @@ export const SORTS: { key: SortKey; name: string }[] = [
   { key: "cap", name: "시총" },
 ];
 
+/** 추세 비트(collector/compute.py trend): 1 종가>150일선 2 종가>200일선 4 150일선>200일선 8 200일선 한 달 상승 16 50일선>150일선 32 50일선>200일선 */
+const bit = (s: ScreenStock, b: number) => s.trend != null && (s.trend & b) === b;
+
+export interface Toggle {
+  key: string;
+  name: string;
+  test: (s: ScreenStock) => boolean;
+}
+
+export interface FilterGroup {
+  key: string;
+  name: string;
+  hint: string;
+  items: Toggle[];
+}
+
+/**
+ * 켜고 끄는 조건. 금융위 시세(종가·거래대금·시가총액)로 직접 계산한 값만 쓴다.
+ * 기본 필터 세 가지는 처음부터 켜져 있다(DEFAULT_ON).
+ */
+export const GROUPS: FilterGroup[] = [
+  {
+    key: "base",
+    name: "기본 필터",
+    hint: "거래가 너무 적거나 작은 종목을 뺍니다",
+    items: [
+      { key: "price", name: "종가 3,000원 이상", test: (s) => s.close >= 3000 },
+      { key: "cap", name: "시가총액 1,500억 이상", test: (s) => (s.capEok ?? 0) >= 1500 },
+      { key: "value", name: "20일 최소 거래대금 10억 초과", test: (s) => (s.minValEok ?? (s.base ? 11 : 0)) > 10 },
+      { key: "listed", name: "상장 1년 이상", test: (s) => (s.days ?? 0) >= 252 },
+      { key: "nofin", name: "금융업 제외", test: (s) => s.sector !== "finance" },
+    ],
+  },
+  {
+    key: "trend",
+    name: "추세 템플릿",
+    hint: "미너비니의 상승 추세 조건 — 모두 켜면 2단계(상승) 국면 종목",
+    items: [
+      { key: "a50", name: "종가 > 50일선", test: (s) => s.above50 },
+      { key: "a150", name: "종가 > 150·200일선", test: (s) => bit(s, 1 | 2) },
+      { key: "m150", name: "150일선 > 200일선", test: (s) => bit(s, 4) },
+      { key: "m200up", name: "200일선 한 달 상승", test: (s) => bit(s, 8) },
+      { key: "m50", name: "50일선 > 150·200일선", test: (s) => bit(s, 16 | 32) },
+      { key: "low30", name: "52주 저가 대비 +30% 이상", test: (s) => s.fromLow != null && s.fromLow >= 30 },
+      { key: "high25", name: "52주 고가 대비 −25% 이내", test: (s) => s.fromHigh != null && s.fromHigh >= -25 },
+      { key: "rs70", name: "상대강도 70 이상", test: (s) => (s.rs ?? 0) >= 70 },
+    ],
+  },
+  {
+    key: "price",
+    name: "가격 움직임",
+    hint: "가장 최근 거래일 종가 기준",
+    items: [
+      { key: "newhigh", name: "52주 신고가", test: (s) => s.fromHigh === 0 },
+      { key: "high10", name: "52주 고가 대비 −10% 이내", test: (s) => s.fromHigh != null && s.fromHigh >= -10 },
+      { key: "up", name: "상승 마감", test: (s) => (s.chg ?? 0) > 0 },
+      { key: "r20up", name: "20일 수익률 플러스", test: (s) => (s.r["20"] ?? 0) > 0 },
+    ],
+  },
+];
+
+const TOGGLES = new Map(GROUPS.flatMap((g) => g.items.map((t) => [t.key, t] as const)));
+export const DEFAULT_ON = ["price", "cap", "value"];
+
 export interface Filters {
   market: "" | "KOSPI" | "KOSDAQ";
   sector: string;
   rsMin: number;
-  above50: boolean;
-  /** 52주 고점 대비 몇 % 안(0이면 쓰지 않음) */
-  nearHigh: number;
-  base: boolean;
+  /** 켠 조건(GROUPS의 key) */
+  on: string[];
   sort: SortKey;
 }
 
-export const DEFAULT_FILTERS: Filters = { market: "", sector: "", rsMin: 0, above50: false, nearHigh: 0, base: true, sort: "rs" };
+export const DEFAULT_FILTERS: Filters = { market: "", sector: "", rsMin: 0, on: DEFAULT_ON, sort: "rs" };
 
 const low = -Infinity;
 
@@ -68,15 +135,14 @@ export function sortStocks<T extends ScreenStock>(list: T[], k: SortKey): T[] {
 }
 
 export function applyFilters<T extends ScreenStock>(list: T[], f: Filters): T[] {
+  const tests = f.on.map((k) => TOGGLES.get(k)).filter((t): t is Toggle => !!t);
   return sortStocks(
     list.filter(
       (s) =>
-        (!f.base || s.base) &&
         (!f.market || s.market === f.market) &&
         (!f.sector || s.sector === f.sector) &&
         (!f.rsMin || (s.rs ?? 0) >= f.rsMin) &&
-        (!f.above50 || s.above50) &&
-        (!f.nearHigh || (s.fromHigh != null && s.fromHigh >= -f.nearHigh)),
+        tests.every((t) => t.test(s)),
     ),
     f.sort,
   );
