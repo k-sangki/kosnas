@@ -7,6 +7,7 @@
 
 import io
 import json
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -165,7 +166,8 @@ def dart_multi_accounts(key: str, corp_codes: list[str], year: int, reprt: str) 
         raise RuntimeError(f"DART 주요계정 오류 {status}: {body.get('message')}")
     out: dict[str, dict] = {}
     for it in body.get("list", []):
-        k = ACCOUNTS.get((it.get("account_nm") or "").replace(" ", ""))
+        # 순이익은 '당기순이익(손실)'처럼 괄호가 붙어 온다
+        k = ACCOUNTS.get(re.sub(r"\(.*?\)", "", (it.get("account_nm") or "").replace(" ", "")))
         if not k or it.get("sj_div") not in (None, "IS", "CIS"):
             continue
         corp = (it.get("stock_code") or "").strip()

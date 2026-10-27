@@ -105,6 +105,7 @@ def refill_extra(state: Path, key: str, days: dict) -> bool:
 
 # 분기 보고서: (보고서 코드, 기간 끝 월, 이름). 사업보고서(11011)는 연간
 REPORTS = [("11013", 3, "1Q"), ("11012", 6, "2Q"), ("11014", 9, "3Q"), ("11011", 12, "4Q")]
+EARN_VERSION = 2  # 저장 형식·계정 판별이 바뀌면 올린다(끝난 기간도 다시 받는다)
 FINAL_AFTER_DAYS = 150  # 기간 끝에서 이만큼 지나면 늦은 제출까지 다 들어왔다고 보고 다시 받지 않는다
 
 
@@ -128,6 +129,8 @@ def update_earnings(state: Path, key: str | None, codes: list[str], today: dt.da
     for y, code, name, end in recent_periods(today):
         path = d / f"{y}_{code}.json"
         saved = json.loads(path.read_text()) if path.exists() else None
+        if key and saved and saved.get("v") != EARN_VERSION:
+            saved = None
         final = saved and saved.get("final")
         fresh = saved and saved.get("fetched") == today.isoformat()
         if key and not final and not fresh and not over_budget():
@@ -138,7 +141,7 @@ def update_earnings(state: Path, key: str | None, codes: list[str], today: dt.da
             for i in range(0, len(ids), 100):
                 data.update(dart_multi_accounts(key, ids[i : i + 100], y, code))
                 time.sleep(0.3)
-            saved = {"fetched": today.isoformat(), "final": (today - end).days > FINAL_AFTER_DAYS, "data": data}
+            saved = {"v": EARN_VERSION, "fetched": today.isoformat(), "final": (today - end).days > FINAL_AFTER_DAYS, "data": data}
             path.write_text(json.dumps(saved, ensure_ascii=False, separators=(",", ":")))
             print(f"DART 주요계정 {y} {name}: {len(data)}종목")
         if saved:
