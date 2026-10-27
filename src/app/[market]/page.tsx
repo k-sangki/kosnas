@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { MarketContent } from "@/components/MarketPage";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { UsContent } from "@/components/UsContent";
+import { KrTabs } from "@/components/KrTabs";
 
 // 첫 화면(/)은 시각에 따라 바뀌므로 국장(/kr)·미장(/us)은 늘 같은 주소로도 연다.
 export const dynamicParams = false;
@@ -38,7 +39,16 @@ export default async function MarketRoute({ params }: PageProps<"/[market]">) {
   return (
     <div className="shell">
       <SiteHeader active={market} />
-      <main className="stack">{market === "us" ? <UsContent /> : <MarketContent market="kr" />}</main>
+      <main className="stack">
+        {market === "us" ? (
+          <UsContent />
+        ) : (
+          <>
+            <KrTabs active="sectors" />
+            <MarketContent market="kr" />
+          </>
+        )}
+      </main>
       <SiteFooter />
     </div>
   );
