@@ -2702,3 +2702,70 @@ button.ft-row {
 .dash > .fold-sm {
   margin: 10px 4px 0;
 }
+
+/* ---------- 국장 하위 탭 · 종목 검색 ---------- */
+.sub-tabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.sub-tabs a {
+  padding: 4px 2px 10px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.sub-tabs a[aria-current="page"] {
+  color: var(--pine);
+  border-bottom-color: var(--pine);
+}
+.screen-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.screen-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.screen-row > .seg,
+.screen-row > .screen-select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.screen-row .seg button {
+  padding: 0 4px;
+  font-size: 13px;
+}
+.screen-label {
+  flex: 0 0 64px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.screen-select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--chip);
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+}
+.screen-filters .rs-toggle {
+  margin: 0;
+}
+.more-btn {
+  width: 100%;
+  margin-top: 10px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--chip);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-2);
+}

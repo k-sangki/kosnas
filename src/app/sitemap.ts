@@ -6,6 +6,7 @@ import { GUIDES } from "@/lib/guides";
 import { DATA as RECENT } from "@/lib/investors";
 import F13 from "@/data/investors-13f.json";
 import { SITE_URL } from "./layout";
+import { SCREENS } from "@/lib/screens";
 
 type Entry = MetadataRoute.Sitemap[number];
 
@@ -35,6 +36,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...MARKETS.flatMap((m) =>
       industryPages(m).map((i) => at(`/${m}/industry/${i.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.6 })),
     ),
+    at("/kr/screener", { lastModified: kr, changeFrequency: "daily", priority: 0.8 }),
+    ...SCREENS.map((s) => at(`/kr/screener/${s.slug}`, { lastModified: kr, changeFrequency: "daily", priority: 0.7 })),
     at("/investors", { lastModified: recent, changeFrequency: "daily", priority: 0.7 }),
     ...INVESTORS.map((i) => at(`/investors/${i.id}`, { lastModified: f13, changeFrequency: "weekly", priority: 0.5 })),
     at("/guide", { changeFrequency: "monthly", priority: 0.6 }),
