@@ -20,9 +20,28 @@ type Env = {
   CHAT: DurableObjectNamespace<ChatRoom>;
   POLL: DurableObjectNamespace<PollRoom>;
   CF_VERSION_METADATA?: { id: string };
+  /** kosnas 저장소 Actions 쓰기만 되는 GitHub 토큰(wrangler secret). 없으면 예약 작업이 아무것도 하지 않는다 */
+  GH_DISPATCH_TOKEN?: string;
 };
 
 export { ChatRoom, PollRoom };
+
+/** 국장 시세 수집 워크플로를 건다(wrangler.jsonc triggers.crons). 이미 받은 날이면 그 작업은 금방 끝난다 */
+async function dispatchCollectKr(env: Env) {
+  if (!env.GH_DISPATCH_TOKEN) return console.log("GH_DISPATCH_TOKEN 없음 — 국장 시세 수집을 걸지 않음");
+  const res = await fetch("https://api.github.com/repos/k-sangki/kosnas/actions/workflows/collect-kr.yml/dispatches", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.GH_DISPATCH_TOKEN}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "User-Agent": "kosnas-worker",
+    },
+    body: JSON.stringify({ ref: "main" }),
+  });
+  if (!res.ok) throw new Error(`collect-kr 실행 실패 ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  console.log("collect-kr 실행을 걸었습니다");
+}
 
 /** 페이지 응답을 엣지에 두는 시간. 배포마다 키가 바뀌므로 자료 갱신(재배포)은 바로 보인다 */
 const PAGE_TTL = 24 * 3600;
@@ -110,6 +129,9 @@ const worker = {
       return env.POLL.get(env.POLL.idFromName("main")).fetch(req);
     }
     return page(req, env, ctx);
+  },
+  async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(dispatchCollectKr(env));
   },
 };
 

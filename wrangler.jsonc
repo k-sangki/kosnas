@@ -32,6 +32,11 @@
     { "pattern": "kosnas.com", "custom_domain": true },
     { "pattern": "www.kosnas.com", "custom_domain": true }
   ],
+  // 국장 시세 수집(collect-kr.yml)을 정시에 건다. GitHub 예약 실행은 5시간 넘게 늦거나 건너뛰었다(2026-10-26~27).
+  // 금융위 시세가 다음 영업일 13시 뒤 올라오므로 월~금 KST 13:20·14:00·14:40·18:10 (UTC로 적는다)
+  "triggers": {
+    "crons": ["20 4 * * 1-5", "0 5 * * 1-5", "40 5 * * 1-5", "10 9 * * 1-5"]
+  },
   "vars": {
     "NEXT_PUBLIC_SITE_URL": "https://kosnas.com"
   }
