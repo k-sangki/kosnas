@@ -101,6 +101,9 @@ def fsc_range(key: str, begin: str, end: str) -> dict[str, list[dict]]:
                 "close": _num(it.get("clpr")),
                 "chg": _num(it.get("fltRt")),
                 "value": _num(it.get("trPrc")),
+                "vol": _num(it.get("trqu")),
+                "high": _num(it.get("hipr")),
+                "low": _num(it.get("lopr")),
                 "cap": _num(it.get("mrktTotAmt")),
             }
         )

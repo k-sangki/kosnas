@@ -122,6 +122,33 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tup
         s = [v for v in idx[c][max(0, end - 251) : end + 1] if v is not None]
         return None if len(s) < 120 else round((idx[c][end] / max(s) - 1) * 100, 1)
 
+    def ma(c, n, at=end):
+        s = [v for v in idx[c][max(0, at - n + 1) : at + 1] if v is not None]
+        return sum(s) / len(s) if at >= n - 1 and len(s) >= n * 0.9 else None
+
+    def trend(c):
+        """추세 템플릿(미너비니) 조건을 비트로: 1 종가>150일선 2 종가>200일선 4 150일선>200일선
+        8 200일선이 한 달(21거래일) 전보다 높음 16 50일선>150일선 32 50일선>200일선"""
+        p = idx[c][end]
+        m50, m150, m200, m200_ago = ma(c, 50), ma(c, 150), ma(c, 200), ma(c, 200, end - 21)
+        bits = [
+            m150 is not None and p > m150,
+            m200 is not None and p > m200,
+            None not in (m150, m200) and m150 > m200,
+            None not in (m200, m200_ago) and m200 > m200_ago,
+            None not in (m50, m150) and m50 > m150,
+            None not in (m50, m200) and m50 > m200,
+        ]
+        return sum(1 << i for i, b in enumerate(bits) if b)
+
+    def from_low(c):
+        s = [v for v in idx[c][max(0, end - 251) : end + 1] if v is not None]
+        return None if len(s) < 120 else round((idx[c][end] / min(s) - 1) * 100, 1)
+
+    def min_value(c):
+        vs = [v for v in val[c][max(0, end - 19) : end + 1] if v is not None]
+        return round(min(vs) / 1e8, 1) if len(vs) >= 15 else None
+
     def new_high(c):
         return from_high(c) == 0
 
@@ -320,7 +347,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tup
     }
 
     # 종목 검색 자료: 모든 보통주. 열 이름 + 줄(크기를 줄이려고)
-    cols = ["code", "name", "market", "sector", "industry", "rs", "close", "chg", *[f"r{p}" for p in PERIODS], "fromHigh", "above50", "capEok", "base", "spark"]
+    cols = ["code", "name", "market", "sector", "industry", "rs", "close", "chg", *[f"r{p}" for p in PERIODS], "fromHigh", "above50", "capEok", "base", "spark", "fromLow", "trend", "minValEok", "days"]
     rows = []
     for c in sorted(live):
         last_close, last_idx = close[c][end], idx[c][end]
@@ -343,6 +370,10 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tup
                 round((cap[c][end] or 0) / 1e8),
                 ok[c],
                 spark,
+                from_low(c),
+                trend(c),
+                min_value(c),
+                sum(v is not None for v in idx[c]),
             ]
         )
     stocks = {"asof": asof, "sparkFrom": spark_from, "cols": cols, "rows": rows}

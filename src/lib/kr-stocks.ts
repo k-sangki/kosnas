@@ -16,6 +16,10 @@ export interface KrStock {
   capEok: number;
   base: boolean;
   spark: (number | null)[];
+  fromLow?: number | null;
+  trend?: number | null;
+  minValEok?: number | null;
+  days?: number | null;
 }
 
 export interface KrStocks {
@@ -53,6 +57,10 @@ export function loadKrStocks(): Promise<KrStocks> {
             capEok: x[i.capEok],
             base: x[i.base],
             spark: x[i.spark],
+            fromLow: x[i.fromLow],
+            trend: x[i.trend],
+            minValEok: x[i.minValEok],
+            days: x[i.days],
           }) as KrStock,
       );
       return {
