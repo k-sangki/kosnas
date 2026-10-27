@@ -25,6 +25,15 @@ export interface ScreenStock {
   trend?: number | null;
   minValEok?: number | null;
   days?: number | null;
+  /** 거래량 ÷ 직전 50일 평균 · 20일 거래대금 중앙값(억) */
+  volRatio?: number | null;
+  medValEok?: number | null;
+  /** 가장 최근 분기(예: 2026.2Q)의 영업이익·순이익(억), 매출 전년 같은 분기 대비(%), 전년 같은 분기 영업이익(억) — DART */
+  earnP?: string | null;
+  opEok?: number | null;
+  netEok?: number | null;
+  revYoY?: number | null;
+  opPrevEok?: number | null;
 }
 
 export type SortKey = "rs" | "chg" | "r20" | "cap" | "high";
@@ -37,13 +46,19 @@ export const SORTS: { key: SortKey; name: string }[] = [
   { key: "cap", name: "시총" },
 ];
 
-/** 추세 비트(collector/compute.py trend): 1 종가>150일선 2 종가>200일선 4 150일선>200일선 8 200일선 한 달 상승 16 50일선>150일선 32 50일선>200일선 */
+/**
+ * 추세 비트(collector/compute.py trend·more_bits): 1 종가>150일선 2 종가>200일선 4 150일선>200일선 8 200일선 한 달 상승
+ * 16 50일선>150일선 32 50일선>200일선 64 종가>10일 EMA 128 종가>21일 EMA 256 종가≤10일 EMA×1.10 512 종가≤10주 평균×1.25
+ * 1024 첫 52주 신고가(직전 20일에 없음) 2048 양봉 상승 마감
+ */
 const bit = (s: ScreenStock, b: number) => s.trend != null && (s.trend & b) === b;
 
 export interface Toggle {
   key: string;
   name: string;
   test: (s: ScreenStock) => boolean;
+  /** 이 자료가 아직 없으면(수집 전) 고를 수 없게 한다 */
+  needs?: "vol" | "earn";
 }
 
 export interface FilterGroup {
@@ -67,6 +82,7 @@ export const GROUPS: FilterGroup[] = [
       { key: "cap", name: "시가총액 1,500억 이상", test: (s) => (s.capEok ?? 0) >= 1500 },
       { key: "value", name: "20일 최소 거래대금 10억 초과", test: (s) => (s.minValEok ?? (s.base ? 11 : 0)) > 10 },
       { key: "listed", name: "상장 1년 이상", test: (s) => (s.days ?? 0) >= 252 },
+      { key: "medval", name: "20일 거래대금 중앙값 20억 이상", test: (s) => (s.medValEok ?? 0) >= 20 },
       { key: "nofin", name: "금융업 제외", test: (s) => s.sector !== "finance" },
     ],
   },
@@ -86,13 +102,30 @@ export const GROUPS: FilterGroup[] = [
     ],
   },
   {
+    key: "earn",
+    name: "실적",
+    hint: "가장 최근 분기 보고서 기준(DART) — 4분기는 연간에서 3분기 누적을 뺀 값",
+    items: [
+      { key: "op", name: "영업이익 흑자", test: (s) => (s.opEok ?? 0) > 0, needs: "earn" },
+      { key: "net", name: "순이익 흑자", test: (s) => (s.netEok ?? 0) > 0, needs: "earn" },
+      { key: "turn", name: "영업이익 흑자 전환", test: (s) => (s.opEok ?? 0) > 0 && s.opPrevEok != null && s.opPrevEok <= 0, needs: "earn" },
+      { key: "rev20", name: "매출 +20% 이상(전년 같은 분기)", test: (s) => (s.revYoY ?? -Infinity) >= 20, needs: "earn" },
+    ],
+  },
+  {
     key: "price",
-    name: "가격 움직임",
+    name: "가격·거래량",
     hint: "가장 최근 거래일 종가 기준",
     items: [
       { key: "newhigh", name: "52주 신고가", test: (s) => s.fromHigh === 0 },
+      { key: "firsthigh", name: "첫 52주 신고가(20일 만에)", test: (s) => bit(s, 1024) },
       { key: "high10", name: "52주 고가 대비 −10% 이내", test: (s) => s.fromHigh != null && s.fromHigh >= -10 },
+      { key: "vol15", name: "거래량 50일 평균 1.5배 이상", test: (s) => (s.volRatio ?? 0) >= 1.5, needs: "vol" },
       { key: "up", name: "상승 마감", test: (s) => (s.chg ?? 0) > 0 },
+      { key: "upbar", name: "양봉 상승 마감", test: (s) => bit(s, 2048), needs: "vol" },
+      { key: "e10", name: "종가 > 10일 EMA", test: (s) => bit(s, 64) },
+      { key: "e21", name: "종가 > 21일 EMA", test: (s) => bit(s, 128) },
+      { key: "notext", name: "과열 아님(10일선 +10%·10주선 +25% 이내)", test: (s) => bit(s, 256 | 512) },
       { key: "r20up", name: "20일 수익률 플러스", test: (s) => (s.r["20"] ?? 0) > 0 },
     ],
   },

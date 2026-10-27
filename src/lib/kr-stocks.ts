@@ -20,6 +20,13 @@ export interface KrStock {
   trend?: number | null;
   minValEok?: number | null;
   days?: number | null;
+  volRatio?: number | null;
+  medValEok?: number | null;
+  earnP?: string | null;
+  opEok?: number | null;
+  netEok?: number | null;
+  revYoY?: number | null;
+  opPrevEok?: number | null;
 }
 
 export interface KrStocks {
@@ -61,6 +68,13 @@ export function loadKrStocks(): Promise<KrStocks> {
             trend: x[i.trend],
             minValEok: x[i.minValEok],
             days: x[i.days],
+            volRatio: x[i.volRatio],
+            medValEok: x[i.medValEok],
+            earnP: x[i.earnP],
+            opEok: x[i.opEok],
+            netEok: x[i.netEok],
+            revYoY: x[i.revYoY],
+            opPrevEok: x[i.opPrevEok],
           }) as KrStock,
       );
       return {

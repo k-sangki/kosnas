@@ -2810,6 +2810,9 @@ button.ft-row {
 .screen-group > p {
   margin: 4px 0 8px;
 }
+.screen-group .rs-toggle:disabled {
+  opacity: 0.45;
+}
 .screen-group .rs-toggle.all {
   background: none;
   color: var(--pine-2);

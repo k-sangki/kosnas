@@ -4,6 +4,7 @@
 
 state/days/YYYYMMDD.json.gz  날짜별 전 종목 시세 (금융위원회 주식시세정보)
 state/industry.json          종목코드 → KSIC 업종 코드 (DART)
+state/earnings/YYYY_코드.json 보고서별 매출액·영업이익·당기순이익 (DART 다중회사 주요계정)
 필요한 값: DATA_GO_KR_KEY (공공데이터포털 인증키, 인코딩되지 않은 값), DART_API_KEY
 """
 
@@ -19,7 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from compute import compute  # noqa: E402
-from fetch import dart_corp_codes, dart_ksic, fsc_range  # noqa: E402
+from fetch import dart_corp_codes, dart_ksic, dart_multi_accounts, fsc_range  # noqa: E402
 
 KEEP_DAYS = 300  # 252일 신고가·12개월 상대강도 + 여유
 BACKFILL_CAL_DAYS = 450
@@ -82,6 +83,70 @@ def update_prices(state: Path, key: str, days: dict, today: dt.date):
     return True
 
 
+def refill_extra(state: Path, key: str, days: dict) -> bool:
+    """예전에 받은 날 중 거래량·시가가 없는 날을 다시 받는다(최근 달부터). 다 채웠으면 True."""
+    old = sorted((d for d, rows in days.items() if rows and "vol" not in rows[0]), reverse=True)
+    if not old:
+        return True
+    notice(f"거래량·시가 없는 날 {len(old)}일을 다시 받습니다")
+    months = sorted({d[:6] for d in old}, reverse=True)
+    for m in months:
+        if over_budget():
+            notice(f"시간이 다 돼 {m} 이전 달은 다음 실행에서 다시 받습니다")
+            return False
+        a = dt.date(int(m[:4]), int(m[4:]), 1)
+        got = fsc_range(key, a.strftime("%Y%m%d"), max(d for d in old if d.startswith(m)))
+        for day, rows in got.items():
+            if day in days and "vol" not in days[day][0] and len(rows) >= MIN_ROWS_RATIO * len(days[day]):
+                days[day] = rows
+                save_day(state, day, rows)
+    return True
+
+
+# 분기 보고서: (보고서 코드, 기간 끝 월, 이름). 사업보고서(11011)는 연간
+REPORTS = [("11013", 3, "1Q"), ("11012", 6, "2Q"), ("11014", 9, "3Q"), ("11011", 12, "4Q")]
+FINAL_AFTER_DAYS = 150  # 기간 끝에서 이만큼 지나면 늦은 제출까지 다 들어왔다고 보고 다시 받지 않는다
+
+
+def recent_periods(today: dt.date, n: int = 5) -> list[tuple[int, str, str, dt.date]]:
+    """기간이 끝난 보고서를 최근 것부터 n개: (사업연도, 보고서 코드, 이름, 기간 끝 날)."""
+    out = []
+    for y in range(today.year, today.year - 3, -1):
+        for code, m, name in reversed(REPORTS):
+            end = dt.date(y, m, 30 if m in (6, 9) else 31)
+            if end < today:
+                out.append((y, code, name, end))
+    return out[:n]
+
+
+def update_earnings(state: Path, key: str | None, codes: list[str], today: dt.date) -> dict[str, dict]:
+    """최근 보고서들의 주요계정을 받아(하루 한 번, 끝난 기간은 한 번만) 종목코드 → 보고서 이름 → 값으로 돌려준다."""
+    d = state / "earnings"
+    d.mkdir(parents=True, exist_ok=True)
+    corp = None
+    out: dict[str, dict] = {}
+    for y, code, name, end in recent_periods(today):
+        path = d / f"{y}_{code}.json"
+        saved = json.loads(path.read_text()) if path.exists() else None
+        final = saved and saved.get("final")
+        fresh = saved and saved.get("fetched") == today.isoformat()
+        if key and not final and not fresh and not over_budget():
+            if corp is None:
+                corp = dart_corp_codes(key)
+            ids = [corp[c] for c in codes if c in corp]
+            data: dict[str, dict] = {}
+            for i in range(0, len(ids), 100):
+                data.update(dart_multi_accounts(key, ids[i : i + 100], y, code))
+                time.sleep(0.3)
+            saved = {"fetched": today.isoformat(), "final": (today - end).days > FINAL_AFTER_DAYS, "data": data}
+            path.write_text(json.dumps(saved, ensure_ascii=False, separators=(",", ":")))
+            print(f"DART 주요계정 {y} {name}: {len(data)}종목")
+        if saved:
+            for c, v in saved["data"].items():
+                out.setdefault(c, {})[f"{y}.{name}"] = v
+    return out
+
+
 def update_industry(state: Path, key: str | None, codes: list[str]) -> dict | None:
     """업종 표를 채운다. 시간이 다 되면 받은 데까지 저장하고 None."""
     path = state / "industry.json"
@@ -130,11 +195,14 @@ def main():
     if len(days) < 130:
         sys.exit(f"시세가 {len(days)}일뿐이라 계산하지 않습니다 (130일 이상 필요)")
 
+    if key and not refill_extra(state, key, days):
+        return more()
     latest = days[max(days)]
     industry = update_industry(state, os.environ.get("DART_API_KEY", "").strip() or None, sorted({r["code"] for r in latest}))
     if industry is None:
         return more()
-    data, stocks = compute(days, industry)
+    earnings = update_earnings(state, os.environ.get("DART_API_KEY", "").strip() or None, sorted({r["code"] for r in latest}), today)
+    data, stocks = compute(days, industry, earnings)
     Path(args.out).write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n")
     if args.stocks:
         Path(args.stocks).parent.mkdir(parents=True, exist_ok=True)

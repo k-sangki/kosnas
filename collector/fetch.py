@@ -2,6 +2,7 @@
 
 - 금융위원회 주식시세정보(공공데이터포털, 이용 제한 없음): 날짜별 전 종목 종가·등락률·거래대금·시가총액. 다음 영업일 13시 뒤 공개.
 - OpenDART 기업개황: 종목의 표준산업분류(KSIC) 코드. 처음 보는 종목만 묻는다.
+- OpenDART 다중회사 주요계정: 분기·반기·사업보고서의 매출액·영업이익·당기순이익(한 번에 100개 회사).
 """
 
 import io
@@ -16,6 +17,7 @@ import zipfile
 FSC_URL = "https://apis.data.go.kr/1160100/GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2"
 DART_CORP_URL = "https://opendart.fss.or.kr/api/corpCode.xml"
 DART_COMPANY_URL = "https://opendart.fss.or.kr/api/company.json"
+DART_MULTI_URL = "https://opendart.fss.or.kr/api/fnlttMultiAcnt.json"
 
 PAGE = 1000
 
@@ -102,6 +104,7 @@ def fsc_range(key: str, begin: str, end: str) -> dict[str, list[dict]]:
                 "chg": _num(it.get("fltRt")),
                 "value": _num(it.get("trPrc")),
                 "vol": _num(it.get("trqu")),
+                "open": _num(it.get("mkp")),
                 "high": _num(it.get("hipr")),
                 "low": _num(it.get("lopr")),
                 "cap": _num(it.get("mrktTotAmt")),
@@ -135,3 +138,49 @@ def dart_ksic(key: str, corp_code: str) -> str | None:
     if d.get("status") != "000":
         return None
     return (d.get("induty_code") or "").strip() or None
+
+
+# 손익계산서 주요계정 이름 → 짧은 키
+ACCOUNTS = {"매출액": "rev", "영업이익": "op", "당기순이익": "net"}
+
+
+def _amount(v):
+    if v in (None, "", "-"):
+        return None
+    try:
+        return float(str(v).replace(",", ""))
+    except ValueError:
+        return None
+
+
+def dart_multi_accounts(key: str, corp_codes: list[str], year: int, reprt: str) -> dict[str, dict]:
+    """회사 100개까지 한 번에. 종목코드 → {rev|op|net: (이번 기 3개월, 이번 기 누적, 전년 같은 기 3개월, 전년 누적)}.
+    연결재무제표(CFS)가 있으면 그것을, 없으면 개별(OFS)을 쓴다. 사업보고서는 3개월 값 자리에 연간 값이 온다."""
+    raw = _get(DART_MULTI_URL, {"crtfc_key": key, "corp_code": ",".join(corp_codes), "bsns_year": str(year), "reprt_code": reprt})
+    body = json.loads(raw)
+    status = body.get("status")
+    if status == "013":  # 조회된 자료 없음
+        return {}
+    if status != "000":
+        raise RuntimeError(f"DART 주요계정 오류 {status}: {body.get('message')}")
+    out: dict[str, dict] = {}
+    for it in body.get("list", []):
+        k = ACCOUNTS.get((it.get("account_nm") or "").replace(" ", ""))
+        if not k or it.get("sj_div") not in (None, "IS", "CIS"):
+            continue
+        corp = (it.get("stock_code") or "").strip()
+        if not corp:
+            continue
+        fs = it.get("fs_div")
+        cur = out.setdefault(corp, {"fs": fs})
+        if cur["fs"] != fs:
+            if fs != "CFS":
+                continue  # 이미 연결 값이 있다
+            out[corp] = cur = {"fs": fs}
+        cur[k] = (
+            _amount(it.get("thstrm_amount")),
+            _amount(it.get("thstrm_add_amount")),
+            _amount(it.get("frmtrm_amount")),
+            _amount(it.get("frmtrm_add_amount")),
+        )
+    return out

@@ -3,7 +3,7 @@
 import random
 import unittest
 
-from compute import compute, is_common
+from compute import compute, is_common, latest_quarter
 from taxonomy import sector_of
 
 
@@ -61,6 +61,34 @@ class ComputeTest(unittest.TestCase):
             self.assertEqual(len(s["path"]["30"]), 30)
             self.assertEqual(len(s["half"]["20"]), 2)
         self.assertAlmostEqual(sum(s["capShareChg"]["20"] for s in d["sectors"]), 0, places=1)
+
+
+    def test_latest_quarter(self):
+        e = {
+            "2025.3Q": {"rev": (100, 300, 80, 240), "op": (10, 25, -5, 0), "net": (8, 20, -4, 1)},
+            "2025.4Q": {"rev": (420, None, 330, None), "op": (40, None, 6, None), "net": (30, None, 2, None)},
+        }
+        # 사업보고서 연간 − 3분기 누적 = 4분기
+        self.assertEqual(latest_quarter(e), ("2025.4Q", 120, 15, 10, 90, 6))
+        # 3분기 자료가 없으면 사업보고서는 건너뛴다
+        self.assertEqual(latest_quarter({"2025.4Q": e["2025.4Q"], "2025.2Q": e["2025.3Q"]})[0], "2025.2Q")
+        self.assertIsNone(latest_quarter(None))
+
+    def test_new_columns(self):
+        days, industry = fake_days()
+        for rows in days.values():
+            for r in rows:
+                r["vol"], r["open"] = 1000.0, r["close"] * 0.99
+        last = max(days)
+        for r in days[last]:
+            r["vol"] = 3000.0
+        code = days[last][0]["code"]
+        _, st = compute(days, industry, {code: {"2026.2Q": {"rev": (150, 0, 100, 0), "op": (5, 0, -1, 0), "net": (3, 0, 1, 0)}}})
+        i = {k: n for n, k in enumerate(st["cols"])}
+        row = next(r for r in st["rows"] if r[0] == code)
+        self.assertEqual(row[i["volRatio"]], 3.0)
+        self.assertEqual(row[i["earnP"]], "2026.2Q")
+        self.assertEqual(row[i["revYoY"]], 50.0)
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 가격은 등락률(fltRt)을 이어 곱한 지수로 쓴다 — 액면분할·무상증자가 있어도 수익률이 끊기지 않는다.
 """
 
+import datetime as dt
 import re
 import zlib
 
@@ -29,12 +30,14 @@ def is_common(code: str, name: str) -> bool:
 
 
 def build_series(days: dict[str, list[dict]]):
-    """날짜 목록과 종목별 (지수, 시가총액, 종가, 거래대금) 열을 만든다. 빠진 날은 None."""
+    """날짜 목록과 종목별 (지수, 시가총액, 종가, 거래대금, 거래량, 시가) 열을 만든다. 빠진 날은 None."""
     dates = sorted(days)
     idx: dict[str, list] = {}
     cap: dict[str, list] = {}
     close: dict[str, list] = {}
     val: dict[str, list] = {}
+    vol: dict[str, list] = {}
+    opn: dict[str, list] = {}
     meta: dict[str, dict] = {}
     last: dict[str, float] = {}
     for i, d in enumerate(dates):
@@ -47,14 +50,18 @@ def build_series(days: dict[str, list[dict]]):
                 cap[c] = [None] * len(dates)
                 close[c] = [None] * len(dates)
                 val[c] = [None] * len(dates)
+                vol[c] = [None] * len(dates)
+                opn[c] = [None] * len(dates)
             prev = last.get(c)
             chg = r["chg"] or 0.0
             idx[c][i] = last[c] = 100.0 if prev is None else prev * (1 + chg / 100)
             cap[c][i] = r["cap"]
             close[c][i] = r["close"]
             val[c][i] = r.get("value")
+            vol[c][i] = r.get("vol")
+            opn[c][i] = r.get("open")
             meta[c] = {"name": r["name"], "market": r["market"]}
-    return dates, idx, cap, close, val, meta
+    return dates, idx, cap, close, val, vol, opn, meta
 
 
 def _at(series: list, i: int):
@@ -103,9 +110,36 @@ def quadrant(x: float, y: float) -> str:
     return "watch" if y >= 0 else "lag"
 
 
-def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tuple[dict, dict]:
+def latest_quarter(e: dict | None):
+    """보고서별 주요계정(krx.update_earnings) → 가장 최근 분기 (이름, 매출, 영업이익, 순이익, 전년 같은 분기 매출, 전년 같은 분기 영업이익).
+    사업보고서는 연간 값이라 같은 해 3분기 누적을 빼서 4분기 값을 만든다(3분기 자료가 없으면 그 앞 분기를 쓴다)."""
+    if not e:
+        return None
+    for p in sorted(e, reverse=True):
+        y, q = p.split(".")
+        v = e[p]
+        if q == "4Q":
+            q3 = e.get(f"{y}.3Q")
+            if not q3:
+                continue
+
+            def sub(k, i, j):
+                a, b = (v.get(k) or [None] * 4)[i], (q3.get(k) or [None] * 4)[j]
+                return None if a is None or b is None else a - b
+
+            cur = {k: (sub(k, 0, 1), sub(k, 2, 3)) for k in ("rev", "op", "net")}
+        else:
+            cur = {k: ((v.get(k) or [None] * 4)[0], (v.get(k) or [None] * 4)[2]) for k in ("rev", "op", "net")}
+        if cur["op"][0] is None and cur["net"][0] is None:
+            continue
+        return p, cur["rev"][0], cur["op"][0], cur["net"][0], cur["rev"][1], cur["op"][1]
+    return None
+
+
+def compute(days: dict[str, list[dict]], industry: dict[str, str | None], earnings: dict | None = None) -> tuple[dict, dict]:
     """(섹터 자료, 종목 검색 자료)를 돌려준다."""
-    dates, idx, cap, close, val, meta = build_series(days)
+    dates, idx, cap, close, val, vol, opn, meta = build_series(days)
+    earnings = earnings or {}
     end = len(dates) - 1
     live = [c for c in idx if idx[c][end] is not None]
     rs = rs_scores(idx, end)
@@ -148,6 +182,69 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tup
     def min_value(c):
         vs = [v for v in val[c][max(0, end - 19) : end + 1] if v is not None]
         return round(min(vs) / 1e8, 1) if len(vs) >= 15 else None
+
+    def ema(c, n):
+        k, e = 2 / (n + 1), None
+        for v in idx[c][: end + 1]:
+            if v is not None:
+                e = v if e is None else e + k * (v - e)
+        return e
+
+    def weekly10(c):
+        """10주 평균: 주(월~금)마다 마지막 종가, 이번 주는 오늘 종가까지. 10주가 안 되면 None"""
+        weeks: dict = {}
+        for i in range(max(0, end - 80), end + 1):
+            if idx[c][i] is not None:
+                d = dates[i]
+                weeks[dt.date(int(d[:4]), int(d[4:6]), int(d[6:])).isocalendar()[:2]] = idx[c][i]
+        last = [weeks[w] for w in sorted(weeks)][-10:]
+        return sum(last) / 10 if len(last) == 10 else None
+
+    def first_high(c):
+        """오늘 종가가 52주 신고가이고 직전 20거래일에는 신고가가 없었다"""
+        if from_high(c) != 0:
+            return False
+        for i in range(end - 20, end):
+            s = [v for v in idx[c][max(0, i - 251) : i + 1] if v is not None]
+            if idx[c][i] is not None and len(s) >= 120 and idx[c][i] >= max(s):
+                return False
+        return True
+
+    def more_bits(c):
+        """추세 비트 이어서: 64 종가>10일 EMA 128 종가>21일 EMA 256 종가≤10일 EMA×1.10 512 종가≤10주 평균×1.25
+        1024 첫 52주 신고가(직전 20일에 없음) 2048 양봉 상승 마감(전일보다, 시가보다 높게)"""
+        p = idx[c][end]
+        e10, e21, w10 = ema(c, 10), ema(c, 21), weekly10(c)
+        chg = ret(idx[c], end, 1)
+        bits = [
+            e10 is not None and p > e10,
+            e21 is not None and p > e21,
+            e10 is not None and p <= e10 * 1.10,
+            w10 is not None and p <= w10 * 1.25,
+            first_high(c),
+            chg is not None and chg > 0 and None not in (close[c][end], opn[c][end]) and close[c][end] > opn[c][end],
+        ]
+        return sum(1 << (i + 6) for i, b in enumerate(bits) if b)
+
+    def vol_ratio(c):
+        """오늘 거래량 ÷ 직전 50거래일 평균(오늘 제외). 40일보다 적으면 None"""
+        v = vol[c][end]
+        past = [x for x in vol[c][max(0, end - 50) : end] if x is not None]
+        avg = sum(past) / len(past) if len(past) >= 40 else 0
+        return round(v / avg, 2) if v is not None and avg > 0 else None
+
+    def med_value(c):
+        vs = sorted(v for v in val[c][max(0, end - 19) : end + 1] if v is not None)
+        return round(vs[len(vs) // 2] / 1e8, 1) if len(vs) >= 15 else None
+
+    def earn(c):
+        q = latest_quarter(earnings.get(c))
+        if not q:
+            return [None] * 5
+        p, rev, op, net, rev0, op0 = q
+        eok = lambda v: None if v is None else round(v / 1e8, 1)  # noqa: E731
+        yoy = None if rev is None or not rev0 or rev0 <= 0 else round((rev / rev0 - 1) * 100, 1)
+        return [p, eok(op), eok(net), yoy, eok(op0)]
 
     def new_high(c):
         return from_high(c) == 0
@@ -347,7 +444,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tup
     }
 
     # 종목 검색 자료: 모든 보통주. 열 이름 + 줄(크기를 줄이려고)
-    cols = ["code", "name", "market", "sector", "industry", "rs", "close", "chg", *[f"r{p}" for p in PERIODS], "fromHigh", "above50", "capEok", "base", "spark", "fromLow", "trend", "minValEok", "days"]
+    cols = ["code", "name", "market", "sector", "industry", "rs", "close", "chg", *[f"r{p}" for p in PERIODS], "fromHigh", "above50", "capEok", "base", "spark", "fromLow", "trend", "minValEok", "days", "volRatio", "medValEok", "earnP", "opEok", "netEok", "revYoY", "opPrevEok"]
     rows = []
     for c in sorted(live):
         last_close, last_idx = close[c][end], idx[c][end]
@@ -371,9 +468,12 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None]) -> tup
                 ok[c],
                 spark,
                 from_low(c),
-                trend(c),
+                trend(c) | more_bits(c),
                 min_value(c),
                 sum(v is not None for v in idx[c]),
+                vol_ratio(c),
+                med_value(c),
+                *earn(c),
             ]
         )
     stocks = {"asof": asof, "sparkFrom": spark_from, "cols": cols, "rows": rows}
