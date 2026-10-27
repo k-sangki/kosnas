@@ -211,8 +211,215 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-10-26",
+  "asof": "2026-10-27",
   "trades": [
+   {
+    "date": "2026-10-27",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "sell",
+    "shares": 30956,
+    "value": 30334783
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "KALSHI INC.",
+    "kind": "sell",
+    "shares": 10951,
+    "value": 11677981
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "AMD",
+    "name": "ADVANCED MICRO DEVICES",
+    "kind": "sell",
+    "shares": 16992,
+    "value": 9027510
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "TSM",
+    "name": "TAIWAN SEMICONDUCTOR-SP ADR",
+    "kind": "sell",
+    "shares": 14737,
+    "value": 6253941
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "AVAV",
+    "name": "AEROVIRONMENT INC",
+    "kind": "buy",
+    "shares": 39458,
+    "value": 4950006
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "new",
+    "shares": 4212692,
+    "value": 4212692
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "AMD",
+    "name": "ADVANCED MICRO DEVICES",
+    "kind": "sell",
+    "shares": 7804,
+    "value": 4146109
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "ACHR",
+    "name": "ARCHER AVIATION INC-A",
+    "kind": "buy",
+    "shares": 781854,
+    "value": 3080505
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "TSM",
+    "name": "TAIWAN SEMICONDUCTOR-SP ADR",
+    "kind": "sell",
+    "shares": 7157,
+    "value": 3037216
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "AVAV",
+    "name": "AEROVIRONMENT INC",
+    "kind": "buy",
+    "shares": 19713,
+    "value": 2472996
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "ARK BITCOIN ETF HOLDCO (ARKF)",
+    "kind": "sell",
+    "shares": 85966,
+    "value": 2276371
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "KTOS",
+    "name": "KRATOS DEFENSE & SECURITY",
+    "kind": "buy",
+    "shares": 41903,
+    "value": 1694138
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "ACHR",
+    "name": "ARCHER AVIATION INC-A",
+    "kind": "buy",
+    "shares": 379750,
+    "value": 1496215
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "JOBY",
+    "name": "JOBY AVIATION INC",
+    "kind": "buy",
+    "shares": 292119,
+    "value": 1370038
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKF",
+    "ticker": "MELI",
+    "name": "MERCADOLIBRE INC",
+    "kind": "buy",
+    "shares": 723,
+    "value": 1206485
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKF",
+    "ticker": "NU",
+    "name": "NU HOLDINGS LTD/CAYMAN ISL-A",
+    "kind": "buy",
+    "shares": 76636,
+    "value": 964847
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "KTOS",
+    "name": "KRATOS DEFENSE & SECURITY",
+    "kind": "buy",
+    "shares": 21709,
+    "value": 877695
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "JOBY",
+    "name": "JOBY AVIATION INC",
+    "kind": "buy",
+    "shares": 141893,
+    "value": 665478
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "KDK",
+    "name": "KODIAK AI INC",
+    "kind": "buy",
+    "shares": 182508,
+    "value": 189808
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 136846,
+    "value": 136846
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "BRERA HOLDINGS PLC WTS",
+    "kind": "sell",
+    "shares": 52506,
+    "value": 58806
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKQ",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 24591,
+    "value": 24591
+   },
+   {
+    "date": "2026-10-27",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 11498,
+    "value": 11498
+   },
    {
     "date": "2026-10-26",
     "fund": "ARKK",
