@@ -47,6 +47,9 @@ function dayLabel(target: string) {
   return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일(${WD[d.getUTCDay()]})`;
 }
 
+/** '단톡방에 물어보기'로 보내는 주소. 받은 사람은 첫 화면의 투표 칸으로 바로 내려간다 */
+const ASK_URL = "https://kosnas.com/?utm_source=poll_ask#poll";
+
 const pctOf = (a: number, b: number) => (a + b ? Math.round((a / (a + b)) * 100) : 0);
 
 export function Poll() {
@@ -54,6 +57,7 @@ export function Poll() {
   const [mine, setMine] = useState<Record<string, Side>>({});
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [note, setNote] = useState("");
 
   const load = useCallback(async () => {
     const v = voterId();
@@ -68,6 +72,18 @@ export function Poll() {
     const t = setInterval(() => document.visibilityState === "visible" && load(), 120_000);
     return () => clearInterval(t);
   }, [load]);
+
+  // 공유받은 주소(#poll)로 들어오면 투표 칸이 자료를 받은 뒤에 생기므로 그때 한 번 내려간다
+  const ready = s != null;
+  useEffect(() => {
+    if (ready && location.hash === "#poll") document.getElementById("poll")?.scrollIntoView({ block: "center" });
+  }, [ready]);
+
+  useEffect(() => {
+    if (!note) return;
+    const t = setTimeout(() => setNote(""), 1800);
+    return () => clearTimeout(t);
+  }, [note]);
 
   if (!s) return null;
   const r = s.round;
@@ -94,6 +110,26 @@ export function Poll() {
     setMine(loadMine());
   };
 
+  // 투표한 사람만, 마감 전에만 보인다. 받은 사람이 같은 질문에 바로 답할 수 있을 때만 묻는다
+  const ask = async () => {
+    if (!my) return;
+    const text = `${dayLabel(r.target)} 코스피, 나는 '${my === "up" ? "오른다" : "내린다"}'에 한 표 했어요. 당신은?`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "다음 장 코스피, 오를까 내릴까?", text, url: ASK_URL });
+      } catch {
+        // 사용자가 취소한 경우
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(`${text}\n${ASK_URL}`);
+      setNote("링크를 복사했어요. 단톡방에 붙여 넣어 주세요");
+    } catch {
+      setNote("복사하지 못했어요");
+    }
+  };
+
   const streak = myStreak(s.past, mine);
   // 투표 마감 뒤 판정 전: 내가 누른 쪽이 지금 가격으로 맞는지 한 줄만(숫자는 보이지 않는다)
   const live = !r.open && my && r.live ? (r.live === "flat" ? "flat" : r.live === my ? "hit" : "miss") : null;
@@ -111,7 +147,7 @@ export function Poll() {
   }
 
   return (
-    <section className="card poll no-capture" aria-label="오늘의 한 표">
+    <section id="poll" className="card poll no-capture" aria-label="오늘의 한 표">
       <h2 className="card-title">다음 장 코스피, 오를까 내릴까?</h2>
       <p className="muted poll-when">
         {dayLabel(r.target)} 장 · {r.open ? "09:00 투표 마감" : "투표 마감 · 15:45 장 끝나면 결과"}
@@ -144,6 +180,12 @@ export function Poll() {
             </span>
           </p>
           {r.open && <p className="muted small-note">마감 전에는 다른 쪽을 눌러 바꿀 수 있어요.</p>}
+          {r.open && my && (
+            <button type="button" className="poll-ask" onClick={ask}>
+              단톡방에 물어보기
+            </button>
+          )}
+          {note && <p className="muted small-note">{note}</p>}
         </div>
       )}
       {live && (

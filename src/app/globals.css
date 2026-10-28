@@ -2551,6 +2551,20 @@ button.ft-row {
   font-weight: 500;
   color: var(--muted);
 }
+.poll-ask {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
 .poll-err {
   margin-top: 12px;
 }
