@@ -47,8 +47,11 @@ function dayLabel(target: string) {
   return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일(${WD[d.getUTCDay()]})`;
 }
 
-/** '단톡방에 물어보기'로 보내는 주소. 받은 사람은 첫 화면의 투표 칸으로 바로 내려간다 */
-const ASK_URL = "https://kosnas.com/?utm_source=poll_ask#poll";
+/**
+ * '단톡방에 물어보기'로 보내는 주소. 받은 사람은 첫 화면의 투표 칸으로 바로 내려가고, 미리보기에는 투표 그림이 뜬다.
+ * t: 카톡이 같은 주소의 미리보기를 오래 기억하지 않게 5분 단위로 바꾼다
+ */
+const askUrl = () => `https://kosnas.com/?utm_source=poll_ask&t=${Math.floor(Date.now() / 300_000).toString(36)}#poll`;
 
 const pctOf = (a: number, b: number) => (a + b ? Math.round((a / (a + b)) * 100) : 0);
 
@@ -114,16 +117,17 @@ export function Poll() {
   const ask = async () => {
     if (!my) return;
     const text = `${dayLabel(r.target)} 코스피, 나는 '${my === "up" ? "오른다" : "내린다"}'에 한 표 했어요. 당신은?`;
+    const url = askUrl();
     if (navigator.share) {
       try {
-        await navigator.share({ title: "다음 장 코스피, 오를까 내릴까?", text, url: ASK_URL });
+        await navigator.share({ title: "다음 장 코스피, 오를까 내릴까?", text, url });
       } catch {
         // 사용자가 취소한 경우
       }
       return;
     }
     try {
-      await navigator.clipboard.writeText(`${text}\n${ASK_URL}`);
+      await navigator.clipboard.writeText(`${text}\n${url}`);
       setNote("링크를 복사했어요. 단톡방에 붙여 넣어 주세요");
     } catch {
       setNote("복사하지 못했어요");
