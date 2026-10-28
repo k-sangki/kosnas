@@ -14,18 +14,18 @@ const ADSENSE = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-280742
 const GA_ID = "G-Z3JCEMSBJT";
 
 const DESCRIPTION =
-  "코스피 야간선물 실시간 추정, 삼성전자·SK하이닉스·나스닥·원/달러 시세 대시보드, 코스피·코스닥 섹터 순환과 상대강도, 미국 증시 흐름을 한곳에서.";
+  "코스피 야간선물 실시간 추정, 나스닥 선물·S&P 500 선물·달러 인덱스·VIX 지수·국제유가(WTI)·원/달러 등 실시간 세계 증시 시세, 삼성전자·SK하이닉스 야간 시세, 코스피·코스닥 섹터 순환과 미국 증시 흐름을 한곳에서.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "코스나스 - 코스피 야간선물·섹터 순환 대시보드",
+    default: "코스나스 - 코스피 야간선물·나스닥 선물 실시간 대시보드",
     template: `%s | ${SITE_NAME}`,
   },
   description: DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: ["코스나스", "KosNas", "코스피 야간선물", "야간선물 실시간", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
-  openGraph: { type: "website", siteName: SITE_NAME, locale: "ko_KR", title: "코스나스 - 코스피 야간선물·섹터 순환 대시보드", description: DESCRIPTION, url: "/", images: [OG_IMAGE] },
+  keywords: ["코스나스", "KosNas", "코스피 야간선물", "코스피200 야간선물", "야간선물 실시간", "나스닥 선물", "나스닥 선물 실시간", "실시간 나스닥 선물 지수", "실시간 미국 선물 지수", "실시간 세계 증시", "달러 인덱스", "VIX 지수", "국제유가 실시간", "섹터 순환", "코스피 섹터", "코스닥 섹터", "나스닥 섹터", "주도 섹터", "상대강도"],
+  openGraph: { type: "website", siteName: SITE_NAME, locale: "ko_KR", title: "코스나스 - 코스피 야간선물·나스닥 선물 실시간 대시보드", description: DESCRIPTION, url: "/", images: [OG_IMAGE] },
   twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
   robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   formatDetection: { telephone: false },

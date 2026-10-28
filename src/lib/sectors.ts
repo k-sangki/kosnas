@@ -21,6 +21,8 @@ export interface Stock {
   above50?: boolean;
   fromHigh?: number | null;
   ind?: string | null;
+  /** 국내: 시가총액(억원) */
+  capEok?: number | null;
 }
 
 /** 섹터·산업이 같이 쓰는 계산 값 */

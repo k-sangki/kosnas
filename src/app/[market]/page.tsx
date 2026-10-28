@@ -19,9 +19,9 @@ export async function generateMetadata({ params }: PageProps<"/[market]">): Prom
   const { market } = await params;
   if (market === "us")
     return pageMeta({
-      title: "미장 섹터 순위 - 미국 증시 섹터 등락·순환매와 실시간 흐름",
-      description: `미국 정규장 동안 S&P 500·나스닥 100의 등락을 실시간 차트로, 미장 섹터(${US_SECTOR_NAMES.join("·")})의 1주·1달·3달 등락률을 섹터 지도로 보여 줍니다.`,
-      keywords: ["미장 섹터", "미장 순환매", "미국 섹터 순위", "미국 섹터 등락", "미국 섹터 ETF", ...SECTOR_KEYWORDS.filter((k) => !k.startsWith("국장")), ...US_SECTOR_NAMES.map((n) => `미국 ${n} 섹터`)],
+      title: "미국증시 실시간 - 나스닥·S&P 500 등락, 개장시간·휴장일과 미장 섹터 순위",
+      description: `미국증시 지금 얼마? 정규장(한국 시각 22:30~05:00, 미국 표준시 기간 23:30~06:00) 동안 S&P 500·나스닥 100 등락을 실시간 차트로, 미장 섹터(${US_SECTOR_NAMES.join("·")})의 1주·1달·3달 등락률을 섹터 지도로 보여 줍니다. 미국증시 개장시간과 휴장일도 정리했습니다.`,
+      keywords: ["미국증시", "미국 증시 실시간", "미국증시 개장시간", "미국증시 휴장일", "미증시", "나스닥 실시간", "S&P 500 실시간", "해외증시", "미장 섹터", "미장 순환매", "미국 섹터 순위", "미국 섹터 등락", "미국 섹터 ETF", ...SECTOR_KEYWORDS.filter((k) => !k.startsWith("국장")), ...US_SECTOR_NAMES.map((n) => `미국 ${n} 섹터`)],
       path: "/us",
     });
   const names = sectorData("kr").sectors.map((s) => s.name);

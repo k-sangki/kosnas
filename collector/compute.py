@@ -395,6 +395,7 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None], earnin
             "r": {str(p): pct(ret(idx[c], end, p)) for p in PERIODS},
             "above50": a50[c],
             "fromHigh": fh[c],
+            "capEok": round((cap[c][end] or 0) / 1e8),
         }
 
     code_ind = {c: i for i, cs in ind_groups.items() for c in cs}

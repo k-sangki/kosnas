@@ -11,7 +11,7 @@ import { SITE_URL } from "@/app/layout";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 import { BASE_FILTER, sectorData } from "@/lib/sectors";
 import { krScreenStocks } from "@/lib/screen-data";
-import { SCREENS, SHOW, findScreen, runScreen, toListStock } from "@/lib/screens";
+import { SCREENS, SHOW, capText, findScreen, runScreen, toListStock } from "@/lib/screens";
 
 /**
  * 고정 조건 페이지(52주 신고가 근처·상대강도 상위 …). 목록을 서버에서 미리 그려
@@ -66,7 +66,7 @@ export default async function ScreenPage({ params }: PageProps<"/[market]/screen
             {screen.h1} <span className="muted">{data.asof} 종가</span>
           </h2>
           {list.length ? (
-            <StockList stocks={list.map(toListStock)} from={data.sparkFrom} asof={data.asof} period={screen.period} showInd />
+            <StockList stocks={list.map((s) => (screen.sort === "cap" ? { ...toListStock(s), ind: `시총 ${capText(s.capEok)}${s.ind ? ` · ${s.ind}` : ""}` } : toListStock(s)))} from={data.sparkFrom} asof={data.asof} period={screen.period} showInd />
           ) : (
             <p className="muted">지금은 조건에 맞는 종목이 없습니다.</p>
           )}

@@ -301,7 +301,28 @@ export const SCREENS: Screen[] = [
     what: "가장 최근 거래일 등락률이 높은 순서",
     value: (s) => `하루 ${pct(s.chg)}`,
   },
+  {
+    slug: "market-cap",
+    short: "시가총액 순위",
+    h1: "코스피·코스닥 시가총액 순위",
+    title: "코스피 시총 순위 - 코스피·코스닥 시가총액 상위 종목",
+    description: "코스피·코스닥 보통주 시가총액 순위(시총 순위). 가장 최근 거래일 장 마감 기준 시가총액이 큰 종목과 섹터·산업, 상대강도, 52주 고점 대비 위치를 매일 정리합니다.",
+    keywords: ["코스피 시총 순위", "코스피 시가총액 순위", "시총 순위", "시가총액 순위", "코스닥 시총 순위", "코스닥 시가총액 순위", "국내 주식 시가총액 순위", "시총 상위 종목"],
+    sort: "cap",
+    period: 20,
+    what: "시가총액이 큰 순서",
+    value: (s) => `시총 ${capText(s.capEok)}`,
+  },
 ];
+
+/** 시가총액(억원)을 "123조 4,567억"으로 */
+export function capText(eok: number | null | undefined) {
+  if (eok == null) return "-";
+  const jo = Math.floor(eok / 10000);
+  const rest = Math.round(eok % 10000);
+  if (!jo) return `${rest.toLocaleString("ko-KR")}억`;
+  return rest ? `${jo.toLocaleString("ko-KR")}조 ${rest.toLocaleString("ko-KR")}억` : `${jo.toLocaleString("ko-KR")}조`;
+}
 
 export function findScreen(slug: string): Screen | undefined {
   return SCREENS.find((s) => s.slug === slug);

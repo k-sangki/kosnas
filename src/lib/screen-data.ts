@@ -16,7 +16,7 @@ export function krScreenStocks(): ScreenStock[] {
       r: s.r ?? {},
       fromHigh: s.fromHigh ?? null,
       above50: s.above50 ?? false,
-      capEok: null,
+      capEok: s.capEok ?? null,
       base: true,
     })),
   );
