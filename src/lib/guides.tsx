@@ -338,7 +338,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "night-estimate",
-    title: "코스피 야간선물 추정 읽는 법",
+    title: "코스피 야간선물 보는 법 - 야간선물 추정 읽는 법",
     description: "KosNas 코스피 야간선물 추정이 무엇을 재는지, 계산 방법과 등락률 기준(주간 종가), 회색 선과 점선의 뜻, 다음 날 아침 시장과 어긋나는 이유를 설명합니다.",
     body: (
       <>

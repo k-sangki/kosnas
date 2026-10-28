@@ -54,7 +54,7 @@ export function WeekendOil() {
   const weekend = ITEMS.some((it) => d?.extra?.[it.coin]?.wk);
   return (
     <section className="card night">
-      <h1 className="night-title">주말 유가 실시간 · 주말에도 확인하는 WTI 추정치</h1>
+      <h1 className="night-title">국제유가 실시간 · 주말에도 보는 WTI 유가</h1>
       {!d ? (
         <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
       ) : (
