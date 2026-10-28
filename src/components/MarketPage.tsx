@@ -6,6 +6,7 @@ import { Fold } from "./Fold";
 import { SectorBoard } from "./SectorBoard";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
+import { THEMES, themeData } from "@/lib/themes";
 import { moveScores, ready, signed, sectorData, type Breadth, type Market, type SectorData } from "@/lib/sectors";
 
 export function SampleNotice({ asof }: { asof: string }) {
@@ -138,6 +139,7 @@ export function MarketContent({ market }: { market: Market }) {
       {!data.sample && <DailySummary data={data} />}
       {data.breadth && <BreadthCard breadth={data.breadth} />}
       {!data.sample && <SectorIndex data={data} />}
+      {market === "kr" && !data.sample && <ThemeIndex />}
       <AdSlot slot={AD_SLOTS.board} />
       <GuideLinks />
     </>
@@ -164,6 +166,31 @@ function SectorIndex({ data }: { data: SectorData }) {
             </span>
           </li>
         ))}
+      </ol>
+    </section>
+  );
+}
+
+/** 업종 분류로는 흩어진 테마 관련주(로봇·ESS·원전·양자컴퓨터) 페이지로 가는 길 */
+function ThemeIndex() {
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        테마 관련주 <span className="muted">20일 테마 평균 등락률</span>
+      </h2>
+      <ol className="sector-index">
+        {THEMES.map((t) => {
+          const r = themeData(t.id).ret["20"];
+          return (
+            <li key={t.id}>
+              <Link href={`/kr/theme/${t.id}`}>{t.name} 관련주</Link>
+              <span className="muted">
+                {" "}
+                20일 <span className={(r ?? 0) >= 0 ? "up" : "down"}>{signed(r)}%</span>
+              </span>
+            </li>
+          );
+        })}
       </ol>
     </section>
   );
