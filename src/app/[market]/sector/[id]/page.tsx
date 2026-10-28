@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { SECTOR_KEYWORDS, breadcrumbLd, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, breadcrumbLd, industryLabel, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -136,7 +136,7 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
                 .filter((i) => i.sector === sector.id)
                 .map((i) => (
                   <li key={i.id}>
-                    <Link href={`/${hit.market}/industry/${i.id}`}>{i.name} 관련주 등락률·순위</Link>
+                    <Link href={`/${hit.market}/industry/${i.id}`}>{industryLabel(i.name)} 관련주 등락률·순위</Link>
                   </li>
                 ))}
             </ul>

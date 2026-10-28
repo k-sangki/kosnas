@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { SECTOR_KEYWORDS, breadcrumbLd, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, breadcrumbLd, industryKeywords, industryLabel, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -39,11 +39,11 @@ export async function generateMetadata({ params }: PageProps<"/[market]/industry
     .slice(0, 3)
     .map((s) => s.name);
   return pageMeta({
-    title: `${ind.name} 관련주 등락률·순위 - ${sector.name} 섹터 산업 순환매`,
-    description: `국장 ${ind.name} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
+    title: `${industryLabel(ind.name)} 관련주 등락률·순위 - ${sector.name} 섹터 산업 순환매`,
+    description: `국장 ${industryLabel(ind.name)} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
       names.length ? `, ${names.join("·")} 등 종목별 상대강도 순위` : ""
     }.`,
-    keywords: [ind.name, `${ind.name} 관련주`, `${ind.name} 관련주 등락률`, `${ind.name} 주가`, `${ind.name} 순환매`, `${sector.name} 섹터`, ...SECTOR_KEYWORDS],
+    keywords: [...industryKeywords(ind.name), `${ind.name} 관련주 등락률`, `${ind.name} 순환매`, `${sector.name} 섹터`, ...SECTOR_KEYWORDS],
     path: `/${market}/industry/${id}`,
   });
 }
@@ -76,13 +76,13 @@ export default async function IndustryPage({ params }: PageProps<"/[market]/indu
           data={breadcrumbLd(SITE_URL, [
             ["국장 섹터 순환", `/${hit.market}`],
             [`${sector.name} 섹터`, `/${hit.market}/sector/${sector.id}`],
-            [`${ind.name} 관련주`, `/${hit.market}/industry/${ind.id}`],
+            [`${industryLabel(ind.name)} 관련주`, `/${hit.market}/industry/${ind.id}`],
           ])}
         />
         <Link href={`/${hit.market}/sector/${sector.id}`} className="back">
           ← {sector.name} 섹터
         </Link>
-        <h1 className="page-title">{ind.name} 관련주 등락률·순위</h1>
+        <h1 className="page-title">{industryLabel(ind.name)} 관련주 등락률·순위</h1>
         {data.sample && <SampleNotice asof={data.asof} />}
         <p className="lead">
           국장 {sector.name} 섹터의 {ind.name} 산업에는 보통주 {ind.count ?? stocks.length}종목이 들어 있습니다.
