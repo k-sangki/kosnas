@@ -10,7 +10,7 @@ import { WEEKEND_OIL_FAQ, WEEKEND_OIL_KEYWORDS } from "@/lib/weekend-oil";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 export const metadata: Metadata = pageMeta({
-  title: "주말 유가 실시간 · 주말에도 확인하는 WTI 유가 추정치",
+  title: "국제유가 실시간 - WTI 유가 실시간과 주말 유가 추정",
   description:
     "주말에도 확인할 수 있는 실시간 유가. 미국 원유 시장이 쉬는 토·일요일에도 24시간 거래되는 WTI(서부텍사스유)·브렌트유 가격으로 주말 WTI 가격과 금요일 마감 대비 등락을 실시간 추정합니다. 평일에는 WTI 실시간 시세.",
   keywords: WEEKEND_OIL_KEYWORDS,
