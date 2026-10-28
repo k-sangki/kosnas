@@ -238,7 +238,8 @@ export function NightBoard() {
           target={target}
           fileName={`kosnas-dashboard-${stamp.toISOString().slice(0, 16).replace(/[-:T]/g, "")}.png`}
           shareTitle={`코스피 야간선물 실시간 추정 ${day} ${d ? hhmm(d.updated) : ""}`}
-          shareUrl="https://kosnas.com/night"
+          // t: 카톡이 같은 주소의 미리보기(그 순간 추정값 그림)를 오래 기억하지 않게 자료 시각의 5분 단위로 바꾼다
+          shareUrl={`https://kosnas.com/night?t=${Math.floor((d?.updated ?? 0) / 300_000).toString(36)}`}
           onClose={() => setCapturing(false)}
         />
       )}

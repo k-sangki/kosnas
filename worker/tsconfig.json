@@ -10,5 +10,5 @@
     "isolatedModules": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["./**/*.ts", "../src/lib/chat.ts", "../src/lib/poll.ts", "../src/lib/night-api.ts", "../src/lib/us-api.ts"]
+  "include": ["./**/*.ts", "../src/lib/chat.ts", "../src/lib/poll.ts", "../src/lib/night-api.ts", "../src/lib/us-api.ts", "../src/lib/og-image.ts"]
 }
