@@ -211,8 +211,260 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-10-28",
+  "asof": "2026-10-29",
   "trades": [
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "TER",
+    "name": "TERADYNE INC",
+    "kind": "buy",
+    "shares": 54119,
+    "value": 16952278
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 10012666,
+    "value": 10012666
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "buy",
+    "shares": 8022,
+    "value": 7860969
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "TWST",
+    "name": "TWIST BIOSCIENCE CORP",
+    "kind": "sell",
+    "shares": 42174,
+    "value": 7315092
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "HOOD",
+    "name": "ROBINHOOD MARKETS INC - A",
+    "kind": "buy",
+    "shares": 69597,
+    "value": 6363267
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "TER",
+    "name": "TERADYNE INC",
+    "kind": "buy",
+    "shares": 14844,
+    "value": 4649735
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "TEM",
+    "name": "TEMPUS AI INC-CL A",
+    "kind": "sell",
+    "shares": 58383,
+    "value": 4472731
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "TXG",
+    "name": "10X GENOMICS INC-CLASS A",
+    "kind": "sell",
+    "shares": 48158,
+    "value": 4027010
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "TSM",
+    "name": "TAIWAN SEMICONDUCTOR-SP ADR",
+    "kind": "sell",
+    "shares": 7491,
+    "value": 3292369
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "CBRS",
+    "name": "CEREBRAS SYSTEMS INC - A",
+    "kind": "buy",
+    "shares": 28162,
+    "value": 3169907
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "KALSHI INC.",
+    "kind": "buy",
+    "shares": 2838,
+    "value": 3026237
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "ACHR",
+    "name": "ARCHER AVIATION INC-A",
+    "kind": "buy",
+    "shares": 649240,
+    "value": 2817702
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 2594243,
+    "value": 2594243
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 2497750,
+    "value": 2497750
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "AMD",
+    "name": "ADVANCED MICRO DEVICES",
+    "kind": "sell",
+    "shares": 4135,
+    "value": 2391849
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "JOBY",
+    "name": "JOBY AVIATION INC",
+    "kind": "buy",
+    "shares": 442095,
+    "value": 2245843
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "TER",
+    "name": "TERADYNE INC",
+    "kind": "buy",
+    "shares": 5755,
+    "value": 1802696
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "TSM",
+    "name": "TAIWAN SEMICONDUCTOR-SP ADR",
+    "kind": "sell",
+    "shares": 3224,
+    "value": 1416980
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "ACHR",
+    "name": "ARCHER AVIATION INC-A",
+    "kind": "buy",
+    "shares": 318635,
+    "value": 1382876
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "AVAV",
+    "name": "AEROVIRONMENT INC",
+    "kind": "buy",
+    "shares": 10113,
+    "value": 1273732
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 1159074,
+    "value": 1159074
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "ARK BITCOIN ETF HOLDCO (ARKF)",
+    "kind": "sell",
+    "shares": 42364,
+    "value": 1144675
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKF",
+    "ticker": "HOOD",
+    "name": "ROBINHOOD MARKETS INC - A",
+    "kind": "buy",
+    "shares": 12115,
+    "value": 1107674
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "JOBY",
+    "name": "JOBY AVIATION INC",
+    "kind": "buy",
+    "shares": 211597,
+    "value": 1074913
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "AMD",
+    "name": "ADVANCED MICRO DEVICES",
+    "kind": "sell",
+    "shares": 1600,
+    "value": 925504
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKX",
+    "ticker": "AVAV",
+    "name": "AEROVIRONMENT INC",
+    "kind": "buy",
+    "shares": 4478,
+    "value": 564004
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKQ",
+    "ticker": "KDK",
+    "name": "KODIAK AI INC",
+    "kind": "buy",
+    "shares": 277891,
+    "value": 364037
+   },
+   {
+    "date": "2026-10-29",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "BRERA HOLDINGS PLC WTS",
+    "kind": "buy",
+    "shares": 13606,
+    "value": 19321
+   },
    {
     "date": "2026-10-28",
     "fund": "ARKK",
