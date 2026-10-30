@@ -1,6 +1,6 @@
 {
- "updated": "2026-10-29",
- "since": "2026-09-29",
+ "updated": "2026-10-30",
+ "since": "2026-09-30",
  "window": 30,
  "failed": [],
  "investors": [
@@ -81,6 +81,22 @@
   }
  ],
  "events": [
+  {
+   "kind": "sell",
+   "shares": 382563.0,
+   "value": 69026033,
+   "price": 180.43,
+   "after": 28314666.0,
+   "from": "2026-10-27",
+   "to": "2026-10-27",
+   "issuer": "DAVITA INC.",
+   "ticker": "DVA",
+   "investor": "buffett",
+   "form": "4",
+   "filed": "2026-10-29",
+   "acc": "0001193125-26-438090",
+   "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526438090/xslF345X06/ownership.xml"
+  },
   {
    "kind": "acquire",
    "shares": 4798758.0,
