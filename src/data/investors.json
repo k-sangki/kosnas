@@ -227,8 +227,116 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-10-29",
+  "asof": "2026-10-30",
   "trades": [
+   {
+    "date": "2026-10-30",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "sell",
+    "shares": 30763,
+    "value": 30146044
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 29688983,
+    "value": 29688983
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "KALSHI INC.",
+    "kind": "sell",
+    "shares": 10883,
+    "value": 11605322
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKQ",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 5525328,
+    "value": 5525328
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKK",
+    "ticker": "CBRS",
+    "name": "CEREBRAS SYSTEMS INC - A",
+    "kind": "buy",
+    "shares": 28741,
+    "value": 3309772
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 2421768,
+    "value": 2421768
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKG",
+    "ticker": "BEAM",
+    "name": "BEAM THERAPEUTICS INC",
+    "kind": "buy",
+    "shares": 36200,
+    "value": 1043999
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKQ",
+    "ticker": "JOBY",
+    "name": "JOBY AVIATION INC",
+    "kind": "buy",
+    "shares": 180133,
+    "value": 915076
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKX",
+    "ticker": "JOBY",
+    "name": "JOBY AVIATION INC",
+    "kind": "buy",
+    "shares": 83560,
+    "value": 424485
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKQ",
+    "ticker": "KDK",
+    "name": "KODIAK AI INC",
+    "kind": "buy",
+    "shares": 139706,
+    "value": 178824
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "BRERA HOLDINGS PLC WTS",
+    "kind": "sell",
+    "shares": 52179,
+    "value": 63658
+   },
+   {
+    "date": "2026-10-30",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 35710,
+    "value": 35710
+   },
    {
     "date": "2026-10-29",
     "fund": "ARKK",
