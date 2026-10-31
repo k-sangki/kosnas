@@ -1,6 +1,6 @@
 {
- "updated": "2026-10-30",
- "since": "2026-09-30",
+ "updated": "2026-10-31",
+ "since": "2026-10-01",
  "window": 30,
  "failed": [],
  "investors": [
@@ -207,22 +207,6 @@
    "filed": "2026-10-05",
    "acc": "0001193125-26-414744",
    "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526414744/xslF345X06/ownership.xml"
-  },
-  {
-   "kind": "buy",
-   "shares": 660410.0,
-   "value": 53882588,
-   "price": 81.59,
-   "after": 26034436.0,
-   "from": "2026-09-28",
-   "to": "2026-09-30",
-   "issuer": "LENNAR CORP /NEW/",
-   "ticker": "LEN",
-   "investor": "buffett",
-   "form": "4",
-   "filed": "2026-09-30",
-   "acc": "0001193125-26-409451",
-   "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526409451/xslF345X06/ownership.xml"
   }
  ],
  "ark": {
