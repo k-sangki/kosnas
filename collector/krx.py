@@ -63,11 +63,19 @@ def update_prices(state: Path, key: str, days: dict, today: dt.date):
     if begin > today:
         print("새 시세 없음")
         return True
+    # 받을 구간이 모두 주말이면 새 시세가 있을 수 없다(주말 실행에서 공공데이터포털을 부르지 않는다)
+    if all((begin + dt.timedelta(days=i)).weekday() >= 5 for i in range((today - begin).days + 1)):
+        print(f"새 시세 없음 ({begin}~{today} 주말)")
+        return True
     for a, b in month_chunks(begin, today):
         if over_budget():
             notice(f"시간이 다 돼 {a} 이후 시세는 다음 실행에서 받습니다")
             return False
-        got = fsc_range(key, a.strftime("%Y%m%d"), b.strftime("%Y%m%d"))
+        try:
+            got = fsc_range(key, a.strftime("%Y%m%d"), b.strftime("%Y%m%d"))
+        except OSError as e:  # 접속 실패·타임아웃: 저장된 시세로 계산하고 다음 실행에서 다시 받는다
+            notice(f"공공데이터포털 접속 실패({e}) — {a} 이후 시세는 다음 실행에서 받습니다", "warning")
+            return True
         for day, rows in sorted(got.items()):
             # 13시 전후에는 일부 종목만 올라와 있을 수 있다. 한 번 저장한 날은 다시 받지 않으므로
             # 직전 날보다 종목 수가 크게 적으면 저장하지 않고 다음 실행에서 다시 받는다
@@ -95,7 +103,11 @@ def refill_extra(state: Path, key: str, days: dict) -> bool:
             notice(f"시간이 다 돼 {m} 이전 달은 다음 실행에서 다시 받습니다")
             return False
         a = dt.date(int(m[:4]), int(m[4:]), 1)
-        got = fsc_range(key, a.strftime("%Y%m%d"), max(d for d in old if d.startswith(m)))
+        try:
+            got = fsc_range(key, a.strftime("%Y%m%d"), max(d for d in old if d.startswith(m)))
+        except OSError as e:
+            notice(f"공공데이터포털 접속 실패({e}) — 다시 받기는 다음 실행에서 이어 합니다", "warning")
+            return True
         for day, rows in got.items():
             if day in days and "vol" not in days[day][0] and len(rows) >= MIN_ROWS_RATIO * len(days[day]):
                 days[day] = rows

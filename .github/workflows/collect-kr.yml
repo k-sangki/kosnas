@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: 쌓아 둔 시세 가져오기
@@ -74,7 +74,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run collect-kr.yml --ref main
       # 위 push는 GITHUB_TOKEN이라 Deploy 워크플로가 따로 돌지 않으므로 여기서 배포한다
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.publish.outputs.changed == '1'
         with:
           node-version: 22

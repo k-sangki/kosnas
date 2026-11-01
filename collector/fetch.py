@@ -27,7 +27,7 @@ def _get(url: str, params: dict, tries: int = 4) -> bytes:
     q = urllib.parse.urlencode(params, safe="%")
     for i in range(tries):
         try:
-            with urllib.request.urlopen(f"{url}?{q}", timeout=60) as r:
+            with urllib.request.urlopen(f"{url}?{q}", timeout=40) as r:
                 return r.read()
         except urllib.error.HTTPError as e:
             body = e.read()[:500].decode("utf-8", "replace")
@@ -40,7 +40,7 @@ def _get(url: str, params: dict, tries: int = 4) -> bytes:
             if i == tries - 1:
                 raise
             print(f"  다시 시도 ({e})")
-            time.sleep(2 * (i + 1))
+            time.sleep(10 * (i + 1))  # 잠깐 끊긴 것이면 조금 기다렸다 붙는다
     raise RuntimeError("unreachable")
 
 
