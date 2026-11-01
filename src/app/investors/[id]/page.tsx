@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { Holdings, Sold } from "@/components/Investors13F";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { INVESTORS, findInvestor, label, quarter, usd } from "@/lib/investors13f";
+import { INVESTOR_NOTES } from "@/lib/investor-notes";
+import { Fold } from "@/components/Fold";
 
 export const dynamicParams = false;
 
@@ -21,9 +23,10 @@ export async function generateMetadata({ params }: PageProps<"/investors/[id]">)
     .slice(0, 5)
     .map((h) => label(h))
     .join(", ");
+  const note = INVESTOR_NOTES[inv.id];
   return pageMeta({
     title: `${inv.person} 포트폴리오 - ${inv.firm} 13F 보유 종목 (${quarter(inv.period)})`,
-    description: `${inv.person}(${inv.firm})의 ${quarter(inv.period)} 말 13F 보유 종목 ${inv.count}개와 지난 분기 대비 새로 산 종목·판 종목. 상위: ${top}.`,
+    description: `${inv.person}(${inv.firm})의 ${quarter(inv.period)} 말 13F 보유 종목 ${inv.count}개와 지난 분기 대비 새로 산 종목·판 종목. 상위: ${top}.${note ? ` ${note.who.split(".")[0]}.` : ""}`,
     path: `/investors/${inv.id}`,
   });
 }
@@ -31,6 +34,7 @@ export async function generateMetadata({ params }: PageProps<"/investors/[id]">)
 export default async function InvestorPage({ params }: PageProps<"/investors/[id]">) {
   const inv = findInvestor((await params).id);
   if (!inv) notFound();
+  const note = INVESTOR_NOTES[inv.id];
   const fresh = inv.holdings.filter((h) => h.change === "new" && !h.put_call && !h.prn);
   return (
     <div className="shell">
@@ -41,6 +45,14 @@ export default async function InvestorPage({ params }: PageProps<"/investors/[id
           <Link href="/us">← 미장 탭</Link>
         </p>
         <h1 className="page-title">{inv.person} 포트폴리오</h1>
+        {note && (
+          <section className="card seo-text">
+            <Fold title={`${inv.person}, 어떤 투자자인가`}>
+              <p>{note.who}</p>
+              <p>{note.read}</p>
+            </Fold>
+          </section>
+        )}
         <section className="card">
           <dl className="inv-facts">
             <div>

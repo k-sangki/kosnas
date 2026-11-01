@@ -1,6 +1,6 @@
 import { INVESTORS } from "@/lib/investors13f";
 import type { MetadataRoute } from "next";
-import { MARKETS, industryPages, sectorData } from "@/lib/sectors";
+import { MARKETS, industryIndexable, industryPages, sectorData } from "@/lib/sectors";
 import { NIGHT_STOCKS } from "@/lib/night-stocks";
 import { GUIDES } from "@/lib/guides";
 import { DATA as RECENT } from "@/lib/investors";
@@ -35,7 +35,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       sectorData(m).sectors.map((s) => at(`/${m}/sector/${s.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.7 })),
     ),
     ...MARKETS.flatMap((m) =>
-      industryPages(m).map((i) => at(`/${m}/industry/${i.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.6 })),
+      industryPages(m)
+        .filter((i) => industryIndexable(m, i))
+        .map((i) => at(`/${m}/industry/${i.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.6 })),
     ),
     at("/kr/screener", { lastModified: kr, changeFrequency: "daily", priority: 0.8 }),
     ...SCREENS.map((s) => at(`/kr/screener/${s.slug}`, { lastModified: kr, changeFrequency: "daily", priority: 0.7 })),
