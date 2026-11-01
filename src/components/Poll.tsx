@@ -51,6 +51,9 @@ function dayLabel(target: string) {
  * '단톡방에 물어보기'로 보내는 주소. 받은 사람은 첫 화면의 투표 칸으로 바로 내려가고, 미리보기에는 투표 그림이 뜬다.
  * t: 카톡이 같은 주소의 미리보기를 오래 기억하지 않게 5분 단위로 바꾼다
  */
+/** '단톡방에 물어보기' 버튼. 일단 감춰 둔다(2026-11-02 SK 결정). 다시 켜려면 true */
+const ASK_ENABLED = false;
+
 const askUrl = () => `https://kosnas.com/?utm_source=poll_ask&t=${Math.floor(Date.now() / 300_000).toString(36)}#poll`;
 
 const pctOf = (a: number, b: number) => (a + b ? Math.round((a / (a + b)) * 100) : 0);
@@ -184,7 +187,7 @@ export function Poll() {
             </span>
           </p>
           {r.open && <p className="muted small-note">마감 전에는 다른 쪽을 눌러 바꿀 수 있어요.</p>}
-          {r.open && my && (
+          {ASK_ENABLED && r.open && my && (
             <button type="button" className="poll-ask" onClick={ask}>
               단톡방에 물어보기
             </button>
