@@ -9,7 +9,8 @@ import { SampleNotice } from "@/components/MarketPage";
 import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
-import { BASE_FILTER, MARKETS, QUADRANTS, findIndustry, findSector, industryPages, sectorData, signed, type Market } from "@/lib/sectors";
+import { BASE_FILTER, MARKETS, QUADRANTS, findIndustry, findSector, industryIndexable, industryPages, sectorData, signed, type Market } from "@/lib/sectors";
+import { INDUSTRY_NOTES } from "@/lib/industry-notes";
 
 /**
  * 산업 페이지. 섹터 페이지 안에서 고르던 산업(메모리·변압기·전선 …)을 따로 열어
@@ -38,14 +39,16 @@ export async function generateMetadata({ params }: PageProps<"/[market]/industry
     .filter((s) => s.ind === ind.name)
     .slice(0, 3)
     .map((s) => s.name);
-  return pageMeta({
+  const note = INDUSTRY_NOTES[ind.name];
+  const meta = pageMeta({
     title: `${industryLabel(ind.name)} 관련주 등락률·순위 - ${sector.name} 섹터 산업 순환매`,
-    description: `국장 ${industryLabel(ind.name)} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
+    description: `${note ? `${note.what} ` : ""}국장 ${industryLabel(ind.name)} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
       names.length ? `, ${names.join("·")} 등 종목별 상대강도 순위` : ""
     }.`,
     keywords: [...industryKeywords(ind.name), `${ind.name} 관련주 등락률`, `${ind.name} 순환매`, `${sector.name} 섹터`, ...SECTOR_KEYWORDS],
     path: `/${market}/industry/${id}`,
   });
+  return industryIndexable(hit.market, ind) ? meta : { ...meta, robots: { index: false, follow: true } };
 }
 
 export default async function IndustryPage({ params }: PageProps<"/[market]/industry/[id]">) {
@@ -67,6 +70,7 @@ export default async function IndustryPage({ params }: PageProps<"/[market]/indu
   const r20 = rankOf(20);
   const r5 = rankOf(5);
   const lead = ind.leader?.shown ? ind.leader.name : null;
+  const note = INDUSTRY_NOTES[ind.name];
 
   return (
     <div className="shell">
@@ -91,6 +95,14 @@ export default async function IndustryPage({ params }: PageProps<"/[market]/indu
           {r5 && ` 최근 5거래일은 ${signed(ind.ret[5])}%(${r5.n}위)였습니다.`}
           {lead && ` 시가총액이 가장 큰 종목은 ${lead}입니다.`}
         </p>
+        {note && (
+          <section className="card seo-text">
+            <Fold title={`${ind.name} 산업은`}>
+              <p>{note.what}</p>
+              <p>{note.drivers}</p>
+            </Fold>
+          </section>
+        )}
         <section className="card">
           <h2 className="card-title">
             기간별 등락률과 산업 순위 <span className="muted">{data.asof} 종가 기준</span>

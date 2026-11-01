@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { sectorData } from "./sectors";
+import { industryPages, sectorData } from "./sectors";
+import { INDUSTRY_NOTES } from "./industry-notes";
+import { INVESTOR_NOTES } from "./investor-notes";
+import { INVESTORS } from "./investors13f";
 
 describe("섹터 자료", () => {
   it.each(["kr", "us"] as const)("%s 강도는 섹터 평균 기준이라 합이 0 근처", (m) => {
@@ -18,5 +21,18 @@ describe("섹터 자료", () => {
         expect(s.q[p]).toBe(want);
       }
     }
+  });
+});
+
+describe("페이지마다 직접 쓴 설명", () => {
+  it("산업 페이지마다 설명이 있고 서로 다르다", () => {
+    const pages = industryPages("kr");
+    for (const i of pages) expect(INDUSTRY_NOTES[i.name], i.name).toBeTruthy();
+    const texts = pages.map((i) => INDUSTRY_NOTES[i.name].drivers);
+    expect(new Set(texts).size).toBe(texts.length);
+  });
+
+  it("투자자 페이지마다 소개가 있다", () => {
+    for (const i of INVESTORS) expect(INVESTOR_NOTES[i.id], i.id).toBeTruthy();
   });
 });
