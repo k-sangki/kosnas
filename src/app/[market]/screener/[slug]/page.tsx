@@ -8,7 +8,7 @@ import { KrTabs } from "@/components/KrTabs";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
 import { SITE_URL } from "@/app/layout";
-import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
 import { BASE_FILTER, sectorData } from "@/lib/sectors";
 import { krScreenStocks } from "@/lib/screen-data";
 import { SCREENS, SHOW, capText, findScreen, runScreen, toListStock } from "@/lib/screens";
@@ -45,6 +45,17 @@ export default async function ScreenPage({ params }: PageProps<"/[market]/screen
     <div className="shell">
       <SiteHeader active="kr" />
       <main className="stack">
+        {!data.sample && (
+          <JsonLd
+            data={datasetLd(SITE_URL, {
+              name: screen.h1,
+              description: screen.description,
+              path: `/kr/screener/${screen.slug}`,
+              asof: data.asof,
+              keywords: screen.keywords,
+            })}
+          />
+        )}
         <JsonLd
           data={breadcrumbLd(SITE_URL, [
             ["국장 종목 검색", "/kr/screener"],
