@@ -92,3 +92,31 @@ export const industryLabel = (name: string) => (INDUSTRY_ALIASES[name] ? `${name
 /** 산업 관련주 검색어: 띄어쓴 것·붙여 쓴 것 둘 다 */
 export const industryKeywords = (name: string) =>
   [name, ...(INDUSTRY_ALIASES[name] ?? [])].flatMap((n) => [n, `${n} 관련주`, `${n.replace(/\s+/g, "")}관련주`, `${n} 주가`]);
+
+/** '2026-10-29' → '2026년 10월 29일' */
+export function krDate(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${y}년 ${m}월 ${d}일`;
+}
+
+/**
+ * 장 마감 자료로 만든 표 페이지의 Dataset 구조화 데이터. 기준일(dateModified)·출처·만든 곳을 밝혀
+ * AI 답변·검색이 '언제 기준, 누가 계산한 숫자'인지 알고 인용하게 한다(2026-11-02).
+ */
+export function datasetLd(site: string, p: { name: string; description: string; path: string; asof: string; keywords?: string[] }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: p.name,
+    description: p.description,
+    url: `${site}${p.path}`,
+    inLanguage: "ko-KR",
+    isAccessibleForFree: true,
+    dateModified: p.asof,
+    temporalCoverage: p.asof,
+    ...(p.keywords?.length ? { keywords: p.keywords.slice(0, 12) } : {}),
+    creator: { "@id": `${site}/#org` },
+    publisher: { "@id": `${site}/#org` },
+    isBasedOn: { "@type": "Dataset", name: "금융위원회 주식시세정보", url: "https://www.data.go.kr/data/15094808/openapi.do" },
+  };
+}

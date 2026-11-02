@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { SECTOR_KEYWORDS, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, datasetLd, pageMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_URL } from "@/app/layout";
 import { sectorData } from "@/lib/sectors";
 import { US_SECTOR_NAMES } from "@/lib/us-sector-etfs";
 import { notFound } from "next/navigation";
@@ -44,6 +46,17 @@ export default async function MarketRoute({ params }: PageProps<"/[market]">) {
           <UsContent />
         ) : (
           <>
+            {!sectorData("kr").sample && (
+              <JsonLd
+                data={datasetLd(SITE_URL, {
+                  name: "국장 섹터 순위 - 코스피·코스닥 섹터 등락률과 순환매",
+                  description: `코스피·코스닥 ${sectorData("kr").sectors.length}개 섹터의 5·10·20·30·60일 등락률, 섹터 순위, 순환매 네 칸(주도·약화·소외·관찰)과 시장 폭. 매일 장 마감 자료로 코스나스가 계산.`,
+                  path: "/kr",
+                  asof: sectorData("kr").asof,
+                  keywords: SECTOR_KEYWORDS,
+                })}
+              />
+            )}
             <KrTabs active="sectors" />
             <MarketContent market="kr" />
           </>

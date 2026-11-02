@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { SECTOR_KEYWORDS, breadcrumbLd, industryLabel, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, breadcrumbLd, datasetLd, industryLabel, krDate, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -76,6 +76,23 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
     const all = data.sectors.filter((s) => s.ret[p] != null);
     return `${all.filter((s) => s.ret[p]! > v).length + 1}/${all.length}`;
   };
+  // 첫 문장: AI 답변·검색이 그대로 인용할 수 있게 기준일·숫자·순위를 한 문장에
+  const rankNo = (p: number) => {
+    const v = sector.ret[p];
+    if (v == null) return null;
+    const all = data.sectors.filter((s) => s.ret[p] != null);
+    return { n: all.filter((s) => s.ret[p]! > v).length + 1, of: all.length };
+  };
+  const qName = (p: number) => QUADRANTS.find((q) => q.key === sector.q[p])?.name;
+  const r5 = rankNo(5);
+  const r20 = rankNo(20);
+  const where = hit.market === "kr" ? "국장" : "미장";
+  const answer =
+    !data.sample && r5
+      ? `${krDate(data.asof)} 종가 기준 ${sector.name} 섹터는 최근 5거래일 ${signed(sector.ret[5])}%로 ${where} ${r5.of}개 섹터 가운데 ${r5.n}위${
+          r20 ? `, 최근 20거래일은 ${signed(sector.ret[20])}%로 ${r20.n}위` : ""
+        }입니다.${qName(20) ? ` 20거래일 기준 네 칸 위치는 '${qName(20)}'입니다.` : ""}`
+      : null;
 
   return (
     <div className="shell">
@@ -87,15 +104,28 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
             [`${sector.name} 섹터`, `/${hit.market}/sector/${sector.id}`],
           ])}
         />
+        {hit.market === "kr" && !data.sample && (
+          <JsonLd
+            data={datasetLd(SITE_URL, {
+              name: `${sector.name} 섹터 등락률·순위`,
+              description: answer ?? `${sector.name} 섹터의 기간별 등락률과 섹터 순위`,
+              path: `/${hit.market}/sector/${sector.id}`,
+              asof: data.asof,
+              keywords: [`${sector.name} 섹터`, `${sector.name} 관련주`, ...SECTOR_KEYWORDS],
+            })}
+          />
+        )}
         <Link href={`/${hit.market}`} className="back">
           ← 섹터 순환
         </Link>
         <h1 className="page-title">{sector.name} 섹터</h1>
         {data.sample && <SampleNotice asof={data.asof} />}
-        {sector.intro && (
+        {(answer || sector.intro) && (
           <p className="lead">
+            {answer}
+            {answer && sector.intro ? " " : ""}
             {sector.intro}
-            {sector.count ? ` 보통주 ${sector.count}종목이 이 섹터에 들어 있습니다.` : ""}
+            {sector.intro && sector.count ? ` 보통주 ${sector.count}종목이 이 섹터에 들어 있습니다.` : ""}
           </p>
         )}
         <section className="card">

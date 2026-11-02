@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { SECTOR_KEYWORDS, breadcrumbLd, industryKeywords, industryLabel, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, breadcrumbLd, datasetLd, industryKeywords, industryLabel, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -76,6 +76,17 @@ export default async function IndustryPage({ params }: PageProps<"/[market]/indu
     <div className="shell">
       <SiteHeader active={hit.market} />
       <main className="stack">
+        {!data.sample && (
+          <JsonLd
+            data={datasetLd(SITE_URL, {
+              name: `${industryLabel(ind.name)} 관련주 등락률·순위`,
+              description: `국장 ${sector.name} 섹터 ${ind.name} 산업 보통주 ${ind.count ?? stocks.length}종목의 기간별 등락률, 산업 순위, 종목별 상대강도.`,
+              path: `/${hit.market}/industry/${ind.id}`,
+              asof: data.asof,
+              keywords: industryKeywords(ind.name),
+            })}
+          />
+        )}
         <JsonLd
           data={breadcrumbLd(SITE_URL, [
             ["국장 섹터 순환", `/${hit.market}`],

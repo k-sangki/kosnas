@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { KrTabs } from "@/components/KrTabs";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
-import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
 import { capText } from "@/lib/screens";
 import { signed } from "@/lib/sectors";
 import { THEMES, findTheme, themeAsof, themeData, themeFaq, themeLabel, themeSparkFrom } from "@/lib/themes";
@@ -51,6 +51,15 @@ export default async function ThemePage({ params }: PageProps<"/[market]/theme/[
     <div className="shell">
       <SiteHeader active="kr" />
       <main className="stack">
+        <JsonLd
+          data={datasetLd(SITE_URL, {
+            name: `${themeLabel(t)} 관련주·대장주`,
+            description: `사업 내용으로 고른 ${t.name} 관련주 ${stocks.length}종목의 시가총액, 기간별 등락률과 테마 평균 등락률.`,
+            path: `/kr/theme/${t.id}`,
+            asof: themeAsof,
+            keywords: t.keywords,
+          })}
+        />
         <JsonLd
           data={breadcrumbLd(SITE_URL, [
             ["국장 섹터 순환", "/kr"],
