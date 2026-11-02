@@ -46,7 +46,7 @@ jobs:
         if: env.CLOUDFLARE_API_TOKEN != ''
         run: |
           # 네이버 서치어드바이저가 /favicon.ico 400 을 '수집제한'으로 잡았다(2026-10-21~22)
-          for p in favicon.ico icon.png robots.txt sitemap.xml; do
+          for p in favicon.ico icon.png robots.txt sitemap.xml llms.txt; do
             code=$(curl -sS -o /dev/null -A "Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)" -w '%{http_code}' "https://kosnas.com/$p")
             echo "/$p -> $code"
             [ "$code" = 200 ] || { echo "::error::/$p 응답 $code"; exit 1; }
@@ -74,6 +74,21 @@ jobs:
                l == "disallow:/" && (ua ~ / \*/ || ua ~ /googlebot/) { bad=1 }
                END { exit bad }' robots.txt || { echo "::error::robots.txt 가 전체 차단(Disallow: /)을 담고 있습니다"; exit 1; }
           echo "전체 차단 없음"
+      - name: AI 검색 로봇 허용 확인(경고만)
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          # ChatGPT·Claude·Perplexity 답변에 인용되려면 이 로봇들이 막히지 않아야 한다(2026-11-02).
+          # Cloudflare 관리형 robots.txt·'AI 봇 차단'은 저장소 밖 설정이라 실패로 하지 않고 경고만 남긴다.
+          for b in OAI-SearchBot ChatGPT-User GPTBot Claude-SearchBot Claude-User ClaudeBot PerplexityBot; do
+            code=$(curl -sS -o /dev/null -A "Mozilla/5.0 (compatible; $b/1.0)" -w '%{http_code}' https://kosnas.com/kr)
+            echo "$b /kr -> $code"
+            [ "$code" = 200 ] || echo "::warning::$b 가 /kr 에서 $code (Cloudflare AI 봇 차단 확인)"
+          done
+          awk '{ l=tolower($0); sub(/#.*/,"",l); gsub(/[ \t\r]/,"",l) }
+               l ~ /^user-agent:/ { if (!grp) ua=""; grp=1; ua=ua " " substr(l,12); next }
+               l != "" { grp=0 }
+               l == "disallow:/" && ua ~ /(gptbot|chatgpt-user|oai-searchbot|claudebot|claude-user|claude-searchbot|perplexitybot)/ { print "막힘:" ua; bad=1 }
+               END { exit bad }' robots.txt || echo "::warning::robots.txt 가 AI 검색 로봇을 막고 있습니다(Cloudflare 관리형 robots.txt를 끄세요)"
       - name: IndexNow 알림(네이버·빙)
         if: env.CLOUDFLARE_API_TOKEN != ''
         env:
