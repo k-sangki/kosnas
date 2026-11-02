@@ -211,8 +211,197 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-10-30",
+  "asof": "2026-11-02",
   "trades": [
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 46948987,
+    "value": 46948988
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "buy",
+    "shares": 25934,
+    "value": 25413976
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "LLY",
+    "name": "ELI LILLY & CO",
+    "kind": "sell",
+    "shares": 17599,
+    "value": 24946682
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "ILMN",
+    "name": "ILLUMINA INC",
+    "kind": "buy",
+    "shares": 43216,
+    "value": 10198511
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "KALSHI INC.",
+    "kind": "buy",
+    "shares": 9175,
+    "value": 9783618
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "TEM",
+    "name": "TEMPUS AI INC-CL A",
+    "kind": "buy",
+    "shares": 93212,
+    "value": 6731780
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKG",
+    "ticker": "CDNA",
+    "name": "CAREDX INC",
+    "kind": "sell",
+    "shares": 50856,
+    "value": 4445282
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKG",
+    "ticker": "TEM",
+    "name": "TEMPUS AI INC-CL A",
+    "kind": "buy",
+    "shares": 61107,
+    "value": 4413144
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "COIN",
+    "name": "COINBASE GLOBAL INC -CLASS A",
+    "kind": "buy",
+    "shares": 27521,
+    "value": 3950379
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "CRCL",
+    "name": "CIRCLE INTERNET GROUP INC",
+    "kind": "buy",
+    "shares": 54289,
+    "value": 3938130
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "BLSH",
+    "name": "BULLISH",
+    "kind": "sell",
+    "shares": 115230,
+    "value": 2753998
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKF",
+    "ticker": "BLSH",
+    "name": "BULLISH",
+    "kind": "sell",
+    "shares": 61470,
+    "value": 1469133
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKF",
+    "ticker": "HOOD",
+    "name": "ROBINHOOD MARKETS INC - A",
+    "kind": "buy",
+    "shares": 13757,
+    "value": 1169207
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 1120272,
+    "value": 1120272
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKQ",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 1114680,
+    "value": 1114680
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "PACB",
+    "name": "PACIFIC BIOSCIENCES OF CALIF",
+    "kind": "buy",
+    "shares": 345916,
+    "value": 901112
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKG",
+    "ticker": "ARCT",
+    "name": "ARCTURUS THERAPEUTICS HOLDIN",
+    "kind": "buy",
+    "shares": 64480,
+    "value": 711219
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKF",
+    "ticker": "COIN",
+    "name": "COINBASE GLOBAL INC -CLASS A",
+    "kind": "buy",
+    "shares": 4420,
+    "value": 634447
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 429107,
+    "value": 429107
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKG",
+    "ticker": "PACB",
+    "name": "PACIFIC BIOSCIENCES OF CALIF",
+    "kind": "buy",
+    "shares": 133736,
+    "value": 348383
+   },
+   {
+    "date": "2026-11-02",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "BRERA HOLDINGS PLC WTS",
+    "kind": "buy",
+    "shares": 43988,
+    "value": 48387
+   },
    {
     "date": "2026-10-30",
     "fund": "ARKK",
