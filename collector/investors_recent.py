@@ -341,12 +341,19 @@ def ark_trades(fund, day, prev, cur, min_move=ARK_MIN_MOVE):
     return out
 
 
+def latest_day(trades):
+    """매매가 난 가장 최근 날짜의 것만(그날 새 매매가 없으면 직전 날 것을 그대로 둔다)"""
+    last = max((t["date"] for t in trades), default=None)
+    return [t for t in trades if t["date"] == last]
+
+
 def update_ark(path, since):
     """펀드마다 오늘 CSV를 받아 보관본과 비교하고, 30일 안의 매매만 남긴다"""
     old = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
     funds = old.get("funds", {})
     trades = [t for t in old.get("trades", []) if t["date"] >= since]
     fresh = []
+    # 화면에는 가장 최근 하루치만 보인다(2026-11-03 SK 결정) — 매매가 난 마지막 날만 남긴다
     for fund, name in ARK_FUNDS.items():
         try:
             text = get(ARK_CSV + urllib.parse.quote(name), headers={"User-Agent": "Mozilla/5.0"}).decode("utf-8-sig", "replace")
@@ -367,11 +374,12 @@ def update_ark(path, since):
         if not prev or day > prev["date"]:
             funds[fund] = {"date": day, "holdings": cur}
     started = old.get("started") or min((f["date"] for f in funds.values()), default=None)
+    trades = latest_day(trades)
     trades.sort(key=lambda t: (t["date"], t["value"]), reverse=True)
     snap = {"started": started, "funds": funds, "trades": trades}
     with open(path, "w", encoding="utf-8") as f:
         json.dump(snap, f, ensure_ascii=False, separators=(",", ":"))
-    print(f"ARK: 펀드 {len(funds)}개, 오늘 새 매매 {len(fresh)}건, 30일 {len(trades)}건")
+    print(f"ARK: 펀드 {len(funds)}개, 오늘 새 매매 {len(fresh)}건, 보이는 하루치 {len(trades)}건")
     return snap
 
 

@@ -55,14 +55,15 @@ export function RecentMoves({ limit, more = false }: { limit?: number; more?: bo
   );
 }
 
-/** 캐시 우드(ARK) 펀드의 매일 보유 변화 */
+/** 캐시 우드(ARK) 펀드의 매일 보유 변화 — 가장 최근 하루치만 */
 export function ArkTrades({ limit }: { limit?: number }) {
-  const all = ARK.trades;
+  const day = ARK.trades.reduce<string | null>((m, t) => (m && m > t.date ? m : t.date), null);
+  const all = ARK.trades.filter((t) => t.date === day);
   const rows = all.slice(0, limit);
   return (
     <section className="card">
       <h2 className="card-title">
-        캐시 우드(ARK) 매일 매매 <span className="muted">{ARK.asof ? `${md(ARK.asof)} 보유 기준` : "ARK 공개 보유 내역"}</span>
+        캐시 우드(ARK) 매일 매매 <span className="muted">{day ? `${md(day)} 매매` : ARK.asof ? `${md(ARK.asof)} 보유 기준` : "ARK 공개 보유 내역"}</span>
       </h2>
       {!rows.length && (
         <p className="muted">
