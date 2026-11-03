@@ -120,7 +120,7 @@ export function themeFaq(t: Theme): [string, string][] {
   const out: [string, string][] = [];
   if (top.length)
     out.push([
-      `${t.name} 대장주는 어디인가요?`,
+      `${t.name} 대장주는 어디인가요? ${t.name}주 시총 순위는?`,
       `시가총액 기준으로는 ${top.map((s) => `${s.name}(${capText(s.capEok)}, ${s.note})`).join(", ")} 순입니다(${DATA.asof} 종가). 대장주는 보통 시가총액이 크고 테마 소식에 가장 먼저 반응하는 종목을 말하는데, 시점마다 달라질 수 있습니다.`,
     ]);
   out.push([
