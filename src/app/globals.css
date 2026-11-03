@@ -2487,7 +2487,19 @@ button.ft-row {
   margin-bottom: 4px;
 }
 .poll-when {
+  margin: 0 0 4px;
+}
+.poll-count {
   margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.poll-count b {
+  font-weight: 700;
+}
+.poll-count.soon b {
+  color: var(--up);
 }
 .poll-btns {
   display: grid;
@@ -2585,6 +2597,45 @@ button.ft-row {
 }
 .poll-live .muted {
   font-size: 13px;
+  font-weight: 500;
+}
+.poll-band {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.poll-band button {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.poll-band button.on {
+  border-color: var(--ink-2);
+  background: var(--chip);
+  color: var(--ink);
+  font-weight: 700;
+}
+.poll-verdict {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.poll-verdict.hit {
+  color: var(--mint-ink);
+}
+.poll-verdict.miss {
+  color: var(--ink-2);
+}
+.poll-verdict .muted {
   font-weight: 500;
 }
 .poll-streak {

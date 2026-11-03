@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { closeAt, currentRound, hitRate, liveSide, majority, myStreak, outcome, roundFor } from "./poll";
+import { bandOf, closeAt, currentRound, hitRate, liveSide, majority, myStreak, outcome, roundFor, verdict } from "./poll";
 
 const kst = (s: string) => Date.parse(`${s}+09:00`);
 
@@ -68,5 +68,32 @@ describe("오늘의 한 표 회차", () => {
     ];
     expect(myStreak(past, { e: "up", d: "down", c: "down", b: "down", a: "up" })).toBe(2);
     expect(myStreak(past, { e: "down" })).toBe(0);
+  });
+});
+
+describe("폭 구간", () => {
+  it("크기로 나눈다", () => {
+    expect(bandOf(0.3)).toBe("s");
+    expect(bandOf(-0.5)).toBe("m");
+    expect(bandOf(1.5)).toBe("m");
+    expect(bandOf(-2.1)).toBe("l");
+    expect(bandOf(null)).toBeNull();
+  });
+});
+
+describe("내 결과 한 줄", () => {
+  const p = { target: "2026-11-03", up: 70, down: 30, pct: -0.8 };
+  it("소수파 적중과 맞힌 사람 비율", () => {
+    expect(verdict(p, "down", "m")).toEqual({ hit: true, crowdPct: 30, minority: true, bandHit: true });
+  });
+  it("다수 쪽 빗나감", () => {
+    expect(verdict(p, "up", "s")).toEqual({ hit: false, crowdPct: 30, minority: false, bandHit: null });
+  });
+  it("폭을 안 골랐으면 폭 판정 없음", () => {
+    expect(verdict(p, "down")?.bandHit).toBeNull();
+  });
+  it("보합·안 누름은 없음", () => {
+    expect(verdict({ ...p, pct: 0.01 }, "up")).toBeNull();
+    expect(verdict(p, undefined)).toBeNull();
   });
 });
