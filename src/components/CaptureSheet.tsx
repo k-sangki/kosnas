@@ -406,25 +406,17 @@ export function CaptureSheet({ target, fileName, shareTitle, shareUrl, onClose }
     setToast(/Android/.test(navigator.userAgent) ? "갤러리에 저장했어요" : "이미지를 저장했어요");
   };
 
-  const shareImage = async () => {
-    if (!file) return;
-    try {
-      await navigator.share({ files: [file], title: shareTitle, text: `${shareTitle}\n${shareUrl}` });
-    } catch {
-      // 사용자가 취소한 경우
-    }
-  };
+  // 클립보드에 PNG를 넣는다. 사파리는 누른 순간에 write를 불러야 해서 이미 만든 blob을 바로 넘긴다
+  const canCopyImage = typeof ClipboardItem !== "undefined" && typeof navigator !== "undefined" && !!navigator.clipboard?.write;
 
-  const shareLink = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: shareTitle, url: shareUrl });
-        return;
-      } catch {
-        return;
-      }
+  const copyImage = async () => {
+    if (!blob) return;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      setToast("이미지를 복사했어요");
+    } catch {
+      setToast("복사하지 못했어요");
     }
-    await copyLink();
   };
 
   const copyLink = async () => {
@@ -459,17 +451,20 @@ export function CaptureSheet({ target, fileName, shareTitle, shareUrl, onClose }
           <div className="skeleton" />
         )}
         <div className="share-grid">
-          <button className="share-btn primary" onClick={save} disabled={!blob}>
+          <button
+            className="share-btn primary"
+            onClick={save}
+            disabled={!blob}
+            // 이미지 복사가 되면 저장·복사를 한 줄에 나란히 둔다
+            style={canCopyImage ? { gridColumn: "auto" } : undefined}
+          >
             이미지 저장
           </button>
-          {canShareFile && (
-            <button className="share-btn" onClick={shareImage} disabled={!blob}>
-              이미지 공유하기 (카톡·인스타·카페·블로그)
+          {canCopyImage && (
+            <button className="share-btn" onClick={copyImage} disabled={!blob}>
+              이미지 복사
             </button>
           )}
-          <button className="share-btn" onClick={shareLink}>
-            링크 공유
-          </button>
           <button className="share-btn naver" onClick={naver}>
             네이버 블로그·카페
           </button>
