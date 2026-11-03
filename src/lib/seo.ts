@@ -112,6 +112,8 @@ export function datasetLd(site: string, p: { name: string; description: string; 
     url: `${site}${p.path}`,
     inLanguage: "ko-KR",
     isAccessibleForFree: true,
+    // 코스나스가 계산한 표 숫자는 출처 표시 조건으로 공개(2026-11-03 SK 결정, /about 자료 절)
+    license: "https://creativecommons.org/licenses/by/4.0/",
     dateModified: p.asof,
     temporalCoverage: p.asof,
     ...(p.keywords?.length ? { keywords: p.keywords.slice(0, 12) } : {}),
