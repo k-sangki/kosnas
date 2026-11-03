@@ -115,8 +115,9 @@ export function datasetLd(site: string, p: { name: string; description: string; 
     dateModified: p.asof,
     temporalCoverage: p.asof,
     ...(p.keywords?.length ? { keywords: p.keywords.slice(0, 12) } : {}),
-    creator: { "@id": `${site}/#org` },
+    creator: { "@type": "Organization", "@id": `${site}/#org`, name: SITE_NAME, url: site },
     publisher: { "@id": `${site}/#org` },
-    isBasedOn: { "@type": "Dataset", name: "금융위원회 주식시세정보", url: "https://www.data.go.kr/data/15094808/openapi.do" },
+    // 출처는 주소만 적는다. 이름까지 넣은 Dataset으로 두면 구글이 별도 데이터세트로 보고 description·license·creator 누락을 경고한다(2026-11-03)
+    isBasedOn: "https://www.data.go.kr/data/15094808/openapi.do",
   };
 }
