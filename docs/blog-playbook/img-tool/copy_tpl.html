@@ -1,0 +1,64 @@
+<title>%%TITLE%%</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* 위: 복사 버튼 줄 / 아래: 블로그에 들어갈 모습 그대로(흰 종이) */
+:root{--bg:#EEF1F0;--fg:#1D2624;--muted:#5D6B67;--line:#D3DAD8;--accent:#2E7D6B;--accent-fg:#FFFFFF;--paper:#FFFFFF;--ok:#2E7D6B;--bad:#B3261E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151B1A;--fg:#E5ECEA;--muted:#9AA8A4;--line:#2C3634;--accent:#5BBFA5;--accent-fg:#0F1514;--ok:#5BBFA5;--bad:#F2847B;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#151B1A;--fg:#E5ECEA;--muted:#9AA8A4;--line:#2C3634;--accent:#5BBFA5;--accent-fg:#0F1514;--ok:#5BBFA5;--bad:#F2847B;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:"Noto Sans KR",system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font:inherit;font-size:15px;font-weight:700;border-radius:8px;padding:11px 16px;cursor:pointer;border:1px solid var(--accent)}
+.main{background:var(--accent);color:var(--accent-fg)}
+.sub{background:transparent;color:var(--accent)}
+button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+#msg{font-size:14px;min-height:20px}
+.how{font-size:14px;color:var(--muted);line-height:1.7;margin:0}
+.paper{background:var(--paper);color:#222222;border:1px solid var(--line);border-radius:6px;padding:28px max(18px,4%);min-width:0;overflow-wrap:anywhere}
+.paper p{margin:0 0 10px}
+h2.sec{font-size:16px;margin:12px 0 0}
+.imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.imgs figure{margin:0;display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.imgs img{width:100%;border-radius:6px;border:1px solid var(--line)}
+</style>
+<div class="wrap">
+  <div class="bar">
+    <button class="main" id="copyText">글 복사</button>
+    <span id="msg" role="status"></span>
+  </div>
+  <p class="how">PC에서 버튼을 누른 뒤 네이버 블로그 글쓰기 본문에 Ctrl+V 하세요. 제목은 에디터의 제목 칸에 따로 넣고, 그림 두 장은 아래에서 하나씩 복사해 붙여 넣어 주세요(그림은 글과 함께 복사되지 않아 하나씩 붙여 넣습니다).</p>
+  <div class="paper" id="post">%%POST%%</div>
+  <h2 class="sec">그림 두 장</h2>
+  <p class="how">그림 아래 '복사' 버튼(또는 그림 오른쪽 클릭 → 이미지 복사)을 누른 뒤, 에디터에서 넣을 자리에 Ctrl+V 하세요.</p>
+  <div class="imgs">
+    <figure><img src="%%C%%" alt="표지 그림"><figcaption>표지 · 3줄 요약 바로 아래</figcaption><button class="sub" data-img="0">표지 복사</button></figure>
+    <figure><img src="%%T%%" alt="계산표 그림"><figcaption>계산표 · 예시 계산 목록 바로 아래</figcaption><button class="sub" data-img="1">계산표 복사</button></figure>
+  </div>
+</div>
+<template id="plain">%%PLAIN%%</template>
+<script>
+const msg=document.getElementById('msg');
+function say(t,ok){msg.textContent=t;msg.style.color=ok?'var(--ok)':'var(--bad)'}
+function stripTitle(h){return h.replace(/^\s*<h2[\s\S]*?<\/h2>/,'')}
+async function copyHtml(h){
+  const div=document.createElement('div');div.innerHTML=h;const text=div.innerText;
+  try{
+    await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([h],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})})]);
+    return true;
+  }catch(e){
+    div.contentEditable='true';div.style.position='fixed';div.style.left='-9999px';document.body.appendChild(div);
+    const r=document.createRange();r.selectNodeContents(div);const s=getSelection();s.removeAllRanges();s.addRange(r);
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}
+    s.removeAllRanges();div.remove();return ok;
+  }
+}
+document.getElementById('copyText').onclick=async()=>{
+  const ok=await copyHtml(stripTitle(document.getElementById('plain').innerHTML));
+  say(ok?'복사됐습니다. 에디터 본문에 Ctrl+V 하세요.':'복사가 막혔습니다. 아래 흰 칸을 드래그해 Ctrl+C 해 주세요.',ok)};
+document.querySelectorAll('[data-img]').forEach(b=>b.onclick=async()=>{
+  const im=document.querySelectorAll('.imgs img')[+b.dataset.img];
+  try{const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext('2d').drawImage(im,0,0);
+    await navigator.clipboard.write([new ClipboardItem({'image/png':new Promise(r=>c.toBlob(r,'image/png'))})]);
+    say(b.textContent.replace(' 복사','')+' 그림이 복사됐습니다. 에디터의 넣을 자리에 Ctrl+V 하세요.',true)}
+  catch(e){say('그림 복사가 막혔습니다. 그림을 오른쪽 클릭 → 이미지 복사를 써 주세요.',false)}});
+</script>
