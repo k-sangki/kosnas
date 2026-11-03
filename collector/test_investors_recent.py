@@ -1,6 +1,6 @@
 import unittest
 
-from investors_recent import ark_trades, form4_event, parse_13dg, parse_ark, parse_form4
+from investors_recent import ark_trades, latest_day, form4_event, parse_13dg, parse_ark, parse_form4
 
 FORM4 = b"""<?xml version="1.0"?><ownershipDocument><issuer><issuerName>LENNAR CORP</issuerName><issuerTradingSymbol>LEN</issuerTradingSymbol></issuer><reportingOwner><reportingOwnerId><rptOwnerCik>0001067983</rptOwnerCik></reportingOwnerId></reportingOwner>
 <nonDerivativeTable>
@@ -51,6 +51,11 @@ class Stake13Test(unittest.TestCase):
 
 
 class ArkTest(unittest.TestCase):
+    def test_latest_day_only(self):
+        t = [{"date": "2026-11-02"}, {"date": "2026-10-30"}, {"date": "2026-11-02"}]
+        self.assertEqual([x["date"] for x in latest_day(t)], ["2026-11-02", "2026-11-02"])
+        self.assertEqual(latest_day([]), [])
+
     def test_parse(self):
         day, h = parse_ark(ARK)
         self.assertEqual(day, "2026-10-22")
