@@ -183,7 +183,7 @@ function ThemeIndex() {
           const r = themeData(t.id).ret["20"];
           return (
             <li key={t.id}>
-              <Link href={`/kr/theme/${t.id}`}>{t.name} 관련주</Link>
+              <Link href={`/kr/theme/${t.id}`}>{t.name} 관련주·대장주</Link>
               <span className="muted">
                 {" "}
                 20일 <span className={(r ?? 0) >= 0 ? "up" : "down"}>{signed(r)}%</span>

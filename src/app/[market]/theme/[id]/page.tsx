@@ -30,9 +30,9 @@ export async function generateMetadata({ params }: PageProps<"/[market]/theme/[i
   const { stocks } = themeData(t.id);
   const names = stocks.slice(0, 3).map((s) => s.name);
   return pageMeta({
-    title: `${themeLabel(t)} 관련주·대장주 - 시가총액 순위와 등락률`,
+    title: `${themeLabel(t)} 관련주·대장주 - ${t.name}주 시총 순위와 등락률`,
     description: `${t.name} 관련주 ${stocks.length}종목을 시가총액 순으로 정리했습니다. ${names.length ? `${names.join("·")} 등 ` : ""}종목별 관련 사업과 오늘·5·20·60일 등락률, 52주 고점 대비, 테마 평균 등락률을 매일 장 마감 자료로 봅니다.`,
-    keywords: [...t.keywords, ...names.map((n) => `${n} 주가`)],
+    keywords: [...t.keywords, `${t.name} 주식`, `${t.name}주 시총 순위`, `${t.name} 시총 순위`, `${t.name}주 대장주`, ...names.map((n) => `${n} 주가`)],
     path: `/kr/theme/${t.id}`,
   });
 }
@@ -80,7 +80,7 @@ export default async function ThemePage({ params }: PageProps<"/[market]/theme/[
         <h1 className="page-title">{themeLabel(t)} 관련주·대장주</h1>
         <p className="lead">
           {t.about} {y}년 {m}월 {d}일 종가 기준 {stocks.length}종목
-          {top.length > 0 && ` 가운데 시가총액이 가장 큰 종목은 ${top.map((s) => `${s.name}(${capText(s.capEok)})`).join(", ")}입니다`}.
+          {top.length > 0 && ` 가운데 ${t.name} 대장주로 꼽히는 시가총액 상위 종목은 ${top.map((s) => `${s.name}(${capText(s.capEok)})`).join(", ")}입니다`}.
           {ret["20"] != null && ` 최근 20거래일 테마 평균 등락률은 ${signed(ret["20"])}%입니다.`}
         </p>
         <section className="card">
@@ -108,7 +108,7 @@ export default async function ThemePage({ params }: PageProps<"/[market]/theme/[
         </section>
         <section className="card">
           <h2 className="card-title">
-            {t.name} 관련주 · 시가총액 순 <span className="muted">{stocks.length}종목</span>
+            {t.name}주 시총 순위 <span className="muted">{stocks.length}종목</span>
           </h2>
           {stocks.length ? (
             <StockList
