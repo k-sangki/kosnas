@@ -49,6 +49,14 @@ export default function About() {
         <li>종목의 업종은 금융감독원 DART 기업개황의 표준산업분류를 바탕으로 나누고, 실제 사업과 어긋나는 일부 종목(지주회사 등)은 직접 바로잡았습니다.</li>
         <li>야간 코스피 추정과 미국 지수 흐름, 대시보드의 무기한선물 카드는 Hyperliquid(trade.xyz)의 공개 시세로 계산한 참고값입니다.</li>
         <li>대시보드의 일부 카드와 미국 섹터 지도는 트레이딩뷰가 제공하는 위젯을 그대로 보여줍니다.</li>
+        <li>
+          코스나스가 계산한 섹터·산업·테마·종목 표의 숫자는{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/deed.ko" rel="license noopener" target="_blank">
+            크리에이티브 커먼즈 저작자표시 4.0(CC BY 4.0)
+          </a>
+          으로 공개합니다. &lsquo;출처: 코스나스(kosnas.com)&rsquo;를 밝히면 자유롭게 인용·재사용할 수 있습니다. 트레이딩뷰 위젯과 해외 시세는 각 제공처의 조건을
+          따릅니다.
+        </li>
       </ul>
 
       <h2>투자 유의</h2>
