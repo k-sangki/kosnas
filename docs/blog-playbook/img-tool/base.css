@@ -1,0 +1,20 @@
+@font-face{font-family:K;font-weight:400;src:url(node_modules/@fontsource/noto-sans-kr/files/noto-sans-kr-korean-400-normal.woff2)}
+@font-face{font-family:K;font-weight:700;src:url(node_modules/@fontsource/noto-sans-kr/files/noto-sans-kr-korean-700-normal.woff2)}
+@font-face{font-family:K;font-weight:900;src:url(node_modules/@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+body{width:1080px;font-family:K,sans-serif;background:#0d1b2a;color:#e8eef5}
+.card{padding:72px 80px;background:radial-gradient(circle at 85% 20%,#1d3a5c 0,#0d1b2a 55%)}
+.kicker{color:#5ec2b7;font-weight:700;font-size:28px;letter-spacing:1px}
+h1{font-size:76px;font-weight:900;line-height:1.2;margin-top:24px}
+h1 em{font-style:normal;color:#f2c14e}
+.big{font-size:150px;font-weight:900;color:#ff6b6b;margin-top:40px;line-height:1}
+.cap{font-size:30px;color:#9fb3c8;margin-top:12px}
+.list{margin-top:48px;display:grid;gap:16px}
+.list div{background:#ffffff12;border-left:6px solid #5ec2b7;padding:22px 28px;font-size:32px;font-weight:700}
+.foot{margin-top:44px;font-size:24px;color:#6f8399;display:flex;justify-content:space-between}
+table{width:100%;border-collapse:collapse;margin-top:40px;font-size:34px}
+th{background:#f2c14e;color:#1b1b1b;padding:20px;font-weight:900}
+td{padding:22px 20px;text-align:center;border-bottom:1px solid #ffffff22}
+td.n{color:#ff6b6b;font-weight:900}td.p{color:#5ec2b7;font-weight:900}
+.note{font-size:26px;color:#9fb3c8;margin-top:28px;line-height:1.5}
+h1,.cap,.list div,.note,td,th{word-break:keep-all}

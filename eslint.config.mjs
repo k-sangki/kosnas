@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     ".open-next/**",
     ".wrangler/**",
+    // 사이트에 올라가지 않는 문서·도구(블로그 작성 규칙 등)
+    "docs/**",
   ]),
 ]);
 
