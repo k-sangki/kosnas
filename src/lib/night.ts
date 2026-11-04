@@ -276,13 +276,21 @@ export function chartEnd(win: NightWindow, last: number) {
 }
 
 /**
+ * 작은 카드 선 차트의 가로축 끝. 야간 구간 안에서는 chartEnd와 같고, 구간이 끝난 장중(09:00~15:45)에는
+ * 지금 가격까지 이어 그리도록 마지막 점(지금)까지 늘린다. 카드 가격은 지금 값인데 선만 09:00에 멈추면 둘이 어긋난다.
+ */
+export function sparkEnd(win: NightWindow, last: number) {
+  return Math.max(chartEnd(win, last), last);
+}
+
+/**
  * 작은 카드의 선 차트 자료. 가로축은 야간 구간 전체(15:45~09:00)라 아직 오지 않은 시간은 비어 보인다.
  * at = 15:45 가격, mid = 구간 안 [시각, 가격], last = 지금 [시각, 가격]
  */
 export function windowSpark(win: NightWindow, at: number, mid: readonly (readonly [number, number])[], last: readonly [number, number] | null) {
   const pts = thin([[win.start, at] as const, ...mid, ...(last ? [last] : [])]);
   if (pts.length < 2) return undefined;
-  const span = chartEnd(win, pts[pts.length - 1][0]) - win.start;
+  const span = sparkEnd(win, pts[pts.length - 1][0]) - win.start;
   return {
     spark: pts.map((p) => p[1]),
     sparkT: pts.map((p) => Math.round(Math.min(1, Math.max(0, (p[0] - win.start) / span)) * 1000) / 1000),
@@ -393,8 +401,9 @@ export function assemble(
     // 15:45 전 체결이 없으면 그 뒤 첫 체결을 기준으로 삼는다
     const at = priceAt(cs, win.start)?.c ?? cs.find((k) => k.t + step > win.start)?.c;
     const chg = price != null && at ? round2((price / at - 1) * 100) : null;
-    const mid = cs.filter((k) => k.t + step > win.start && k.t + step <= win.end).map((k) => [k.t + step, k.c] as const);
-    const s = at ? windowSpark(win, at, mid, win.live && price != null ? [now, price] : null) : undefined;
+    // 장중(구간이 끝난 뒤)에도 지금 가격까지 잇는다. 아직 끝나지 않은 봉은 빼고 끝에 지금 가격을 붙인다
+    const mid = cs.filter((k) => k.t + step > win.start && k.t + step <= now).map((k) => [k.t + step, k.c] as const);
+    const s = at ? windowSpark(win, at, mid, price != null ? [now, price] : null) : undefined;
     return {
       coin: i.coin,
       label: i.label,

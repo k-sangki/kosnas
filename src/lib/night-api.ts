@@ -3,7 +3,7 @@ import {
   EXTRA_COINS,
   MAIN_COINS,
   WEEKEND_COINS,
-  chartEnd,
+  sparkEnd,
   weekendRef,
   HL_INFO,
   INPUTS,
@@ -136,7 +136,8 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   const from = win.start - 120 * MIN;
   const [ctx, { candles, prem }, close, extraCandles, mids] = await Promise.all([
     info<[{ universe: { name: string }[] }, HlCtx[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
-    candlesFor(cache, base, now, interval, from, Math.min(now, win.end)),
+    // 장중에도 작은 카드 선 차트를 지금까지 이으려고 지금까지 받는다(야간 추정선은 구간 끝에서 멈춘다)
+    candlesFor(cache, base, now, interval, from, now),
     closeFor(cache, base, now, win),
     extraCandlesFor(cache, base, now, win).catch(() => ({}) as Record<string, Close[]>),
     info<Record<string, string>>({ type: "allMids" }).catch(() => ({}) as Record<string, string>),
@@ -147,11 +148,12 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   const extraOf = (c: string, price: number, prev: number, cs: Close[]) => {
     const end = (k: Close) => k.t + 15 * MIN;
     const at = [...cs].reverse().find((k) => end(k) <= win.start)?.c ?? cs.find((k) => end(k) > win.start)?.c;
-    const mid = cs.filter((k) => end(k) > win.start && end(k) <= Math.min(now, win.end)).map((k) => [end(k), k.c] as const);
-    const last = win.live ? ([now, price] as const) : null;
+    // 장중(09:00~15:45)에도 카드 가격(지금)과 맞도록 선을 지금 가격까지 잇는다
+    const mid = cs.filter((k) => end(k) > win.start && end(k) <= now).map((k) => [end(k), k.c] as const);
+    const last = [now, price] as const;
     const s = at ? windowSpark(win, at, mid, last) : undefined;
     const wk = (WEEKEND_COINS as readonly string[]).includes(c)
-      ? weekendRef(win, now, cs, chartEnd(win, last?.[0] ?? mid[mid.length - 1]?.[0] ?? win.start) - win.start)
+      ? weekendRef(win, now, cs, sparkEnd(win, last[0]) - win.start)
       : null;
     return { price, prev: prev > 0 ? prev : null, ...(s ?? {}), ...(wk ? { wk } : {}) };
   };

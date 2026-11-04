@@ -215,8 +215,25 @@ describe("windowSpark", () => {
   it("구간이 끝났으면 끝까지 찬다", () => {
     expect(windowSpark({ ...win, live: false }, 10, [[500, 11], [1000, 12]], null)?.sparkT).toEqual([0, 0.5, 1]);
   });
+  it("구간이 끝난 장중에는 지금 가격까지 이어 그리고 가로축도 지금까지 늘린다", () => {
+    expect(windowSpark({ ...win, live: false }, 10, [[500, 11], [1000, 12]], [2000, 13])).toEqual({ spark: [10, 11, 12, 13], sparkT: [0, 0.25, 0.5, 1] });
+  });
   it("점이 하나뿐이면 그리지 않는다", () => {
     expect(windowSpark(win, 10, [], null)).toBeUndefined();
+  });
+});
+
+describe("장중 작은 카드", () => {
+  it("야간 구간이 끝난 뒤(장중)에도 입력 종목 선 차트는 지금 가격에서 끝난다", () => {
+    const win = { start: 0, end: 10 * 60_000, live: false };
+    const cs = Array.from({ length: 15 }, (_, k) => ({ t: (k - 1) * 60_000, c: 100 + k }));
+    const now = 14.5 * 60_000;
+    const d = assemble(now, win, { EWY: cs, KR200: cs, SMSN: cs }, { EWY: 120, KR200: 120, SMSN: 120 })!;
+    const i = d.inputs.find((x) => x.coin === "SMSN")!;
+    expect(i.spark!.at(-1)).toBe(120);
+    expect(i.sparkT!.at(-1)).toBe(1);
+    // 아직 끝나지 않은 봉(14:00~15:00)은 넣지 않아 가로 위치가 거꾸로 가지 않는다
+    expect([...i.sparkT!].sort((a, b) => a - b)).toEqual(i.sparkT);
   });
 });
 
