@@ -99,6 +99,13 @@ export function krDate(iso: string) {
   return `${y}년 ${m}월 ${d}일`;
 }
 
+/** 구글 Dataset description은 50~5000자여야 한다(2026-11-04 서치콘솔 경고: 테마 페이지 설명이 짧았다). 짧으면 기준일·출처 문장을 붙인다 */
+export function datasetDescription(text: string, asof: string) {
+  const tail = ` ${krDate(asof)} 장 마감 기준으로 금융위원회 주식시세정보를 바탕으로 코스나스가 매일 계산하며, 출처를 밝히면 자유롭게 인용할 수 있습니다(CC BY 4.0).`;
+  const out = [...text].length < 50 ? text + tail : text;
+  return [...out].length > 5000 ? [...out].slice(0, 4999).join("") + "…" : out;
+}
+
 /**
  * 장 마감 자료로 만든 표 페이지의 Dataset 구조화 데이터. 기준일(dateModified)·출처·만든 곳을 밝혀
  * AI 답변·검색이 '언제 기준, 누가 계산한 숫자'인지 알고 인용하게 한다(2026-11-02).
@@ -108,7 +115,7 @@ export function datasetLd(site: string, p: { name: string; description: string; 
     "@context": "https://schema.org",
     "@type": "Dataset",
     name: p.name,
-    description: p.description,
+    description: datasetDescription(p.description, p.asof),
     url: `${site}${p.path}`,
     inLanguage: "ko-KR",
     isAccessibleForFree: true,
