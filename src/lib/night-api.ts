@@ -11,6 +11,7 @@ import {
   weekendRef,
   HL_INFO,
   INPUTS,
+  KRX_CODES,
   assemble,
   isExpiryDay,
   kstYmd,
@@ -119,6 +120,31 @@ async function loadClose(win: NightWindow) {
   return d?.marketStatus === "CLOSE" && d.localTradedAt?.slice(0, 10).replace(/-/g, "") === ymd && v > 0 ? v : null;
 }
 
+/** KRX 종목 그날 정규장 종가(네이버 증권 일봉) */
+async function loadStockClose(code: string, ymd: string) {
+  const day = await fetch(`https://fchart.stock.naver.com/siseJson.nhn?symbol=${code}&requestType=1&startTime=${ymd}&endTime=${ymd}&timeframe=day`, {
+    headers: NAVER,
+  })
+    .then((r) => (r.ok ? r.text() : ""))
+    .catch(() => "");
+  const row = new RegExp(`\\[\\s*"${ymd}"\\s*,\\s*[\\d.]+\\s*,\\s*[\\d.]+\\s*,\\s*[\\d.]+\\s*,\\s*([\\d.]+)`).exec(day);
+  return row && Number(row[1]) > 0 ? Number(row[1]) : null;
+}
+
+/** 삼성전자·SK하이닉스 그날 KRX 종가. 15:45 뒤부터 받고, 받으면 6시간, 못 받으면 5분 둔다 */
+async function stockClosesFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
+  if (now < win.start) return {};
+  const ymd = kstYmd(win.start);
+  const key = new Request(new URL(`/api/night/stock-close?${ymd}`, base).toString());
+  const hit = await cache?.match(key).catch(() => undefined);
+  if (hit) return (await hit.json()) as Record<string, number | null>;
+  const entries = await Promise.all(Object.entries(KRX_CODES).map(async ([coin, code]) => [coin, await loadStockClose(code, ymd).catch(() => null)] as const));
+  const got = Object.fromEntries(entries);
+  const age = Object.values(got).every((v) => v != null) ? 6 * 3600 : 300;
+  await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${age}` } })).catch(() => undefined);
+  return got;
+}
+
 /** 주간 종가는 그날 16:10(네이버 20분 지연 뒤)부터 받는다. 만기일은 끝나는 월물의 종가라 쓰지 않는다 */
 async function closeFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   if (isExpiryDay(win) || now < win.start + 25 * MIN) return null;
@@ -140,13 +166,14 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   const interval = step === 60_000 ? "1m" : "5m";
   // 거래가 드문 종목(원/달러 등)도 15:45 직전 체결가를 찾도록 두 시간 앞부터 받는다
   const from = win.start - 120 * MIN;
-  const [ctx, { candles, prem }, close, extraCandles, mids] = await Promise.all([
+  const [ctx, { candles, prem }, close, extraCandles, mids, stockClose] = await Promise.all([
     info<[{ universe: { name: string }[] }, HlCtx[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
     // 장중에도 작은 카드 선 차트를 지금까지 이으려고 지금까지 받는다(야간 추정선은 구간 끝에서 멈춘다)
     candlesFor(cache, base, now, interval, from, now),
     closeFor(cache, base, now, win),
     extraCandlesFor(cache, base, now, win).catch(() => ({}) as Record<string, Close[]>),
     info<Record<string, string>>({ type: "allMids" }).catch(() => ({}) as Record<string, string>),
+    stockClosesFor(cache, base, now, win).catch(() => ({}) as Record<string, number | null>),
   ]);
   const marks: Record<string, number | null> = {};
   const extra: NonNullable<NightData["extra"]> = {};
@@ -195,7 +222,13 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     prem: prem ?? [],
     close,
   });
-  return data && { ...data, extra };
+  if (!data) return data;
+  // 원화 환산 종목(삼성전자·SK하이닉스): 등락률을 그날 KRX 종가 대비로(국내 앱의 시간외 시세와 같은 기준)
+  const inputs = data.inputs.map((i) => {
+    const c = stockClose[i.coin];
+    return c && i.krw && Math.abs(i.krw / c - 1) < 0.3 ? { ...i, chg: Math.round((i.krw / c - 1) * 10000) / 100, krxClose: c } : i;
+  });
+  return { ...data, inputs, extra };
 }
 
 export async function nightGET(req: Request) {
