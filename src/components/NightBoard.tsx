@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { chartEnd, hhmm, timeTicks, usOpenIn, type NightData } from "@/lib/night";
 import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
@@ -20,6 +20,7 @@ const baseName = (d: NightData) => (d.baseKind === "close" ? "주간 종가" : "
 
 function Chart({ d }: { d: NightData }) {
   const [hover, setHover] = useState<number | null>(null);
+  const cid = `nc${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const ref = useRef<SVGSVGElement>(null);
   const box = useRef<HTMLDivElement>(null);
   // 글자가 화면 크기와 상관없이 같은 크기로 보이도록 실제 폭으로 그린다
@@ -128,7 +129,17 @@ function Chart({ d }: { d: NightData }) {
         ))}
         <line x1={PAD.l} x2={W - PAD.r} y1={py(d.base)} y2={py(d.base)} className="base" />
         <path d={kr} className="kr" />
-        <path d={est} className={`est ${t}`} />
+        {/* 추정선은 기준선 위는 빨강, 아래는 파랑으로 나눠 그린다 */}
+        <defs>
+          <clipPath id={`${cid}u`}>
+            <rect x={0} y={0} width={W} height={py(d.base)} />
+          </clipPath>
+          <clipPath id={`${cid}d`}>
+            <rect x={0} y={py(d.base)} width={W} height={H - py(d.base)} />
+          </clipPath>
+        </defs>
+        <path d={est} className="est up" clipPath={`url(#${cid}u)`} />
+        <path d={est} className="est down" clipPath={`url(#${cid}d)`} />
         <circle cx={px(last[0])} cy={py(last[1])} r={3.5} className={`dot ${t}`} />
         <rect x={W - PAD.r + 2} y={py(last[1]) - 10} width={PAD.r - 2} height={20} rx={4} className={`tag ${t}`} />
         <text x={W - PAD.r + 6} y={py(last[1]) + 4} className="tagt">
