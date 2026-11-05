@@ -253,7 +253,7 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   const i =
     (x && { coin: t.coin, price: x.price, chg: ref ? (x.price / ref - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT }) ??
     d?.inputs.find((v) => v.coin === t.coin);
-  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : "15:45 대비";
+  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : i && "krxClose" in i && i.krxClose ? "KRX 종가 대비" : "15:45 대비";
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -570,8 +570,8 @@ export function Dashboard({ d }: { d: NightData | null }) {
       <Fold small title="카드 안내" className="no-capture">
         <p>
           카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고, 등락률은 카드 아래에 적힌
-          기준으로 셉니다. 미국 지수·종목은 전일 미국 마감(뉴욕 16:00), 원유·금·은은 전일 CME 정산, 비트코인은 오늘 09:00, 삼성전자·SK하이닉스·KR200은 오늘 15:45
-          대비예요. 나스닥 100·S&P 500 무기한선물은 지수를 따라가서, 이자 몫이 붙는 CME 선물(12월물 등)보다 0.3~0.5% 낮게 보일 수 있어요. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
+          기준으로 셉니다. 미국 지수·종목은 전일 미국 마감(뉴욕 16:00), 원유·금·은은 전일 CME 정산, 비트코인은 오늘 09:00, 삼성전자·SK하이닉스는 그날 KRX 종가,
+          KR200은 오늘 15:45 대비예요. 나스닥 100·S&P 500 무기한선물은 지수를 따라가서, 이자 몫이 붙는 CME 선물(12월물 등)보다 0.3~0.5% 낮게 보일 수 있어요. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
           보여 주는 시세(미국 전일 종가 대비)입니다. 카드 배치는 이 브라우저에만 저장됩니다.
         </p>
       </Fold>

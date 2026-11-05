@@ -30,6 +30,9 @@ const HOUR = 3_600_000;
 const DAY = 86_400_000;
 
 /** 화면에 같이 보여 줄 해외 무기한선물. 이름은 trade.xyz 종목 이름이다. */
+/** 원화 환산 카드의 KRX 종목 코드(등락률을 그날 KRX 종가 대비로 센다) */
+export const KRX_CODES: Record<string, string> = { SMSN: "005930", SKHX: "000660" };
+
 export const INPUTS = [
   { coin: "EWY", label: "EWY(한국 ETF)", unit: "$" },
   { coin: "KR200", label: "KR200 무기한선물", unit: "" },
@@ -224,6 +227,8 @@ export type NightInput = {
   price: number;
   chg: number | null;
   krw?: number;
+  /** 원화 환산 종목의 등락률 기준인 KRX 정규장 종가(받았을 때). 없으면 15:45 무기한선물 가격 대비 */
+  krxClose?: number;
   /** 15:45부터 지금까지의 가격(처음 값이 15:45, 많아야 80개) — 작은 카드의 선 차트 */
   spark?: number[];
   /** spark 각 점의 시각을 야간 구간(15:45~09:00) 안의 위치(0~1)로 */
