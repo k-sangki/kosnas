@@ -19,6 +19,9 @@ import {
   hhmm,
   cmeFridayClose,
   weekendRef,
+  lastRefTime,
+  refPrice,
+  REF_RULES,
   type Candle,
 } from "./night";
 
@@ -279,5 +282,30 @@ describe("주말 원자재 기준(금요일 CME 마감)", () => {
     expect(weekendRef(nightWindow(fri), fri, cs, 1)).toBeNull();
     const tue = kst("2026-10-20T23:00:00");
     expect(weekendRef(nightWindow(tue), tue, cs, 1)).toBeNull();
+  });
+});
+
+describe("등락률 기준 시각(국내 앱과 같게)", () => {
+  const utc = (s: string) => Date.parse(`${s}Z`);
+  it("미국 마감 16:00 ET: 목 20:17 KST면 수 16:00 ET(표준시 21:00Z)", () => {
+    expect(lastRefTime(kst("2026-11-05T20:17:00"), REF_RULES.XYZ100)).toBe(utc("2026-11-04T21:00:00"));
+  });
+  it("서머타임 중이면 20:00Z, 월요일 아침이면 금요일 마감", () => {
+    expect(lastRefTime(kst("2026-10-21T10:00:00"), REF_RULES.SP500)).toBe(utc("2026-10-20T20:00:00"));
+    expect(lastRefTime(kst("2026-10-26T08:00:00"), REF_RULES.SP500)).toBe(utc("2026-10-23T20:00:00"));
+  });
+  it("원유 정산 14:30 ET, 비트코인 09:00 KST", () => {
+    expect(lastRefTime(kst("2026-11-05T20:17:00"), REF_RULES.CL)).toBe(utc("2026-11-04T19:30:00"));
+    expect(lastRefTime(kst("2026-11-05T20:17:00"), REF_RULES.BTC)).toBe(kst("2026-11-05T09:00:00"));
+    expect(lastRefTime(kst("2026-11-05T08:00:00"), REF_RULES.BTC)).toBe(kst("2026-11-04T09:00:00"));
+  });
+  it("기준 시각까지 끝난 마지막 15분봉 종가", () => {
+    const cs: Candle[] = [
+      { t: utc("2026-11-04T20:30:00"), c: 1 },
+      { t: utc("2026-11-04T20:45:00"), c: 2 },
+      { t: utc("2026-11-04T21:00:00"), c: 3 },
+    ];
+    expect(refPrice(cs, utc("2026-11-04T21:00:00"))).toBe(2);
+    expect(refPrice(cs, utc("2026-11-04T20:00:00"))).toBeNull();
   });
 });

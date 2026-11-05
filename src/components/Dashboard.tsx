@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Fold } from "./Fold";
 import { useRouter } from "next/navigation";
-import type { NightData } from "@/lib/night";
+import { REF_RULES, type NightData } from "@/lib/night";
 import { NIGHT_STOCKS } from "@/lib/night-stocks";
 import { TvWidget } from "./TvWidget";
 
@@ -14,7 +14,7 @@ import { TvWidget } from "./TvWidget";
  */
 type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit?: "₩" | "$" } | { kind: "tv"; symbol: string });
 
-const XSUB = "무기한선물 · 24시간 전 대비 · 주말에도 거래";
+const XSUB = "무기한선물 · 주말에도 거래";
 
 const TILES: Tile[] = [
   { id: "SMSN", label: "삼성전자", kind: "hl", coin: "SMSN", unit: "₩", sub: "무기한선물 · 원화 환산" },
@@ -33,7 +33,7 @@ const TILES: Tile[] = [
   { id: "GOLD", label: "금", kind: "tv", symbol: "TVC:GOLD" },
   { id: "DXY", label: "달러 인덱스", kind: "tv", symbol: "TVC:DXY" },
   { id: "BTC", label: "비트코인", kind: "hl", coin: "BTC", unit: "$", sub: XSUB },
-  // 주말·새벽에도 거래되는 무기한선물. 등락은 24시간 전 대비
+  // 주말·새벽에도 거래되는 무기한선물. 등락 기준은 REF_RULES(전일 정산·미국 마감, 비트코인 09:00)
   { id: "P-CL", label: "유가(WTI) · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
   { id: "P-BRENT", label: "브렌트유 · 24시간", kind: "hl", coin: "BRENTOIL", unit: "$", sub: XSUB },
   { id: "P-GOLD", label: "금 · 24시간", kind: "hl", coin: "GOLD", unit: "$", sub: XSUB },
@@ -244,13 +244,16 @@ const won = (v: number) => `${v > 0 ? "▲" : v < 0 ? "▼" : ""}${Math.abs(Math
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
 function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | null }) {
+  // 미국 지수·원자재·종목·코인은 국내 앱과 같은 기준(전일 미국 마감·정산, 09:00) 자료(extra)로,
+  // 국내 종목(삼성전자·SK하이닉스)·KR200·원/달러는 15:45 대비(inputs)로 본다
   const x = d?.extra?.[t.coin];
   // 주말(금요일 CME 마감 뒤)에는 원자재 카드를 금요일 마감 대비로 본다
-  const wk = !d?.inputs.some((v) => v.coin === t.coin) ? x?.wk : undefined;
+  const wk = x?.wk;
   const ref = wk ? wk.close : x?.prev;
   const i =
-    d?.inputs.find((v) => v.coin === t.coin) ??
-    (x && { coin: t.coin, price: x.price, chg: ref ? (x.price / ref - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT });
+    (x && { coin: t.coin, price: x.price, chg: ref ? (x.price / ref - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT }) ??
+    d?.inputs.find((v) => v.coin === t.coin);
+  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : "15:45 대비";
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -265,9 +268,9 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
           {i.chg != null ? `${i.chg > 0 ? "+" : ""}${fmt(i.chg)}%` : "-"}
           {i.krw && i.chg != null && <span className="tile-won">{won(i.krw - i.krw / (1 + i.chg / 100))}</span>}
         </p>
-        {i.spark && <Spark v={i.spark} t={i.sparkT} base={wk ? wk.close : x && !d?.inputs.some((v) => v.coin === t.coin) ? (x.prev ?? undefined) : undefined} />}
+        {i.spark && <Spark v={i.spark} t={i.sparkT} base={x ? (ref ?? undefined) : undefined} />}
       </div>
-      <p className="tile-sub">{wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : t.sub}</p>
+      <p className="tile-sub">{wk ? basis : `${t.sub} · ${basis}`}</p>
     </>
   );
 }
@@ -304,7 +307,7 @@ function TvBody({ t }: { t: Extract<Tile, { kind: "tv" }> }) {
 /**
  * 작은 선 차트. 가로축은 야간 구간 전체(15:45~다음 거래일 09:00)라 아직 오지 않은 시간은 비어 있고 끝에 지금 점을 찍는다.
  * 구간이 끝난 장중(09:00~15:45)에는 카드 가격과 맞도록 지금 가격까지 이어 오른쪽 끝을 채운다.
- * 점선은 등락률 기준(보통 15:45 가격, 24시간 카드는 24시간 전 가격). t가 없는 예전 자료는 폭을 다 채운다.
+ * 점선은 등락률 기준(보통 15:45 가격, 미국·원자재·코인 카드는 REF_RULES 기준 가격). t가 없는 예전 자료는 폭을 다 채운다.
  */
 function Spark({ v, t, base = v[0] }: { v: number[]; t?: number[]; base?: number }) {
   const W = 64;
@@ -566,8 +569,9 @@ export function Dashboard({ d }: { d: NightData | null }) {
       )}
       <Fold small title="카드 안내" className="no-capture">
         <p>
-          카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고 등락과 선 차트는 15:45
-          대비입니다(“주말에도 거래” 카드는 24시간 전 대비). 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
+          카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고, 등락률은 카드 아래에 적힌
+          기준으로 셉니다. 미국 지수·종목은 전일 미국 마감(뉴욕 16:00), 원유·금·은은 전일 CME 정산, 비트코인은 오늘 09:00, 삼성전자·SK하이닉스·KR200은 오늘 15:45
+          대비예요. 나스닥 100·S&P 500 무기한선물은 지수를 따라가서, 이자 몫이 붙는 CME 선물(12월물 등)보다 0.3~0.5% 낮게 보일 수 있어요. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
           보여 주는 시세(미국 전일 종가 대비)입니다. 카드 배치는 이 브라우저에만 저장됩니다.
         </p>
       </Fold>
