@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/night/[stock]">):
   if (!s) return {};
   return pageMeta({
     title: `${s.name} 야간 시세 실시간 추정 - ${s.name} 야간선물·밤사이 주가`,
-    description: `${s.name} 야간 주가 지금 얼마? 국내 장이 끝난 뒤부터 다음 날 아침까지 해외에서 24시간 거래되는 ${s.name} 무기한선물 가격을 원화로 바꿔 실시간으로 보여 줍니다. 15:45 대비 등락과 밤사이 흐름 차트.`,
+    description: `${s.name} 야간 주가 지금 얼마? 국내 장이 끝난 뒤부터 다음 날 아침까지 해외에서 24시간 거래되는 ${s.name} 무기한선물 가격을 원화로 바꿔 실시간으로 보여 줍니다. KRX 종가 대비 등락과 밤사이 흐름 차트.`,
     keywords: s.keywords,
     path: `/night/${s.slug}`,
   });
@@ -62,7 +62,7 @@ export default async function NightStockPage({ params }: PageProps<"/night/[stoc
           <Fold title="어떻게 계산하나요">
             <p>
               Hyperliquid의 trade.xyz 시장에는 {s.name} 한 주를 따르는 무기한선물이 달러로 거래됩니다. 이 가격에 같은 시장의 원/달러 무기한선물 값을 곱해 원화로 바꾸고,
-              국내 정규장이 끝난 15:45 무렵 가격과 비교해 등락률을 냅니다. 지수 전체의 밤사이 흐름은{" "}
+              그날 한국거래소 종가와 비교해 등락률을 냅니다. 지수 전체의 밤사이 흐름은{" "}
               <Link href="/night">코스피 야간선물 실시간 추정</Link>에서, {s.name}가 속한 반도체 섹터의 최근 등락과 순위는{" "}
               <Link href={`/kr/sector/${s.sector}`}>반도체 섹터 페이지</Link>에서 볼 수 있습니다.
             </p>
