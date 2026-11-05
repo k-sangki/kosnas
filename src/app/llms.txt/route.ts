@@ -1,3 +1,4 @@
+import { LIVE_QUOTES } from "@/lib/live-quotes";
 import { GUIDES } from "@/lib/guides";
 import { INVESTORS } from "@/lib/investors13f";
 import { NIGHT_STOCKS } from "@/lib/night-stocks";
@@ -55,6 +56,7 @@ export function GET() {
     link("코스피 야간선물 실시간(야선)", "/night", "국장이 닫힌 밤에 코스피200 야간선물 흐름을 해외 무기한선물 시세로 실시간 추정한 차트. '지금 야간선물 어때?', '내일 코스피 시초가' 같은 질문"),
     ...NIGHT_STOCKS.map((s) => link(`${s.name} 야간 시세`, `/night/${s.slug}`, `${s.name} 무기한선물 가격을 원화로 바꾼 밤사이 추정가`)),
     link("실시간 대시보드", "/", "나스닥 100 선물·S&P 500 선물·달러 인덱스·VIX·WTI 유가·원/달러를 한 화면에. '지금 미국 선물 어때?'"),
+    ...LIVE_QUOTES.map((q) => link(`${q.name} 실시간`, `/live/${q.slug}`, `${q.short} 24시간 무기한선물 시세, ${q.basis} 등락률`)),
     link("국제유가 실시간·주말 유가", "/weekend-oil", "WTI 실시간과 CME가 닫힌 주말의 유가 추정"),
     link("국장 섹터 순환", "/kr", "코스피·코스닥 섹터별 5·10·20·30·60일 수익률과 주도·약화·소외·관찰 네 칸, 시장 폭. '요즘 어떤 섹터가 강해?', '순환매 어디로 가?'"),
     link("미국 증시", "/us", "미국 섹터 지도와 개장 시간·휴장일"),

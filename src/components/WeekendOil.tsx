@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { hhmm, type NightData } from "@/lib/night";
+import { PriceLine } from "./PriceLine";
 
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 const sign = (v: number) => (v > 0 ? "+" : "");
@@ -96,7 +97,7 @@ export function WeekendOil() {
                     )}
                   </dl>
                 </div>
-                {x.spark && x.spark.length > 1 && <Line v={x.spark} t={x.sparkT} base={x.wk?.close} mark={x.wk?.atT} name={it.name} />}
+                {x.spark && x.spark.length > 1 && <PriceLine v={x.spark} t={x.sparkT} base={base ?? undefined} mark={x.wk?.atT} name={it.name} label={(p) => usd(p)} />}
               </div>
             );
           })}
@@ -110,34 +111,5 @@ export function WeekendOil() {
       )}
       {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
     </section>
-  );
-}
-
-function Line({ v, t, base = v[0], mark, name }: { v: number[]; t?: number[]; base?: number; mark?: number; name: string }) {
-  const W = 640;
-  const H = 180;
-  const P = { l: 8, r: 64, t: 12, b: 12 };
-  const lo = Math.min(...v, base);
-  const hi = Math.max(...v, base);
-  const pad = (hi - lo) * 0.08 || base * 0.002;
-  const y = (p: number) => P.t + (1 - (p - (lo - pad)) / (hi - lo + 2 * pad)) * (H - P.t - P.b);
-  const xt = (f: number) => P.l + f * (W - P.l - P.r);
-  const x = (n: number) => xt(t && t.length === v.length ? t[n] : n / (v.length - 1));
-  const path = v.map((p, n) => `${n ? "L" : "M"}${x(n).toFixed(1)},${y(p).toFixed(1)}`).join("");
-  const end = v[v.length - 1];
-  return (
-    <div className="nchart pchart">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${name} 가격 흐름`}>
-        <line x1={P.l} x2={W - P.r} y1={y(base)} y2={y(base)} className="grid" strokeDasharray="4 4" />
-        {mark != null && <line x1={xt(mark)} x2={xt(mark)} y1={P.t} y2={H - P.b} className="grid" />}
-        <path d={path} className={`stroke ${tone(end - base) || "up"}`} />
-        <text x={W - P.r + 6} y={y(hi) + 4} className="ylab">
-          {usd(hi)}
-        </text>
-        <text x={W - P.r + 6} y={y(lo) + 4} className="ylab">
-          {usd(lo)}
-        </text>
-      </svg>
-    </div>
   );
 }
