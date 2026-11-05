@@ -2,8 +2,12 @@ import {
   DEX,
   EXTRA_COINS,
   MAIN_COINS,
+  REF_RULES,
+  US_INDEX_COINS,
   WEEKEND_COINS,
   sparkEnd,
+  lastRefTime,
+  refPrice,
   weekendRef,
   HL_INFO,
   INPUTS,
@@ -72,12 +76,14 @@ type Close = { t: number; c: number };
 /** 대시보드 추가 카드의 15분봉 종가(야간 구간 시작 전부터). 원천 호출을 아끼려고 5분 단위로 묶어 캐시한다 */
 async function extraCandlesFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   const slot = Math.floor(now / (EXTRA_TTL * 1000));
-  const key = new Request(new URL(`/api/night/extra3?${slot}`, base).toString());
+  const key = new Request(new URL(`/api/night/extra4?${slot}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
   if (hit) return (await hit.json()) as Record<string, Close[]>;
-  // 기본 거래소 코인은 24시간 전 가격도 이 봉에서 찾으므로 15분 더 앞부터
-  const from = Math.min(now - DAY - 15 * MIN, win.start - 60 * MIN);
-  const all = [...EXTRA_COINS.map((c) => [c, `${DEX}:${c}`]), ...MAIN_COINS.map((c) => [c, c])];
+  // 등락률 기준 시각(전일 미국 마감·정산, 09:00)의 가격도 이 봉에서 찾으므로 가장 이른 기준보다 30분 앞부터
+  const earliest = Math.min(...Object.values(REF_RULES).map((r) => lastRefTime(now, r)));
+  const from = Math.min(earliest - 30 * MIN, win.start - 60 * MIN);
+  const dexCoins = [...EXTRA_COINS, ...US_INDEX_COINS];
+  const all = [...dexCoins.map((c) => [c, `${DEX}:${c}`]), ...MAIN_COINS.map((c) => [c, c])];
   const series = await Promise.all(
     all.map(([, coin]) =>
       info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin, interval: "15m", startTime: from, endTime: now } }).catch(() => []),
@@ -144,8 +150,15 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   ]);
   const marks: Record<string, number | null> = {};
   const extra: NonNullable<NightData["extra"]> = {};
-  /** 선은 야간 구간(15:45~09:00) 위에 15:45 가격부터 지금까지. 점선은 등락률 기준인 24시간 전 가격(화면이 그린다) */
-  const extraOf = (c: string, price: number, prev: number, cs: Close[]) => {
+  /**
+   * 선은 야간 구간(15:45~09:00) 위에 15:45 가격부터 지금까지. 점선은 등락률 기준 가격(화면이 그린다).
+   * 기준은 종목마다 국내 앱과 같은 시각(REF_RULES)의 15분봉 종가, 봉이 없으면 원천의 24시간 전 가격(fallback)
+   */
+  const extraOf = (c: string, price: number, fallback: number, cs: Close[]) => {
+    const rule = REF_RULES[c];
+    const prevAt = rule ? lastRefTime(now, rule) : undefined;
+    const ref = prevAt != null ? refPrice(cs, prevAt) : null;
+    const prev = ref ?? fallback;
     const end = (k: Close) => k.t + 15 * MIN;
     const at = [...cs].reverse().find((k) => end(k) <= win.start)?.c ?? cs.find((k) => end(k) > win.start)?.c;
     // 장중(09:00~15:45)에도 카드 가격(지금)과 맞도록 선을 지금 가격까지 잇는다
@@ -155,26 +168,24 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     const wk = (WEEKEND_COINS as readonly string[]).includes(c)
       ? weekendRef(win, now, cs, sparkEnd(win, last[0]) - win.start)
       : null;
-    return { price, prev: prev > 0 ? prev : null, ...(s ?? {}), ...(wk ? { wk } : {}) };
+    return { price, prev: prev > 0 ? prev : null, ...(ref && prevAt ? { prevAt } : {}), ...(s ?? {}), ...(wk ? { wk } : {}) };
   };
   let kr200: HlCtx | undefined;
   ctx[0].universe.forEach((u, i) => {
     const c = u.name.replace(`${DEX}:`, "");
     if (c === "KR200") kr200 = ctx[1][i];
     if (coins.includes(c as (typeof coins)[number])) marks[c] = markOf(ctx[1][i]);
-    if ((EXTRA_COINS as readonly string[]).includes(c)) {
+    if ((EXTRA_COINS as readonly string[]).includes(c) || (US_INDEX_COINS as readonly string[]).includes(c)) {
       const price = markOf(ctx[1][i]);
       const prev = Number(ctx[1][i]?.prevDayPx);
       if (price) extra[c] = extraOf(c, price, prev, extraCandles[c] ?? []);
     }
   });
-  // 기본 거래소 코인(비트코인): 지금 가격은 중간가, 24시간 전 가격은 그때 끝난 15분봉 종가
+  // 기본 거래소 코인(비트코인): 지금 가격은 중간가, 기준은 오늘 09:00에 끝난 15분봉 종가(REF_RULES)
   for (const c of MAIN_COINS) {
     const price = Number(mids[c]);
     const cs = extraCandles[c] ?? [];
-    let prev = 0;
-    for (const k of cs) if (k.t + 15 * MIN <= now - DAY) prev = k.c;
-    if (price > 0) extra[c] = extraOf(c, price, prev, cs);
+    if (price > 0) extra[c] = extraOf(c, price, refPrice(cs, now - DAY) ?? 0, cs);
   }
   const num = (v: string | null | undefined) => (v != null && Number.isFinite(Number(v)) ? Number(v) : null);
   const oracle = num(kr200?.oraclePx);

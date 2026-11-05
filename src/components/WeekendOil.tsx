@@ -14,7 +14,7 @@ const ITEMS = [
 
 /**
  * 주말 유가. 야간 화면과 같은 /api/night 의 원자재 무기한선물(trade.xyz)을 쓴다.
- * 주말(금요일 CME 마감 뒤 ~ 월요일 국내 09:00)에는 금요일 마감 대비, 그 밖에는 24시간 전 대비.
+ * 주말(금요일 CME 마감 뒤 ~ 월요일 국내 09:00)에는 금요일 마감 대비, 그 밖에는 전일 CME 정산 대비.
  */
 export function WeekendOil() {
   const [d, setD] = useState<NightData | null>(null);
@@ -60,7 +60,7 @@ export function WeekendOil() {
       ) : (
         <>
           <p className="muted">
-            {weekend ? "주말 거래 중 · 금요일 뉴욕 마감 대비 · 추정치" : "평일 · 24시간 전 대비"} · {hhmm(d.updated)} 갱신
+            {weekend ? "주말 거래 중 · 금요일 뉴욕 마감 대비 · 추정치" : "평일 · 전일 CME 정산 대비"} · {hhmm(d.updated)} 갱신
           </p>
           {ITEMS.map((it) => {
             const x = d.extra?.[it.coin];
@@ -85,7 +85,7 @@ export function WeekendOil() {
                   </div>
                   <dl className="night-stats">
                     <div>
-                      <dt>{x.wk ? "금요일 마감" : "24시간 전"}</dt>
+                      <dt>{x.wk ? "금요일 마감" : x.prevAt ? "전일 정산" : "24시간 전"}</dt>
                       <dd>{base ? `$${usd(base)}` : "-"}</dd>
                     </div>
                     {x.wk && (

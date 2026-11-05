@@ -259,8 +259,8 @@ export type NightData = {
   factor?: number;
   points: NightPoint[];
   inputs: NightInput[];
-  /** 지금 가격과 24시간 전 가격, 24시간 선 차트를 싣는 무기한선물(대시보드 추가 카드용) */
-  extra?: Record<string, { price: number; prev: number | null; spark?: number[]; sparkT?: number[]; wk?: WeekendRef }>;
+  /** 지금 가격과 등락 기준 가격(prevAt 시각), 24시간 선 차트를 싣는 무기한선물(대시보드 추가 카드용) */
+  extra?: Record<string, { price: number; prev: number | null; prevAt?: number; spark?: number[]; sparkT?: number[]; wk?: WeekendRef }>;
   updated: number;
 };
 
@@ -307,6 +307,66 @@ export type WeekendRef = { close: number; at: number; atT: number };
 
 /** trade.xyz가 아니라 Hyperliquid 기본 거래소에서 받는 무기한선물(대시보드 추가 카드용, 이름 앞에 dex가 붙지 않는다) */
 export const MAIN_COINS = ["BTC"] as const;
+
+/** 대시보드에서 15:45 대신 미국 마감 기준으로 볼 trade.xyz 무기한선물(지수·미국 ETF) */
+export const US_INDEX_COINS = ["XYZ100", "SP500", "EWY"] as const;
+
+/**
+ * 등락률 기준 시각. 토스·업비트 같은 국내 앱이 보여 주는 기준에 맞춘다(2026-11-05).
+ * ny = 미국 동부 시각(평일만), kst = 한국 시각(매일). 미국 휴장일은 따로 빼지 않는다(그날은 가격이 거의 움직이지 않는다)
+ */
+export type RefRule = { tz: "ny" | "kst"; h: number; m: number; label: string };
+const US_CLOSE: RefRule = { tz: "ny", h: 16, m: 0, label: "전일 미국 마감 대비" };
+export const REF_RULES: Record<string, RefRule> = {
+  XYZ100: US_CLOSE,
+  SP500: US_CLOSE,
+  EWY: US_CLOSE,
+  NVDA: US_CLOSE,
+  TSLA: US_CLOSE,
+  MU: US_CLOSE,
+  TSM: US_CLOSE,
+  VIX: { tz: "ny", h: 16, m: 15, label: "전일 미국 마감 대비" },
+  // CME 원유 정산 14:30, 금·은 13:30(뉴욕). 브렌트(ICE, 런던 19:30)도 14:30으로 둔다
+  CL: { tz: "ny", h: 14, m: 30, label: "전일 정산 대비" },
+  BRENTOIL: { tz: "ny", h: 14, m: 30, label: "전일 정산 대비" },
+  GOLD: { tz: "ny", h: 13, m: 30, label: "전일 정산 대비" },
+  SILVER: { tz: "ny", h: 13, m: 30, label: "전일 정산 대비" },
+  DXY: { tz: "ny", h: 17, m: 0, label: "전일 마감 대비" },
+  // 업비트·토스 코인은 매일 09:00(KST) 기준
+  BTC: { tz: "kst", h: 9, m: 0, label: "오늘 09:00 대비" },
+};
+
+const NY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", hourCycle: "h23" });
+function nyParts(ms: number) {
+  const o = Object.fromEntries(NY.formatToParts(ms).map((p) => [p.type, p.value]));
+  return { y: Number(o.year), mo: Number(o.month), d: Number(o.day), h: Number(o.hour) };
+}
+
+/** 지금보다 앞선 가장 최근 기준 시각(UTC ms) */
+export function lastRefTime(now: number, r: RefRule): number {
+  for (let back = 0; back < 8; back++) {
+    let t: number;
+    if (r.tz === "kst") {
+      t = kstMidnight(now) - back * DAY + r.h * HOUR + r.m * MIN;
+    } else {
+      const p = nyParts(now - back * DAY);
+      const wd = new Date(Date.UTC(p.y, p.mo - 1, p.d)).getUTCDay();
+      if (wd === 0 || wd === 6) continue;
+      // 서머타임(UTC−4)이면 h+4시, 아니면 h+5시
+      t = Date.UTC(p.y, p.mo - 1, p.d, r.h + 4, r.m);
+      if (nyParts(t).h !== r.h) t += HOUR;
+    }
+    if (t <= now) return t;
+  }
+  return now - DAY;
+}
+
+/** 기준 시각까지 끝난 마지막 15분봉 종가 */
+export function refPrice(cs: readonly Candle[], at: number): number | null {
+  let v: number | null = null;
+  for (const k of cs) if (k.t + 15 * MIN <= at) v = k.c;
+  return v;
+}
 
 /** 주말에 금요일 마감 대비로 보여 줄 원자재(WTI·브렌트·금·은) */
 export const WEEKEND_COINS = ["CL", "BRENTOIL", "GOLD", "SILVER"] as const;
