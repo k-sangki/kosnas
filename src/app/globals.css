@@ -1344,10 +1344,10 @@ body:has(.fab-bar) .foot {
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
-.tile-spark.up polyline {
+.tile-spark polyline.up {
   stroke: var(--up);
 }
-.tile-spark.down polyline {
+.tile-spark polyline.down {
   stroke: var(--down);
 }
 .tile.linked {

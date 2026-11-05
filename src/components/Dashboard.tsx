@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Fold } from "./Fold";
 import { useRouter } from "next/navigation";
 import { REF_RULES, type NightData } from "@/lib/night";
@@ -321,12 +321,24 @@ function Spark({ v, t, base = v[0] }: { v: number[]; t?: number[]; base?: number
   const x = (k: number) => (t && t.length === v.length ? t[k] : k / (v.length - 1)) * W;
   const pts = v.map((p, k) => `${x(k).toFixed(1)},${y(p).toFixed(1)}`).join(" ");
   const k = v.length - 1;
+  const id = `sp${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const yb = y(base);
   return (
     // 상자 크기는 카드 배치가 정하고 그림은 그 상자를 채운다(그림 비율이 카드 높이를 늘리지 않게)
+    // 선은 기준선 위는 빨강, 아래는 파랑으로 나눠 그린다
     <div className="tile-spark-box">
       <svg className={`tile-spark ${tone(v[k] - base)}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
-        <line x1={0} x2={W} y1={y(base)} y2={y(base)} className="base" />
-        <polyline points={pts} />
+        <defs>
+          <clipPath id={`${id}u`}>
+            <rect x={-2} y={-10} width={W + 4} height={yb + 10} />
+          </clipPath>
+          <clipPath id={`${id}d`}>
+            <rect x={-2} y={yb} width={W + 4} height={H - yb + 10} />
+          </clipPath>
+        </defs>
+        <line x1={0} x2={W} y1={yb} y2={yb} className="base" />
+        <polyline points={pts} className="up" clipPath={`url(#${id}u)`} />
+        <polyline points={pts} className="down" clipPath={`url(#${id}d)`} />
       </svg>
       {/* 끝 점은 그림을 늘려도 둥글게 보이도록 SVG 밖에 둔다 */}
       {x(k) < W - 0.5 && <span className={`tile-spark-dot ${tone(v[k] - base)}`} style={{ left: `${(x(k) / W) * 100}%`, top: `calc(4px + (100% - 8px) * ${(y(v[k]) / H).toFixed(3)})` }} />}
