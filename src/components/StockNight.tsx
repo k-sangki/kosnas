@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { hhmm, type NightData } from "@/lib/night";
 
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
@@ -76,7 +76,7 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
               </div>
               <div>
                 <dt>기준</dt>
-                <dd>15:45 대비</dd>
+                <dd>{i.krxClose ? `KRX 종가 ${i.krxClose.toLocaleString()}원 대비` : "15:45 대비"}</dd>
               </div>
               <div>
                 <dt>갱신</dt>
@@ -84,9 +84,11 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
               </div>
             </dl>
           </div>
-          {i.spark && i.spark.length > 1 && <Line v={i.spark} t={i.sparkT} k={i.krw / i.price} name={name} />}
+          {i.spark && i.spark.length > 1 && (
+            <Line v={i.spark} t={i.sparkT} k={i.krw / i.price} name={name} base={i.krxClose ? (i.price * i.krxClose) / i.krw : undefined} />
+          )}
           <p className="muted small-note">
-            가로축은 15:45부터 다음 국내 개장(09:00)까지이고, 점선은 15:45 가격입니다. 해외 무기한선물로 계산한 참고값이며 실제 주가와 다를 수 있습니다.
+            가로축은 15:45부터 다음 국내 개장(09:00)까지이고, 점선은 등락률 기준({i.krxClose ? "그날 KRX 종가" : "15:45 가격"})이에요. 점선 위는 빨강, 아래는 파랑입니다. 해외 무기한선물로 계산한 참고값이며 실제 주가와 다를 수 있습니다.
           </p>
         </>
       )}
@@ -95,25 +97,34 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
   );
 }
 
-/** 15:45부터의 가격 선(원화). k = 원화 ÷ 달러 */
-function Line({ v, t, k, name }: { v: number[]; t?: number[]; k: number; name: string }) {
+/** 15:45부터의 가격 선(원화). k = 원화 ÷ 달러, base = 점선(등락률 기준, 달러) */
+function Line({ v, t, k, name, base = v[0] }: { v: number[]; t?: number[]; k: number; name: string; base?: number }) {
   const W = 640;
   const H = 200;
   const P = { l: 8, r: 72, t: 12, b: 12 };
-  const base = v[0];
-  const lo = Math.min(...v);
-  const hi = Math.max(...v);
+  const id = `pl${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const lo = Math.min(...v, base);
+  const hi = Math.max(...v, base);
   const pad = (hi - lo) * 0.08 || base * 0.002;
   const y = (p: number) => P.t + (1 - (p - (lo - pad)) / (hi - lo + 2 * pad)) * (H - P.t - P.b);
   const x = (n: number) => P.l + (t && t.length === v.length ? t[n] : n / (v.length - 1)) * (W - P.l - P.r);
   const path = v.map((p, n) => `${n ? "L" : "M"}${x(n).toFixed(1)},${y(p).toFixed(1)}`).join("");
-  const end = v[v.length - 1];
   const won = (p: number) => `${Math.round(p * k).toLocaleString()}`;
   return (
     <div className="nchart pchart">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${name} 15:45 이후 가격 흐름`}>
+        <defs>
+          <clipPath id={`${id}u`}>
+            <rect x={0} y={0} width={W} height={y(base)} />
+          </clipPath>
+          <clipPath id={`${id}d`}>
+            <rect x={0} y={y(base)} width={W} height={H - y(base)} />
+          </clipPath>
+        </defs>
         <line x1={P.l} x2={W - P.r} y1={y(base)} y2={y(base)} className="grid" strokeDasharray="4 4" />
-        <path d={path} className={`stroke ${tone(end - base) || "up"}`} />
+        {/* 기준선 위는 빨강, 아래는 파랑 */}
+        <path d={path} className="stroke up" clipPath={`url(#${id}u)`} />
+        <path d={path} className="stroke down" clipPath={`url(#${id}d)`} />
         <text x={W - P.r + 6} y={y(hi) + 4} className="ylab">
           {won(hi)}
         </text>
