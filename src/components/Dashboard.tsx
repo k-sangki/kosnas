@@ -353,6 +353,9 @@ const PAGE: Record<string, string> = {
   ...Object.fromEntries(NIGHT_STOCKS.map((s) => [s.coin, `/night/${s.slug}`])),
   // 유가 카드는 주말 유가 페이지로
   "P-CL": "/weekend-oil",
+  XYZ100: "/live/nasdaq-100",
+  SP500: "/live/sp-500",
+  BTC: "/live/bitcoin",
   "P-BRENT": "/weekend-oil",
 };
 

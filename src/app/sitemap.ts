@@ -1,3 +1,4 @@
+import { LIVE_QUOTES } from "@/lib/live-quotes";
 import { INVESTORS } from "@/lib/investors13f";
 import type { MetadataRoute } from "next";
 import { MARKETS, industryIndexable, industryPages, sectorData } from "@/lib/sectors";
@@ -28,6 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     at("", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     at("/night", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     ...NIGHT_STOCKS.map((s) => at(`/night/${s.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
+    ...LIVE_QUOTES.map((q) => at(`/live/${q.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
     at("/weekend-oil", { lastModified: now, changeFrequency: "hourly", priority: 0.9 }),
     at("/kr", { lastModified: kr, changeFrequency: "daily", priority: 0.9 }),
     at("/us", { lastModified: now, changeFrequency: "hourly", priority: 0.8 }),
