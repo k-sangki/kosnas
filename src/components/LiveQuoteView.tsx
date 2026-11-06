@@ -52,7 +52,8 @@ export function LiveQuoteView({ q }: { q: Pick<LiveQuote, "coin" | "name" | "uni
   }, []);
 
   const x = d?.extra?.[q.coin];
-  const base = x?.prev ?? null;
+  // 주말(금요일 CME 마감 뒤)에는 원자재를 금요일 마감 대비로
+  const base = x?.wk?.close ?? x?.prev ?? null;
   const chg = x && base ? (x.price / base - 1) * 100 : null;
   const u = q.unit ?? "";
   return (
@@ -84,16 +85,16 @@ export function LiveQuoteView({ q }: { q: Pick<LiveQuote, "coin" | "name" | "uni
             <dl className="night-stats">
               <div>
                 <dt>기준</dt>
-                <dd>{x.prevAt ? q.basis : "24시간 전 대비"}</dd>
+                <dd>{x.wk ? "금요일 CME 마감 대비(주말 추정)" : x.prevAt ? q.basis : "24시간 전 대비"}</dd>
               </div>
               <div>
                 <dt>기준 가격</dt>
                 <dd>{base ? `${u}${num(base)}` : "-"}</dd>
               </div>
-              {x.prevAt && (
+              {(x.wk?.at ?? x.prevAt) && (
                 <div>
                   <dt>기준 시각</dt>
-                  <dd>{at(x.prevAt)}</dd>
+                  <dd>{at((x.wk?.at ?? x.prevAt)!)}</dd>
                 </div>
               )}
               <div>
@@ -102,7 +103,7 @@ export function LiveQuoteView({ q }: { q: Pick<LiveQuote, "coin" | "name" | "uni
               </div>
             </dl>
           </div>
-          {x.spark && x.spark.length > 1 && <PriceLine v={x.spark} t={x.sparkT} base={base ?? undefined} name={q.name} label={(p) => `${u}${num(p)}`} />}
+          {x.spark && x.spark.length > 1 && <PriceLine v={x.spark} t={x.sparkT} base={base ?? undefined} mark={x.wk?.atT} name={q.name} label={(p) => `${u}${num(p)}`} />}
           <p className="muted small-note">
             가로축은 한국 시각 15:45부터 다음 국내 개장(09:00)까지이고, 점선은 등락률 기준 가격이에요. 점선 위는 빨강, 아래는 파랑입니다. 해외 무기한선물로 본 참고값이며 정규 거래소
             시세와 다를 수 있습니다.
