@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-05",
- "since": "2026-10-06",
+ "updated": "2026-11-06",
+ "since": "2026-10-07",
  "window": 30,
  "failed": [],
  "investors": [
@@ -81,6 +81,69 @@
   }
  ],
  "events": [
+  {
+   "kind": "buy",
+   "shares": 332159.64,
+   "value": 9691164,
+   "price": 29.18,
+   "after": 1933159.65,
+   "from": "2026-05-15",
+   "to": "2026-10-01",
+   "issuer": "Third Point Private Capital Partners",
+   "ticker": "",
+   "investor": "loeb",
+   "form": "4",
+   "filed": "2026-11-05",
+   "acc": "0000899140-26-001212",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040273/000089914026001212/xslF345X06/form4.xml"
+  },
+  {
+   "kind": "buy",
+   "shares": 160000.0,
+   "value": 4000000,
+   "price": 25.0,
+   "after": 161000.0,
+   "from": "2026-11-03",
+   "to": "2026-11-03",
+   "issuer": "Third Point Private Capital Income Fund",
+   "ticker": "",
+   "investor": "loeb",
+   "form": "4",
+   "filed": "2026-11-05",
+   "acc": "0000899140-26-001214",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040273/000089914026001214/xslF345X06/form4.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "Third Point Private Capital Income Fund",
+   "ticker": "",
+   "pct": 100.0,
+   "shares": 161000.0,
+   "event_date": "2026-11-03",
+   "amend": false,
+   "active": true,
+   "investor": "loeb",
+   "form": "SCHEDULE 13D",
+   "filed": "2026-11-05",
+   "acc": "0000899140-26-001217",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040273/000089914026001217/xslSCHEDULE_13D_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "Third Point Private Capital Partners",
+   "ticker": "",
+   "pct": 64.8,
+   "shares": 1933159.65,
+   "event_date": "2026-05-29",
+   "amend": true,
+   "active": true,
+   "prev_pct": 76.6,
+   "investor": "loeb",
+   "form": "SCHEDULE 13D/A",
+   "filed": "2026-11-05",
+   "acc": "0000899140-26-001213",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040273/000089914026001213/xslSCHEDULE_13D_X02/primary_doc.xml"
+  },
   {
    "kind": "buy",
    "shares": 924281.0,
