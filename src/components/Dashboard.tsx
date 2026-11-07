@@ -357,6 +357,7 @@ const PAGE: Record<string, string> = {
   SP500: "/live/sp-500",
   BTC: "/live/bitcoin",
   "P-GOLD": "/live/gold",
+  "P-SILVER": "/live/silver",
   "P-BRENT": "/weekend-oil",
 };
 

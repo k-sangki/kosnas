@@ -327,7 +327,8 @@ def compute(days: dict[str, list[dict]], industry: dict[str, str | None], earnin
                 xc, xp = xs(end, p)[g], xs(end - p, p)[g]
                 x[k] = None if xc is None else round(xc, 2)
                 y[k] = None if xc is None or xp is None else round(xc - xp, 2)
-                q[k] = None if y[k] is None else quadrant(xc, y[k])
+                # 칸은 화면에 보이는 반올림 값으로 정한다(-0.004 → 0.0인데 lag로 나오던 것)
+                q[k] = None if y[k] is None else quadrant(x[k], y[k])
                 pts = []
                 for e in range(end - p + 1, end + 1):
                     a, b = xs(e, p)[g], xs(e - p, p)[g]
