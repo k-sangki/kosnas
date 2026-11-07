@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-06",
- "since": "2026-10-07",
+ "updated": "2026-11-07",
+ "since": "2026-10-08",
  "window": 30,
  "failed": [],
  "investors": [
@@ -81,6 +81,38 @@
   }
  ],
  "events": [
+  {
+   "kind": "stake",
+   "issuer": "Tempus AI, Inc.",
+   "ticker": "TEM",
+   "pct": 4.91,
+   "shares": 8607836.0,
+   "event_date": "2026-10-31",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-06",
+   "acc": "0001104659-26-123788",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926123788/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "CVR Energy, Inc.",
+   "ticker": "CVI",
+   "pct": 64.1,
+   "shares": 71201875.0,
+   "event_date": "2026-11-05",
+   "amend": true,
+   "active": true,
+   "prev_pct": 70.8,
+   "investor": "icahn",
+   "form": "SCHEDULE 13D/A",
+   "filed": "2026-11-06",
+   "acc": "0001193125-26-451979",
+   "url": "https://www.sec.gov/Archives/edgar/data/921669/000119312526451979/xslSCHEDULE_13D_X02/primary_doc.xml"
+  },
   {
    "kind": "buy",
    "shares": 332159.64,
@@ -254,38 +286,6 @@
    "filed": "2026-10-15",
    "acc": "0000899140-26-001108",
    "url": "https://www.sec.gov/Archives/edgar/data/1040273/000089914026001108/xslSCHEDULE_13D_X02/primary_doc.xml"
-  },
-  {
-   "kind": "stake",
-   "issuer": "LENNAR CORPORATION",
-   "ticker": "LEN",
-   "pct": 12.5,
-   "shares": 26034436.0,
-   "event_date": "2026-09-30",
-   "amend": true,
-   "active": false,
-   "prev_pct": 6.2,
-   "investor": "buffett",
-   "form": "SCHEDULE 13G/A",
-   "filed": "2026-10-07",
-   "acc": "0001193125-26-417254",
-   "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526417254/xslSCHEDULE_13G_X02/primary_doc.xml"
-  },
-  {
-   "kind": "stake",
-   "issuer": "10x Genomics, Inc.",
-   "ticker": "TXG",
-   "pct": 5.22,
-   "shares": 6272998.0,
-   "event_date": "2026-09-30",
-   "amend": true,
-   "active": false,
-   "prev_pct": 8.56,
-   "investor": "wood",
-   "form": "SCHEDULE 13G/A",
-   "filed": "2026-10-07",
-   "acc": "0001104659-26-114392",
-   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926114392/xslSCHEDULE_13G_X02/primary_doc.xml"
   }
  ],
  "ark": {
