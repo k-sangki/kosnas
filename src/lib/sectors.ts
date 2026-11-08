@@ -241,11 +241,15 @@ export function industryShown(market: Market, ind: Industry): number {
   return sector ? sector.stocks.filter((s) => s.ind === ind.name).length : 0;
 }
 
+/** 검색에 올리는 산업 페이지의 최소 표시 종목 수 */
+export const INDUSTRY_INDEX_MIN = 3;
+
 /**
- * 검색에 올릴 산업 페이지인가. 기본 필터를 통과한 종목이 하나도 없으면 목록이 빈 얇은 페이지라
- * noindex로 두고 사이트맵에서도 뺀다(주소는 그대로 열린다, 종목이 생기면 다음 갱신에 다시 올라간다).
+ * 검색에 올릴 산업 페이지인가. 기본 필터를 통과한 종목이 INDUSTRY_INDEX_MIN개보다 적으면 목록이 거의 빈
+ * 얇은 페이지라 noindex로 두고 사이트맵에서도 뺀다(주소는 그대로 열린다, 종목이 늘면 다음 갱신에 다시 올라간다).
+ * 2026-11-09 애드센스 '가치 없는 콘텐츠' 재거절 뒤 1 → 3(산업 63 → 40개).
  */
-export const industryIndexable = (market: Market, ind: Industry) => industryShown(market, ind) > 0;
+export const industryIndexable = (market: Market, ind: Industry) => industryShown(market, ind) >= INDUSTRY_INDEX_MIN;
 
 export function findIndustry(market: Market, id: string): Industry | undefined {
   return industryPages(market).find((i) => i.id === id);
