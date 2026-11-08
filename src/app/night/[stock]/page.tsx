@@ -59,6 +59,12 @@ export default async function NightStockPage({ params }: PageProps<"/night/[stoc
         </p>
         <AdSlot slot={AD_SLOTS.board} />
         <section className="card seo-text">
+          <h2 className="card-title">밤사이 {s.name} 가격을 움직이는 것</h2>
+          {s.drivers.map((d) => (
+            <p key={d.slice(0, 20)}>{d}</p>
+          ))}
+        </section>
+        <section className="card seo-text">
           <Fold title="어떻게 계산하나요">
             <p>
               Hyperliquid의 trade.xyz 시장에는 {s.name} 한 주를 따르는 무기한선물이 달러로 거래됩니다. 이 가격에 같은 시장의 원/달러 무기한선물 값을 곱해 원화로 바꾸고,
@@ -94,6 +100,9 @@ export default async function NightStockPage({ params }: PageProps<"/night/[stoc
             ))}
             <li>
               <Link href="/night">코스피 야간선물 실시간 추정</Link>
+            </li>
+            <li>
+              <Link href="/live/nvidia">엔비디아 주가 실시간</Link>
             </li>
             <li>
               <Link href="/guide/ewy-kospi">EWY와 코스피는 어떻게 연결되나요</Link>

@@ -157,18 +157,9 @@ export default async function IndustryPage({ params }: PageProps<"/[market]/indu
             <p className="muted">지금은 기본 필터를 통과한 종목이 없습니다.</p>
           )}
           <p className="muted small-note">
-            기본 필터({BASE_FILTER})를 통과한 종목만 보이며, 등락률·순위 계산에는 모든 보통주를 씁니다. 상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전
-            종목과 비교한 순위(1~99)입니다. 종목을 누르면 차트가 열립니다.
+            기본 필터({BASE_FILTER}) 통과 종목만 보입니다. 계산 방법은 <Link href="/guide/relative-strength">상대강도</Link>·
+            <Link href="/guide/quadrant">네 칸 읽는 법</Link>·<Link href="/guide/industry">섹터와 산업 나누기</Link>에 있습니다.
           </p>
-        </section>
-        <section className="card seo-text">
-          <Fold title="이 숫자를 읽는 법">
-            <p>
-              산업은 같은 섹터 안에서도 실적이 함께 움직이는 회사끼리 다시 나눈 묶음입니다. 섹터 전체가 약해도 그 안의 한 산업만 먼저 강해지는 일이 많아, 순환매를 볼 때는
-              섹터 다음에 산업을 봅니다. 네 칸(주도·약화·소외·관찰)의 뜻은 <Link href="/guide/quadrant">네 칸 읽는 법</Link>, 섹터와 산업을 나누는 기준은{" "}
-              <Link href="/guide/industry">섹터와 산업은 어떻게 나누나요</Link>에 정리했습니다. 특정 종목의 매수·매도를 권하지 않습니다.
-            </p>
-          </Fold>
         </section>
         {siblings.length > 0 && (
           <section className="card">
