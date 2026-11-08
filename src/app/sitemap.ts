@@ -48,9 +48,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     at("/investors", { lastModified: recent, changeFrequency: "daily", priority: 0.7 }),
     ...INVESTORS.map((i) => at(`/investors/${i.id}`, { lastModified: f13, changeFrequency: "weekly", priority: 0.5 })),
     at("/guide", { changeFrequency: "monthly", priority: 0.6 }),
-    ...GUIDES.map((g) => at(`/guide/${g.slug}`, { changeFrequency: "monthly", priority: 0.6 })),
+    ...GUIDES.map((g) => at(`/guide/${g.slug}`, { lastModified: day(g.updated), changeFrequency: "monthly", priority: 0.6 })),
     at("/updates", { lastModified: day(CHANGELOG[0].date), changeFrequency: "weekly", priority: 0.4 }),
-    at("/about", { changeFrequency: "yearly", priority: 0.3 }),
+    at("/about", { lastModified: day("2026-11-09"), changeFrequency: "yearly", priority: 0.3 }),
     at("/privacy", { changeFrequency: "yearly", priority: 0.2 }),
     at("/contact", { changeFrequency: "yearly", priority: 0.2 }),
   ];
