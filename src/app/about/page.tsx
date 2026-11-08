@@ -106,6 +106,9 @@ export default function About() {
       <h2>운영 정보</h2>
       <ul>
         <li>
+          <b>상호</b>: 코스나스(KosNas) · kosnas.com
+        </li>
+        <li>
           <b>운영 시작</b>: 2026년 10월 21일 (첫 공개: 국장 섹터 순환, 코스피 야간선물 추정, 미국 지수 흐름)
         </li>
         <li>
