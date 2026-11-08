@@ -9,6 +9,7 @@ import F13 from "@/data/investors-13f.json";
 import { SITE_URL } from "./layout";
 import { SCREENS } from "@/lib/screens";
 import { THEMES } from "@/lib/themes";
+import { CHANGELOG } from "@/lib/changelog";
 
 type Entry = MetadataRoute.Sitemap[number];
 
@@ -48,6 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...INVESTORS.map((i) => at(`/investors/${i.id}`, { lastModified: f13, changeFrequency: "weekly", priority: 0.5 })),
     at("/guide", { changeFrequency: "monthly", priority: 0.6 }),
     ...GUIDES.map((g) => at(`/guide/${g.slug}`, { changeFrequency: "monthly", priority: 0.6 })),
+    at("/updates", { lastModified: day(CHANGELOG[0].date), changeFrequency: "weekly", priority: 0.4 }),
     at("/about", { changeFrequency: "yearly", priority: 0.3 }),
     at("/privacy", { changeFrequency: "yearly", priority: 0.2 }),
     at("/contact", { changeFrequency: "yearly", priority: 0.2 }),

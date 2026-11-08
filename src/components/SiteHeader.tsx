@@ -33,6 +33,7 @@ export function SiteFooter() {
       <nav className="foot-links">
         <Link href="/about">소개</Link>
         <Link href="/guide">가이드</Link>
+        <Link href="/updates">업데이트 기록</Link>
         <Link href="/privacy">개인정보처리방침</Link>
         <Link href="/contact">문의</Link>
       </nav>
