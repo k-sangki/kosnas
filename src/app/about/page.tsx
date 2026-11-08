@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
-import { TextPage } from "@/components/TextPage";
+import { CONTACT_EMAIL, TextPage } from "@/components/TextPage";
 
 export const metadata: Metadata = pageMeta({
   title: "소개",
@@ -92,11 +92,33 @@ export default function About() {
         </li>
       </ul>
 
-      <h2>운영</h2>
+      <h2>만든 사람과 만든 이유</h2>
       <p>
-        KosNas는 2026년 10월 21일 문을 연 개인 운영 서비스입니다. 오류 제보나 제안은 <Link href="/contact">문의</Link> 페이지의 메일로 보내 주세요. 지금까지 바뀐
-        것은 <Link href="/updates">업데이트 기록</Link>에 날짜순으로 정리합니다.
+        KosNas는 국내 주식에 직접 투자하는 개인 투자자 한 사람이 만들고 운영합니다. 장이 끝난 저녁과 새벽에는 코스피 야간선물, 미국 지수 선물, 환율, 유가를 보려고
+        여러 앱과 사이트를 오가야 했고, 낮에는 어느 업종으로 돈이 몰리는지 보려고 종목을 하나하나 열어 봐야 했습니다. 이 숫자들을 한 화면에서, 같은 기준으로 보고
+        싶어 처음에는 혼자 쓰려고 만든 도구를 정리해 공개한 것이 KosNas입니다.
       </p>
+      <p>
+        그래서 KosNas가 지키려는 것은 두 가지입니다. 하나는 직접 쓰는 사람이 매일 확인하는 숫자만 싣는 것, 다른 하나는 그 숫자를 어떻게 계산했는지 모두 밝히는
+        것입니다. 화면에 정보를 더 얹기보다 하나의 질문에 하나의 답을 주는 쪽을 고릅니다.
+      </p>
+
+      <h2>운영 정보</h2>
+      <ul>
+        <li>
+          <b>운영 시작</b>: 2026년 10월 21일 (첫 공개: 국장 섹터 순환, 코스피 야간선물 추정, 미국 지수 흐름)
+        </li>
+        <li>
+          <b>운영 형태</b>: 개인 운영, 무료 서비스. 광고 수익으로 서버와 자료 비용을 충당할 계획입니다.
+        </li>
+        <li>
+          <b>연락처</b>: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> — 오류 제보, 분류 수정 요청, 기능 제안, 개인정보·광고·저작권 문의를 받으며 보통
+          영업일 기준 3일 안에 답장합니다. 자세한 안내는 <Link href="/contact">문의</Link>에 있습니다.
+        </li>
+        <li>
+          <b>변경 기록</b>: 새로 생기거나 바뀐 기능, 고친 오류는 <Link href="/updates">업데이트 기록</Link>에 날짜순으로 남깁니다.
+        </li>
+      </ul>
     </TextPage>
   );
 }
