@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for c in 005930 000660; do curl -sS -A "Mozilla/5.0" -e "https://finance.naver.com/" "https://fchart.stock.naver.com/siseJson.nhn?symbol=$c&requestType=1&startTime=20261102&endTime=20261109&timeframe=day" | tr -d '\n\t'; echo; done
-          curl -sS https://kosnas.com/api/night | python3 -c "import json,sys;d=json.load(sys.stdin);[print(i) for i in d['inputs'] if i['coin'] in ('SMSN','SKHX') or 'krw' in i]" || true
-          curl -sS https://kosnas.com/api/night | head -c 1500
+          for c in 005930 000660; do
+            curl -sS -A "Mozilla/5.0" "https://m.stock.naver.com/api/stock/$c/basic" | head -c 3000; echo; echo ---
+            curl -sS -A "Mozilla/5.0" "https://polling.finance.naver.com/api/realtime/domestic/stock/$c" | head -c 3000; echo; echo ---
+          done
