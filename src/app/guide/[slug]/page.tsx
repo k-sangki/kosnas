@@ -33,6 +33,7 @@ export default async function GuidePage({ params }: PageProps<"/guide/[slug]">) 
         </Link>
         <article className="card seo-text doc">
           <h1>{g.title}</h1>
+          {g.updated && <p className="muted small-note">{g.updated} 작성 · 코스나스</p>}
           {g.body}
         </article>
         <AdSlot slot={AD_SLOTS.sector} />

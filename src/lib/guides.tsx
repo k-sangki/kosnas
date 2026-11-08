@@ -5,6 +5,8 @@ export interface Guide {
   slug: string;
   title: string;
   description: string;
+  /** 쓴 날 또는 마지막으로 고친 날(YYYY-MM-DD). 사이트맵 lastmod·배포 때 IndexNow 알림·글 위 날짜에 쓴다 */
+  updated?: string;
   body: ReactNode;
 }
 
@@ -735,6 +737,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "13f",
+    updated: "2026-11-09",
     title: "13F 보고서로 유명 투자자 포트폴리오 읽는 법",
     description: "워런 버핏·캐시 우드 같은 유명 투자자의 보유 종목이 담긴 미국 SEC 13F 보고서가 무엇이고, 무엇이 빠져 있으며, 신규·추가·축소·매도 표시를 어떻게 읽어야 하는지 정리했습니다.",
     body: (
@@ -820,6 +823,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "perpetual-futures",
+    updated: "2026-11-09",
     title: "무기한선물이란? 24시간 시세를 읽을 때 알아둘 점",
     description: "만기가 없는 선물인 무기한선물(perpetual)의 구조와 펀딩비, 지수·주식·원자재 무기한선물이 밤과 주말에도 움직이는 이유, 공식 시세와 다를 수 있는 경우를 정리했습니다.",
     body: (
@@ -882,6 +886,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "52-week-high",
+    updated: "2026-11-09",
     title: "52주 신고가 종목은 어떻게 보나요",
     description: "52주(1년) 신고가가 무엇이고 왜 많은 투자자가 신고가 근처 종목을 살펴보는지, 52주 고점 대비 거리·상대강도와 함께 읽는 법과 주의할 점을 정리했습니다.",
     body: (
@@ -942,6 +947,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "market-cap",
+    updated: "2026-11-09",
     title: "시가총액 순위로 시장 구조 읽기",
     description: "시가총액의 뜻과 계산, 코스피 시총 순위가 지수에 주는 영향, 시총 상위 종목이 몇몇 업종에 몰릴 때 지수와 체감 시장이 어긋나는 이유를 정리했습니다.",
     body: (
