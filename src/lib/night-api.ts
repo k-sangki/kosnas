@@ -120,22 +120,45 @@ async function loadClose(win: NightWindow) {
   return d?.marketStatus === "CLOSE" && d.localTradedAt?.slice(0, 10).replace(/-/g, "") === ymd && v > 0 ? v : null;
 }
 
-/** KRX 종목 그날 정규장 종가(네이버 증권 일봉) */
+type StockRt = {
+  marketStatus?: string;
+  localTradedAt?: string;
+  closePriceRaw?: string;
+  compareToPreviousClosePriceRaw?: string;
+  compareToPreviousPrice?: { name?: string };
+};
+
+/**
+ * 네이버 실시간 시세에서 그날(ymd) KRX 정규장 종가를 읽는다.
+ * 일봉(fchart)은 넥스트레이드 애프터마켓(~20:00)까지 합친 통합 종가라 KRX 종가와 다를 수 있어 쓰지 않는다
+ * (2026-11-06 삼성전자 일봉 193,500 대 KRX 종가 188,700).
+ * 정규장이 열려 있지 않으면 closePrice가 마지막 KRX 종가이고, 다음 날 정규장 중이면 지금가 − 전일 대비로 전일 종가를 되짚는다.
+ */
+export function stockCloseFromRt(d: StockRt | undefined, ymd: string): number | null {
+  const close = Number(d?.closePriceRaw);
+  if (!d || !(close > 0)) return null;
+  if (d.marketStatus !== "OPEN") return close;
+  const day = d.localTradedAt?.slice(0, 10).replace(/-/g, "");
+  if (!day || day <= ymd) return null;
+  const diff = Math.abs(Number(d.compareToPreviousClosePriceRaw));
+  if (!Number.isFinite(diff)) return null;
+  const falling = /FALL|LOWER/.test(d.compareToPreviousPrice?.name ?? "");
+  const prev = falling ? close + diff : close - diff;
+  return prev > 0 ? prev : null;
+}
+
 async function loadStockClose(code: string, ymd: string) {
-  const day = await fetch(`https://fchart.stock.naver.com/siseJson.nhn?symbol=${code}&requestType=1&startTime=${ymd}&endTime=${ymd}&timeframe=day`, {
-    headers: NAVER,
-  })
-    .then((r) => (r.ok ? r.text() : ""))
-    .catch(() => "");
-  const row = new RegExp(`\\[\\s*"${ymd}"\\s*,\\s*[\\d.]+\\s*,\\s*[\\d.]+\\s*,\\s*[\\d.]+\\s*,\\s*([\\d.]+)`).exec(day);
-  return row && Number(row[1]) > 0 ? Number(row[1]) : null;
+  const rt = await fetch(`https://polling.finance.naver.com/api/realtime/domestic/stock/${code}`, { headers: NAVER })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  return stockCloseFromRt((rt as { datas?: StockRt[] } | null)?.datas?.[0], ymd);
 }
 
 /** 삼성전자·SK하이닉스 그날 KRX 종가. 15:45 뒤부터 받고, 받으면 6시간, 못 받으면 5분 둔다 */
 async function stockClosesFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   if (now < win.start) return {};
   const ymd = kstYmd(win.start);
-  const key = new Request(new URL(`/api/night/stock-close?${ymd}`, base).toString());
+  const key = new Request(new URL(`/api/night/stock-close-krx?${ymd}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
   if (hit) return (await hit.json()) as Record<string, number | null>;
   const entries = await Promise.all(Object.entries(KRX_CODES).map(async ([coin, code]) => [coin, await loadStockClose(code, ymd).catch(() => null)] as const));
