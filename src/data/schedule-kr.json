@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-09T19:47+09:00",
+ "updated": "2026-11-09T19:58+09:00",
  "events": [
   {
    "type": "ipo",
@@ -21,16 +21,6 @@
    "record": "2026-11-09",
    "perShare": 1165.0,
    "yield": 1.0,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "006840",
-   "name": "AK홀딩스",
-   "rcept": "20261026800622",
-   "record": "2026-11-10",
-   "perShare": 144.0,
-   "yield": 1.2,
    "kind": "분기배당"
   },
   {
@@ -183,16 +173,6 @@
   },
   {
    "type": "dividend",
-   "code": "002020",
-   "name": "코오롱",
-   "rcept": "20261030800426",
-   "record": "2026-11-16",
-   "perShare": 28.0,
-   "yield": null,
-   "kind": "중간배당"
-  },
-  {
-   "type": "dividend",
    "code": "023160",
    "name": "태광",
    "rcept": "20261030900537",
@@ -264,16 +244,6 @@
    "perShare": 5000.0,
    "yield": 0.6,
    "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "0030R0",
-   "name": "대신밸류리츠",
-   "rcept": "20261103800359",
-   "record": "2026-11-23",
-   "perShare": 73.0,
-   "yield": 2.0,
-   "kind": ""
   },
   {
    "type": "ipo",
@@ -358,42 +328,12 @@
   },
   {
    "type": "dividend",
-   "code": "001040",
-   "name": "CJ",
-   "rcept": "20261109800712",
-   "record": "2026-11-30",
-   "perShare": 1500.0,
-   "yield": 0.8,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
    "code": "097950",
    "name": "CJ제일제당",
    "rcept": "20261109800711",
    "record": "2026-11-30",
    "perShare": 1500.0,
    "yield": 0.8,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "034730",
-   "name": "SK",
-   "rcept": "20261029800803",
-   "record": "2026-11-30",
-   "perShare": 830.0,
-   "yield": 1.1,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "402340",
-   "name": "SK스퀘어",
-   "rcept": "20261028800046",
-   "record": "2026-11-30",
-   "perShare": 20000.0,
-   "yield": 1.56,
    "kind": "분기배당"
   },
   {
@@ -541,16 +481,6 @@
     "한국투자증권"
    ],
    "spac": false
-  },
-  {
-   "type": "dividend",
-   "code": "293940",
-   "name": "신한알파리츠",
-   "rcept": "20261026800263",
-   "record": "2026-12-14",
-   "perShare": 184.0,
-   "yield": 3.29,
-   "kind": ""
   },
   {
    "type": "bonus",
