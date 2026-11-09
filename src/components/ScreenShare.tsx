@@ -62,7 +62,7 @@ export function ScreenShare({ result, filters, sectorName, asof, onClose }: Prop
               <span>{dayText(asof)} 종가 기준</span>
             </div>
             <h2 className="ss-title">
-              국장 종목 검색 <span className="ss-n">{result.length.toLocaleString()}종목</span>
+              종목 조건검색 <span className="ss-n">{result.length.toLocaleString()}종목</span>
             </h2>
             <div className="ss-filters">
               <p className="tr-sub">적용한 조건 {labels.length ? `${labels.length}개` : "없음"}</p>
@@ -112,7 +112,7 @@ export function ScreenShare({ result, filters, sectorName, asof, onClose }: Prop
       <CaptureSheet
         target={target}
         fileName={`kosnas-screener-${asof.replace(/-/g, "")}.png`}
-        shareTitle={`국장 종목 검색 ${result.length}종목 (${labels.slice(0, 3).join(" · ") || "조건 없음"}) · ${dayText(asof)}`}
+        shareTitle={`종목 조건검색 ${result.length}종목 (${labels.slice(0, 3).join(" · ") || "조건 없음"}) · ${dayText(asof)}`}
         shareUrl={url}
         onClose={onClose}
       />

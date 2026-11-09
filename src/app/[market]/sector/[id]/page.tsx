@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { SECTOR_KEYWORDS, breadcrumbLd, datasetLd, industryLabel, krDate, pageMeta } from "@/lib/seo";
+import {
+  SECTOR_KEYWORDS,
+  breadcrumbLd,
+  datasetLd,
+  industryLabel,
+  krDate,
+  pageMeta,
+} from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,12 +19,24 @@ import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { SectorDetail, type MoveBy } from "@/components/SectorDetail";
 import { StockList } from "@/components/StockList";
 import { SECTOR_NOTES } from "@/lib/sector-notes";
-import { MARKETS, QUADRANTS, findSector, industryPages, moveScores, ready, sectorData, signed, type Market } from "@/lib/sectors";
+import {
+  MARKETS,
+  QUADRANTS,
+  findSector,
+  industryPages,
+  moveScores,
+  ready,
+  sectorData,
+  signed,
+  type Market,
+} from "@/lib/sectors";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return MARKETS.flatMap((market) => sectorData(market).sectors.map((s) => ({ market, id: s.id })));
+  return MARKETS.flatMap((market) =>
+    sectorData(market).sectors.map((s) => ({ market, id: s.id })),
+  );
 }
 
 function read(market: string, id: string) {
@@ -26,30 +45,50 @@ function read(market: string, id: string) {
   return sector && { market: market as Market, sector };
 }
 
-export async function generateMetadata({ params }: PageProps<"/[market]/sector/[id]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[market]/sector/[id]">): Promise<Metadata> {
   const { market, id } = await params;
   const hit = read(market, id);
   if (!hit) return {};
   const where = hit.market === "kr" ? "국장" : "미장";
   const name = hit.sector.name;
-  const inds = (sectorData(hit.market).industries ?? []).filter((i) => i.sector === hit.sector.id).map((i) => i.name);
+  const inds = (sectorData(hit.market).industries ?? [])
+    .filter((i) => i.sector === hit.sector.id)
+    .map((i) => i.name);
   return pageMeta({
     title: `${name} 섹터 등락률·순위 - ${where} 섹터 순환매`,
     description: `${where} ${name} 섹터의 5·10·20·30·60일 등락률과 섹터 순위, 순환매 흐름(주도·약화·소외·관찰)${inds.length ? `, ${inds.join("·")} 산업` : ""}과 종목별 상대강도 순위.`,
-    keywords: [name, `${name} 섹터`, `${name} 섹터 등락`, `${name} 관련주`, ...inds, ...SECTOR_KEYWORDS],
+    keywords: [
+      name,
+      `${name} 섹터`,
+      `${name} 섹터 등락`,
+      `${name} 관련주`,
+      ...inds,
+      ...SECTOR_KEYWORDS,
+    ],
     path: `/${market}/sector/${id}`,
   });
 }
 
-export default async function SectorPage({ params }: PageProps<"/[market]/sector/[id]">) {
+export default async function SectorPage({
+  params,
+}: PageProps<"/[market]/sector/[id]">) {
   const { market, id } = await params;
   const hit = read(market, id);
   if (!hit) notFound();
   const { sector } = hit;
   const data = sectorData(hit.market);
   const note = hit.market === "kr" ? SECTOR_NOTES[sector.id] : undefined;
-  const industries = (data.industries ?? []).filter((i) => i.sector === sector.id);
-  const strip = (m: { dir: "up" | "down"; score: number; straight: number; dist: number }) => ({
+  const industries = (data.industries ?? []).filter(
+    (i) => i.sector === sector.id,
+  );
+  const strip = (m: {
+    dir: "up" | "down";
+    score: number;
+    straight: number;
+    dist: number;
+  }) => ({
     dir: m.dir,
     score: m.score,
     straight: m.straight,
@@ -67,7 +106,9 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
       (data.industries ?? []).filter((s) => ready(s, p)),
       p,
     );
-    indMoves[p] = Object.fromEntries(industries.map((i) => [i.id, all.get(i.id) && strip(all.get(i.id)!)]));
+    indMoves[p] = Object.fromEntries(
+      industries.map((i) => [i.id, all.get(i.id) && strip(all.get(i.id)!)]),
+    );
   }
   const detailed = sector.stocks.some((s) => s.r);
   // 같은 시장 섹터 가운데 그 기간 등락률 순위
@@ -84,7 +125,8 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
     const all = data.sectors.filter((s) => s.ret[p] != null);
     return { n: all.filter((s) => s.ret[p]! > v).length + 1, of: all.length };
   };
-  const qName = (p: number) => QUADRANTS.find((q) => q.key === sector.q[p])?.name;
+  const qName = (p: number) =>
+    QUADRANTS.find((q) => q.key === sector.q[p])?.name;
   const r5 = rankNo(5);
   const r20 = rankNo(20);
   const where = hit.market === "kr" ? "국장" : "미장";
@@ -109,10 +151,15 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
           <JsonLd
             data={datasetLd(SITE_URL, {
               name: `${sector.name} 섹터 등락률·순위`,
-              description: answer ?? `${sector.name} 섹터의 기간별 등락률과 섹터 순위`,
+              description:
+                answer ?? `${sector.name} 섹터의 기간별 등락률과 섹터 순위`,
               path: `/${hit.market}/sector/${sector.id}`,
               asof: data.asof,
-              keywords: [`${sector.name} 섹터`, `${sector.name} 관련주`, ...SECTOR_KEYWORDS],
+              keywords: [
+                `${sector.name} 섹터`,
+                `${sector.name} 관련주`,
+                ...SECTOR_KEYWORDS,
+              ],
             })}
           />
         )}
@@ -126,12 +173,15 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
             {answer}
             {answer && sector.intro ? " " : ""}
             {sector.intro}
-            {sector.intro && sector.count ? ` 보통주 ${sector.count}종목이 이 섹터에 들어 있습니다.` : ""}
+            {sector.intro && sector.count
+              ? ` 보통주 ${sector.count}종목이 이 섹터에 들어 있습니다.`
+              : ""}
           </p>
         )}
         <section className="card">
           <h2 className="card-title">
-            기간별 등락률과 섹터 순위 <span className="muted">{data.asof} 종가 기준</span>
+            기간별 등락률과 섹터 순위{" "}
+            <span className="muted">{data.asof} 종가 기준</span>
           </h2>
           <table className="ptable">
             <thead>
@@ -147,10 +197,14 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
               {data.periods.map((p) => (
                 <tr key={p}>
                   <td>{p}일</td>
-                  <td className={(sector.ret[p] ?? 0) >= 0 ? "up" : "down"}>{signed(sector.ret[p])}%</td>
+                  <td className={(sector.ret[p] ?? 0) >= 0 ? "up" : "down"}>
+                    {signed(sector.ret[p])}%
+                  </td>
                   <td>{signed(sector.x[p])}%p</td>
                   <td>{rank(p)}</td>
-                  <td>{QUADRANTS.find((q) => q.key === sector.q[p])?.name ?? "-"}</td>
+                  <td>
+                    {QUADRANTS.find((q) => q.key === sector.q[p])?.name ?? "-"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -167,7 +221,9 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
                 .filter((i) => i.sector === sector.id)
                 .map((i) => (
                   <li key={i.id}>
-                    <Link href={`/${hit.market}/industry/${i.id}`}>{industryLabel(i.name)} 관련주 등락률·순위</Link>
+                    <Link href={`/${hit.market}/industry/${i.id}`}>
+                      {industryLabel(i.name)} 관련주 등락률·순위
+                    </Link>
                   </li>
                 ))}
             </ul>
@@ -181,8 +237,10 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
             <Fold title="흐름을 볼 때 참고할 점">
               <p>{note.watch}</p>
               <p className="muted small-note">
-                섹터 강도와 네 칸의 뜻은 <Link href="/guide/quadrant">네 칸 읽는 법</Link>, 종목 순위는{" "}
-                <Link href="/guide/relative-strength">상대강도 가이드</Link>에서 볼 수 있습니다.
+                섹터 강도와 네 칸의 뜻은{" "}
+                <Link href="/guide/quadrant">네 칸 읽는 법</Link>, 종목 순위는{" "}
+                <Link href="/guide/relative-strength">상대강도 가이드</Link>에서
+                볼 수 있습니다.
               </p>
             </Fold>
           </section>
@@ -201,10 +259,15 @@ export default async function SectorPage({ params }: PageProps<"/[market]/sector
         ) : (
           <section className="card">
             <h2 className="card-title">종목 · 상대강도 순</h2>
-            <StockList stocks={sector.stocks} from={data.sparkFrom} asof={data.asof} />
+            <StockList
+              stocks={sector.stocks}
+              from={data.sparkFrom}
+              asof={data.asof}
+            />
             <p className="muted small-note">
-              상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전 종목과 비교한 순위(1~99)입니다. 시가총액 1,000억원 이상만 보이며, 종목을 누르면 차트가
-              열립니다.
+              상대강도는 최근 12개월 수익률을 최근 3개월에 무게를 두어 전 종목과
+              비교한 순위(1~99)입니다. 시가총액 1,000억원 이상만 보이며, 종목을
+              누르면 차트가 열립니다.
             </p>
           </section>
         )}
