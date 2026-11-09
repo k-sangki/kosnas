@@ -1,12 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { kstToday, md, mdw, weeks, type Market } from "@/lib/schedule";
+import {
+  CATS,
+  kstToday,
+  md,
+  mdw,
+  weeks,
+  type Cat,
+  type Market,
+} from "@/lib/schedule";
 import { CaptureSheet } from "./CaptureSheet";
 import { LogoSvg } from "./Logo";
 
 /** 하루에 처음 보일 일정 수(배당 막차가 몰리는 날은 나머지를 접는다) */
 const SHOW = 5;
+const HIDE_KEY = "kosnas-schedule-hidden";
 
 /** 주요일정: 국장/미장 탭 · 이번 주/다음 주 목록 · 캡처 공유 */
 export function ScheduleBoard() {
@@ -14,6 +23,8 @@ export function ScheduleBoard() {
   const [today, setToday] = useState<string | null>(null);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [capturing, setCapturing] = useState(false);
+  /** 꺼 둔 묶음("kr:dividend" 꼴). 이 브라우저에만 기억한다 */
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
   const ref = useRef<HTMLDivElement>(null);
   const target = useCallback(() => ref.current, []);
 
@@ -22,7 +33,23 @@ export function ScheduleBoard() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToday(kstToday());
     if (new URLSearchParams(location.search).get("m") === "us") setMarket("us");
+    try {
+      const saved = JSON.parse(localStorage.getItem(HIDE_KEY) ?? "[]");
+      if (Array.isArray(saved)) setHidden(new Set(saved));
+    } catch {}
   }, []);
+
+  const toggle = (c: Cat) => {
+    const k = `${market}:${c}`;
+    const next = new Set(hidden);
+    if (next.has(k)) next.delete(k);
+    else next.add(k);
+    setHidden(next);
+    setOpen(new Set());
+    try {
+      localStorage.setItem(HIDE_KEY, JSON.stringify([...next]));
+    } catch {}
+  };
 
   const pick = (m: Market) => {
     setMarket(m);
@@ -31,7 +58,16 @@ export function ScheduleBoard() {
   };
 
   if (!today) return <section className="card muted">불러오는 중…</section>;
-  const list = weeks(market, today);
+  const cats = CATS[market];
+  const only = new Set(
+    cats.filter((c) => !hidden.has(`${market}:${c.id}`)).map((c) => c.id),
+  );
+  const counts = new Map<Cat, number>();
+  for (const w of weeks(market, today))
+    for (const d of w.days)
+      for (const it of d.items)
+        counts.set(it.cat, (counts.get(it.cat) ?? 0) + 1);
+  const list = weeks(market, today, only);
   const name = market === "kr" ? "국장" : "미장";
 
   return (
@@ -47,6 +83,25 @@ export function ScheduleBoard() {
             {m === "kr" ? "🇰🇷 국장" : "🇺🇸 미장"}
           </button>
         ))}
+      </div>
+      <div
+        className="sch-chips no-capture"
+        role="group"
+        aria-label="볼 일정 고르기"
+      >
+        {cats
+          .filter((c) => counts.get(c.id) || !only.has(c.id))
+          .map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              aria-pressed={only.has(c.id)}
+              onClick={() => toggle(c.id)}
+            >
+              {c.label}
+              <span>{counts.get(c.id) ?? 0}</span>
+            </button>
+          ))}
       </div>
       <div className="sch-cap stack" ref={ref}>
         <div className="cap-only cap-head">

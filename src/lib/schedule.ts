@@ -10,7 +10,36 @@ import { HOLIDAYS } from "./poll";
 
 export type Market = "kr" | "us";
 
+/** 위쪽 거르기 단추의 묶음 */
+export type Cat =
+  | "ipo"
+  | "dividend"
+  | "bonus"
+  | "earnings"
+  | "macro"
+  | "expiry"
+  | "market"
+  | "tax";
+
+export const CATS: Record<Market, { id: Cat; label: string }[]> = {
+  kr: [
+    { id: "ipo", label: "🆕 공모주 청약" },
+    { id: "dividend", label: "💰 배당" },
+    { id: "bonus", label: "🎁 무상증자" },
+    { id: "expiry", label: "🎯 옵션 만기" },
+    { id: "market", label: "🏖️ 휴장·장 시간" },
+    { id: "tax", label: "🧾 세금·연말" },
+  ],
+  us: [
+    { id: "earnings", label: "🟩 실적 발표" },
+    { id: "macro", label: "📊 지표·금리" },
+    { id: "expiry", label: "🎯 옵션 만기" },
+    { id: "market", label: "🏖️ 휴장" },
+  ],
+};
+
 export interface Item {
+  cat: Cat;
   date: string;
   emoji: string;
   title: string;
@@ -100,6 +129,7 @@ function krCompany(): Item[] {
       const last = tradingDaysBefore(e.record, 2);
       out.push({
         date: last,
+        cat: "dividend",
         emoji: "💰",
         title: `배당 막차 · ${e.name}`,
         detail: `1주당 ${won(e.perShare)}${e.yield ? ` · 시가배당률 ${e.yield}%` : ""} · 기준일 ${md(e.record)}`,
@@ -111,6 +141,7 @@ function krCompany(): Item[] {
       const last = tradingDaysBefore(e.record, 2);
       out.push({
         date: last,
+        cat: "bonus",
         emoji: "🎁",
         title: `무상증자 막차 · ${e.name}`,
         detail: `${e.ratio ? `1주당 ${e.ratio}주 · ` : ""}다음 거래일 권리락${e.listing ? ` · 새 주식 상장 ${md(e.listing)}` : ""}`,
@@ -120,6 +151,7 @@ function krCompany(): Item[] {
     } else if (e.type === "ipo") {
       out.push({
         date: e.start,
+        cat: "ipo",
         emoji: e.spac ? "📦" : "🆕",
         title: `${e.spac ? "스팩 청약" : "공모주 청약"} · ${e.name}`,
         detail: [
@@ -141,6 +173,7 @@ function krCompany(): Item[] {
 const KR_FIXED: Item[] = [
   {
     date: "2026-11-19",
+    cat: "market",
     emoji: "⏰",
     title: "수능일 · 1시간 늦게 개장",
     detail: "정규장 10:00~16:30 · 프리마켓 없음",
@@ -148,6 +181,7 @@ const KR_FIXED: Item[] = [
   },
   {
     date: "2026-12-28",
+    cat: "tax",
     emoji: "🧾",
     title: "올해 결제되는 마지막 매도일",
     detail:
@@ -156,6 +190,7 @@ const KR_FIXED: Item[] = [
   },
   {
     date: "2026-12-30",
+    cat: "market",
     emoji: "🔔",
     title: "올해 마지막 거래일(폐장)",
     detail: "12/31은 휴장",
@@ -163,6 +198,7 @@ const KR_FIXED: Item[] = [
   },
   {
     date: "2026-12-31",
+    cat: "tax",
     emoji: "🧾",
     title: "연금저축·IRP 세액공제 납입 마감",
     detail: "올해 연말정산 공제는 오늘 납입분까지",
@@ -181,6 +217,7 @@ function krExpiries(from: string, to: string): Item[] {
     const quarter = [3, 6, 9, 12].includes(Number(first.slice(5, 7)));
     out.push({
       date: d,
+      cat: "expiry",
       emoji: "🎯",
       title: quarter ? "선물·옵션 동시 만기일" : "옵션 만기일",
       detail: quarter
@@ -200,6 +237,7 @@ function krHolidays(): Item[] {
     .filter((d) => weekday(d) >= 1 && weekday(d) <= 5)
     .map((d) => ({
       date: d,
+      cat: "market",
       emoji: "🏖️",
       title: "국장 휴장",
       detail: "주식·파생 시장 모두 쉼",
@@ -214,6 +252,7 @@ function krHolidays(): Item[] {
 const US_FIXED: Item[] = [
   {
     date: "2026-11-10",
+    cat: "macro",
     emoji: "📊",
     title: "미국 10월 소비자물가(CPI)",
     detail: "한국 시각 밤 10:30 발표 · 금리 기대를 바꾸는 물가 지표",
@@ -221,6 +260,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-11-18",
+    cat: "earnings",
     emoji: "🟩",
     title: "엔비디아 실적 발표",
     detail:
@@ -229,6 +269,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-11-26",
+    cat: "market",
     emoji: "🦃",
     title: "미장 휴장 · 추수감사절",
     detail: "다음 날(11/27)은 새벽 3:00 조기 폐장",
@@ -236,6 +277,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-11-28",
+    cat: "market",
     emoji: "⏱️",
     title: "미장 조기 폐장(블랙프라이데이)",
     detail: "한국 시각 새벽 3:00 마감",
@@ -243,6 +285,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-12-04",
+    cat: "macro",
     emoji: "👷",
     title: "미국 11월 고용보고서",
     detail: "한국 시각 밤 10:30 발표 · 일자리·실업률",
@@ -250,6 +293,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-12-10",
+    cat: "macro",
     emoji: "🏦",
     title: "FOMC 금리 결정",
     detail: "한국 시각 새벽 4:00 발표 · 의장 기자회견 4:30 · 점도표 함께",
@@ -257,6 +301,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-12-10",
+    cat: "macro",
     emoji: "📊",
     title: "미국 11월 소비자물가(CPI)",
     detail: "한국 시각 밤 10:30 발표",
@@ -264,6 +309,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2026-12-25",
+    cat: "market",
     emoji: "🎄",
     title: "미장 휴장 · 크리스마스",
     detail: "",
@@ -271,6 +317,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2027-01-01",
+    cat: "market",
     emoji: "🎍",
     title: "미장 휴장 · 새해 첫날",
     detail: "",
@@ -278,6 +325,7 @@ const US_FIXED: Item[] = [
   },
   {
     date: "2027-01-13",
+    cat: "macro",
     emoji: "📊",
     title: "미국 12월 소비자물가(CPI)",
     detail: "한국 시각 밤 10:30 발표",
@@ -294,6 +342,7 @@ function usExpiries(from: string, to: string): Item[] {
     const quarter = [3, 6, 9, 12].includes(Number(first.slice(5, 7)));
     out.push({
       date: d,
+      cat: "expiry",
       emoji: "🎯",
       title: quarter
         ? "미국 쿼드러플 위칭(선물·옵션 동시 만기)"
@@ -329,13 +378,15 @@ export function itemsFor(market: Market, from: string, to: string): Item[] {
 }
 
 /** 이번 주·다음 주(월~일) */
-export function weeks(market: Market, today: string): Week[] {
+export function weeks(market: Market, today: string, only?: Set<Cat>): Week[] {
   const m0 = monday(today);
   return [
     { label: "이번 주", from: m0, to: addDays(m0, 6) },
     { label: "다음 주", from: addDays(m0, 7), to: addDays(m0, 13) },
   ].map((w) => {
-    const items = itemsFor(market, w.from, w.to);
+    const items = itemsFor(market, w.from, w.to).filter(
+      (x) => !only || only.has(x.cat),
+    );
     const days: Week["days"] = [];
     for (const it of items) {
       const last = days[days.length - 1];
