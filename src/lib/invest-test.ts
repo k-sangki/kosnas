@@ -108,6 +108,7 @@ export const QUESTIONS: Question[] = [
       { text: "하루 한두 번", p: { ackman: 1, icahn: 1, wood: 1 } },
       { text: "일주일에 한 번쯤", p: { dalio: 2, marks: 1 } },
       { text: "몇 달 안 열어도 괜찮다", p: { buffett: 2 } },
+      { text: "알림 꺼 두고 잊고 산다 😴", p: { buffett: 1, dalio: 1 } },
     ],
   },
   {
@@ -117,6 +118,7 @@ export const QUESTIONS: Question[] = [
       { text: "틀렸으면 바로 판다", p: { druckenmiller: 2 } },
       { text: "원래 흔들리는 종목, 버틴다", p: { wood: 2, ackman: 1 } },
       { text: "회사에 따지고 싶다", p: { icahn: 2 } },
+      { text: "앱을 지운다 🙈", p: { buffett: 1, marks: 1 } },
     ],
   },
   {
@@ -126,6 +128,7 @@ export const QUESTIONS: Question[] = [
       { text: "세상을 바꿀 혁신 회사", p: { wood: 2 } },
       { text: "다들 싫어해서 싸진 회사", p: { burry: 2, marks: 1 } },
       { text: "경영만 바뀌면 확 좋아질 회사", p: { icahn: 2, ackman: 1 } },
+      { text: "요즘 커뮤니티에서 제일 핫한 회사 🔥", p: { druckenmiller: 1, wood: 1 } },
     ],
   },
   {
@@ -135,6 +138,7 @@ export const QUESTIONS: Question[] = [
       { text: "4~10종목", p: { buffett: 1, druckenmiller: 1, marks: 1 } },
       { text: "10종목 넘게", p: { wood: 2 } },
       { text: "주식·채권·금·달러로 나눠 담음", p: { dalio: 2 } },
+      { text: "뭘 샀는지 기억이 안 난다 🤔", p: { dalio: 1, buffett: 1 } },
     ],
   },
   {
@@ -144,6 +148,7 @@ export const QUESTIONS: Question[] = [
       { text: "역시! 하락에 건다", p: { burry: 2 } },
       { text: "금리·환율부터 확인한다", p: { druckenmiller: 1, dalio: 1 } },
       { text: "신경 안 쓴다, 좋은 회사면 된다", p: { buffett: 2, wood: 1 } },
+      { text: "그런 뉴스는 매일 나온다 🙄", p: { ackman: 1, icahn: 1 } },
     ],
   },
   {
@@ -153,6 +158,7 @@ export const QUESTIONS: Question[] = [
       { text: "거품 같다, 거리를 둔다", p: { burry: 2, marks: 1 } },
       { text: "내가 잘 아는 회사인지 본다", p: { buffett: 1, ackman: 1 } },
       { text: "정해 둔 비중만 지킨다", p: { dalio: 2 } },
+      { text: "나는 이미 타 있다 😎", p: { druckenmiller: 1, ackman: 1 } },
     ],
   },
   {
@@ -162,6 +168,8 @@ export const QUESTIONS: Question[] = [
       { text: "매출이 얼마나 빨리 크는지", p: { wood: 2 } },
       { text: "금리·환율·돈의 양", p: { druckenmiller: 1, dalio: 2 } },
       { text: "대주주 지분·배당·자사주", p: { icahn: 2 } },
+      { text: "차트만 본다 📈", p: { druckenmiller: 2 } },
+      { text: "눈 감고 산다 🙈", p: { wood: 1, ackman: 1 } },
     ],
   },
   {
@@ -171,6 +179,7 @@ export const QUESTIONS: Question[] = [
       { text: "그래도 한 종목은 20% 안", p: { dalio: 1, marks: 1 } },
       { text: "조금씩 나눠서 계속 산다", p: { wood: 1, buffett: 1 } },
       { text: "회사를 움직일 만큼 산다", p: { icahn: 2 } },
+      { text: "영끌한다 💸", p: { ackman: 1, icahn: 1 } },
     ],
   },
   {
@@ -180,6 +189,7 @@ export const QUESTIONS: Question[] = [
       { text: "안건만 꼼꼼히 읽는다", p: { buffett: 1, ackman: 1 } },
       { text: "관심 없다, 흐름이 중요", p: { druckenmiller: 2 } },
       { text: "회사보다 산업 전체를 본다", p: { wood: 1, dalio: 1 } },
+      { text: "주주총회가 뭐예요? 🙋", p: { druckenmiller: 1, burry: 1 } },
     ],
   },
   {
@@ -189,6 +199,7 @@ export const QUESTIONS: Question[] = [
       { text: "남들이 겁낼 때가 기회", p: { marks: 2 } },
       { text: "내가 맞다, 시장이 틀렸다", p: { burry: 1, ackman: 1, wood: 1 } },
       { text: "그래서 나눠 담는 거다", p: { dalio: 2 } },
+      { text: "본전 올 때까지 존버 🧘", p: { buffett: 1, marks: 1 } },
     ],
   },
   {
@@ -201,18 +212,20 @@ export const QUESTIONS: Question[] = [
       },
       { text: "5년 이상", p: { wood: 2 } },
       { text: "영원히", p: { buffett: 2 } },
+      { text: "물리면 강제로 장기 투자 😇", p: { marks: 1, burry: 1 } },
     ],
   },
   {
-    q: "가장 마음에 드는 말은?",
+    q: "내 투자 좌우명에 가장 가까운 것은?",
     options: [
       {
-        text: "남들이 탐욕스러울 때 두려워하라",
+        text: "남들이 욕심낼 때 조심하고, 겁낼 때 산다",
         p: { marks: 1, buffett: 1, burry: 1 },
       },
-      { text: "미래는 이미 와 있다", p: { wood: 2 } },
-      { text: "모르는 걸 인정하고 나눠라", p: { dalio: 2 } },
-      { text: "내 돈이면 내 목소리도 있다", p: { icahn: 1, ackman: 1 } },
+      { text: "세상을 바꿀 기술에 남보다 먼저 탄다", p: { wood: 2 } },
+      { text: "미래는 모르니 골고루 나눠 담는다", p: { dalio: 2 } },
+      { text: "주주라면 회사에 할 말은 한다", p: { icahn: 1, ackman: 1 } },
+      { text: "가즈아! 🚀", p: { wood: 1, druckenmiller: 1 } },
     ],
   },
 ];
