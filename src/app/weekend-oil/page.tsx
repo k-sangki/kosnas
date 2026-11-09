@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE_URL } from "@/app/layout";
-import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
+import { AdSlot } from "@/components/AdSlot";
+import { AD_SLOTS } from "@/lib/ad-slots";
 import { JsonLd } from "@/components/JsonLd";
 import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";

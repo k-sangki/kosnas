@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
+import { AdSlot } from "@/components/AdSlot";
+import { AD_SLOTS } from "@/lib/ad-slots";
 import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
 import { KrTabs } from "@/components/KrTabs";

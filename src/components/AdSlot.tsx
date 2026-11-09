@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { AdPlace } from "@/lib/ad-slots";
 
 const CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-2807429912252096";
 /**
@@ -15,8 +16,43 @@ declare global {
   }
 }
 
-export function AdSlot({ slot, format = "auto" }: { slot?: string; format?: string }) {
+/**
+ * 카카오 애드핏 광고 단위(DAN-…, 공개 값). 320x100 한 크기만 쓴다. 비어 있으면 그 자리에 애드핏을 내지 않는다.
+ * 애드센스(ADS_ENABLED)가 켜져 있으면 애드센스가 먼저다(애드핏은 애드센스 승인 전 대안, 2026-11-09 SK).
+ */
+export const ADFIT_UNITS: Record<AdPlace, string> = {
+  board: "",
+  sector: "",
+};
+const ADFIT_SCRIPT = "https://t1.daumcdn.net/kas/static/ba.min.js";
+
+/** 애드핏 한 칸. 화면 이동(SPA)마다 스크립트를 새로 붙여야 광고를 다시 그린다. */
+function AdFit({ unit }: { unit: string }) {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    el.innerHTML = "";
+    const ins = document.createElement("ins");
+    ins.className = "kakao_ad_area";
+    ins.style.display = "none";
+    ins.setAttribute("data-ad-unit", unit);
+    ins.setAttribute("data-ad-width", "320");
+    ins.setAttribute("data-ad-height", "100");
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = ADFIT_SCRIPT;
+    el.append(ins, script);
+    return () => {
+      el.innerHTML = "";
+    };
+  }, [unit]);
+  return <div ref={box} className="ad-slot adfit" />;
+}
+
+export function AdSlot({ slot: place, format = "auto" }: { slot: AdPlace; format?: string }) {
   const ref = useRef<HTMLModElement>(null);
+  const slot = ADSENSE_SLOTS[place];
 
   useEffect(() => {
     if (!ADS_ENABLED || !CLIENT || !slot || !ref.current || ref.current.dataset.loaded) return;
@@ -29,6 +65,8 @@ export function AdSlot({ slot, format = "auto" }: { slot?: string; format?: stri
   }, [slot]);
 
   if (!ADS_ENABLED || !CLIENT || !slot) {
+    const unit = ADFIT_UNITS[place];
+    if (unit) return <AdFit unit={unit} />;
     if (process.env.NODE_ENV === "development") return <div className="ad-slot dev">광고 영역</div>;
     return null;
   }
@@ -44,7 +82,7 @@ export function AdSlot({ slot, format = "auto" }: { slot?: string; format?: stri
   );
 }
 
-export const AD_SLOTS = {
+const ADSENSE_SLOTS: Record<AdPlace, string | undefined> = {
   board: process.env.NEXT_PUBLIC_AD_SLOT_BOARD?.trim(),
   sector: process.env.NEXT_PUBLIC_AD_SLOT_SECTOR?.trim(),
 };

@@ -843,6 +843,10 @@ body:has(.fab-bar) .foot {
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
+.ad-slot.adfit {
+  display: flex;
+  justify-content: center;
+}
 .ad-slot.dev {
   display: grid;
   place-items: center;
