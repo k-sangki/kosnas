@@ -1,0 +1,47 @@
+name: Collect schedule
+
+# 주요일정(국장): DART 배당·무상증자·공모주 청약 공시를 하루 두 번(07:40·19:40 KST) 모은다.
+# 바뀐 것이 있을 때만 main에 올려 배포한다. collect-schedule-first 브랜치에 push하면 그 브랜치에서 한 번 돌고 결과를 그 브랜치에 올린다(시안 확인용).
+on:
+  schedule:
+    - cron: "40 22 * * *"
+    - cron: "40 10 * * *"
+  workflow_dispatch:
+  push:
+    branches: [collect-schedule-first]
+
+concurrency: collect-schedule
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 일정 받기
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python collector/schedule.py --out src/data/schedule-kr.json
+      - name: 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+        run: |
+          git add src/data/schedule-kr.json
+          git diff --cached --quiet && exit 0
+          git config user.name "kosnas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -qm "주요일정 $(jq -r '.updated' src/data/schedule-kr.json)"
+          git pull -q --rebase origin "$BRANCH"
+          git push -q origin "HEAD:$BRANCH"
+          # 봇이 올린 커밋은 배포를 깨우지 않으니 직접 부른다
+          if [ "$BRANCH" = main ]; then gh workflow run deploy.yml --ref main; fi
