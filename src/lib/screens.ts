@@ -334,3 +334,43 @@ export function runScreen(list: ScreenStock[], screen: Screen): ScreenStock[] {
     screen.sort,
   ).slice(0, SHOW);
 }
+
+/** 적용한 조건을 사람이 읽는 글로(캡처 카드에 싣는다). 기본 필터도 켠 것은 모두 적는다 */
+export function filterLabels(f: Filters, sectorName?: string): string[] {
+  const out: string[] = [];
+  if (f.market) out.push(f.market === "KOSPI" ? "코스피" : "코스닥");
+  if (f.sector) out.push(`섹터: ${sectorName ?? f.sector}`);
+  if (f.rsMin) out.push(`상대강도 ${f.rsMin} 이상`);
+  for (const g of GROUPS) for (const t of g.items) if (f.on.includes(t.key)) out.push(t.name);
+  return out;
+}
+
+export const sortName = (k: SortKey) => SORTS.find((s) => s.key === k)?.name ?? k;
+
+/** 조건을 주소 뒤 ?로(공유 링크). 처음 조건과 같은 값은 싣지 않는다 */
+export function encodeFilters(f: Filters): string {
+  const p = new URLSearchParams();
+  if (f.market) p.set("m", f.market);
+  if (f.sector) p.set("sec", f.sector);
+  if (f.rsMin) p.set("rs", String(f.rsMin));
+  if (JSON.stringify([...f.on].sort()) !== JSON.stringify([...DEFAULT_ON].sort())) p.set("on", f.on.join(",") || "-");
+  if (f.sort !== DEFAULT_FILTERS.sort) p.set("sort", f.sort);
+  return p.toString();
+}
+
+/** 주소의 ?를 조건으로. 모르는 값은 버린다. 아무것도 없으면 null */
+export function decodeFilters(search: string): Filters | null {
+  const p = new URLSearchParams(search);
+  if (!["m", "sec", "rs", "on", "sort"].some((k) => p.has(k))) return null;
+  const m = p.get("m");
+  const rs = Number(p.get("rs"));
+  const on = p.get("on");
+  const sort = p.get("sort") as SortKey | null;
+  return {
+    market: m === "KOSPI" || m === "KOSDAQ" ? m : "",
+    sector: p.get("sec") ?? "",
+    rsMin: [70, 80, 90].includes(rs) ? rs : 0,
+    on: on == null ? DEFAULT_ON : on.split(",").filter((k) => TOGGLES.has(k)),
+    sort: sort && SORTS.some((s) => s.key === sort) ? sort : DEFAULT_FILTERS.sort,
+  };
+}
