@@ -1,7 +1,13 @@
+import { krUpdated } from "@/lib/schedule";
 import { LIVE_QUOTES } from "@/lib/live-quotes";
 import { INVESTORS } from "@/lib/investors13f";
 import type { MetadataRoute } from "next";
-import { MARKETS, industryIndexable, industryPages, sectorData } from "@/lib/sectors";
+import {
+  MARKETS,
+  industryIndexable,
+  industryPages,
+  sectorData,
+} from "@/lib/sectors";
 import { NIGHT_STOCKS } from "@/lib/night-stocks";
 import { GUIDES } from "@/lib/guides";
 import { DATA as RECENT } from "@/lib/investors";
@@ -20,38 +26,115 @@ type Entry = MetadataRoute.Sitemap[number];
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  const day = (d: string | undefined) => (d ? new Date(`${d}T00:00:00+09:00`) : undefined);
+  const day = (d: string | undefined) =>
+    d ? new Date(`${d}T00:00:00+09:00`) : undefined;
   const kr = day(sectorData("kr").asof);
   const recent = day(RECENT.updated);
   const f13 = day(F13.updated);
-  const at = (path: string, extra: Partial<Entry> = {}): Entry => ({ url: `${SITE_URL}${path}`, ...extra });
+  const at = (path: string, extra: Partial<Entry> = {}): Entry => ({
+    url: `${SITE_URL}${path}`,
+    ...extra,
+  });
 
   return [
     at("", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     at("/night", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
-    ...NIGHT_STOCKS.map((s) => at(`/night/${s.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
-    ...LIVE_QUOTES.map((q) => at(`/live/${q.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
+    ...NIGHT_STOCKS.map((s) =>
+      at(`/night/${s.slug}`, {
+        lastModified: now,
+        changeFrequency: "hourly",
+        priority: 0.8,
+      }),
+    ),
+    ...LIVE_QUOTES.map((q) =>
+      at(`/live/${q.slug}`, {
+        lastModified: now,
+        changeFrequency: "hourly",
+        priority: 0.8,
+      }),
+    ),
     at("/test", { changeFrequency: "monthly", priority: 0.7 }),
-    at("/weekend-oil", { lastModified: now, changeFrequency: "hourly", priority: 0.9 }),
+    at("/weekend-oil", {
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.9,
+    }),
     at("/kr", { lastModified: kr, changeFrequency: "daily", priority: 0.9 }),
     at("/us", { lastModified: now, changeFrequency: "hourly", priority: 0.8 }),
     ...MARKETS.flatMap((m) =>
-      sectorData(m).sectors.map((s) => at(`/${m}/sector/${s.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.7 })),
+      sectorData(m).sectors.map((s) =>
+        at(`/${m}/sector/${s.id}`, {
+          lastModified: day(sectorData(m).asof),
+          changeFrequency: "daily",
+          priority: 0.7,
+        }),
+      ),
     ),
     ...MARKETS.flatMap((m) =>
       industryPages(m)
         .filter((i) => industryIndexable(m, i))
-        .map((i) => at(`/${m}/industry/${i.id}`, { lastModified: day(sectorData(m).asof), changeFrequency: "daily", priority: 0.6 })),
+        .map((i) =>
+          at(`/${m}/industry/${i.id}`, {
+            lastModified: day(sectorData(m).asof),
+            changeFrequency: "daily",
+            priority: 0.6,
+          }),
+        ),
     ),
-    at("/kr/screener", { lastModified: kr, changeFrequency: "daily", priority: 0.8 }),
-    ...SCREENS.map((s) => at(`/kr/screener/${s.slug}`, { lastModified: kr, changeFrequency: "daily", priority: 0.7 })),
-    ...THEMES.map((t) => at(`/kr/theme/${t.id}`, { lastModified: kr, changeFrequency: "daily", priority: 0.7 })),
-    at("/investors", { lastModified: recent, changeFrequency: "daily", priority: 0.7 }),
-    ...INVESTORS.map((i) => at(`/investors/${i.id}`, { lastModified: f13, changeFrequency: "weekly", priority: 0.5 })),
+    at("/schedule", {
+      lastModified: krUpdated ? new Date(krUpdated) : now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    }),
+    at("/kr/screener", {
+      lastModified: kr,
+      changeFrequency: "daily",
+      priority: 0.8,
+    }),
+    ...SCREENS.map((s) =>
+      at(`/kr/screener/${s.slug}`, {
+        lastModified: kr,
+        changeFrequency: "daily",
+        priority: 0.7,
+      }),
+    ),
+    ...THEMES.map((t) =>
+      at(`/kr/theme/${t.id}`, {
+        lastModified: kr,
+        changeFrequency: "daily",
+        priority: 0.7,
+      }),
+    ),
+    at("/investors", {
+      lastModified: recent,
+      changeFrequency: "daily",
+      priority: 0.7,
+    }),
+    ...INVESTORS.map((i) =>
+      at(`/investors/${i.id}`, {
+        lastModified: f13,
+        changeFrequency: "weekly",
+        priority: 0.5,
+      }),
+    ),
     at("/guide", { changeFrequency: "monthly", priority: 0.6 }),
-    ...GUIDES.map((g) => at(`/guide/${g.slug}`, { lastModified: day(g.updated), changeFrequency: "monthly", priority: 0.6 })),
-    at("/updates", { lastModified: day(CHANGELOG[0].date), changeFrequency: "weekly", priority: 0.4 }),
-    at("/about", { lastModified: day("2026-11-09"), changeFrequency: "yearly", priority: 0.3 }),
+    ...GUIDES.map((g) =>
+      at(`/guide/${g.slug}`, {
+        lastModified: day(g.updated),
+        changeFrequency: "monthly",
+        priority: 0.6,
+      }),
+    ),
+    at("/updates", {
+      lastModified: day(CHANGELOG[0].date),
+      changeFrequency: "weekly",
+      priority: 0.4,
+    }),
+    at("/about", {
+      lastModified: day("2026-11-09"),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    }),
     at("/privacy", { changeFrequency: "yearly", priority: 0.2 }),
     at("/contact", { changeFrequency: "yearly", priority: 0.2 }),
   ];

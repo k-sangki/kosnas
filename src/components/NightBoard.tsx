@@ -1,23 +1,35 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { chartEnd, hhmm, timeTicks, usOpenIn, type NightData } from "@/lib/night";
+import {
+  chartEnd,
+  hhmm,
+  timeTicks,
+  usOpenIn,
+  type NightData,
+} from "@/lib/night";
 import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
 import { Chat } from "./Chat";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
 import { TestBand } from "./TestBand";
+import { ScheduleBand } from "./ScheduleBand";
 import { LogoSvg } from "./Logo";
 
-const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (v: number, d = 2) =>
+  v.toLocaleString("ko-KR", {
+    minimumFractionDigits: d,
+    maximumFractionDigits: d,
+  });
 const sign = (v: number) => (v > 0 ? "+" : "");
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 
 const PAD = { l: 8, r: 58, t: 14, b: 26 };
 
 /** 등락률 기준값 이름: KRX 주간 종가를 받았으면 그것, 아니면 15:45 추정값 */
-const baseName = (d: NightData) => (d.baseKind === "close" ? "주간 종가" : "15:45 기준");
+const baseName = (d: NightData) =>
+  d.baseKind === "close" ? "주간 종가" : "15:45 기준";
 
 function Chart({ d }: { d: NightData }) {
   const [hover, setHover] = useState<number | null>(null);
@@ -29,7 +41,9 @@ function Chart({ d }: { d: NightData }) {
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setW(Math.max(280, Math.round(e.contentRect.width))));
+    const ro = new ResizeObserver(([e]) =>
+      setW(Math.max(280, Math.round(e.contentRect.width))),
+    );
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -37,14 +51,18 @@ function Chart({ d }: { d: NightData }) {
   const pts = d.points;
   const x0 = d.window.start;
   const x1 = chartEnd(d.window, pts[pts.length - 1][0]);
-  const ys = pts.flatMap((p) => (p[2] != null ? [p[1], p[2]] : [p[1]])).concat(d.base);
+  const ys = pts
+    .flatMap((p) => (p[2] != null ? [p[1], p[2]] : [p[1]]))
+    .concat(d.base);
   let lo = Math.min(...ys);
   let hi = Math.max(...ys);
   const pad = Math.max((hi - lo) * 0.08, d.base * 0.002);
   lo -= pad;
   hi += pad;
-  const px = (t: number) => PAD.l + ((t - x0) / (x1 - x0)) * (W - PAD.l - PAD.r);
-  const py = (v: number) => PAD.t + (1 - (v - lo) / (hi - lo)) * (H - PAD.t - PAD.b);
+  const px = (t: number) =>
+    PAD.l + ((t - x0) / (x1 - x0)) * (W - PAD.l - PAD.r);
+  const py = (v: number) =>
+    PAD.t + (1 - (v - lo) / (hi - lo)) * (H - PAD.t - PAD.b);
   const path = (get: (p: NightData["points"][number]) => number | null) => {
     let s = "";
     let pen = false;
@@ -75,7 +93,11 @@ function Chart({ d }: { d: NightData }) {
   const marks: { at: number; name: string; row: number }[] = [];
   let edge = -Infinity;
   let row = 0;
-  for (const [at, name] of [[night, "야간 개장"], ...(us ? [[us, "미국 개장"] as const] : []), [nightEnd, "야간 마감"]] as const) {
+  for (const [at, name] of [
+    [night, "야간 개장"],
+    ...(us ? [[us, "미국 개장"] as const] : []),
+    [nightEnd, "야간 마감"],
+  ] as const) {
     if (at <= x0 || at >= x1) continue;
     const w = name.length * 10;
     const from = at === nightEnd ? px(at) - 4 - w : px(at) + 4;
@@ -91,7 +113,8 @@ function Chart({ d }: { d: NightData }) {
     const x = ((e.clientX - r.left) / r.width) * W;
     const tt = x0 + ((x - PAD.l) / (W - PAD.l - PAD.r)) * (x1 - x0);
     let best = 0;
-    for (let i = 1; i < pts.length; i++) if (Math.abs(pts[i][0] - tt) < Math.abs(pts[best][0] - tt)) best = i;
+    for (let i = 1; i < pts.length; i++)
+      if (Math.abs(pts[i][0] - tt) < Math.abs(pts[best][0] - tt)) best = i;
     setHover(best);
   };
 
@@ -108,27 +131,56 @@ function Chart({ d }: { d: NightData }) {
       >
         {yt.map((v) => (
           <g key={v}>
-            <line x1={PAD.l} x2={W - PAD.r} y1={py(v)} y2={py(v)} className="grid" />
+            <line
+              x1={PAD.l}
+              x2={W - PAD.r}
+              y1={py(v)}
+              y2={py(v)}
+              className="grid"
+            />
             <text x={W - PAD.r + 6} y={py(v) + 4} className="ylab">
               {fmt(v)}
             </text>
           </g>
         ))}
         {ticks.map((k) => (
-          <text key={k.at} x={px(k.at)} y={H - 8} className="xlab" textAnchor="middle">
+          <text
+            key={k.at}
+            x={px(k.at)}
+            y={H - 8}
+            className="xlab"
+            textAnchor="middle"
+          >
             {k.label}
           </text>
         ))}
         {marks.map(({ at, name, row }) => (
           <g key={name}>
-            <line x1={px(at)} x2={px(at)} y1={PAD.t} y2={H - PAD.b} className="mark" />
+            <line
+              x1={px(at)}
+              x2={px(at)}
+              y1={PAD.t}
+              y2={H - PAD.b}
+              className="mark"
+            />
             {/* 마감 표시는 선 왼쪽에 써서 오른쪽 눈금과 겹치지 않게 */}
-            <text x={px(at) + (at === nightEnd ? -4 : 4)} y={PAD.t + 10 + row * 13} textAnchor={at === nightEnd ? "end" : "start"} className="mlab">
+            <text
+              x={px(at) + (at === nightEnd ? -4 : 4)}
+              y={PAD.t + 10 + row * 13}
+              textAnchor={at === nightEnd ? "end" : "start"}
+              className="mlab"
+            >
               {name}
             </text>
           </g>
         ))}
-        <line x1={PAD.l} x2={W - PAD.r} y1={py(d.base)} y2={py(d.base)} className="base" />
+        <line
+          x1={PAD.l}
+          x2={W - PAD.r}
+          y1={py(d.base)}
+          y2={py(d.base)}
+          className="base"
+        />
         <path d={kr} className="kr" />
         {/* 추정선은 기준선 위는 빨강, 아래는 파랑으로 나눠 그린다 */}
         <defs>
@@ -141,27 +193,55 @@ function Chart({ d }: { d: NightData }) {
         </defs>
         <path d={est} className="est up" clipPath={`url(#${cid}u)`} />
         <path d={est} className="est down" clipPath={`url(#${cid}d)`} />
-        <circle cx={px(last[0])} cy={py(last[1])} r={3.5} className={`dot ${t}`} />
-        <rect x={W - PAD.r + 2} y={py(last[1]) - 10} width={PAD.r - 2} height={20} rx={4} className={`tag ${t}`} />
+        <circle
+          cx={px(last[0])}
+          cy={py(last[1])}
+          r={3.5}
+          className={`dot ${t}`}
+        />
+        <rect
+          x={W - PAD.r + 2}
+          y={py(last[1]) - 10}
+          width={PAD.r - 2}
+          height={20}
+          rx={4}
+          className={`tag ${t}`}
+        />
         <text x={W - PAD.r + 6} y={py(last[1]) + 4} className="tagt">
           {fmt(last[1])}
         </text>
         {hp && (
           <g>
-            <line x1={px(hp[0])} x2={px(hp[0])} y1={PAD.t} y2={H - PAD.b} className="cross" />
-            <circle cx={px(hp[0])} cy={py(hp[1])} r={3} className={`dot ${tone(hp[1] - d.base)}`} />
+            <line
+              x1={px(hp[0])}
+              x2={px(hp[0])}
+              y1={PAD.t}
+              y2={H - PAD.b}
+              className="cross"
+            />
+            <circle
+              cx={px(hp[0])}
+              cy={py(hp[1])}
+              r={3}
+              className={`dot ${tone(hp[1] - d.base)}`}
+            />
           </g>
         )}
       </svg>
       <p className="nchart-read" aria-live="polite">
         {hp ? (
           <>
-            {hhmm(hp[0])} · 추정 <b className={tone(hp[1] - d.base)}>{fmt(hp[1])}</b> ({sign(hp[1] - d.base)}
-            {fmt(((hp[1] - d.base) / d.base) * 100)}%){hp[2] != null && <> · KR200 {fmt(hp[2])}</>}
+            {hhmm(hp[0])} · 추정{" "}
+            <b className={tone(hp[1] - d.base)}>{fmt(hp[1])}</b> (
+            {sign(hp[1] - d.base)}
+            {fmt(((hp[1] - d.base) / d.base) * 100)}%)
+            {hp[2] != null && <> · KR200 {fmt(hp[2])}</>}
           </>
         ) : (
           <>
-            <span className="key est-key" /> 추정 <span className="key kr-key" /> KR200 무기한선물 <span className="key base-key" /> {baseName(d)}
+            <span className="key est-key" /> 추정{" "}
+            <span className="key kr-key" /> KR200 무기한선물{" "}
+            <span className="key base-key" /> {baseName(d)}
           </>
         )}
       </p>
@@ -198,7 +278,8 @@ export function NightBoard() {
       if (!stop) timer = setTimeout(tick, live.current ? 5_000 : 300_000);
     };
     tick();
-    const vis = () => document.visibilityState === "visible" && (clearTimeout(timer), tick());
+    const vis = () =>
+      document.visibilityState === "visible" && (clearTimeout(timer), tick());
     document.addEventListener("visibilitychange", vis);
     return () => {
       stop = true;
@@ -211,6 +292,7 @@ export function NightBoard() {
   const day = `${stamp.getUTCMonth() + 1}월 ${stamp.getUTCDate()}일`;
   return (
     <>
+      <ScheduleBand />
       {/* 캡처 범위: 추정 카드와 시세 카드. 캡처할 때만 머리·꼬리(로고·시각·주소)를 보인다 */}
       <div className="dash-cap" ref={capRef}>
         <div className="cap-only cap-head">
@@ -225,8 +307,20 @@ export function NightBoard() {
           <div className="night-top">
             <h1 className="night-title">코스피 야간선물 실시간 추정</h1>
           </div>
-          {d ? <Main d={d} /> : <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>}
-          {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
+          {d ? (
+            <Main d={d} />
+          ) : (
+            <p className="muted">
+              {err
+                ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})`
+                : "불러오는 중…"}
+            </p>
+          )}
+          {d && err && (
+            <p className="muted small-note">
+              마지막 갱신 뒤 자료를 받지 못했습니다.
+            </p>
+          )}
         </section>
         <Chat />
         <Dashboard d={d} />
@@ -241,7 +335,11 @@ export function NightBoard() {
         // 트립날씨와 같은 떠 있는 버튼: 스크롤과 상관없이 화면 아래에 있다
         <div className="fab-bar">
           <InstallButton />
-          <button type="button" className="fab" onClick={() => setCapturing(true)}>
+          <button
+            type="button"
+            className="fab"
+            onClick={() => setCapturing(true)}
+          >
             <i className="logo-dot" aria-hidden /> 캡처해서 공유
           </button>
         </div>
@@ -266,7 +364,11 @@ function Main({ d }: { d: NightData }) {
     <>
       <div className="night-head">
         <div>
-          <p className="muted">{d.window.live ? "실시간 · 5초마다 갱신" : `지난밤 · ${hhmm(d.window.end)} 마감`}</p>
+          <p className="muted">
+            {d.window.live
+              ? "실시간 · 5초마다 갱신"
+              : `지난밤 · ${hhmm(d.window.end)} 마감`}
+          </p>
           <p className="night-price">
             <b className={t}>{fmt(d.est)}</b>
             <span className={t}>
