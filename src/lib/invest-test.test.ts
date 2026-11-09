@@ -9,9 +9,9 @@ import {
 } from "./invest-test";
 
 describe("투자 성향 테스트", () => {
-  it("문항마다 보기 4개, 모든 대가가 점수를 받을 수 있다", () => {
+  it("문항마다 보기 5개 이상, 모든 대가가 점수를 받을 수 있다", () => {
     expect(QUESTIONS).toHaveLength(12);
-    for (const q of QUESTIONS) expect(q.options).toHaveLength(4);
+    for (const q of QUESTIONS) expect(q.options.length).toBeGreaterThanOrEqual(5);
     for (const m of MASTERS)
       expect(MAX_POINTS[m.id]).toBeGreaterThanOrEqual(10);
   });
@@ -40,7 +40,7 @@ describe("투자 성향 테스트", () => {
     const n: Record<string, number> = {};
     const N = 4000;
     for (let k = 0; k < N; k++) {
-      const top = score(QUESTIONS.map(() => Math.floor(rnd() * 4)))[0].id;
+      const top = score(QUESTIONS.map((q) => Math.floor(rnd() * q.options.length)))[0].id;
       n[top] = (n[top] ?? 0) + 1;
     }
     for (const m of MASTERS) {
