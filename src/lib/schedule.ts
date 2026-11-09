@@ -6,6 +6,7 @@
  * 날짜는 모두 한국 시각 기준 YYYY-MM-DD다.
  */
 import krData from "@/data/schedule-kr.json";
+import usData from "@/data/schedule-us.json";
 import { HOLIDAYS } from "./poll";
 
 export type Market = "kr" | "us";
@@ -26,12 +27,13 @@ export const CATS: Record<Market, { id: Cat; label: string }[]> = {
     { id: "ipo", label: "🆕 공모주 청약" },
     { id: "dividend", label: "💰 배당" },
     { id: "bonus", label: "🎁 무상증자" },
+    { id: "macro", label: "🏦 금리·지표" },
     { id: "expiry", label: "🎯 옵션 만기" },
     { id: "market", label: "🏖️ 휴장·장 시간" },
     { id: "tax", label: "🧾 세금·연말" },
   ],
   us: [
-    { id: "earnings", label: "🟩 실적 발표" },
+    { id: "earnings", label: "💼 실적 발표" },
     { id: "macro", label: "📊 지표·금리" },
     { id: "expiry", label: "🎯 옵션 만기" },
     { id: "market", label: "🏖️ 휴장" },
@@ -172,6 +174,39 @@ function krCompany(): Item[] {
 /** 국장 정해진 일정(거래소·국세 공지로 확인한 것만) */
 const KR_FIXED: Item[] = [
   {
+    date: "2026-11-12",
+    cat: "macro",
+    emoji: "🌐",
+    title: "MSCI 11월 정기 변경 발표",
+    detail:
+      "아침 7:00쯤 · 한국 종목 편입·편출 명단 · 실제 반영은 11/30 장 마감",
+    rank: 0.6,
+  },
+  {
+    date: "2026-11-26",
+    cat: "macro",
+    emoji: "🏦",
+    title: "한국은행 기준금리 결정(금통위)",
+    detail: "오전 결정 발표 · 총재 기자간담회 · 올해 마지막 금리 결정",
+    rank: 0.2,
+  },
+  {
+    date: "2026-11-30",
+    cat: "macro",
+    emoji: "🌐",
+    title: "MSCI 지수 변경 반영일",
+    detail: "장 마감 동시호가에 편입·편출 종목 거래가 몰림",
+    rank: 0.6,
+  },
+  {
+    date: "2026-12-01",
+    cat: "macro",
+    emoji: "🚢",
+    title: "11월 수출입동향",
+    detail: "오전 9:00 산업통상자원부 발표 · 반도체 수출이 핵심",
+    rank: 0.6,
+  },
+  {
     date: "2026-11-19",
     cat: "market",
     emoji: "⏰",
@@ -251,20 +286,60 @@ function krHolidays(): Item[] {
  */
 const US_FIXED: Item[] = [
   {
+    date: "2026-11-14",
+    cat: "macro",
+    emoji: "🏭",
+    title: "미국 10월 생산자물가(PPI)",
+    detail:
+      "11/13(금) 한국 시각 밤 10:30 발표 · 소비자물가보다 먼저 움직이는 도매 물가",
+    rank: 1,
+  },
+  {
+    date: "2026-11-17",
+    cat: "macro",
+    emoji: "🛒",
+    title: "미국 10월 소매판매(근원 소매판매 포함)",
+    detail: "한국 시각 밤 10:30 발표 · 미국 소비가 얼마나 버티는지",
+    rank: 1,
+  },
+  {
+    date: "2026-11-19",
+    cat: "macro",
+    emoji: "📝",
+    title: "FOMC 의사록(10월 회의)",
+    detail: "한국 시각 새벽 4:00 공개 · 위원들이 금리를 두고 나눈 이야기",
+    rank: 1,
+  },
+  {
+    date: "2026-11-25",
+    cat: "macro",
+    emoji: "💵",
+    title: "미국 10월 PCE 물가·3분기 GDP(2차)",
+    detail: "한국 시각 밤 10:30 발표 · 연준이 가장 중시하는 물가 지표",
+    rank: 1,
+  },
+  {
+    date: "2026-12-15",
+    cat: "macro",
+    emoji: "🏭",
+    title: "미국 11월 생산자물가(PPI)",
+    detail: "한국 시각 밤 10:30 발표",
+    rank: 1,
+  },
+  {
+    date: "2026-12-16",
+    cat: "macro",
+    emoji: "🛒",
+    title: "미국 11월 소매판매(근원 소매판매 포함)",
+    detail: "한국 시각 밤 10:30 발표",
+    rank: 1,
+  },
+  {
     date: "2026-11-10",
     cat: "macro",
     emoji: "📊",
     title: "미국 10월 소비자물가(CPI)",
     detail: "한국 시각 밤 10:30 발표 · 금리 기대를 바꾸는 물가 지표",
-    rank: 1,
-  },
-  {
-    date: "2026-11-18",
-    cat: "earnings",
-    emoji: "🟩",
-    title: "엔비디아 실적 발표",
-    detail:
-      "한국 시각 11/18(수) 아침 7:00 전화 회의 · 반도체 전체가 함께 움직이는 날",
     rank: 1,
   },
   {
@@ -333,6 +408,34 @@ const US_FIXED: Item[] = [
   },
 ];
 
+type UsEarning = {
+  symbol: string;
+  name: string;
+  date: string;
+  when: "pre" | "after" | "";
+  capB: number | null;
+};
+
+/** 미장 실적 발표(나스닥 달력, 미국 날짜). 장 마감 뒤 발표는 한국 날짜로 다음 날 아침이다 */
+function usEarnings(): Item[] {
+  return (usData as { events: UsEarning[] }).events.map((e) => {
+    const after = e.when === "after";
+    return {
+      date: after ? addDays(e.date, 1) : e.date,
+      cat: "earnings" as const,
+      emoji: "💼",
+      title: `${e.name === e.symbol ? e.name : `${e.name}(${e.symbol})`} 실적 발표`,
+      detail: after
+        ? "한국 시각 아침(미장 마감 뒤 발표)"
+        : e.when === "pre"
+          ? "한국 시각 밤(미장 개장 전 발표)"
+          : "발표 시각 미정",
+      // 같은 날에는 시가총액 큰 순
+      rank: 1 + (1 - Math.min(e.capB ?? 0, 4000) / 4000) * 0.9,
+    };
+  });
+}
+
 /** 매달 셋째 금요일 = 미국 월간 옵션 만기(3·6·9·12월은 지수 선물·옵션 동시 만기) */
 function usExpiries(from: string, to: string): Item[] {
   const out: Item[] = [];
@@ -369,7 +472,7 @@ export function itemsFor(market: Market, from: string, to: string): Item[] {
   const all =
     market === "kr"
       ? [...krCompany(), ...KR_FIXED, ...krExpiries(from, to), ...krHolidays()]
-      : [...US_FIXED, ...usExpiries(from, to)];
+      : [...US_FIXED, ...usEarnings(), ...usExpiries(from, to)];
   return all
     .filter((x) => x.date >= from && x.date <= to)
     .sort((a, b) =>

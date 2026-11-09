@@ -35,6 +35,11 @@ describe("주요일정", () => {
       ["2026-11-09", "2026-11-15"],
       ["2026-11-16", "2026-11-22"],
     ]);
-    expect(w[0].days[0].date).toBe("2026-11-10");
+    const dates = w[0].days.map((d) => d.date);
+    expect(dates).toEqual([...dates].sort());
+    expect(dates).toContain("2026-11-10"); // CPI
+    expect(dates.every((d) => d >= "2026-11-09" && d <= "2026-11-15")).toBe(
+      true,
+    );
   });
 });
