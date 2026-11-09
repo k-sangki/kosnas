@@ -1,6 +1,6 @@
 """주요일정(국장): OpenDART 공시에서 '날짜가 박힌 일정'을 뽑는다.
 
-- 배당: 현금ㆍ현물배당결정(거래소 공시) 원문 → 배당기준일·1주당 배당금(보통주)·시가배당률
+- 배당: 현금ㆍ현물배당결정(거래소 공시, 지주회사가 대신 낸 자회사 공시는 뺀다) 원문 → 배당기준일·1주당 배당금(보통주)·시가배당률
 - 무상증자: 주요사항보고서 무상증자결정(API fricDecsn) → 신주배정기준일·1주당 배정 주식 수
 - 공모주 청약: 증권신고서(지분증권, 비상장 회사) (API estkRs) → 청약기일·공모가·주관사
 
@@ -124,7 +124,7 @@ def parse_dividend(xml: str) -> dict | None:
 
 
 def collect_dividends(key: str, today: dt.date) -> list[dict]:
-    rows = filings(key, "I", today - dt.timedelta(days=50), today, lambda n: "배당결정" in n and "주식배당" not in n)
+    rows = filings(key, "I", today - dt.timedelta(days=50), today, lambda n: "배당결정" in n and "주식배당" not in n and "자회사" not in n)
     rows = [r for r in rows if r.get("stock_code")]
     print(f"배당 결정 공시 {len(rows)}건")
     out = []
