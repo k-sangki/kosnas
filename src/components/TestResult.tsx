@@ -6,7 +6,8 @@ import {
   MASTERS,
   decodePcts,
   findMaster,
-  type TypeId,
+  findResult,
+  type ResultId,
 } from "@/lib/invest-test";
 import { CaptureSheet } from "./CaptureSheet";
 import { LogoSvg } from "./Logo";
@@ -15,24 +16,42 @@ import { LogoSvg } from "./Logo";
  * 결과 카드. 휴대폰 한 화면에 들어가게: 가장 닮은 대가를 크게, 나머지 7명은 게이지로.
  * 대가별 비중(%, 8명 합계 100)은 주소의 ?s= 에 실려 와서, 공유받은 사람도 같은 카드를 본다. 없으면 게이지 없이 대가만.
  */
-export function TestResult({ id }: { id: TypeId }) {
-  const m = findMaster(id)!;
+export function TestResult({ id }: { id: ResultId }) {
+  const m = findResult(id)!;
+  const ant = id === "ant";
   const ref = useRef<HTMLDivElement>(null);
   const target = useCallback(() => ref.current, []);
-  const [s, setS] = useState<string | null>(null);
+  const [{ s, a }, setQ] = useState<{ s: string | null; a: number | null }>({
+    s: null,
+    a: null,
+  });
   const [capturing, setCapturing] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 주소의 ?s= 는 화면이 뜬 뒤에만 읽는다(정적 페이지)
-    setS(new URLSearchParams(location.search).get("s"));
+    // 주소의 ?s=(대가 비중)·?a=(개미력)는 화면이 뜬 뒤에만 읽는다(정적 페이지)
+    const q = new URLSearchParams(location.search);
+    const n = Number(q.get("a"));
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 위와 같은 이유
+    setQ({
+      s: q.get("s"),
+      a:
+        q.get("a") != null && Number.isFinite(n)
+          ? Math.max(0, Math.min(100, Math.round(n)))
+          : null,
+    });
   }, []);
 
   const pcts = decodePcts(s);
-  const mine = pcts?.find((p) => p.id === id)?.pct;
-  const others = (pcts ?? []).filter((p) => p.id !== id);
+  // 개미형은 칩에 개미력, 대가형은 그 대가 비중. 게이지는 0%인 대가를 뺀다
+  const mine = ant ? a : pcts?.find((p) => p.id === id)?.pct;
+  const others = (pcts ?? []).filter((p) => p.id !== id && p.pct > 0);
+  const best = ant ? findMaster(pcts?.[0]?.id ?? "") : findMaster(id);
   // 게이지는 가장 닮은 대가를 꽉 찬 칸으로 두고 견준다(숫자는 실제 비중)
-  const top = Math.max(mine ?? 0, ...others.map((o) => o.pct));
-  const shareUrl = `https://kosnas.com/test/${id}${s ? `?s=${s}` : ""}`;
+  const top = Math.max(ant ? 0 : (mine ?? 0), ...others.map((o) => o.pct));
+  const query = [s && `s=${s}`, a != null && `a=${a}`]
+    .filter(Boolean)
+    .join("&");
+  const shareUrl = `https://kosnas.com/test/${id}${query ? `?${query}` : ""}`;
 
   return (
     <>
@@ -49,7 +68,9 @@ export function TestResult({ id }: { id: TypeId }) {
             <h1 className="tr-name">
               {m.name}형
               {mine != null && (
-                <span className="tr-pct">{mine}%</span>
+                <span className="tr-pct">
+                  {ant ? `개미력 ${mine}%` : `${mine}%`}
+                </span>
               )}
             </h1>
             <p className="tr-nick">&ldquo;{m.nick}&rdquo;</p>
@@ -58,11 +79,14 @@ export function TestResult({ id }: { id: TypeId }) {
               {m.traits.map((t) => (
                 <span key={t}>{t}</span>
               ))}
+              {!ant && a != null && a > 0 && <span>🐜 개미력 {a}%</span>}
             </p>
           </div>
           {others.length > 0 && (
             <div className="tr-gauges">
-              <p className="tr-sub">나머지 대가 비중 · 8명 합계 100%</p>
+              <p className="tr-sub">
+                {ant ? "그래도 닮은 대가" : "나머지 대가 비중"} · 8명 합계 100%
+              </p>
               {others.map((o) => {
                 const x = MASTERS.find((y) => y.id === o.id)!;
                 return (
@@ -71,7 +95,9 @@ export function TestResult({ id }: { id: TypeId }) {
                       {x.emoji} {x.name}
                     </span>
                     <span className="tr-g-bar" aria-hidden>
-                      <i style={{ width: `${top ? (o.pct / top) * 100 : 0}%` }} />
+                      <i
+                        style={{ width: `${top ? (o.pct / top) * 100 : 0}%` }}
+                      />
                     </span>
                     <b className="tr-g-pct">{o.pct}%</b>
                   </div>
@@ -101,9 +127,13 @@ export function TestResult({ id }: { id: TypeId }) {
             대시보드
           </Link>
         </div>
-        <Link href={`/investors/${id}`} className="tr-btn tr-link">
-          {m.name}의 실제 포트폴리오 보기 ›
-        </Link>
+        {best && (
+          <Link href={`/investors/${best.id}`} className="tr-btn tr-link">
+            {ant
+              ? `그래도 가장 닮은 ${best.name}의 포트폴리오 ›`
+              : `${best.name}의 실제 포트폴리오 보기 ›`}
+          </Link>
+        )}
       </div>
       {capturing && (
         <CaptureSheet
