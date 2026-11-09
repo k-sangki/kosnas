@@ -1,4 +1,5 @@
-import { AD_SLOTS, AdSlot } from "./AdSlot";
+import { AdSlot } from "./AdSlot";
+import { AD_SLOTS } from "@/lib/ad-slots";
 import { CaptureArea } from "./CaptureArea";
 import { Fold } from "./Fold";
 import { ArkTrades, RecentMoves } from "./Investors";

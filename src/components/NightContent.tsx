@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { AD_SLOTS, AdSlot } from "./AdSlot";
+import { AdSlot } from "./AdSlot";
+import { AD_SLOTS } from "@/lib/ad-slots";
 import { Fold } from "./Fold";
 import { NightBoard } from "./NightBoard";
 import { THEMES } from "@/lib/themes";

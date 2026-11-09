@@ -4,7 +4,8 @@ import { SECTOR_KEYWORDS, breadcrumbLd, datasetLd, industryLabel, krDate, pageMe
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AD_SLOTS, AdSlot } from "@/components/AdSlot";
+import { AdSlot } from "@/components/AdSlot";
+import { AD_SLOTS } from "@/lib/ad-slots";
 import { SampleNotice } from "@/components/MarketPage";
 import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
