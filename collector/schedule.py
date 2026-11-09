@@ -6,6 +6,9 @@
 
 결과는 src/data/schedule-kr.json. 마지막 매수일(기준일 2거래일 전)·권리락은 화면에서 휴장일 표로 계산한다.
 필요한 값: DART_API_KEY
+
+미장 실적 발표(--us): 나스닥 실적 발표 달력(api.nasdaq.com, 날짜별)에서 앞으로 3주치를 받아
+시가총액 2,000억 달러 이상이거나 한국 투자자가 많이 보는 종목(KO_NAMES)만 src/data/schedule-us.json에 남긴다.
 """
 
 import argparse
@@ -205,10 +208,98 @@ def collect_ipo(key: str, today: dt.date) -> list[dict]:
     return out
 
 
+# 한국 투자자가 많이 보는 미국 종목: 시가총액이 작아도 실적 일정을 싣는다(이름은 화면에 보일 한글)
+KO_NAMES = {
+    "CSCO": "시스코", "MUFG": "미쓰비시UFJ", "BHP": "BHP", "SONY": "소니", "TM": "도요타", "SAP": "SAP", "SHOP": "쇼피파이",
+    "AAPL": "애플", "MSFT": "마이크로소프트", "NVDA": "엔비디아", "GOOGL": "알파벳(구글)", "GOOG": "알파벳(구글)", "AMZN": "아마존",
+    "META": "메타", "TSLA": "테슬라", "AVGO": "브로드컴", "TSM": "TSMC", "AMD": "AMD", "MU": "마이크론", "INTC": "인텔",
+    "QCOM": "퀄컴", "ARM": "ARM", "ASML": "ASML", "AMAT": "어플라이드 머티어리얼즈", "LRCX": "램리서치", "KLAC": "KLA",
+    "SMCI": "슈퍼마이크로", "DELL": "델", "HPE": "HPE", "ORCL": "오라클", "CRM": "세일즈포스", "ADBE": "어도비", "NOW": "서비스나우",
+    "PLTR": "팔란티어", "SNOW": "스노우플레이크", "CRWD": "크라우드스트라이크", "PANW": "팔로알토", "NET": "클라우드플레어",
+    "DDOG": "데이터독", "MDB": "몽고DB", "SHOP": "쇼피파이", "UBER": "우버", "ABNB": "에어비앤비", "NFLX": "넷플릭스",
+    "DIS": "디즈니", "COIN": "코인베이스", "MSTR": "스트래티지", "HOOD": "로빈후드", "SOFI": "소파이", "PYPL": "페이팔",
+    "V": "비자", "MA": "마스터카드", "JPM": "JP모건", "BAC": "뱅크오브아메리카", "GS": "골드만삭스", "BRK.B": "버크셔 해서웨이",
+    "WMT": "월마트", "COST": "코스트코", "TGT": "타깃", "HD": "홈디포", "LOW": "로우스", "NKE": "나이키", "SBUX": "스타벅스",
+    "MCD": "맥도날드", "KO": "코카콜라", "PEP": "펩시코", "LLY": "일라이 릴리", "NVO": "노보 노디스크", "UNH": "유나이티드헬스",
+    "JNJ": "존슨앤드존슨", "PFE": "화이자", "XOM": "엑슨모빌", "CVX": "셰브론", "BA": "보잉", "GE": "GE 에어로스페이스",
+    "GEV": "GE 버노바", "VST": "비스트라", "CEG": "컨스텔레이션 에너지", "OKLO": "오클로", "SMR": "뉴스케일", "CRWV": "코어위브",
+    "NBIS": "네비우스", "IONQ": "아이온큐", "RGTI": "리게티", "QBTS": "디웨이브", "RKLB": "로켓랩", "ASTS": "AST 스페이스모바일",
+    "CVNA": "카바나", "RIVN": "리비안", "LCID": "루시드", "NIO": "니오", "BABA": "알리바바", "PDD": "PDD(테무)", "JD": "징둥",
+    "SNDK": "샌디스크", "WDC": "웨스턴디지털", "STX": "씨게이트", "VRT": "버티브", "ANET": "아리스타", "MRVL": "마벨",
+    "TXN": "텍사스인스트루먼트", "ON": "온세미", "APP": "앱러빈", "RDDT": "레딧", "DUOL": "듀오링고", "CPNG": "쿠팡",
+    "TEM": "템퍼스 AI", "HIMS": "힘스앤허스", "CIEN": "시에나", "COHR": "코히어런트", "LITE": "루멘텀", "CRCL": "서클",
+}
+BIG_CAP = 200e9
+NASDAQ_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Origin": "https://www.nasdaq.com",
+    "Referer": "https://www.nasdaq.com/",
+}
+
+
+def nasdaq_day(day: dt.date) -> list[dict]:
+    import urllib.request
+
+    req = urllib.request.Request(f"https://api.nasdaq.com/api/calendar/earnings?date={day.isoformat()}", headers=NASDAQ_HEADERS)
+    for i in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                body = json.loads(r.read())
+            return ((body.get("data") or {}).get("rows")) or []
+        except Exception as e:
+            if i == 2:
+                raise
+            print(f"  다시 시도 ({e})")
+            time.sleep(5 * (i + 1))
+    return []
+
+
+def short_name(name: str) -> str:
+    """'Cisco Systems, Inc.' -> 'Cisco Systems' (한글 이름이 없는 큰 종목용)"""
+    name = re.sub(r",?\s+(Inc|Corp|Corporation|Co|Ltd|Limited|plc|PLC|N\.V|S\.A|Group Limited|Holdings|Incorporated)\.?$", "", name.strip())
+    return re.sub(r",?\s+(Inc|Corp|Ltd|Limited|Group)\.?$", "", name).strip() or name
+
+
+def collect_us_earnings(today_et: dt.date, days: int = 21) -> list[dict]:
+    out = []
+    for k in range(days):
+        day = today_et + dt.timedelta(days=k)
+        if day.weekday() >= 5:
+            continue
+        for r in nasdaq_day(day):
+            sym = (r.get("symbol") or "").strip()
+            cap = num(str(r.get("marketCap") or "").replace("$", "")) or 0
+            if sym not in KO_NAMES and cap < BIG_CAP:
+                continue
+            t = r.get("time") or ""
+            out.append(
+                {
+                    "symbol": sym,
+                    "name": KO_NAMES.get(sym) or short_name(r.get("name") or sym),
+                    "date": day.isoformat(),
+                    "when": "pre" if "pre-market" in t else "after" if "after-hours" in t else "",
+                    "capB": round(cap / 1e9) if cap else None,
+                }
+            )
+        time.sleep(0.5)
+    print(f"미장 실적 발표 {len(out)}건")
+    return out
+
+
+def main_us(out: str):
+    et = dt.datetime.now(dt.timezone(dt.timedelta(hours=-5))).date()
+    events = collect_us_earnings(et)
+    Path(out).write_text(json.dumps({"updated": dt.datetime.now(KST).isoformat(timespec="minutes"), "events": events}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="src/data/schedule-kr.json")
+    ap.add_argument("--us", help="미장 실적 발표 달력을 이 파일로")
     args = ap.parse_args()
+    if args.us:
+        return main_us(args.us)
     key = os.environ.get("DART_API_KEY", "").strip()
     if not key:
         sys.exit("DART_API_KEY가 없습니다")
