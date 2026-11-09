@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { loadKrStocks, type KrStocks } from "@/lib/kr-stocks";
-import { DEFAULT_FILTERS, GROUPS, SORTS, applyFilters, searchStocks, toListStock, type Filters, type ScreenStock } from "@/lib/screens";
+import { DEFAULT_FILTERS, GROUPS, SORTS, applyFilters, decodeFilters, searchStocks, toListStock, type Filters, type ScreenStock } from "@/lib/screens";
+import { ScreenShare } from "./ScreenShare";
 import { StockList } from "./StockList";
 
 const PAGE = 50;
@@ -18,6 +19,17 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
   const [q, setQ] = useState("");
   const [f, setF] = useState<Filters>(DEFAULT_FILTERS);
   const [shown, setShown] = useState(PAGE);
+  const [sharing, setSharing] = useState(false);
+
+  useEffect(() => {
+    // 공유 링크(?m=·on= 등)로 들어오면 그 조건으로 시작한다(정적 페이지라 화면이 뜬 뒤에 읽는다)
+    const g = decodeFilters(location.search);
+    if (g) {
+      if (g.sector && !sectors.some(([id]) => id === g.sector)) g.sector = "";
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 주소의 ? 는 화면이 뜬 뒤에만 읽는다
+      setF(g);
+    }
+  }, [sectors]);
 
   useEffect(() => {
     loadKrStocks()
@@ -142,10 +154,17 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
           <p className="muted">종목 자료를 불러오는 중…</p>
         ) : (
           <>
-            <h2 className="card-title">
-              {searching ? `'${q.trim()}' 검색 결과` : "조건에 맞는 종목"} <span className="rs-count">{result.length.toLocaleString()}종목</span>{" "}
-              <span className="muted">{data.asof} 종가 기준</span>
-            </h2>
+            <div className="ss-head">
+              <h2 className="card-title">
+                {searching ? `'${q.trim()}' 검색 결과` : "조건에 맞는 종목"} <span className="rs-count">{result.length.toLocaleString()}종목</span>{" "}
+                <span className="muted">{data.asof} 종가 기준</span>
+              </h2>
+              {!searching && result.length > 0 && (
+                <button type="button" className="ss-btn" onClick={() => setSharing(true)}>
+                  📸 캡처해서 공유
+                </button>
+              )}
+            </div>
             {result.length ? (
               <StockList stocks={result.slice(0, shown).map(toListStock)} from={data.sparkFrom} asof={data.asof} period={period} showInd />
             ) : (
@@ -159,6 +178,15 @@ export function Screener({ sectors }: { sectors: [string, string][] }) {
           </>
         )}
       </section>
+      {sharing && data && (
+        <ScreenShare
+          result={result}
+          filters={f}
+          sectorName={sectors.find(([id]) => id === f.sector)?.[1]}
+          asof={data.asof}
+          onClose={() => setSharing(false)}
+        />
+      )}
     </>
   );
 }

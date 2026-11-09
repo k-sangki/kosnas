@@ -3142,3 +3142,124 @@ button.ft-row {
   font-weight: 700;
   color: var(--ink-2);
 }
+
+/* ---------- 종목 검색 결과 캡처 카드 (ScreenShare) ---------- */
+.ss-off {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  pointer-events: none;
+}
+.ss-wrap {
+  width: 400px;
+}
+.ss-card {
+  padding: 16px 18px 14px;
+}
+.ss-title {
+  margin: 10px 0 10px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.ss-n {
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--rain);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  vertical-align: 3px;
+}
+.ss-filters {
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.ss-filters .tr-sub {
+  margin-bottom: 6px;
+}
+.ss-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+}
+.ss-chips span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--mint-soft);
+  color: var(--pine);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ss-table {
+  width: 100%;
+  margin-bottom: 10px;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.ss-table th {
+  padding: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: right;
+}
+.ss-table td {
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+.ss-table th + th,
+.ss-table td + td {
+  padding-left: 8px;
+}
+.ss-table .l {
+  text-align: left;
+  white-space: normal;
+}
+.ss-table td.l b {
+  display: block;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.ss-table td.l small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.ss-rank {
+  width: 18px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: left !important;
+}
+.ss-btn {
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--rain);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ss-head {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+.ss-head .card-title {
+  margin: 0;
+}
