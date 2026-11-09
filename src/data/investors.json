@@ -290,421 +290,169 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-11-06",
+  "asof": "2026-11-09",
   "trades": [
    {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
     "fund": "ARKK",
-    "ticker": "AVGO",
-    "name": "BROADCOM INC",
-    "kind": "sell",
-    "shares": 356353,
-    "value": 103887457
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "NVDA",
-    "name": "NVIDIA CORP",
+    "ticker": "NTRA",
+    "name": "NATERA INC",
     "kind": "buy",
-    "shares": 240684,
-    "value": 43708278
+    "shares": 46389,
+    "value": 14411715
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "SPCX",
-    "name": "SPACE EXPLORATION TECHN-CL A",
-    "kind": "buy",
-    "shares": 268756,
-    "value": 33223585
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "TER",
-    "name": "TERADYNE INC",
-    "kind": "sell",
-    "shares": 150475,
-    "value": 32011974
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "AMD",
-    "name": "ADVANCED MICRO DEVICES",
-    "kind": "buy",
-    "shares": 43917,
-    "value": 17759900
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "CRWV",
-    "name": "COREWEAVE INC-CL A",
-    "kind": "sell",
-    "shares": 323794,
-    "value": 14136841
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "GOOG",
-    "name": "ALPHABET INC-CL C",
-    "kind": "buy",
-    "shares": 43904,
-    "value": 12369567
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "CBRS",
-    "name": "CEREBRAS SYSTEMS INC - A",
-    "kind": "buy",
-    "shares": 136705,
-    "value": 11170178
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKQ",
-    "ticker": "AVGO",
-    "name": "BROADCOM INC",
-    "kind": "sell",
-    "shares": 33918,
-    "value": 9888115
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKQ",
-    "ticker": "SPCX",
-    "name": "SPACE EXPLORATION TECHN-CL A",
-    "kind": "buy",
-    "shares": 76124,
-    "value": 9410449
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "VCYT",
-    "name": "VERACYTE INC",
-    "kind": "buy",
-    "shares": 348833,
-    "value": 8372001
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "RKLB",
-    "name": "ROCKET LAB CORP",
-    "kind": "buy",
-    "shares": 173630,
-    "value": 7985222
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKG",
-    "ticker": "LLY",
-    "name": "ELI LILLY & CO",
-    "kind": "sell",
-    "shares": 5646,
-    "value": 7704904
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKG",
-    "ticker": "TWST",
-    "name": "TWIST BIOSCIENCE CORP",
-    "kind": "buy",
-    "shares": 43710,
-    "value": 5271830
-   },
-   {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
     "fund": "ARKK",
     "ticker": "",
-    "name": "OPENAI GROUP PBC SERIES C",
-    "kind": "sell",
-    "shares": 5206,
-    "value": 5101445
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "TWST",
-    "name": "TWIST BIOSCIENCE CORP",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
     "kind": "buy",
-    "shares": 41010,
-    "value": 4946218
+    "shares": 14293874,
+    "value": 14293874
    },
    {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
     "fund": "ARKG",
     "ticker": "CDNA",
     "name": "CAREDX INC",
     "kind": "sell",
-    "shares": 63094,
-    "value": 4815988
+    "shares": 113169,
+    "value": 8890524
    },
    {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 5102883,
+    "value": 5102884
+   },
+   {
+    "date": "2026-11-09",
+    "fund": "ARKG",
+    "ticker": "NTRA",
+    "name": "NATERA INC",
+    "kind": "buy",
+    "shares": 15574,
+    "value": 4838521
+   },
+   {
+    "date": "2026-11-09",
     "fund": "ARKK",
-    "ticker": "TXG",
-    "name": "10X GENOMICS INC-CLASS A",
+    "ticker": "KTOS",
+    "name": "KRATOS DEFENSE & SECURITY",
     "kind": "buy",
-    "shares": 80046,
-    "value": 4647453
+    "shares": 87471,
+    "value": 3070230
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKG",
-    "ticker": "TEM",
-    "name": "TEMPUS AI INC-CL A",
-    "kind": "buy",
-    "shares": 63564,
-    "value": 4476793
+    "date": "2026-11-09",
+    "fund": "ARKK",
+    "ticker": "AVGO",
+    "name": "BROADCOM INC",
+    "kind": "sell",
+    "shares": 8666,
+    "value": 2545028
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKG",
-    "ticker": "VCYT",
-    "name": "VERACYTE INC",
-    "kind": "buy",
-    "shares": 166200,
-    "value": 3988788
+    "date": "2026-11-09",
+    "fund": "ARKK",
+    "ticker": "CRWV",
+    "name": "COREWEAVE INC-CL A",
+    "kind": "sell",
+    "shares": 50632,
+    "value": 2349337
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKQ",
-    "ticker": "RKLB",
-    "name": "ROCKET LAB CORP",
-    "kind": "buy",
-    "shares": 65188,
-    "value": 2997996
+    "date": "2026-11-09",
+    "fund": "ARKK",
+    "ticker": "BLSH",
+    "name": "BULLISH",
+    "kind": "sell",
+    "shares": 81812,
+    "value": 1743408
    },
    {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
+    "fund": "ARKK",
+    "ticker": "GOOG",
+    "name": "ALPHABET INC-CL C",
+    "kind": "buy",
+    "shares": 6019,
+    "value": 1708945
+   },
+   {
+    "date": "2026-11-09",
     "fund": "ARKQ",
     "ticker": "BYDDY",
     "name": "BYD CO LTD-UNSPONSORED ADR",
     "kind": "sell",
-    "shares": 273748,
-    "value": 2565019
+    "shares": 180000,
+    "value": 1701000
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "HEI",
-    "name": "HEICO CORP",
-    "kind": "sell",
-    "shares": 7455,
-    "value": 2440245
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "COIN",
-    "name": "COINBASE GLOBAL INC -CLASS A",
-    "kind": "buy",
-    "shares": 17790,
-    "value": 2434002
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "GRMN",
-    "name": "GARMIN LTD",
-    "kind": "sell",
-    "shares": 8420,
-    "value": 2411488
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKG",
-    "ticker": "IAM",
-    "name": "IAMBIC THERAPEUTICS INC",
-    "kind": "buy",
-    "shares": 187813,
-    "value": 2186141
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 2091364,
-    "value": 2091364
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "",
-    "name": "KALSHI INC.",
-    "kind": "sell",
-    "shares": 1842,
-    "value": 1963903
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "RKLB",
-    "name": "ROCKET LAB CORP",
-    "kind": "buy",
-    "shares": 38110,
-    "value": 1752679
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "AVAV",
-    "name": "AEROVIRONMENT INC",
-    "kind": "buy",
-    "shares": 15716,
-    "value": 1604289
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
+    "date": "2026-11-09",
+    "fund": "ARKQ",
     "ticker": "KTOS",
     "name": "KRATOS DEFENSE & SECURITY",
     "kind": "buy",
-    "shares": 47728,
-    "value": 1593638
+    "shares": 44740,
+    "value": 1570374
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKF",
-    "ticker": "MELI",
-    "name": "MERCADOLIBRE INC",
-    "kind": "buy",
-    "shares": 935,
-    "value": 1430812
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
+    "date": "2026-11-09",
+    "fund": "ARKK",
     "ticker": "TER",
     "name": "TERADYNE INC",
     "kind": "sell",
-    "shares": 6485,
-    "value": 1379619
+    "shares": 5429,
+    "value": 1184640
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKF",
-    "ticker": "SPOT",
-    "name": "SPOTIFY TECHNOLOGY SA",
-    "kind": "sell",
-    "shares": 2235,
-    "value": 1373206
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "LLY",
-    "name": "ELI LILLY & CO",
-    "kind": "sell",
-    "shares": 1005,
-    "value": 1371730
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKG",
+    "date": "2026-11-09",
+    "fund": "ARKX",
     "ticker": "",
     "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 1285185,
-    "value": 1285185
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKG",
-    "ticker": "WGS",
-    "name": "GENEDX HOLDINGS CORP",
     "kind": "buy",
-    "shares": 15774,
-    "value": 1015228
+    "shares": 786150,
+    "value": 786150
    },
    {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
     "fund": "ARKG",
     "ticker": "SCTX",
     "name": "SCRIBE THERAPEUTICS INC",
     "kind": "buy",
-    "shares": 61832,
-    "value": 957156
+    "shares": 37245,
+    "value": 584752
    },
    {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
+    "fund": "ARKK",
+    "ticker": "LLY",
+    "name": "ELI LILLY & CO",
+    "kind": "exit",
+    "shares": 399,
+    "value": 544567
+   },
+   {
+    "date": "2026-11-09",
     "fund": "ARKF",
     "ticker": "",
     "name": "GOLDMAN FS TRSY OBLIG INST 468",
     "kind": "buy",
-    "shares": 702407,
-    "value": 702407
+    "shares": 118976,
+    "value": 118976
    },
    {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "JOBY",
-    "name": "JOBY AVIATION INC",
-    "kind": "buy",
-    "shares": 91273,
-    "value": 483747
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "LUNR",
-    "name": "INTUITIVE MACHINES INC",
-    "kind": "buy",
-    "shares": 39299,
-    "value": 338757
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKX",
-    "ticker": "HONA",
-    "name": "HONEYWELL AEROSPACE INC",
-    "kind": "sell",
-    "shares": 2003,
-    "value": 299629
-   },
-   {
-    "date": "2026-11-06",
+    "date": "2026-11-09",
     "fund": "ARKG",
     "ticker": "PSNL",
     "name": "PERSONALIS INC",
     "kind": "sell",
-    "shares": 13918,
-    "value": 216430
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKF",
-    "ticker": "BLSH",
-    "name": "BULLISH",
-    "kind": "sell",
-    "shares": 8493,
-    "value": 175890
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKQ",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "buy",
-    "shares": 128452,
-    "value": 128452
-   },
-   {
-    "date": "2026-11-06",
-    "fund": "ARKK",
-    "ticker": "",
-    "name": "BRERA HOLDINGS PLC WTS",
-    "kind": "sell",
-    "shares": 8830,
-    "value": 8477
+    "shares": 1341,
+    "value": 21169
    }
   ]
  }
