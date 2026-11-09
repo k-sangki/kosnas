@@ -513,6 +513,51 @@ body:has(.fab-bar) .foot {
   font-weight: 700;
   color: var(--muted);
 }
+.top-nav-scr {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.kr-flag {
+  width: 18px;
+  height: 12px;
+  flex: none;
+  border-radius: 2px;
+}
+/* 탭 4개가 좁은 휴대폰에 들어가게 */
+@media (max-width: 430px) {
+  .top-nav {
+    gap: 2px;
+  }
+  .top-nav a {
+    padding: 6px 8px;
+    font-size: 13px;
+    letter-spacing: -0.03em;
+  }
+  .theme-toggle {
+    width: 30px;
+    margin-left: 4px;
+  }
+}
+@media (max-width: 374px) {
+  .top-nav {
+    gap: 0;
+  }
+  .top-nav a {
+    padding: 6px 5px;
+    font-size: 12px;
+  }
+  .topbar .logo {
+    font-size: 18px;
+  }
+  .theme-toggle {
+    width: 28px;
+    height: 30px;
+  }
+  .top-nav-scr .kr-flag {
+    display: none;
+  }
+}
 .top-nav a[aria-current="page"] {
   background: var(--card);
   color: var(--pine);
@@ -3082,48 +3127,15 @@ button.ft-row {
   margin: 10px 4px 0;
 }
 
-/* ---------- 국장 하위 탭(화면 아래 탭 막대) · 종목 검색 ---------- */
-.bottom-tabs {
-  position: fixed;
-  z-index: 40;
-  left: 0;
-  right: 0;
-  bottom: 0;
+/* ---------- 종목 조건검색 ---------- */
+.page-title-flag {
   display: flex;
-  justify-content: center;
-  padding-bottom: env(safe-area-inset-bottom);
-  background: var(--card);
-  border-top: 1px solid var(--line);
-}
-.bottom-tabs a {
-  flex: 0 1 140px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 0 7px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--kr-line);
+  gap: 8px;
 }
-.bottom-tabs svg {
-  width: 24px;
-  height: 24px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.bottom-tabs a[aria-current="page"] {
-  color: var(--ink);
-}
-/* 아래 탭 막대가 있는 화면: 본문과 떠 있는 버튼을 막대 위로 */
-.shell:has(.bottom-tabs) {
-  padding-bottom: calc(110px + env(safe-area-inset-bottom));
-}
-.shell:has(.bottom-tabs) .fab-bar {
-  bottom: calc(76px + env(safe-area-inset-bottom));
+.kr-flag-lg {
+  width: 30px;
+  height: 20px;
 }
 .screen-filters {
   display: flex;
