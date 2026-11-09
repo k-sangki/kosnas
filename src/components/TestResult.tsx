@@ -13,7 +13,7 @@ import { LogoSvg } from "./Logo";
 
 /**
  * 결과 카드. 휴대폰 한 화면에 들어가게: 가장 닮은 대가를 크게, 나머지 7명은 게이지로.
- * 닮은 정도(%)는 주소의 ?s= 에 실려 와서, 공유받은 사람도 같은 카드를 본다. 없으면 게이지 없이 대가만.
+ * 대가별 비중(%, 8명 합계 100)은 주소의 ?s= 에 실려 와서, 공유받은 사람도 같은 카드를 본다. 없으면 게이지 없이 대가만.
  */
 export function TestResult({ id }: { id: TypeId }) {
   const m = findMaster(id)!;
@@ -30,6 +30,8 @@ export function TestResult({ id }: { id: TypeId }) {
   const pcts = decodePcts(s);
   const mine = pcts?.find((p) => p.id === id)?.pct;
   const others = (pcts ?? []).filter((p) => p.id !== id);
+  // 게이지는 가장 닮은 대가를 꽉 찬 칸으로 두고 견준다(숫자는 실제 비중)
+  const top = Math.max(mine ?? 0, ...others.map((o) => o.pct));
   const shareUrl = `https://kosnas.com/test/${id}${s ? `?s=${s}` : ""}`;
 
   return (
@@ -47,7 +49,7 @@ export function TestResult({ id }: { id: TypeId }) {
             <h1 className="tr-name">
               {m.name}형
               {mine != null && (
-                <span className="tr-pct">{Math.max(mine, 1)}% 일치</span>
+                <span className="tr-pct">{mine}%</span>
               )}
             </h1>
             <p className="tr-nick">&ldquo;{m.nick}&rdquo;</p>
@@ -60,7 +62,7 @@ export function TestResult({ id }: { id: TypeId }) {
           </div>
           {others.length > 0 && (
             <div className="tr-gauges">
-              <p className="tr-sub">다른 대가와 닮은 정도</p>
+              <p className="tr-sub">나머지 대가 비중 · 8명 합계 100%</p>
               {others.map((o) => {
                 const x = MASTERS.find((y) => y.id === o.id)!;
                 return (
@@ -69,7 +71,7 @@ export function TestResult({ id }: { id: TypeId }) {
                       {x.emoji} {x.name}
                     </span>
                     <span className="tr-g-bar" aria-hidden>
-                      <i style={{ width: `${o.pct}%` }} />
+                      <i style={{ width: `${top ? (o.pct / top) * 100 : 0}%` }} />
                     </span>
                     <b className="tr-g-pct">{o.pct}%</b>
                   </div>

@@ -31,7 +31,6 @@ describe("투자 성향 테스트", () => {
       });
       const r = score(best);
       expect(r[0].id).toBe(m.id);
-      expect(r[0].pct).toBe(100);
     }
   });
 
@@ -47,6 +46,12 @@ describe("투자 성향 테스트", () => {
     for (const m of MASTERS) {
       expect(n[m.id] ?? 0, m.id).toBeGreaterThan(N * 0.05);
       expect(n[m.id] ?? 0, m.id).toBeLessThan(N * 0.25);
+    }
+  });
+
+  it("8명 비중의 합은 100%", () => {
+    for (const a of [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [3, 2, 1, 0, 3, 2, 1, 0, 3, 2, 1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]) {
+      expect(score(a).reduce((s, x) => s + x.pct, 0)).toBe(100);
     }
   });
 

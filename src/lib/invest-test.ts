@@ -229,29 +229,32 @@ export const MAX_POINTS: Record<TypeId, number> = Object.fromEntries(
 ) as Record<TypeId, number>;
 
 /**
- * 답(문항마다 고른 보기 번호) → 대가별 닮은 정도(0~100%). 최대 점수로 나눠 문항 수가 다른 대가끼리도 견줄 수 있게 한다.
+ * 답(문항마다 고른 보기 번호) → 대가별 비중(%, 8명 합계 100). 대가마다 받을 수 있는 최대 점수로 먼저 나눠
+ * 문항 수가 다른 대가끼리도 견줄 수 있게 한 뒤, 합이 100이 되게 나눈다(반올림 나머지는 큰 순으로 1씩).
  * 많이 닮은 순으로, 같으면 MASTERS 순서.
  */
 export function score(answers: number[]): { id: TypeId; pct: number }[] {
-  const pts = Object.fromEntries(MASTERS.map((m) => [m.id, 0])) as Record<
-    TypeId,
-    number
-  >;
+  const pts = Object.fromEntries(MASTERS.map((m) => [m.id, 0])) as Record<TypeId, number>;
   answers.forEach((a, i) => {
     const o = QUESTIONS[i]?.options[a];
     if (!o) return;
     for (const [k, v] of Object.entries(o.p)) pts[k as TypeId] += v ?? 0;
   });
-  return MASTERS.map((m, i) => ({
-    id: m.id,
-    i,
-    pct: Math.round((pts[m.id] / MAX_POINTS[m.id]) * 100),
-  }))
-    .sort((a, b) => b.pct - a.pct || a.i - b.i)
+  const rel = MASTERS.map((m) => pts[m.id] / MAX_POINTS[m.id]);
+  const sum = rel.reduce((s, x) => s + x, 0) || 1;
+  const raw = rel.map((x) => (x / sum) * 100);
+  const pct = raw.map(Math.floor);
+  let rest = 100 - pct.reduce((s, x) => s + x, 0);
+  for (const k of raw.map((x, i) => ({ i, f: x - Math.floor(x) })).sort((a, b) => b.f - a.f || a.i - b.i)) {
+    if (rest-- <= 0) break;
+    pct[k.i]++;
+  }
+  return MASTERS.map((m, i) => ({ id: m.id, i, pct: pct[i], raw: raw[i] }))
+    .sort((a, b) => b.raw - a.raw || a.i - b.i)
     .map(({ id, pct }) => ({ id, pct }));
 }
 
-/** 공유 주소에 싣는 닮은 정도: MASTERS 순서대로 두 자리 숫자(100은 99로). 예: 8162... */
+/** 공유 주소에 싣는 비중: MASTERS 순서대로 두 자리 숫자(100은 99로). 예: 8162... */
 export function encodePcts(r: { id: TypeId; pct: number }[]): string {
   return MASTERS.map((m) =>
     String(Math.min(99, r.find((x) => x.id === m.id)?.pct ?? 0)).padStart(
