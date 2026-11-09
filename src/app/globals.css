@@ -31,7 +31,9 @@
   --radius: 20px;
   --radius-sm: 12px;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 * {
@@ -69,7 +71,8 @@ html {
 }
 /* 상태바·노치 자리만큼 띄운다 (viewport-fit=cover) */
 body {
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0
+    env(safe-area-inset-left, 0px);
 }
 
 button,
@@ -379,7 +382,12 @@ body:has(.fab-bar) .foot {
 .skeleton {
   height: 220px;
   border-radius: var(--radius);
-  background: linear-gradient(90deg, var(--chip) 25%, var(--line) 50%, var(--chip) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--chip) 25%,
+    var(--line) 50%,
+    var(--chip) 75%
+  );
   background-size: 200% 100%;
   animation: sk 1.2s infinite;
 }
@@ -451,7 +459,12 @@ body:has(.fab-bar) .foot {
 .logo-t {
   display: inline-block;
   --b: 0.2em; /* text-box를 모르는 브라우저: 글자 상자 아래에서 기준선까지 대략 */
-  background: linear-gradient(to top, var(--down) var(--b), calc(var(--b) + 0.5ex), var(--up) calc(var(--b) + 1ex));
+  background: linear-gradient(
+    to top,
+    var(--down) var(--b),
+    calc(var(--b) + 0.5ex),
+    var(--up) calc(var(--b) + 1ex)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -2826,6 +2839,58 @@ button.ft-row {
   font-size: 12px;
   font-weight: 700;
   color: var(--muted);
+}
+.tr-pie {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  align-items: center;
+  gap: 14px;
+}
+.tr-pie-svg {
+  width: 132px;
+  height: 132px;
+  display: block;
+}
+.tr-pie-label {
+  fill: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.35);
+  stroke-width: 1.6px;
+}
+.tr-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  min-width: 0;
+}
+.tr-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-2);
+}
+.tr-legend li.on {
+  color: var(--ink);
+  font-weight: 700;
+}
+.tr-legend i {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.tr-legend .tr-g-name {
+  flex: 1;
+  min-width: 0;
+}
+.tr-legend b {
+  font-variant-numeric: tabular-nums;
 }
 .tr-g {
   display: grid;
