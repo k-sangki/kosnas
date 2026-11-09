@@ -164,29 +164,11 @@ export function isVoter(v: unknown): v is string {
   return typeof v === "string" && /^[a-z0-9-]{8,64}$/.test(v);
 }
 
-/** 폭 맞히기: 판정 등락률의 크기 구간. 방향을 누른 사람만, 고르지 않아도 된다(이 브라우저에만 저장) */
-export type Band = "s" | "m" | "l";
-export const BANDS: { id: Band; label: string }[] = [
-  { id: "s", label: "0.5% 안" },
-  { id: "m", label: "0.5~1.5%" },
-  { id: "l", label: "1.5% 넘게" },
-];
-
-export function bandOf(pct: number | null): Band | null {
-  if (pct == null) return null;
-  const a = Math.abs(pct);
-  return a < 0.5 ? "s" : a <= 1.5 ? "m" : "l";
-}
-
-export function isBand(v: unknown): v is Band {
-  return v === "s" || v === "m" || v === "l";
-}
-
 /**
  * 끝난 회차의 내 결과 한 줄 재료. 내가 누르지 않았거나 보합이면 null.
  * crowdPct: 그 회차에 맞힌 쪽을 누른 사람의 비율(%), minority: 다수 반대편을 골라 맞힘
  */
-export function verdict(p: PastRound, mine: Side | undefined, band?: Band) {
+export function verdict(p: PastRound, mine: Side | undefined) {
   const o = outcome(p.pct);
   if (!o || !mine) return null;
   const total = p.up + p.down;
@@ -198,6 +180,5 @@ export function verdict(p: PastRound, mine: Side | undefined, band?: Band) {
     hit,
     crowdPct,
     minority: hit && m != null && m !== mine,
-    bandHit: hit && band != null ? band === bandOf(p.pct) : null,
   };
 }

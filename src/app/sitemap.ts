@@ -31,6 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     at("/night", { lastModified: now, changeFrequency: "hourly", priority: 1 }),
     ...NIGHT_STOCKS.map((s) => at(`/night/${s.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
     ...LIVE_QUOTES.map((q) => at(`/live/${q.slug}`, { lastModified: now, changeFrequency: "hourly", priority: 0.8 })),
+    at("/test", { changeFrequency: "monthly", priority: 0.7 }),
     at("/weekend-oil", { lastModified: now, changeFrequency: "hourly", priority: 0.9 }),
     at("/kr", { lastModified: kr, changeFrequency: "daily", priority: 0.9 }),
     at("/us", { lastModified: now, changeFrequency: "hourly", priority: 0.8 }),

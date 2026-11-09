@@ -1,7 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { BANDS, hitRate, isBand, majority, myStreak, outcome, verdict, type Band, type PollState, type Side } from "@/lib/poll";
+import {
+  hitRate,
+  majority,
+  myStreak,
+  outcome,
+  verdict,
+  type PollState,
+  type Side,
+} from "@/lib/poll";
 
 /**
  * 첫 화면 '오늘의 한 표'. 버튼 두 개만 보이고, 누른 뒤에야 비율을 보인다(먼저 보면 따라 누르기 쉽다).
@@ -9,7 +17,6 @@ import { BANDS, hitRate, isBand, majority, myStreak, outcome, verdict, type Band
  */
 const VOTER_KEY = "kosnas:poll:voter";
 const MINE_KEY = "kosnas:poll:mine";
-const BAND_KEY = "kosnas:poll:band";
 
 function voterId() {
   try {
@@ -38,26 +45,10 @@ function saveMine(target: string, side: Side) {
     m[target] = side;
     // 오래된 회차는 60개만 남긴다
     const keep = Object.keys(m).sort().slice(-60);
-    localStorage.setItem(MINE_KEY, JSON.stringify(Object.fromEntries(keep.map((k) => [k, m[k]]))));
-  } catch {}
-}
-
-function loadBands(): Record<string, Band> {
-  try {
-    const m = JSON.parse(localStorage.getItem(BAND_KEY) ?? "{}") ?? {};
-    return Object.fromEntries(Object.entries(m).filter(([, v]) => isBand(v))) as Record<string, Band>;
-  } catch {
-    return {};
-  }
-}
-
-function saveBand(target: string, band: Band | null) {
-  try {
-    const m = loadBands();
-    if (band) m[target] = band;
-    else delete m[target];
-    const keep = Object.keys(m).sort().slice(-60);
-    localStorage.setItem(BAND_KEY, JSON.stringify(Object.fromEntries(keep.map((k) => [k, m[k]]))));
+    localStorage.setItem(
+      MINE_KEY,
+      JSON.stringify(Object.fromEntries(keep.map((k) => [k, m[k]]))),
+    );
   } catch {}
 }
 
@@ -74,7 +65,8 @@ function dayLabel(target: string) {
 /** '단톡방에 물어보기' 버튼. 일단 감춰 둔다(2026-11-02 SK 결정). 다시 켜려면 true */
 const ASK_ENABLED = false;
 
-const askUrl = () => `https://kosnas.com/?utm_source=poll_ask&t=${Math.floor(Date.now() / 300_000).toString(36)}#poll`;
+const askUrl = () =>
+  `https://kosnas.com/?utm_source=poll_ask&t=${Math.floor(Date.now() / 300_000).toString(36)}#poll`;
 
 /** 남은 시간: 1시간 넘으면 'N시간 M분', 안쪽이면 'MM:SS' */
 function remain(ms: number) {
@@ -85,12 +77,12 @@ function remain(ms: number) {
   return `${String(m).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
 }
 
-const pctOf = (a: number, b: number) => (a + b ? Math.round((a / (a + b)) * 100) : 0);
+const pctOf = (a: number, b: number) =>
+  a + b ? Math.round((a / (a + b)) * 100) : 0;
 
 export function Poll() {
   const [s, setS] = useState<PollState | null>(null);
   const [mine, setMine] = useState<Record<string, Side>>({});
-  const [bands, setBands] = useState<Record<string, Band>>({});
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [note, setNote] = useState("");
@@ -98,23 +90,28 @@ export function Poll() {
 
   const load = useCallback(async () => {
     const v = voterId();
-    const r = await fetch(`/api/poll${v ? `?voter=${v}` : ""}`, { cache: "no-store" }).catch(() => null);
+    const r = await fetch(`/api/poll${v ? `?voter=${v}` : ""}`, {
+      cache: "no-store",
+    }).catch(() => null);
     if (r?.ok) setS(await r.json());
   }, []);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- 브라우저 저장값은 화면이 뜬 뒤에만 읽을 수 있다
     setMine(loadMine());
-    setBands(loadBands());
     load();
-    const t = setInterval(() => document.visibilityState === "visible" && load(), 120_000);
+    const t = setInterval(
+      () => document.visibilityState === "visible" && load(),
+      120_000,
+    );
     return () => clearInterval(t);
   }, [load]);
 
   // 공유받은 주소(#poll)로 들어오면 투표 칸이 자료를 받은 뒤에 생기므로 그때 한 번 내려간다
   const ready = s != null;
   useEffect(() => {
-    if (ready && location.hash === "#poll") document.getElementById("poll")?.scrollIntoView({ block: "center" });
+    if (ready && location.hash === "#poll")
+      document.getElementById("poll")?.scrollIntoView({ block: "center" });
   }, [ready]);
 
   // 마감·결과까지 남은 시간. 1시간 안쪽은 초 단위로, 그 밖은 분 단위로 고친다
@@ -131,7 +128,12 @@ export function Poll() {
         t = setTimeout(() => load().then(tick), 60_000);
         return;
       }
-      t = setTimeout(tick, left > 3_600_000 ? 1000 * (60 - new Date(n).getSeconds()) : 1000 - (n % 1000));
+      t = setTimeout(
+        tick,
+        left > 3_600_000
+          ? 1000 * (60 - new Date(n).getSeconds())
+          : 1000 - (n % 1000),
+      );
     };
     tick();
     return () => clearTimeout(t);
@@ -176,7 +178,11 @@ export function Poll() {
     const url = askUrl();
     if (navigator.share) {
       try {
-        await navigator.share({ title: "다음 장 코스피, 오를까 내릴까?", text, url });
+        await navigator.share({
+          title: "다음 장 코스피, 오를까 내릴까?",
+          text,
+          url,
+        });
       } catch {
         // 사용자가 취소한 경우
       }
@@ -190,20 +196,20 @@ export function Poll() {
     }
   };
 
-  // 폭은 덤: 같은 칸을 다시 누르면 지운다
-  const pickBand = (b: Band) => {
-    if (!r.open || !my) return;
-    saveBand(r.target, bands[r.target] === b ? null : b);
-    setBands(loadBands());
-  };
-
   const streak = myStreak(s.past, mine);
   // 투표 마감 뒤 판정 전: 내가 누른 쪽이 지금 가격으로 맞는지 한 줄만(숫자는 보이지 않는다)
-  const live = !r.open && my && r.live ? (r.live === "flat" ? "flat" : r.live === my ? "hit" : "miss") : null;
+  const live =
+    !r.open && my && r.live
+      ? r.live === "flat"
+        ? "flat"
+        : r.live === my
+          ? "hit"
+          : "miss"
+      : null;
 
   const last = s.past[0];
   const lastOut = last && outcome(last.pct);
-  const v = last ? verdict(last, mine[last.target], bands[last.target]) : null;
+  const v = last ? verdict(last, mine[last.target]) : null;
   const crowd = hitRate(s.past);
   let myN = 0;
   let myHit = 0;
@@ -215,24 +221,26 @@ export function Poll() {
   }
 
   return (
-    <section id="poll" className="card poll no-capture" aria-label="오늘의 한 표">
+    <section
+      id="poll"
+      className="card poll no-capture"
+      aria-label="오늘의 한 표"
+    >
       <h2 className="card-title">다음 장 코스피, 오를까 내릴까?</h2>
       <p className="muted poll-when">
-        {dayLabel(r.target)} 장 · {r.open ? "09:00 투표 마감" : "투표 마감 · 15:45 장 끝나면 결과"}
+        {dayLabel(r.target)} 장 ·{" "}
+        {now > 0 && left > 0 ? (
+          <span
+            className={`poll-count${r.open && left < 3_600_000 ? " soon" : ""}`}
+          >
+            {r.open ? "마감까지" : "결과까지"} <b>{remain(left)}</b>
+          </span>
+        ) : r.open ? (
+          "09:00 투표 마감"
+        ) : (
+          "투표 마감 · 15:45 장 끝나면 결과"
+        )}
       </p>
-      {now > 0 && (
-        <p className={`poll-count${r.open && left < 3_600_000 ? " soon" : ""}`} aria-live="off">
-          {left > 0 ? (
-            <>
-              ⏳ {r.open ? "마감까지" : "결과까지"} <b>{remain(left)}</b>
-            </>
-          ) : r.open ? (
-            "투표 마감됐어요"
-          ) : (
-            "결과 확인 중이에요"
-          )}
-        </p>
-      )}
       <div className="poll-btns">
         {(["up", "down"] as const).map((side) => (
           <button
@@ -250,33 +258,21 @@ export function Poll() {
       {shown && (
         <div className="poll-result">
           <div className="poll-bar" aria-hidden>
-            <i className="up-fill" style={{ width: `${total ? pctOf(r.up, r.down) : 50}%` }} />
+            <i
+              className="up-fill"
+              style={{ width: `${total ? pctOf(r.up, r.down) : 50}%` }}
+            />
           </div>
           <p className="poll-share">
             <span className="up">
-              오른다 {pctOf(r.up, r.down)}% <small className="poll-n">{r.up.toLocaleString()}명</small>
+              오른다 {pctOf(r.up, r.down)}%{" "}
+              <small className="poll-n">{r.up.toLocaleString()}명</small>
             </span>
             <span className="down">
-              <small className="poll-n">{r.down.toLocaleString()}명</small> 내린다 {total ? 100 - pctOf(r.up, r.down) : 0}%
+              <small className="poll-n">{r.down.toLocaleString()}명</small>{" "}
+              내린다 {total ? 100 - pctOf(r.up, r.down) : 0}%
             </span>
           </p>
-          {r.open && my && (
-            <div className="poll-band" role="group" aria-label="얼마나 움직일까(선택)">
-              <span className="muted">얼마나?</span>
-              {BANDS.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  className={bands[r.target] === b.id ? "on" : ""}
-                  aria-pressed={bands[r.target] === b.id}
-                  onClick={() => pickBand(b.id)}
-                >
-                  {b.label}
-                </button>
-              ))}
-            </div>
-          )}
-          {r.open && <p className="muted small-note">마감 전에는 다른 쪽을 눌러 바꿀 수 있어요.</p>}
           {ASK_ENABLED && r.open && my && (
             <button type="button" className="poll-ask" onClick={ask}>
               단톡방에 물어보기
@@ -287,44 +283,54 @@ export function Poll() {
       )}
       {live && (
         <p className={`poll-live ${live}`}>
-          {live === "hit" ? "지금 가격이면 적중 중이에요" : live === "miss" ? "지금 가격이면 빗나가는 중이에요" : "지금은 보합 근처예요"}
+          {live === "hit"
+            ? "지금 가격이면 적중 중이에요"
+            : live === "miss"
+              ? "지금 가격이면 빗나가는 중이에요"
+              : "지금은 보합 근처예요"}
           <span className="muted"> · 15:45에 확정</span>
         </p>
       )}
-      {streak >= 2 && <p className="poll-streak">🔥 {streak}연속 적중</p>}
       {err && <p className="notice poll-err">{err}</p>}
       {last && (
         <p className="poll-last">
-          {dayLabel(last.target)} 결과{" "}
+          {dayLabel(last.target)}{" "}
           {lastOut ? (
             <b className={lastOut}>
-              {lastOut === "up" ? "▲ 상승" : "▼ 하락"} {last.pct! > 0 ? "+" : ""}
+              {lastOut === "up" ? "▲" : "▼"} {last.pct! > 0 ? "+" : ""}
               {last.pct!.toFixed(2)}%
             </b>
           ) : (
             <b>{last.pct == null ? "판정 못 함" : "보합"}</b>
           )}
-          {last.up + last.down > 0 && (
-            <>
-              {" "}
-              · &apos;{majority(last.up, last.down) === "down" ? "내린다" : "오른다"}&apos;{" "}
-              {majority(last.up, last.down) === "down" ? 100 - pctOf(last.up, last.down) : pctOf(last.up, last.down)}%
-              {lastOut && majority(last.up, last.down) && (majority(last.up, last.down) === lastOut ? " · 다수 적중" : " · 다수 빗나감")}
-            </>
+          {last.up + last.down > 0 &&
+            lastOut &&
+            majority(last.up, last.down) && (
+              <>
+                {majority(last.up, last.down) === lastOut
+                  ? " · 다수 적중"
+                  : " · 다수 빗나감"}
+              </>
+            )}
+          {v && (
+            <span className={`poll-verdict ${v.hit ? "hit" : "miss"}`}>
+              {" · "}
+              {v.minority
+                ? "🎯 소수파 적중"
+                : v.hit
+                  ? "🎯 적중"
+                  : "나는 빗나감"}
+            </span>
+          )}
+          {streak >= 2 && (
+            <span className="poll-streak"> · 🔥 {streak}연속</span>
           )}
         </p>
       )}
-      {v && (
-        <p className={`poll-verdict ${v.hit ? "hit" : "miss"}`}>
-          {v.minority ? "🎯 소수파 적중" : v.hit ? "🎯 적중" : "빗나갔어요"}
-          {v.bandHit && " · 폭까지 맞힘 ✨"}
-          <span className="muted"> · {v.minority ? `${v.crowdPct}%만 맞혔어요` : `맞힌 사람 ${v.crowdPct}%`}</span>
-        </p>
-      )}
-      <p className="muted small-note">
+      <p className="muted poll-foot">
         {crowd.n > 0 && `다수 적중 ${crowd.hit}/${crowd.n}회 · `}
         {myN > 0 && `내 적중 ${myHit}/${myN}회 · `}
-        판정은 코스피200 무기한선물의 전 거래일 대비 15:45 가격. 재미로 하는 투표예요.
+        코스피200 무기한선물 15:45 기준 · 재미로 하는 투표
       </p>
     </section>
   );

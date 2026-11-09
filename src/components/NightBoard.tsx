@@ -7,6 +7,7 @@ import { CaptureSheet } from "./CaptureSheet";
 import { Chat } from "./Chat";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
+import { TestBand } from "./TestBand";
 import { LogoSvg } from "./Logo";
 
 const fmt = (v: number, d = 2) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -230,6 +231,7 @@ export function NightBoard() {
         <Chat />
         <Dashboard d={d} />
         <Poll />
+        <TestBand />
         <div className="cap-only cap-foot">
           <span>해외 무기한선물로 계산한 참고용 추정치입니다</span>
           <b>kosnas.com</b>
