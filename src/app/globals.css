@@ -2487,15 +2487,18 @@ button.ft-row {
 }
 
 /* ---------- 오늘의 한 표 ---------- */
+.poll {
+  padding-top: 16px;
+  padding-bottom: 14px;
+}
 .poll .card-title {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .poll-when {
-  margin: 0 0 4px;
+  margin: 0 0 10px;
+  font-size: 13px;
 }
 .poll-count {
-  margin: 0 0 14px;
-  font-size: 14px;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
@@ -2511,7 +2514,7 @@ button.ft-row {
   gap: 10px;
 }
 .poll-btn {
-  padding: 14px 0;
+  padding: 10px 0;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--line);
   background: var(--card);
@@ -2542,7 +2545,7 @@ button.ft-row {
   opacity: 1;
 }
 .poll-result {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 .poll-bar {
   height: 8px;
@@ -2585,8 +2588,8 @@ button.ft-row {
   margin-top: 12px;
 }
 .poll-live {
-  margin: 12px 0 0;
-  padding: 10px 12px;
+  margin: 8px 0 0;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   background: var(--chip);
   font-size: 15px;
@@ -2603,34 +2606,7 @@ button.ft-row {
   font-size: 13px;
   font-weight: 500;
 }
-.poll-band {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  font-size: 13px;
-}
-.poll-band button {
-  flex: 1;
-  padding: 6px 0;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--ink-2);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.poll-band button.on {
-  border-color: var(--ink-2);
-  background: var(--chip);
-  color: var(--ink);
-  font-weight: 700;
-}
 .poll-verdict {
-  margin: 4px 0 0;
-  font-size: 14px;
   font-weight: 700;
 }
 .poll-verdict.hit {
@@ -2643,15 +2619,278 @@ button.ft-row {
   font-weight: 500;
 }
 .poll-streak {
-  margin: 8px 0 0;
-  font-size: 14px;
   font-weight: 700;
 }
 .poll-last {
-  margin: 14px 0 0;
-  padding-top: 12px;
+  margin: 10px 0 0;
+  padding-top: 8px;
   border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.poll-foot {
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+
+/* ---------- 투자 성향 테스트 (/test) ---------- */
+.test-band {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.test-band-emoji {
+  font-size: 22px;
+  letter-spacing: -4px;
+}
+.test-band-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   font-size: 14px;
+}
+.test-band-text .muted {
+  font-size: 12px;
+}
+.test-band-go {
+  font-size: 22px;
+  color: var(--muted);
+}
+.it-intro {
+  text-align: center;
+}
+.it-emojis {
+  margin: 4px 0 8px;
+  font-size: 28px;
+}
+.it-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.it-start {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--rain);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.it-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--chip);
+  overflow: hidden;
+}
+.it-progress i {
+  display: block;
+  height: 100%;
+  background: var(--rain);
+  transition: width 0.2s;
+}
+.it-step {
+  margin: 10px 0 4px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.it-question {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+}
+.it-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.it-option {
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.it-option:active {
+  border-color: var(--rain);
+  background: var(--chip);
+}
+.it-back {
+  margin-top: 12px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.tr-wrap {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.tr-card {
+  padding: 16px 18px 14px;
+}
+.tr-head,
+.tr-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+}
+.tr-head .logo-svg {
+  height: 20px;
+  width: auto;
+}
+.tr-hero {
+  text-align: center;
+  padding: 6px 0 12px;
+}
+.tr-emoji {
+  display: block;
+  font-size: 52px;
+  line-height: 1.2;
+}
+.tr-name {
+  margin: 2px 0 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.tr-pct {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--rain);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  vertical-align: 4px;
+}
+.tr-nick {
+  margin: 4px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--rain);
+}
+.tr-line {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.tr-traits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+.tr-traits span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.tr-gauges {
+  padding: 10px 0 8px;
+  border-top: 1px solid var(--line);
+}
+.tr-sub {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.tr-g {
+  display: grid;
+  grid-template-columns: 124px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  font-size: 12px;
+}
+.tr-g-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tr-g-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--chip);
+  overflow: hidden;
+}
+.tr-g-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--rain);
+  opacity: 0.75;
+}
+.tr-g-pct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tr-foot {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.tr-foot b {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.tr-actions {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tr-actions .it-start {
+  margin-top: 0;
+}
+.tr-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.tr-btn {
+  display: block;
+  padding: 12px 0;
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+.tr-link {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-2);
 }
 
 /* ---------- 당겨서 새로고침 (PullToRefresh) ---------- */
