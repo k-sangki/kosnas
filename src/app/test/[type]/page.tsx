@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { TestResult } from "@/components/TestResult";
-import { MASTERS, findMaster } from "@/lib/invest-test";
+import { ANT, MASTERS, findResult } from "@/lib/invest-test";
 import { pageMeta } from "@/lib/seo";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return MASTERS.map((m) => ({ type: m.id }));
+  return [...MASTERS, ANT].map((m) => ({ type: m.id }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/test/[type]">): Promise<Metadata> {
-  const m = findMaster((await params).type);
+  const m = findResult((await params).type);
   if (!m) return {};
-  // 결과 페이지는 공유용이라 검색 노출에서 뺀다(같은 틀이 8개). 테스트 첫 화면만 노출
+  // 결과 페이지는 공유용이라 검색 노출에서 뺀다(같은 틀이 9개). 테스트 첫 화면만 노출
   return {
     ...pageMeta({
       title: `나는 ${m.name}형 ${m.emoji} ${m.nick} - 투자 성향 테스트`,
@@ -30,7 +30,7 @@ export async function generateMetadata({
 export default async function TestResultPage({
   params,
 }: PageProps<"/test/[type]">) {
-  const m = findMaster((await params).type);
+  const m = findResult((await params).type);
   if (!m) notFound();
   return (
     <div className="shell">

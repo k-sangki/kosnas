@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  ANT_MIN,
+  antPct,
+  resultPath,
   MASTERS,
   MAX_POINTS,
   QUESTIONS,
@@ -11,7 +14,8 @@ import {
 describe("투자 성향 테스트", () => {
   it("문항마다 보기 5개 이상, 모든 대가가 점수를 받을 수 있다", () => {
     expect(QUESTIONS).toHaveLength(12);
-    for (const q of QUESTIONS) expect(q.options.length).toBeGreaterThanOrEqual(5);
+    for (const q of QUESTIONS)
+      expect(q.options.length).toBeGreaterThanOrEqual(5);
     for (const m of MASTERS)
       expect(MAX_POINTS[m.id]).toBeGreaterThanOrEqual(10);
   });
@@ -40,7 +44,9 @@ describe("투자 성향 테스트", () => {
     const n: Record<string, number> = {};
     const N = 4000;
     for (let k = 0; k < N; k++) {
-      const top = score(QUESTIONS.map((q) => Math.floor(rnd() * q.options.length)))[0].id;
+      const top = score(
+        QUESTIONS.map((q) => Math.floor(rnd() * q.options.length)),
+      )[0].id;
       n[top] = (n[top] ?? 0) + 1;
     }
     for (const m of MASTERS) {
@@ -50,9 +56,23 @@ describe("투자 성향 테스트", () => {
   });
 
   it("8명 비중의 합은 100%", () => {
-    for (const a of [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [3, 2, 1, 0, 3, 2, 1, 0, 3, 2, 1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]) {
+    for (const a of [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [3, 2, 1, 0, 3, 2, 1, 0, 3, 2, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ]) {
       expect(score(a).reduce((s, x) => s + x.pct, 0)).toBe(100);
     }
+  });
+
+  it("웃자고 넣은 보기를 절반 넘게 고르면 개미형", () => {
+    const ants = QUESTIONS.map((q) => q.options.findIndex((o) => o.ant));
+    expect(ants.every((i) => i >= 0)).toBe(true);
+    expect(antPct(ants)).toBe(100);
+    expect(resultPath(ants)).toMatch(/^\/test\/ant\?s=\d{16}&a=100$/);
+    const half = ants.map((i, k) => (k < 6 ? i : 0));
+    expect(antPct(half)).toBeGreaterThanOrEqual(ANT_MIN);
+    expect(resultPath(QUESTIONS.map(() => 0))).not.toMatch(/\/ant\?/);
   });
 
   it("공유 주소의 % 를 되살린다", () => {

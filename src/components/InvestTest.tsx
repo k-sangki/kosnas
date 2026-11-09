@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { QUESTIONS, encodePcts, score } from "@/lib/invest-test";
+import { QUESTIONS, resultPath } from "@/lib/invest-test";
 
 /** 투자 성향 테스트 문항 화면. 한 문항씩 보이고, 고르면 바로 다음으로. 끝나면 결과 주소로 간다 */
 export function InvestTest() {
@@ -37,8 +37,7 @@ export function InvestTest() {
   const pick = (a: number) => {
     const next = [...answers, a];
     if (next.length < QUESTIONS.length) return setAnswers(next);
-    const r = score(next);
-    router.push(`/test/${r[0].id}?s=${encodePcts(r)}`);
+    router.push(resultPath(next));
   };
 
   return (
