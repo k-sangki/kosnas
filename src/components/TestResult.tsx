@@ -8,6 +8,7 @@ import {
   findMaster,
   findResult,
   type ResultId,
+  type TypeId,
 } from "@/lib/invest-test";
 import { CaptureSheet } from "./CaptureSheet";
 import { LogoSvg } from "./Logo";
@@ -44,10 +45,9 @@ export function TestResult({ id }: { id: ResultId }) {
   const pcts = decodePcts(s);
   // 개미형은 칩에 개미력, 대가형은 그 대가 비중. 게이지는 0%인 대가를 뺀다
   const mine = ant ? a : pcts?.find((p) => p.id === id)?.pct;
-  const others = (pcts ?? []).filter((p) => p.id !== id && p.pct > 0);
   const best = ant ? findMaster(pcts?.[0]?.id ?? "") : findMaster(id);
-  // 게이지는 가장 닮은 대가를 꽉 찬 칸으로 두고 견준다(숫자는 실제 비중)
-  const top = Math.max(ant ? 0 : (mine ?? 0), ...others.map((o) => o.pct));
+  // 원형 차트: 0%가 아닌 대가 모두(가장 닮은 대가 포함, 합계 100%)
+  const slices = (pcts ?? []).filter((p) => p.pct > 0);
   const query = [s && `s=${s}`, a != null && `a=${a}`]
     .filter(Boolean)
     .join("&");
@@ -82,27 +82,31 @@ export function TestResult({ id }: { id: ResultId }) {
               {!ant && a != null && a > 0 && <span>🐜 개미력 {a}%</span>}
             </p>
           </div>
-          {others.length > 0 && (
+          {slices.length > 0 && (
             <div className="tr-gauges">
               <p className="tr-sub">
-                {ant ? "그래도 닮은 대가" : "나머지 대가 비중"} · 8명 합계 100%
+                {ant ? "그래도 닮은 대가" : "대가별 비중"} · 합계 100%
               </p>
-              {others.map((o) => {
-                const x = MASTERS.find((y) => y.id === o.id)!;
-                return (
-                  <div key={o.id} className="tr-g">
-                    <span className="tr-g-name">
-                      {x.emoji} {x.name}
-                    </span>
-                    <span className="tr-g-bar" aria-hidden>
-                      <i
-                        style={{ width: `${top ? (o.pct / top) * 100 : 0}%` }}
-                      />
-                    </span>
-                    <b className="tr-g-pct">{o.pct}%</b>
-                  </div>
-                );
-              })}
+              <div className="tr-pie">
+                <Pie slices={slices} />
+                <ul className="tr-legend">
+                  {slices.map((o) => {
+                    const x = MASTERS.find((y) => y.id === o.id)!;
+                    return (
+                      <li key={o.id} className={o.id === id ? "on" : ""}>
+                        <i
+                          style={{ background: PIE_COLORS[o.id] }}
+                          aria-hidden
+                        />
+                        <span className="tr-g-name">
+                          {x.name.split(" ").pop()}
+                        </span>
+                        <b>{o.pct}%</b>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           )}
           <p className="tr-foot">
@@ -145,5 +149,78 @@ export function TestResult({ id }: { id: ResultId }) {
         />
       )}
     </>
+  );
+}
+
+/** 대가마다 정해 둔 조각 색(라이트·다크 모두 흰 글씨가 읽히는 진한 색) */
+const PIE_COLORS: Record<TypeId, string> = {
+  buffett: "#3b7bff",
+  wood: "#f2711c",
+  burry: "#7d8590",
+  druckenmiller: "#e0a800",
+  dalio: "#14a3c7",
+  marks: "#20a464",
+  ackman: "#e5484d",
+  icahn: "#8e5cf0",
+};
+
+/** 원형 차트(SVG). 8% 이상인 조각에만 안쪽에 % 를 적는다 */
+function Pie({ slices }: { slices: { id: TypeId; pct: number }[] }) {
+  const R = 50;
+  const total = slices.reduce((t, x) => t + x.pct, 0) || 1;
+  // 조각마다 시작 비율(누적)
+  const starts = slices.map(
+    (_, i) => slices.slice(0, i).reduce((t, x) => t + x.pct, 0) / total,
+  );
+  const pt = (f: number, r: number) => {
+    const t = 2 * Math.PI * f - Math.PI / 2;
+    return [60 + r * Math.cos(t), 60 + r * Math.sin(t)];
+  };
+  return (
+    <svg
+      className="tr-pie-svg"
+      viewBox="0 0 120 120"
+      role="img"
+      aria-label="대가별 비중 원형 차트"
+    >
+      {slices.map((x, i) => {
+        const f0 = starts[i];
+        const f1 = f0 + x.pct / total;
+        const [mx, my] = pt((f0 + f1) / 2, R * 0.64);
+        const shape =
+          f1 - f0 >= 0.9999 ? (
+            <circle cx={60} cy={60} r={R} fill={PIE_COLORS[x.id]} />
+          ) : (
+            (() => {
+              const [x0, y0] = pt(f0, R);
+              const [x1, y1] = pt(f1, R);
+              return (
+                <path
+                  d={`M60 60 L${x0} ${y0} A${R} ${R} 0 ${f1 - f0 > 0.5 ? 1 : 0} 1 ${x1} ${y1} Z`}
+                  fill={PIE_COLORS[x.id]}
+                  stroke="var(--card)"
+                  strokeWidth={1.2}
+                />
+              );
+            })()
+          );
+        return (
+          <g key={x.id}>
+            {shape}
+            {x.pct >= 8 && (
+              <text
+                x={mx}
+                y={my}
+                className="tr-pie-label"
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                {x.pct}%
+              </text>
+            )}
+          </g>
+        );
+      })}
+    </svg>
   );
 }
