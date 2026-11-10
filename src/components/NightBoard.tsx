@@ -420,7 +420,7 @@ function Main({ d }: { d: NightData }) {
         </div>
         <dl className="night-stats">
           <div>
-            <dt>{baseName(d)}</dt>
+            <dt>{state === "weekend" && d.baseKind === "close" ? "금요일 종가" : baseName(d)}</dt>
             <dd>{fmt(d.base)}</dd>
           </div>
           {d.at0600 != null && (
