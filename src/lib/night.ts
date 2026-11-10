@@ -260,6 +260,8 @@ export type NightData = {
   /** KRX 야간선물 마감 시각(06:00)과 그때의 추정값(지났을 때만) */
   nightClose: number;
   at0600: number | null;
+  /** 장중(구간이 끝난 뒤) 그날 KRX 코스피200 선물 주간 시가(받았을 때) — 추정 오차를 잰다 */
+  open?: number | null;
   /** 기준가를 선물 수준으로 바꾼 배율(기준가 방식일 때) */
   factor?: number;
   points: NightPoint[];
@@ -268,6 +270,36 @@ export type NightData = {
   extra?: Record<string, { price: number; prev: number | null; prevAt?: number; spark?: number[]; sparkT?: number[]; wk?: WeekendRef }>;
   updated: number;
 };
+
+/**
+ * 맨 위 카드의 상태(2026-11-10 SK 사양표).
+ *  - night: 15:45 ~ 다음 거래일 09:00(금요일 밤은 토요일 06:00 야간선물 마감까지)
+ *  - weekend: 토요일 06:00 ~ 월요일 09:00 — 월요일 시작 추정가
+ *  - day: 09:00 ~ 15:45 장중 — 어젯밤(주말) 추정 vs 오늘 시가
+ */
+export type BoardState = "night" | "weekend" | "day";
+export function boardState(win: NightWindow, now: number): BoardState {
+  if (!win.live) return "day";
+  return kstWeekday(win.start) === 5 && now >= nightClose(win) ? "weekend" : "night";
+}
+
+/** 그 시각까지 남은 시간을 "N시간 M분"으로(1분 안이면 "곧") */
+export function untilText(to: number, now: number) {
+  const m = Math.ceil((to - now) / MIN);
+  if (m <= 1) return "곧";
+  const h = Math.floor(m / 60);
+  return h ? `${h}시간 ${m % 60}분` : `${m}분`;
+}
+
+/** 다음 야간 추정 시작(그날 15:45 KST, 장중에 쓴다) */
+export const nextNightStart = (now: number) => kstMidnight(now) + (15 * 60 + 45) * MIN;
+
+/** 주말 구간의 날짜 경계(토·일·월 00:00 KST) 중 x0~x1 안에 드는 것 */
+export function dayBounds(x0: number, x1: number) {
+  const out: { at: number; label: string }[] = [];
+  for (let k = kstMidnight(x0) + DAY; k < x1; k += DAY) out.push({ at: k, label: "일월화수목금토"[kstWeekday(k)] + "요일" });
+  return out;
+}
 
 /** 평일 하룻밤 구간 길이(15:45~다음 날 09:00) */
 export const NIGHT_SPAN = (17 * 60 + 15) * MIN;

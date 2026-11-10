@@ -82,7 +82,9 @@ function remain(ms: number) {
 const pctOf = (a: number, b: number) =>
   a + b ? Math.round((a / (a + b)) * 100) : 0;
 
-export function Poll() {
+/** weekend: 토요일 06:00 ~ 월요일 09:00에는 제목을 "월요일 코스피"로(2026-11-10 SK) */
+export function Poll({ weekend = false }: { weekend?: boolean }) {
+  const lead = weekend ? "월요일" : "다음 장";
   const [s, setS] = useState<PollState | null>(null);
   const [mine, setMine] = useState<Record<string, Side>>({});
   const [busy, setBusy] = useState(false);
@@ -183,7 +185,7 @@ export function Poll() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "다음 장 코스피, 오를까 내릴까?",
+          title: `${lead} 코스피, 오를까 내릴까?`,
           text,
           url,
         });
@@ -230,7 +232,7 @@ export function Poll() {
       className="card poll no-capture"
       aria-label="오늘의 한 표"
     >
-      <h2 className="card-title">다음 장 코스피, 오를까 내릴까?</h2>
+      <h2 className="card-title">{lead} 코스피, 오를까 내릴까?</h2>
       <p className="muted poll-when">
         {dayLabel(r.target)} 장 ·{" "}
         {now > 0 && left > 0 ? (

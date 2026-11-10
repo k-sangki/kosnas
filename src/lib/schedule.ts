@@ -500,9 +500,9 @@ export function weeks(market: Market, today: string, only?: Set<Cat>): Week[] {
   });
 }
 
-/** 띠에 보일 한 줄: 오늘부터 이번 주 끝까지 가장 가까운 일정 */
-export function nextUp(today: string) {
-  const to = addDays(monday(today), 6);
+/** 띠에 보일 한 줄: 오늘부터 이번 주 끝까지(nextWeek면 다음 주 끝까지) 가장 가까운 일정 */
+export function nextUp(today: string, nextWeek = false) {
+  const to = addDays(monday(today), nextWeek ? 13 : 6);
   const kr = itemsFor("kr", today, to);
   const us = itemsFor("us", today, to);
   const all = [...kr, ...us].sort((a, b) =>

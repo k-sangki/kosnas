@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
+  boardState,
+  nextNightStart,
   chartEnd,
+  dayBounds,
+  untilText,
+  type BoardState,
   hhmm,
   timeTicks,
   usOpenIn,
@@ -93,11 +98,13 @@ function Chart({ d }: { d: NightData }) {
   const marks: { at: number; name: string; row: number }[] = [];
   let edge = -Infinity;
   let row = 0;
+  // 주말을 낀 구간(하루보다 긴 축)은 개장 표시 대신 토·일·월 날짜 경계를 표시한다(2026-11-10 SK)
+  const long = x1 - x0 > 86_400_000;
   for (const [at, name] of [
-    [night, "야간 개장"],
-    ...(us ? [[us, "미국 개장"] as const] : []),
-    [nightEnd, "야간 마감"],
-  ] as const) {
+    ...(long ? [] : [[night, "야간 개장"] as const, ...(us ? [[us, "미국 개장"] as const] : [])]),
+    [nightEnd, "야간 마감"] as const,
+    ...(long ? dayBounds(x0, x1).map((b) => [b.at, b.label] as const) : []),
+  ]) {
     if (at <= x0 || at >= x1) continue;
     const w = name.length * 10;
     const from = at === nightEnd ? px(at) - 4 - w : px(at) + 4;
@@ -291,6 +298,8 @@ export function NightBoard() {
     };
   }, []);
 
+  const state: BoardState = d ? boardState(d.window, d.updated) : "night";
+  const weekend = state === "weekend";
   const stamp = new Date((d?.updated ?? 0) + 9 * 3600_000);
   const day = `${stamp.getUTCMonth() + 1}월 ${stamp.getUTCDate()}일`;
   return (
@@ -305,15 +314,22 @@ export function NightBoard() {
             </span>
           )}
         </div>
+        {/* 주말에는 다음 주 일정이 평일보다 쓸모가 커서 맨 위에 둔다 */}
+        {weekend && <ScheduleBand weekend />}
         <section
           className="card night"
           data-cap="night"
           data-cap-label="코스피 야간선물"
         >
           <div className="night-top">
-            <h1 className="night-title">코스피 야간선물 실시간 추정</h1>
+            <h1 className="night-title">{titleOf(d, state)}</h1>
             {d && <span className="night-upd">{hhmm(d.updated)} 갱신</span>}
           </div>
+          {weekend && (
+            <p className="muted small-note night-wk">
+              주말은 거래가 얇아 월요일 시가와의 오차가 평일보다 커질 수 있어요.
+            </p>
+          )}
           {d ? (
             <Main d={d} />
           ) : (
@@ -329,11 +345,11 @@ export function NightBoard() {
             </p>
           )}
         </section>
-        <Poll />
+        <Poll weekend={weekend} />
         <Chat />
         <Dashboard d={d} />
         <TestBand />
-        <ScheduleBand />
+        {!weekend && <ScheduleBand />}
         <div className="cap-only cap-foot">
           <span>해외 무기한선물로 계산한 참고용 추정치입니다</span>
           <b>kosnas.com</b>
@@ -367,16 +383,27 @@ export function NightBoard() {
   );
 }
 
+/** 맨 위 카드 제목(2026-11-10 SK 사양표: 야간·장중·주말) */
+function titleOf(d: NightData | null, state: BoardState) {
+  if (state === "weekend") return "월요일 시작 추정가";
+  if (state === "day" && d) return `${fromFriday(d) ? "주말 추정 vs 월요일" : "어젯밤 추정 vs 오늘"} 시가`;
+  return "코스피 야간선물 실시간 추정";
+}
+
+/** 금요일 15:45에 시작한(주말을 낀) 구간인가 */
+const fromFriday = (d: NightData) => new Date(d.window.start + 9 * 3600_000).getUTCDay() === 5;
+
 function Main({ d }: { d: NightData }) {
+  const state = boardState(d.window, d.updated);
+  if (state === "day") return <DayMain d={d} />;
   const t = tone(d.chg);
+  const basis = d.baseKind === "close" ? (state === "weekend" ? "금요일 종가 대비" : "주간 종가 대비") : "15:45 추정 대비";
   return (
     <>
       <div className="night-head">
         <div>
           <p className="muted">
-            {d.window.live
-              ? "실시간 · 5초마다 갱신"
-              : `지난밤 · ${hhmm(d.window.end)} 마감`}
+            {basis} · 개장까지 {untilText(d.window.end, d.updated)}
           </p>
           <p className="night-price">
             <b className={t}>{fmt(d.est)}</b>
@@ -419,6 +446,65 @@ function Main({ d }: { d: NightData }) {
           : d.baseKind === "close"
             ? "등락률은 KRX 코스피200 선물 주간 종가 대비입니다. 06:00까지는 KR200 무기한선물 기준가를 선물 수준으로 환산한 값이고, 그 뒤로는 EWY·KR200 무기한선물의 움직임을 반반 섞어 이어 갑니다."
             : "등락률은 15:45 추정값 대비입니다. KRX 주간 선물 종가가 반영되기 전(16:10쯤까지)이거나 분기 만기일, 또는 종가를 받지 못한 때입니다."}
+      </p>
+    </>
+  );
+}
+
+/**
+ * 장중(09:00~15:45): 지난밤(주말) 마지막 추정값과 오늘 KRX 코스피200 선물 주간 시가를 나란히.
+ * 기준은 추정 오차(추정 − 시가). 시가는 네이버 시세가 20분 늦어 09:20쯤부터 보인다
+ */
+function DayMain({ d }: { d: NightData }) {
+  const open = d.open ?? null;
+  const err = open != null ? d.est - open : null;
+  const errPct = open != null ? (d.est / open - 1) * 100 : null;
+  // 방향: 추정과 시가가 전일 종가 대비 같은 쪽이었나(전일 종가를 받았을 때만)
+  const hit = open != null && d.baseKind === "close" ? Math.sign(d.est - d.base) === Math.sign(open - d.base) : null;
+  const night = fromFriday(d) ? "주말" : "어젯밤";
+  return (
+    <>
+      <div className="night-head">
+        <div>
+          <p className="muted">
+            추정 오차 · 오늘 밤 추정은 {hhmm(nextNightStart(d.updated))} 시작
+          </p>
+          <p className="night-price">
+            {err != null && errPct != null ? (
+              <>
+                <b>
+                  {sign(err)}
+                  {fmt(err)}
+                </b>
+                <b>
+                  {sign(errPct)}
+                  {fmt(errPct)}%
+                </b>
+                {hit != null && <span className={hit ? "up" : "down"}>{hit ? "방향 맞음" : "방향 틀림"}</span>}
+              </>
+            ) : (
+              <span className="muted">오늘 시가 집계 중 · 09:20쯤 반영</span>
+            )}
+          </p>
+        </div>
+        <dl className="night-stats">
+          <div>
+            <dt>{night} 추정</dt>
+            <dd className={tone(d.est - d.base)}>{fmt(d.est)}</dd>
+          </div>
+          <div>
+            <dt>오늘 시가</dt>
+            <dd className={open != null ? tone(open - d.base) : ""}>{open != null ? fmt(open) : "-"}</dd>
+          </div>
+          <div>
+            <dt>{d.baseKind === "close" ? (fromFriday(d) ? "금요일 종가" : "전일 종가") : baseName(d)}</dt>
+            <dd>{fmt(d.base)}</dd>
+          </div>
+        </dl>
+      </div>
+      <Chart d={d} />
+      <p className="muted small-note">
+        추정 오차 = {night} {hhmm(d.window.end)} 추정값 − 오늘 KRX 코스피200 선물 주간 시가. 차트는 {night} 추정선이고, 오늘 밤 15:45부터 새 추정을 시작합니다.
       </p>
     </>
   );

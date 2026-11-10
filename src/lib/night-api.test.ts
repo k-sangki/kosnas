@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stockCloseFromRt } from "./night-api";
+import { futOpenFromRt, stockCloseFromRt } from "./night-api";
 
 describe("stockCloseFromRt (KRX 종가)", () => {
   it("장 전·마감 뒤에는 closePrice가 마지막 KRX 종가", () => {
@@ -15,5 +15,14 @@ describe("stockCloseFromRt (KRX 종가)", () => {
   it("그날 정규장 중이거나 자료가 없으면 null", () => {
     expect(stockCloseFromRt({ marketStatus: "OPEN", localTradedAt: "2026-11-06T15:20:00+09:00", closePriceRaw: "190000" }, "20261106")).toBeNull();
     expect(stockCloseFromRt(undefined, "20261106")).toBeNull();
+  });
+});
+
+describe("futOpenFromRt (주간 시가)", () => {
+  it("그날 체결된 시가만 쓴다", () => {
+    const d = { openPriceRaw: "784.00", localTradedAt: "2026-11-09T15:34:59+09:00" };
+    expect(futOpenFromRt(d, "20261109")).toBe(784);
+    expect(futOpenFromRt(d, "20261110")).toBeNull();
+    expect(futOpenFromRt({ openPriceRaw: "0", localTradedAt: "2026-11-10T09:20:00+09:00" }, "20261110")).toBeNull();
   });
 });
