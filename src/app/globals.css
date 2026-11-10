@@ -3701,3 +3701,57 @@ button.ft-row {
   font-size: 11px;
   font-weight: 700;
 }
+.night-rec {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.night-ctx + .night-rec {
+  margin-top: 4px;
+}
+.night-rec .fold-body p {
+  margin: 6px 0 0;
+  line-height: 1.6;
+  font-size: 12px;
+}
+.night-rec-table {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.night-rec-table th,
+.night-rec-table td {
+  padding: 3px 4px;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+}
+.night-rec-table th:first-child,
+.night-rec-table td:first-child {
+  text-align: left;
+}
+.night-rec-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+/* 오늘의 한 표 워들식 월간 기록 */
+.poll-rec {
+  margin-top: 6px;
+}
+.poll-rec-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--ink-2, var(--ink));
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.poll-marks {
+  margin: 6px 0;
+  font-size: 18px;
+  letter-spacing: 1px;
+  line-height: 1.4;
+  word-break: break-all;
+}

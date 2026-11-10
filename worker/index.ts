@@ -18,16 +18,34 @@ import type { PollState } from "../src/lib/poll";
 import { usGET } from "../src/lib/us-api";
 import { ChatRoom } from "./chat-room";
 import { PollRoom } from "./poll-room";
+import { NightRecord } from "./night-record";
 
 type Env = {
   CHAT: DurableObjectNamespace<ChatRoom>;
   POLL: DurableObjectNamespace<PollRoom>;
+  RECORD: DurableObjectNamespace<NightRecord>;
   CF_VERSION_METADATA?: { id: string };
   /** kosnas 저장소 Actions 쓰기만 되는 GitHub 토큰(wrangler secret). 없으면 예약 작업이 아무것도 하지 않는다 */
   GH_DISPATCH_TOKEN?: string;
 };
 
-export { ChatRoom, PollRoom };
+export { ChatRoom, PollRoom, NightRecord };
+
+/** 추정 적중 기록을 채우는 예약 시각(UTC, 평일 09:25·09:45·10:30 KST). 그 밖의 예약은 국장 시세 수집 */
+const RECORD_CRONS = new Set(["25 0 * * 1-5", "45 0 * * 1-5", "30 1 * * 1-5"]);
+
+/** /api/night-record: 기록 요약. 엣지에 2분 담는다 */
+async function recordGET(req: Request, env: Env) {
+  const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
+  const key = new Request(new URL("/api/night-record", req.url).toString());
+  const hit = await cache?.match(key).catch(() => undefined);
+  if (hit) return hit;
+  const r = await env.RECORD.get(env.RECORD.idFromName("main")).fetch(new Request(key.url));
+  const res = new Response(r.body, r);
+  res.headers.set("Cache-Control", "public, max-age=120");
+  if (r.ok) await cache?.put(key, res.clone()).catch(() => undefined);
+  return res;
+}
 
 /** 국장 시세 수집 워크플로를 건다(wrangler.jsonc triggers.crons). 이미 받은 날이면 그 작업은 금방 끝난다 */
 async function dispatchCollectKr(env: Env) {
@@ -167,6 +185,7 @@ const worker = {
     if (url.pathname === "/og/night.png") return ogImage(req, env, "night");
     if (url.pathname === "/og/poll.png") return ogImage(req, env, "poll");
     if (url.pathname === "/api/us") return usGET(req);
+    if (url.pathname === "/api/night-record") return recordGET(req, env);
     if (url.pathname === "/api/chat") {
       // 다른 사이트에서 붙지 못하게 같은 주소에서 연 웹소켓만 받는다
       let host = "";
@@ -189,7 +208,9 @@ const worker = {
     }
     return page(req, env, ctx);
   },
-  async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
+  async scheduled(event: ScheduledController, env: Env, ctx: ExecutionContext) {
+    if (RECORD_CRONS.has(event.cron))
+      return ctx.waitUntil(env.RECORD.get(env.RECORD.idFromName("main")).fetch(new Request("https://kosnas.com/api/night-record?force")).then(() => undefined));
     ctx.waitUntil(dispatchCollectKr(env));
   },
 };

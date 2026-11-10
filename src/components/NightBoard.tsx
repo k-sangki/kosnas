@@ -21,6 +21,7 @@ import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
 import { NightPnl } from "./NightPnl";
 import { NightContext } from "./NightContext";
+import { NightRecordLine } from "./NightRecordLine";
 import { TestBand } from "./TestBand";
 import { ScheduleBand } from "./ScheduleBand";
 import { LogoSvg } from "./Logo";
@@ -348,6 +349,7 @@ export function NightBoard() {
             </p>
           )}
           {d && state !== "day" && <NightContext pct={d.chgPct} at={d.updated} />}
+          {d && <NightRecordLine refresh={state === "day" ? Math.floor(d.updated / 600_000) : 0} />}
         </section>
         <Poll weekend={weekend} />
         <NightPnl d={d} />
