@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   hitRate,
+  leanRate,
   majority,
+  monthMarks,
   myStreak,
   outcome,
+  shareText,
   verdict,
   type PollState,
   type Side,
@@ -91,6 +94,8 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
   const [err, setErr] = useState("");
   const [note, setNote] = useState("");
   const [now, setNow] = useState(0);
+  const [recOpen, setRecOpen] = useState(false);
+  const [recNote, setRecNote] = useState("");
 
   const load = useCallback(async () => {
     const v = voterId();
@@ -203,6 +208,29 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
   };
 
   const streak = myStreak(s.past, mine);
+  // 워들식 월간 기록: 내가 마지막으로 누른 끝난 회차의 달
+  const month = s.past.find((p) => mine[p.target])?.target.slice(0, 7) ?? null;
+  const marks = month ? monthMarks(s.past, mine, month) : [];
+  const lean = leanRate(s.past);
+  const shareRec = async () => {
+    if (!month) return;
+    const text = shareText(month, marks, streak);
+    const url = "https://kosnas.com/?utm_source=poll_record#poll";
+    if (navigator.share) {
+      try {
+        await navigator.share({ text, url });
+        return;
+      } catch (e) {
+        if ((e as Error).name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      setRecNote("기록을 복사했어요. 붙여 넣어 자랑해 보세요");
+    } catch {
+      setRecNote("복사하지 못했어요");
+    }
+  };
   // 투표 마감 뒤 판정 전: 내가 누른 쪽이 지금 가격으로 맞는지 한 줄만(숫자는 보이지 않는다)
   const live =
     !r.open && my && r.live
@@ -337,8 +365,31 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
           )}
         </p>
       )}
+      {month && marks.length > 0 && (
+        <div className="poll-rec">
+          <button type="button" className="poll-rec-btn" aria-expanded={recOpen} onClick={() => setRecOpen(!recOpen)}>
+            📅 {Number(month.slice(5, 7))}월 내 기록 {marks.filter((m) => m.mark === "🟩").length}/{marks.filter((m) => m.mark !== "⬜").length}
+          </button>
+          {recOpen && (
+            <>
+              <p className="poll-marks" aria-label="날짜별 적중">
+                {marks.map((m) => (
+                  <span key={m.target} title={dayLabel(m.target)}>
+                    {m.mark}
+                  </span>
+                ))}
+              </p>
+              <button type="button" className="poll-ask" onClick={shareRec}>
+                기록 공유하기
+              </button>
+              {recNote && <p className="muted small-note">{recNote}</p>}
+            </>
+          )}
+        </div>
+      )}
       <p className="muted poll-foot">
         {crowd.n > 0 && `다수 적중 ${crowd.hit}/${crowd.n}회 · `}
+        {lean.n >= 3 && `80% 넘게 쏠린 날 다수 적중 ${lean.hit}/${lean.n}회 · `}
         {myN > 0 && `내 적중 ${myHit}/${myN}회 · `}
         코스피200 무기한선물 15:45 기준 · 재미로 하는 투표
       </p>
