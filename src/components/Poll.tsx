@@ -64,6 +64,8 @@ function dayLabel(target: string) {
  */
 /** '단톡방에 물어보기' 버튼. 일단 감춰 둔다(2026-11-02 SK 결정). 다시 켜려면 true */
 const ASK_ENABLED = false;
+/** 투표 인원수는 합계가 이만큼 넘어야 보인다 */
+const COUNT_MIN = 100;
 
 const askUrl = () =>
   `https://kosnas.com/?utm_source=poll_ask&t=${Math.floor(Date.now() / 300_000).toString(36)}#poll`;
@@ -150,6 +152,8 @@ export function Poll() {
   const my = r.mine ?? mine[r.target] ?? null;
   const shown = my != null || !r.open;
   const total = r.up + r.down;
+  /** 참여가 적을 때 "9명 / 2명"은 방문자가 적다는 신호라 비율만 보인다(2026-11-10 SK) */
+  const counts = total >= COUNT_MIN;
   const left = (r.open ? r.closes : r.end) - now;
 
   const vote = async (side: Side) => {
@@ -266,10 +270,14 @@ export function Poll() {
           <p className="poll-share">
             <span className="up">
               오른다 {pctOf(r.up, r.down)}%{" "}
-              <small className="poll-n">{r.up.toLocaleString()}명</small>
+              {counts && (
+                <small className="poll-n">{r.up.toLocaleString()}명</small>
+              )}
             </span>
             <span className="down">
-              <small className="poll-n">{r.down.toLocaleString()}명</small>{" "}
+              {counts && (
+                <small className="poll-n">{r.down.toLocaleString()}명</small>
+              )}{" "}
               내린다 {total ? 100 - pctOf(r.up, r.down) : 0}%
             </span>
           </p>
