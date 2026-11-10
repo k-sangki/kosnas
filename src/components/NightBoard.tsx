@@ -292,7 +292,6 @@ export function NightBoard() {
   const day = `${stamp.getUTCMonth() + 1}월 ${stamp.getUTCDate()}일`;
   return (
     <>
-      <ScheduleBand />
       {/* 캡처 범위: 추정 카드와 시세 카드. 캡처할 때만 머리·꼬리(로고·시각·주소)를 보인다 */}
       <div className="dash-cap" ref={capRef}>
         <div className="cap-only cap-head">
@@ -306,6 +305,7 @@ export function NightBoard() {
         <section className="card night">
           <div className="night-top">
             <h1 className="night-title">코스피 야간선물 실시간 추정</h1>
+            {d && <span className="night-upd">{hhmm(d.updated)} 갱신</span>}
           </div>
           {d ? (
             <Main d={d} />
@@ -322,10 +322,11 @@ export function NightBoard() {
             </p>
           )}
         </section>
+        <Poll />
         <Chat />
         <Dashboard d={d} />
-        <Poll />
         <TestBand />
+        <ScheduleBand />
         <div className="cap-only cap-foot">
           <span>해외 무기한선물로 계산한 참고용 추정치입니다</span>
           <b>kosnas.com</b>
@@ -371,10 +372,14 @@ function Main({ d }: { d: NightData }) {
           </p>
           <p className="night-price">
             <b className={t}>{fmt(d.est)}</b>
+            {/* 사람들이 말하고 공유하는 건 등락률이라 가격과 같은 크기로 */}
+            <b className={t}>
+              {sign(d.chgPct)}
+              {fmt(d.chgPct)}%
+            </b>
             <span className={t}>
               {sign(d.chg)}
-              {fmt(d.chg)} ({sign(d.chgPct)}
-              {fmt(d.chgPct)}%)
+              {fmt(d.chg)}
             </span>
           </p>
         </div>
@@ -385,7 +390,7 @@ function Main({ d }: { d: NightData }) {
           </div>
           {d.at0600 != null && (
             <div>
-              <dt>06:00</dt>
+              <dt>야간장 마감</dt>
               <dd className={tone(d.at0600 - d.base)}>{fmt(d.at0600)}</dd>
             </div>
           )}
@@ -396,10 +401,6 @@ function Main({ d }: { d: NightData }) {
           <div>
             <dt>저가</dt>
             <dd className="down">{fmt(d.low)}</dd>
-          </div>
-          <div>
-            <dt>갱신</dt>
-            <dd>{hhmm(d.updated)}</dd>
           </div>
         </dl>
       </div>
