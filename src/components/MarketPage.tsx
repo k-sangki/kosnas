@@ -9,7 +9,7 @@ import { SectorBoard } from "./SectorBoard";
 import { SiteFooter, SiteHeader } from "./SiteHeader";
 import { GUIDES } from "@/lib/guides";
 import { THEMES, themeData } from "@/lib/themes";
-import { moveScores, ready, signed, sectorData, type Breadth, type Market, type SectorData } from "@/lib/sectors";
+import { capLeaders, moveScores, ready, signed, sectorData, type Breadth, type Market, type SectorData } from "@/lib/sectors";
 
 export function SampleNotice({ asof }: { asof: string }) {
   return <p className="notice">지금 숫자는 화면 확인용 표본입니다({asof} 기준 가짜 값). 종목 이름만 실제예요.</p>;
@@ -198,7 +198,7 @@ export function MarketContent({ market }: { market: Market }) {
         },
         {
           id: "theme",
-          name: "테마",
+          name: "테마·대장주",
           icon: "tag",
           panel: (
             <>
@@ -206,13 +206,14 @@ export function MarketContent({ market }: { market: Market }) {
                 <CaptureArea
                   name="kr-themes"
                   stamp={`${data.asof} 종가 기준`}
-                  heading="테마 관련주 20일 등락률"
-                  title="테마 관련주 20일 등락률"
+                  heading="테마·섹터 대장주"
+                  title="테마·섹터 대장주"
                   url="https://kosnas.com/kr#theme"
                   foot="테마에 속한 종목의 평균 등락률 · 장 마감 자료로 계산"
                   dock
                 >
                   <ThemeIndex />
+                  <SectorLeaders data={data} />
                 </CaptureArea>
               )}
               <GuideLinks />
@@ -249,27 +250,57 @@ function SectorIndex({ data }: { data: SectorData }) {
   );
 }
 
-/** 업종 분류로는 흩어진 테마 관련주(로봇·ESS·원전·양자컴퓨터) 페이지로 가는 길 */
+/** 업종 분류로는 흩어진 테마 관련주 페이지로 가는 길. 테마마다 시총 상위 3종목(대장주)을 함께 */
 function ThemeIndex() {
   return (
     <section className="card">
       <h2 className="card-title">
-        테마 관련주 <span className="muted">20일 테마 평균 등락률</span>
+        테마 관련주·대장주 <span className="muted">20일 테마 평균 등락률</span>
       </h2>
-      <ol className="sector-index">
+      <ul className="lead-index">
         {THEMES.map((t) => {
-          const r = themeData(t.id).ret["20"];
+          const { ret, stocks } = themeData(t.id);
+          const r = ret["20"];
           return (
             <li key={t.id}>
-              <Link href={`/kr/theme/${t.id}`}>{t.name} 관련주·대장주</Link>
-              <span className="muted">
-                {" "}
-                20일 <span className={(r ?? 0) >= 0 ? "up" : "down"}>{signed(r)}%</span>
-              </span>
+              <Link href={`/kr/theme/${t.id}`} className="lead-row">
+                <span className="lead-head">
+                  <b>{t.name} 관련주</b>
+                  <span className={`num ${(r ?? 0) >= 0 ? "up" : "down"}`}>20일 {signed(r)}%</span>
+                </span>
+                <small className="muted">대장주 {stocks.slice(0, 3).map((s) => s.name).join(" · ")}</small>
+              </Link>
             </li>
           );
         })}
-      </ol>
+      </ul>
+    </section>
+  );
+}
+
+/** 섹터마다 시가총액 상위 3종목(대장주). 'OO 대장주'로 찾아온 사람이 섹터 페이지로 가게 한다 */
+function SectorLeaders({ data }: { data: SectorData }) {
+  const rows = data.sectors.map((s) => ({ s, top: capLeaders(s.stocks) })).filter((x) => x.top.length);
+  if (!rows.length) return null;
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        섹터별 대장주 <span className="muted">시가총액 순 · {data.asof} 종가</span>
+      </h2>
+      <ul className="lead-index">
+        {rows.map(({ s, top }) => (
+          <li key={s.id}>
+            <Link href={`/kr/sector/${s.id}`} className="lead-row">
+              <span className="lead-head">
+                <b>{s.name} 대장주</b>
+                <span className={`num ${(s.ret[20] ?? 0) >= 0 ? "up" : "down"}`}>20일 {signed(s.ret[20])}%</span>
+              </span>
+              <small className="muted">{top.map((x) => x.name).join(" · ")}</small>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className="muted small-note">기본 필터를 통과한 종목 가운데 시가총액이 큰 순서입니다. 섹터를 누르면 산업별 대장주와 전체 종목이 나옵니다.</p>
     </section>
   );
 }

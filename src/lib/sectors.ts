@@ -254,3 +254,8 @@ export const industryIndexable = (market: Market, ind: Industry) => industryShow
 export function findIndustry(market: Market, id: string): Industry | undefined {
   return industryPages(market).find((i) => i.id === id);
 }
+
+/** 시가총액 상위 n개(목록에 보이는 기본 필터 통과 종목 중). 섹터·산업 '대장주' 표시와 설명에 쓴다 */
+export function capLeaders(stocks: Stock[], n = 3): Stock[] {
+  return [...stocks].filter((s) => s.capEok != null).sort((a, b) => b.capEok! - a.capEok!).slice(0, n);
+}

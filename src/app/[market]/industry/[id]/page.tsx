@@ -21,6 +21,7 @@ import {
   BASE_FILTER,
   MARKETS,
   QUADRANTS,
+  capLeaders,
   findIndustry,
   findSector,
   industryIndexable,
@@ -58,15 +59,12 @@ export async function generateMetadata({
   const hit = read(market, id);
   if (!hit) return {};
   const { ind, sector } = hit;
-  const names = sector.stocks
-    .filter((s) => s.ind === ind.name)
-    .slice(0, 3)
-    .map((s) => s.name);
+  const names = capLeaders(sector.stocks.filter((s) => s.ind === ind.name)).map((s) => s.name);
   const note = INDUSTRY_NOTES[ind.name];
   const meta = pageMeta({
-    title: `${industryLabel(ind.name)} 관련주 등락률·순위 - ${sector.name} 섹터 산업 순환매`,
+    title: `${industryLabel(ind.name)} 관련주·대장주 등락률·순위 - ${sector.name} 섹터 산업 순환매`,
     description: `${note ? `${note.what} ` : ""}국장 ${industryLabel(ind.name)} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
-      names.length ? `, ${names.join("·")} 등 종목별 상대강도 순위` : ""
+      names.length ? `, 대장주 ${names.join("·")} 등 종목별 상대강도 순위` : ""
     }.`,
     keywords: [
       ...industryKeywords(ind.name),
@@ -104,7 +102,7 @@ export default async function IndustryPage({
   );
   const r20 = rankOf(20);
   const r5 = rankOf(5);
-  const lead = ind.leader?.shown ? ind.leader.name : null;
+  const leaders = capLeaders(stocks);
   const note = INDUSTRY_NOTES[ind.name];
 
   return (
@@ -136,7 +134,7 @@ export default async function IndustryPage({
           ← {sector.name} 섹터
         </Link>
         <h1 className="page-title">
-          {industryLabel(ind.name)} 관련주 등락률·순위
+          {industryLabel(ind.name)} 관련주·대장주
         </h1>
         {data.sample && <SampleNotice asof={data.asof} />}
         <p className="lead">
@@ -146,7 +144,8 @@ export default async function IndustryPage({
             ` ${data.asof} 종가 기준 최근 20거래일 등락률은 ${signed(ind.ret[20])}%로 전체 ${r20.of}개 산업 가운데 ${r20.n}위`}
           {r20 && qName(20) && `, 네 칸 위치는 '${qName(20)}'입니다.`}
           {r5 && ` 최근 5거래일은 ${signed(ind.ret[5])}%(${r5.n}위)였습니다.`}
-          {lead && ` 시가총액이 가장 큰 종목은 ${lead}입니다.`}
+          {leaders.length > 0 &&
+            ` 시가총액 기준 ${ind.name} 대장주는 ${leaders.map((s) => s.name).join(", ")} 순입니다.`}
         </p>
         {note && (
           <section className="card seo-text">
