@@ -31,9 +31,6 @@ type Env = {
 
 export { ChatRoom, PollRoom, NightRecord };
 
-/** 추정 적중 기록을 채우는 예약 시각(UTC, 평일 09:25·09:45·10:30 KST). 그 밖의 예약은 국장 시세 수집 */
-const RECORD_CRONS = new Set(["25 0 * * 1-5", "45 0 * * 1-5", "30 1 * * 1-5"]);
-
 /** /api/night-record: 기록 요약. 엣지에 2분 담는다 */
 async function recordGET(req: Request, env: Env) {
   const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
@@ -208,10 +205,10 @@ const worker = {
     }
     return page(req, env, ctx);
   },
-  async scheduled(event: ScheduledController, env: Env, ctx: ExecutionContext) {
-    if (RECORD_CRONS.has(event.cron))
-      return ctx.waitUntil(env.RECORD.get(env.RECORD.idFromName("main")).fetch(new Request("https://kosnas.com/api/night-record?force")).then(() => undefined));
+  async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
     ctx.waitUntil(dispatchCollectKr(env));
+    // 장중 예약(13:20·14:00·14:40)에는 추정 적중 기록의 오늘 줄도 채운다(방문자가 먼저 채웠으면 아무것도 하지 않는다)
+    ctx.waitUntil(env.RECORD.get(env.RECORD.idFromName("main")).fetch(new Request("https://kosnas.com/api/night-record?force")).then(() => undefined));
   },
 };
 
