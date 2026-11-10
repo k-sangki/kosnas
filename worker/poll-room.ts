@@ -20,7 +20,8 @@ import {
  * 지난 회차는 누가 상태를 물을 때 판정 가격을 받아 채운다.
  */
 const HL_INFO = "https://api.hyperliquid.xyz/info";
-const PAST = 20;
+// 월간 기록(🟩🟥)을 한 달 넘게 그릴 수 있게 거래일 약 3달치
+const PAST = 60;
 const RETRY_MS = 5 * 60_000;
 
 async function tagOf(ip: string, now: number) {

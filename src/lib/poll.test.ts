@@ -84,3 +84,23 @@ describe("내 결과 한 줄", () => {
     expect(verdict(p, undefined)).toBeNull();
   });
 });
+
+describe("워들식 월간 기록·쏠린 날", () => {
+  const past = [
+    { target: "2026-11-04", up: 90, down: 10, pct: 0.5 },
+    { target: "2026-11-03", up: 85, down: 15, pct: -0.4 },
+    { target: "2026-11-02", up: 5, down: 5, pct: 0.01 },
+    { target: "2026-10-31", up: 1, down: 2, pct: 1 },
+  ];
+  const mine = { "2026-11-04": "up", "2026-11-03": "up", "2026-11-02": "down", "2026-10-31": "up" } as const;
+  it("그 달 칸과 공유 문구", async () => {
+    const { monthMarks, shareText } = await import("./poll");
+    const m = monthMarks(past, { ...mine }, "2026-11");
+    expect(m.map((x) => x.mark).join("")).toBe("⬜🟥🟩");
+    expect(shareText("2026-11", m, 1)).toBe("코스나스 오늘의 한 표 11월 1/2\n⬜🟥🟩");
+  });
+  it("80% 넘게 쏠린 날 다수 적중", async () => {
+    const { leanRate } = await import("./poll");
+    expect(leanRate(past)).toEqual({ n: 2, hit: 1 });
+  });
+});

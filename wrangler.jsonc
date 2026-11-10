@@ -13,12 +13,14 @@
   "durable_objects": {
     "bindings": [
       { "name": "CHAT", "class_name": "ChatRoom" },
-      { "name": "POLL", "class_name": "PollRoom" }
+      { "name": "POLL", "class_name": "PollRoom" },
+      { "name": "RECORD", "class_name": "NightRecord" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["ChatRoom"] },
-    { "tag": "v2", "new_sqlite_classes": ["PollRoom"] }
+    { "tag": "v2", "new_sqlite_classes": ["PollRoom"] },
+    { "tag": "v3", "new_sqlite_classes": ["NightRecord"] }
   ],
   // 배포마다 바뀌는 버전 id. worker/index.ts 가 페이지 엣지 캐시 키에 넣어 새 배포가 옛 페이지를 내지 않게 한다
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
@@ -34,6 +36,7 @@
   ],
   // 국장 시세 수집(collect-kr.yml)을 정시에 건다. GitHub 예약 실행은 5시간 넘게 늦거나 건너뛰었다(2026-10-26~27).
   // 금융위 시세가 다음 영업일 13시 뒤 올라오므로 월~금 KST 13:20·14:00·14:40·18:10 (UTC로 적는다)
+  // 13:20·14:00·14:40 실행은 추정 적중 기록(worker/night-record.ts)의 오늘 줄도 채운다(무료 요금제 예약 개수 한도로 따로 두지 않음)
   "triggers": {
     "crons": ["20 4 * * 1-5", "0 5 * * 1-5", "40 5 * * 1-5", "10 9 * * 1-5"]
   },

@@ -182,3 +182,45 @@ export function verdict(p: PastRound, mine: Side | undefined) {
     minority: hit && m != null && m !== mine,
   };
 }
+
+/** 워들식 월간 기록 한 칸: 🟩 적중, 🟥 빗나감, ⬜ 보합·판정 못 함 */
+export type Mark = "🟩" | "🟥" | "⬜";
+
+/** 그 달(YYYY-MM)에 내가 누른 끝난 회차를 날짜순으로 */
+export function monthMarks(past: PastRound[], mine: Record<string, Side>, month: string) {
+  return past
+    .filter((p) => p.target.startsWith(month) && mine[p.target])
+    .sort((a, b) => (a.target < b.target ? -1 : 1))
+    .map((p) => {
+      const o = outcome(p.pct);
+      const mark: Mark = !o ? "⬜" : mine[p.target] === o ? "🟩" : "🟥";
+      return { target: p.target, mark };
+    });
+}
+
+/** 공유 문구: "코스나스 오늘의 한 표 11월 🟩🟩🟥🟩 3/4" */
+export function shareText(month: string, marks: { mark: Mark }[], streak: number) {
+  const hit = marks.filter((m) => m.mark === "🟩").length;
+  const done = marks.filter((m) => m.mark !== "⬜").length;
+  const line = marks.map((m) => m.mark).join("");
+  return `코스나스 오늘의 한 표 ${Number(month.slice(5, 7))}월 ${hit}/${done}${streak >= 2 ? ` 🔥${streak}연속` : ""}\n${line}`;
+}
+
+/**
+ * 쏠린 날의 다수 적중: 한쪽이 lean% 이상 몰린(참여 minVotes명 이상) 끝난 회차에서 다수가 맞힌 횟수.
+ * '개미 지표' 같은 재미용 집계로만 쓴다.
+ */
+export function leanRate(past: PastRound[], lean = 80, minVotes = 10) {
+  let n = 0;
+  let hit = 0;
+  for (const r of past) {
+    const total = r.up + r.down;
+    const o = outcome(r.pct);
+    const m = majority(r.up, r.down);
+    if (!o || !m || total < minVotes) continue;
+    if ((Math.max(r.up, r.down) / total) * 100 < lean) continue;
+    n++;
+    if (m === o) hit++;
+  }
+  return { n, hit };
+}
