@@ -501,10 +501,9 @@ export function Dashboard({ d }: { d: NightData | null }) {
   const router = useRouter();
   const rest = TILES.filter((t) => !ids.includes(t.id));
   // 캡처 이미지에는 앞쪽 무기한선물 카드 6개만 넣는다
-  const inCapture = new Set(list.filter((id) => BY_ID.get(id)!.kind === "hl").slice(0, 6));
 
   return (
-    <section className="dash" aria-label="시세 카드">
+    <section className="dash" aria-label="시세 카드" data-cap-group>
       <div className="dash-head">
         <h2>해외에서 거래 중인 시세</h2>
         <button type="button" className="dash-edit no-capture" aria-pressed={edit} onClick={() => setEdit(!edit)}>
@@ -520,7 +519,9 @@ export function Dashboard({ d }: { d: NightData | null }) {
             <article
               key={id}
               data-tile={id}
-              className={`tile${held === id ? " held" : ""}${inCapture.has(id) ? "" : " no-capture"}${href ? " linked" : ""}`}
+              // 캡처 공유에서 고를 수 있는 카드(위젯 카드는 찍히지 않아 뺀다)
+              {...(t.kind === "hl" && { "data-cap": id, "data-cap-label": t.label })}
+              className={`tile${held === id ? " held" : ""}${t.kind === "hl" ? "" : " no-capture"}${href ? " linked" : ""}`}
               {...props(id)}
               {...(go && {
                 role: "link",
