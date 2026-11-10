@@ -8,7 +8,7 @@ import { MarketContent } from "./MarketPage";
 import { UsBoard } from "./UsBoard";
 import { UsSectors } from "./UsSectors";
 import { US_ENABLED } from "@/lib/sectors";
-import { UsTabs } from "./UsTabs";
+import { BottomTabs } from "./BottomTabs";
 
 /** 미장 본문(/us). 하단탭으로 실시간·섹터·유명 투자자를 나눈다 */
 export function UsContent() {
@@ -19,7 +19,16 @@ export function UsContent() {
         미국 정규장(뉴욕 09:30~16:00, 한국 시각 22:30~05:00 · 표준시 기간에는 23:30~06:00) 동안 S&P 500과 나스닥 100이 전일 종가보다 얼마나 오르내렸는지
         실시간으로 보여줍니다.
       </p>
-      <UsBoard />
+      <CaptureArea
+        name="us-live"
+        heading="S&P 500 · 나스닥 100 실시간 등락"
+        title="미국증시 실시간 흐름"
+        url="https://kosnas.com/us"
+        foot="해외 무기한선물 시세로 계산한 참고값입니다"
+        dock
+      >
+        <UsBoard />
+      </CaptureArea>
       {!US_ENABLED && <AdSlot slot={AD_SLOTS.board} />}
       <section className="card seo-text">
         <Fold title="어떻게 보나요">
@@ -66,6 +75,7 @@ export function UsContent() {
         title="유명 투자자 최근 30일 매매"
         url="https://kosnas.com/us#investors"
         foot="SEC 공시·ARK 공개 보유 내역으로 정리한 참고 자료입니다"
+        dock
       >
         <RecentMoves />
         <ArkTrades />
@@ -73,5 +83,14 @@ export function UsContent() {
       <SectorFlows />
     </>
   );
-  return <UsTabs live={live} sector={sector} investors={investors} />;
+  return (
+    <BottomTabs
+      label="미장 화면"
+      tabs={[
+        { id: "live", name: "실시간", icon: "live", panel: live },
+        { id: "sector", name: "섹터", icon: "grid", panel: sector },
+        { id: "investors", name: "유명 투자자", icon: "pie", panel: investors },
+      ]}
+    />
+  );
 }

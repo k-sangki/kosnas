@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AdSlot } from "./AdSlot";
 import { AD_SLOTS } from "@/lib/ad-slots";
+import { BottomTabs } from "./BottomTabs";
 import { CaptureArea } from "./CaptureArea";
 import { FlowTable, FlowTableNote } from "./FlowTable";
 import { Fold } from "./Fold";
@@ -109,7 +110,7 @@ function DailySummary({ data }: { data: SectorData }) {
   );
 }
 
-/** 섹터 순환 본문(머리·바닥 없이). 첫 화면과 /kr이 같이 쓴다 */
+/** 섹터 순환 본문(머리·바닥 없이). /kr은 하단탭(섹터 순위·순환매 지도·테마)으로 나눈다 */
 export function MarketContent({ market }: { market: Market }) {
   const data = sectorData(market);
   // 화면 위쪽 카드에는 종목 목록이 필요 없다(페이지 크기를 줄인다)
@@ -117,33 +118,109 @@ export function MarketContent({ market }: { market: Market }) {
     ...data,
     sectors: data.sectors.map((s) => ({ ...s, stocks: [] })),
   };
-  return (
+  const kr = market === "kr";
+  const head = (
     <>
-      <h1 className="page-title">{market === "kr" ? "코스피·코스닥" : "미국 증시"} 섹터 순위와 순환매</h1>
+      <h1 className="page-title">{kr ? "코스피·코스닥" : "미국 증시"} 섹터 순위와 순환매</h1>
       <p className="lead">
         어느 업종에 돈이 몰리고 어느 업종에서 빠지는지(순환매), 섹터별 등락률과 강도, 섹터 순위를 매일 장 마감 자료로 계산해 보여줍니다.{" "}
         <span className="muted">{data.asof} 종가 기준</span>
       </p>
       {data.sample && <SampleNotice asof={data.asof} />}
-      <CaptureArea
-        name={`${market}-sectors`}
-        stamp={`${data.asof} 종가 기준`}
-        heading={market === "kr" ? "코스피·코스닥 섹터 순위" : "미국 섹터 순위"}
-        title={market === "kr" ? "코스피·코스닥 섹터 순환" : "미국 증시 섹터 순환"}
-        url={`https://kosnas.com/${market}`}
-        foot="섹터별 강도와 그 변화 · 장 마감 자료로 계산"
-      >
-        {!data.sample && <FlowTable data={light} />}
-      </CaptureArea>
-      {!data.sample && <FlowTableNote />}
-      <SectorBoard data={light} />
-      {!data.sample && <DailySummary data={data} />}
-      {data.breadth && <BreadthCard breadth={data.breadth} />}
-      {!data.sample && <SectorIndex data={data} />}
-      {market === "kr" && !data.sample && <ThemeIndex />}
-      <AdSlot slot={AD_SLOTS.board} />
-      <GuideLinks />
     </>
+  );
+  const rank = (
+    <CaptureArea
+      name={`${market}-sectors`}
+      stamp={`${data.asof} 종가 기준`}
+      heading={kr ? "코스피·코스닥 섹터 순위" : "미국 섹터 순위"}
+      title={kr ? "코스피·코스닥 섹터 순환" : "미국 증시 섹터 순환"}
+      url={`https://kosnas.com/${market}`}
+      foot="섹터별 강도와 그 변화 · 장 마감 자료로 계산"
+      dock={kr}
+    >
+      {!data.sample && <FlowTable data={light} />}
+    </CaptureArea>
+  );
+  if (!kr)
+    return (
+      <>
+        {head}
+        {rank}
+        {!data.sample && <FlowTableNote />}
+        <SectorBoard data={light} />
+        {!data.sample && <DailySummary data={data} />}
+        {data.breadth && <BreadthCard breadth={data.breadth} />}
+        {!data.sample && <SectorIndex data={data} />}
+        <AdSlot slot={AD_SLOTS.board} />
+        <GuideLinks />
+      </>
+    );
+  return (
+    <BottomTabs
+      label="국장 화면"
+      tabs={[
+        {
+          id: "rank",
+          name: "섹터 순위",
+          icon: "rank",
+          panel: (
+            <>
+              {head}
+              {rank}
+              {!data.sample && <FlowTableNote />}
+              {!data.sample && <DailySummary data={data} />}
+              {!data.sample && <SectorIndex data={data} />}
+              <AdSlot slot={AD_SLOTS.board} />
+            </>
+          ),
+        },
+        {
+          id: "map",
+          name: "순환매 지도",
+          icon: "map",
+          panel: (
+            <>
+              <CaptureArea
+                name="kr-rotation"
+                stamp={`${data.asof} 종가 기준`}
+                heading="코스피·코스닥 섹터 순환매 지도"
+                title="코스피·코스닥 섹터 순환매 지도"
+                url="https://kosnas.com/kr#map"
+                foot="섹터 강도와 그 변화 · 장 마감 자료로 계산"
+                dock
+              >
+                <SectorBoard data={light} />
+                {data.breadth && <BreadthCard breadth={data.breadth} />}
+              </CaptureArea>
+            </>
+          ),
+        },
+        {
+          id: "theme",
+          name: "테마",
+          icon: "tag",
+          panel: (
+            <>
+              {!data.sample && (
+                <CaptureArea
+                  name="kr-themes"
+                  stamp={`${data.asof} 종가 기준`}
+                  heading="테마 관련주 20일 등락률"
+                  title="테마 관련주 20일 등락률"
+                  url="https://kosnas.com/kr#theme"
+                  foot="테마에 속한 종목의 평균 등락률 · 장 마감 자료로 계산"
+                  dock
+                >
+                  <ThemeIndex />
+                </CaptureArea>
+              )}
+              <GuideLinks />
+            </>
+          ),
+        },
+      ]}
+    />
   );
 }
 

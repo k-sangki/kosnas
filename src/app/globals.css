@@ -3852,8 +3852,8 @@ button.ft-row {
   border-top: 0;
 }
 
-/* ---------- 미장 하단탭 (UsTabs, 토스식) ---------- */
-.us-panel[hidden] {
+/* ---------- 미장·국장 하단탭 (BottomTabs, 토스식) ---------- */
+.tab-panel[hidden] {
   display: none;
 }
 .shell:has(.tabbar) {
@@ -3901,9 +3901,32 @@ button.ft-row {
 .tabbar button:active {
   transform: scale(0.94);
 }
-/* 하단탭이 있으면 떠 있는 캡처 버튼을 그 위로 */
-body:has(.tabbar) .fab-bar {
-  bottom: calc(80px + env(safe-area-inset-bottom));
+/* 하단탭 바로 위 오른쪽의 작은 캡처 버튼(CaptureArea dock) */
+.fab-dock {
+  position: fixed;
+  z-index: 35;
+  left: 0;
+  right: 0;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .fab-dock {
+    max-width: 720px;
+  }
+}
+.fab.fab-cap {
+  pointer-events: auto;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 22px;
+  font-size: 15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 body:has(.tabbar) .toast {
   bottom: 150px;
