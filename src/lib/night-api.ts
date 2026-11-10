@@ -168,6 +168,33 @@ async function stockClosesFor(cache: Cache | undefined, base: string, now: numbe
   return got;
 }
 
+/**
+ * 장중(구간이 끝난 뒤) 그날 KRX 코스피200 선물 주간 시가. 네이버 실시간 시세(최근월 연결)에서 그날 체결된 값만 쓴다.
+ * 받으면 6시간, 못 받으면 5분 둔다(네이버 선물 시세는 20분 늦게 들어온다)
+ */
+async function openFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
+  if (win.live || now < win.end) return null;
+  const ymd = kstYmd(win.end);
+  const key = new Request(new URL(`/api/night/open?${ymd}`, base).toString());
+  const hit = await cache?.match(key).catch(() => undefined);
+  if (hit) return ((await hit.json()) as { open: number | null }).open;
+  const rt = await fetch("https://polling.finance.naver.com/api/realtime/domestic/index/FUT", { headers: NAVER })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  const open = futOpenFromRt((rt as { datas?: FutRt[] } | null)?.datas?.[0], ymd);
+  await cache?.put(key, Response.json({ open }, { headers: { "Cache-Control": `public, max-age=${open == null ? 300 : 6 * 3600}` } })).catch(() => undefined);
+  return open;
+}
+
+type FutRt = { openPriceRaw?: string; localTradedAt?: string };
+
+/** 네이버 선물 실시간 시세에서 그날(ymd) 주간 시가. 다른 날 체결이면 null */
+export function futOpenFromRt(d: FutRt | undefined, ymd: string): number | null {
+  const v = Number(d?.openPriceRaw);
+  if (!d || !(v > 0)) return null;
+  return d.localTradedAt?.slice(0, 10).replace(/-/g, "") === ymd ? v : null;
+}
+
 /** 주간 종가는 그날 16:10(네이버 20분 지연 뒤)부터 받는다. 만기일은 끝나는 월물의 종가라 쓰지 않는다 */
 async function closeFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   if (isExpiryDay(win) || now < win.start + 25 * MIN) return null;
@@ -189,7 +216,7 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   const interval = step === 60_000 ? "1m" : "5m";
   // 거래가 드문 종목(원/달러 등)도 15:45 직전 체결가를 찾도록 두 시간 앞부터 받는다
   const from = win.start - 120 * MIN;
-  const [ctx, { candles, prem }, close, extraCandles, mids, stockClose] = await Promise.all([
+  const [ctx, { candles, prem }, close, extraCandles, mids, stockClose, open] = await Promise.all([
     info<[{ universe: { name: string }[] }, HlCtx[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
     // 장중에도 작은 카드 선 차트를 지금까지 이으려고 지금까지 받는다(야간 추정선은 구간 끝에서 멈춘다)
     candlesFor(cache, base, now, interval, from, now),
@@ -197,6 +224,7 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     extraCandlesFor(cache, base, now, win).catch(() => ({}) as Record<string, Close[]>),
     info<Record<string, string>>({ type: "allMids" }).catch(() => ({}) as Record<string, string>),
     stockClosesFor(cache, base, now, win).catch(() => ({}) as Record<string, number | null>),
+    openFor(cache, base, now, win).catch(() => null),
   ]);
   const marks: Record<string, number | null> = {};
   const extra: NonNullable<NightData["extra"]> = {};
@@ -251,7 +279,9 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     const c = stockClose[i.coin];
     return c && i.krw && Math.abs(i.krw / c - 1) < 0.3 ? { ...i, chg: Math.round((i.krw / c - 1) * 10000) / 100, krxClose: c } : i;
   });
-  return { ...data, inputs, extra };
+  // 장중: 지난밤 추정과 비교할 오늘 주간 시가(추정값과 3% 넘게 다르면 다른 월물로 보고 버린다)
+  const opened = open != null && Math.abs(open / data.est - 1) < 0.03 ? open : null;
+  return { ...data, inputs, extra, ...(win.live ? {} : { open: opened }) };
 }
 
 export async function nightGET(req: Request) {

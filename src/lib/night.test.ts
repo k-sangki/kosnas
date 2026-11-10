@@ -3,6 +3,9 @@ import fx from "./fixtures/night-20261020.json";
 import fx22 from "./fixtures/night-20261022.json";
 import {
   assemble,
+  boardState,
+  untilText,
+  dayBounds,
   windowSpark,
   chartEnd,
   timeTicks,
@@ -307,5 +310,29 @@ describe("등락률 기준 시각(국내 앱과 같게)", () => {
     ];
     expect(refPrice(cs, utc("2026-11-04T21:00:00"))).toBe(2);
     expect(refPrice(cs, utc("2026-11-04T20:00:00"))).toBeNull();
+  });
+});
+
+describe("boardState (맨 위 카드 상태)", () => {
+  const at = (s: string) => Date.parse(s);
+  it("평일 밤·장중·주말을 가른다", () => {
+    const tue = at("2026-11-10T20:00:00+09:00");
+    expect(boardState(nightWindow(tue), tue)).toBe("night");
+    const day = at("2026-11-10T10:18:00+09:00");
+    expect(boardState(nightWindow(day), day)).toBe("day");
+    // 금요일 밤은 토요일 06:00 야간선물 마감까지 야간, 그 뒤 월요일 09:00까지 주말
+    const fri = at("2026-11-14T03:00:00+09:00"); // 토 03:00
+    expect(boardState(nightWindow(fri), fri)).toBe("night");
+    const sat = at("2026-11-14T07:00:00+09:00");
+    expect(boardState(nightWindow(sat), sat)).toBe("weekend");
+    const mon = at("2026-11-16T08:59:00+09:00");
+    expect(boardState(nightWindow(mon), mon)).toBe("weekend");
+    const mon9 = at("2026-11-16T09:01:00+09:00");
+    expect(boardState(nightWindow(mon9), mon9)).toBe("day");
+  });
+  it("남은 시간·날짜 경계", () => {
+    expect(untilText(at("2026-11-11T09:00:00+09:00"), at("2026-11-10T20:30:00+09:00"))).toBe("12시간 30분");
+    expect(untilText(1000, 990)).toBe("곧");
+    expect(dayBounds(at("2026-11-13T15:45:00+09:00"), at("2026-11-16T09:00:00+09:00")).map((b) => b.label)).toEqual(["토요일", "일요일", "월요일"]);
   });
 });
