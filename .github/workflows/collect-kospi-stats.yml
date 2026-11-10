@@ -1,0 +1,43 @@
+name: Collect KOSPI200 stats
+
+# '극단값의 맥락'(큰 등락일 순위·갭 출발한 날의 흐름) 과거 통계를 평일 16:30 KST에 다시 만든다.
+# 바뀐 것이 있을 때만 main에 올려 배포한다. collect-kospi-stats-first 브랜치에 push하면 그 브랜치에서 한 번 돈다(시안 확인용).
+on:
+  schedule:
+    - cron: "30 7 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [collect-kospi-stats-first]
+
+concurrency: collect-kospi-stats
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 통계 만들기
+        run: python collector/kospi_stats.py --out src/data/kospi-stats.json
+      - name: 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+        run: |
+          git add src/data/kospi-stats.json
+          git diff --cached --quiet && exit 0
+          git config user.name "kosnas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -qm "코스피200 과거 통계 $(jq -r '.last' src/data/kospi-stats.json)"
+          git pull -q --rebase origin "$BRANCH"
+          git push -q origin "HEAD:$BRANCH"
+          if [ "$BRANCH" = main ]; then gh workflow run deploy.yml --ref main; fi
