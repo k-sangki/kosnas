@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { INVESTORS, SECTOR_FLOWS, crowd, label, mainPeriod, optionTag, quarter, sharePct, usd, type Holding, type Investor } from "@/lib/investors13f";
+import { INVESTORS, SECTOR_FLOWS, crowd, label, mainPeriod, optionTag, pieSlices, quarter, sharePct, usd, type Holding, type Investor } from "@/lib/investors13f";
+import { koName } from "@/lib/ko-names";
+import { PieChart } from "./PieChart";
 import { Fold } from "./Fold";
 
-/** 투자자 목록(미장 맨 위와 /investors가 같이 쓴다) */
+/** 투자자 목록(미장 유명 투자자 탭 맨 위와 /investors가 같이 쓴다). 줄을 누르면 그 자리에서 파이차트가 펼쳐진다 */
 export function InvestorList({ title = "유명 투자자 포트폴리오", limit }: { title?: string; limit?: number }) {
   if (!INVESTORS.length) return null;
   const p = mainPeriod();
@@ -14,30 +16,41 @@ export function InvestorList({ title = "유명 투자자 포트폴리오", limit
       <ul className="inv-list">
         {INVESTORS.slice(0, limit).map((inv) => (
           <li key={inv.id}>
-            <Link href={`/investors/${inv.id}`} className="inv-row">
-              <span className="inv-who">
-                <b>{inv.person}</b>
-                <small className="muted">
-                  {inv.firm}
-                  {inv.period !== p && ` · ${quarter(inv.period)}`}
-                </small>
-              </span>
-              <span className="inv-top">
-                {inv.holdings
-                  .filter((h) => !h.put_call && !h.prn)
-                  .slice(0, 3)
-                  .map((h) => (
-                    <span key={h.cusip}>
-                      {label(h)} <small className="muted">{h.weight?.toFixed(0)}%</small>
-                    </span>
-                  ))}
-              </span>
-              <span className="inv-cnt">
-                {inv.new_count > 0 && <span className="up">신규 {inv.new_count}</span>}
-                {inv.sold_count > 0 && <span className="down">매도 {inv.sold_count}</span>}
-              </span>
-              <i className="tri tri-right" aria-hidden />
-            </Link>
+            <details className="inv-item">
+              <summary className="inv-row">
+                <span className="inv-who">
+                  <b>{inv.person}</b>
+                  <small className="muted">
+                    {inv.firm}
+                    {inv.period !== p && ` · ${quarter(inv.period)}`}
+                  </small>
+                </span>
+                <span className="inv-top">
+                  {inv.holdings
+                    .filter((h) => !h.put_call && !h.prn)
+                    .slice(0, 3)
+                    .map((h) => (
+                      <span key={h.cusip}>
+                        {koName(h.ticker, h.name)} <small className="muted">{h.weight?.toFixed(0)}%</small>
+                      </span>
+                    ))}
+                </span>
+                <span className="inv-cnt">
+                  {inv.new_count > 0 && <span className="up">신규 {inv.new_count}</span>}
+                  {inv.sold_count > 0 && <span className="down">매도 {inv.sold_count}</span>}
+                </span>
+                <i className="tri" aria-hidden />
+              </summary>
+              <div className="inv-pie">
+                <PieChart slices={pieSlices(inv)} label={`${inv.person} 포트폴리오 비중`} />
+                <p className="small-note muted">
+                  {quarter(inv.period)} 말 13F 신고 총액 {usd(inv.total)} 대비 비중 · 1% 미만 종목은 기타로 묶음
+                </p>
+                <Link href={`/investors/${inv.id}`} className="inv-more">
+                  {inv.person} 보유 종목 전체·매매 변화 보기 <i className="tri tri-right" aria-hidden />
+                </Link>
+              </div>
+            </details>
           </li>
         ))}
       </ul>
@@ -90,10 +103,11 @@ export function Holdings({ inv }: { inv: Investor }) {
             <span className="rank-no">{k + 1}</span>
             <span className="inv-h-name">
               <b>
-                {label(h)}
+                {koName(h.ticker, h.name)}
                 {optionTag(h) && <span className="qtag t-weaken">{optionTag(h)}</span>}
               </b>
               <small className="muted">
+                {h.ticker && koName(h.ticker, h.name) !== h.ticker ? `${h.ticker} · ` : ""}
                 {h.ticker ? `${h.name} · ` : ""}
                 {usd(h.value)}
               </small>

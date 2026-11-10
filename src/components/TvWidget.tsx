@@ -26,13 +26,29 @@ export function TvWidget({
     const el = box.current;
     if (!el) return;
     el.innerHTML = "";
-    const s = document.createElement("script");
-    s.src = `https://s3.tradingview.com/external-embedding/embed-widget-${kind}.js`;
-    s.async = true;
-    s.type = "text/javascript";
-    s.innerHTML = json;
-    el.appendChild(s);
+    const load = () => {
+      const s = document.createElement("script");
+      s.src = `https://s3.tradingview.com/external-embedding/embed-widget-${kind}.js`;
+      s.async = true;
+      s.type = "text/javascript";
+      s.innerHTML = json;
+      el.appendChild(s);
+    };
+    // 숨은 탭(미장 하단탭 등) 안에서는 폭이 0이라 위젯이 크기를 잘못 잡는다. 보일 때 불러온다
+    let ro: ResizeObserver | null = null;
+    if (el.clientWidth > 0) load();
+    else {
+      ro = new ResizeObserver(() => {
+        if (el.clientWidth > 0) {
+          ro?.disconnect();
+          ro = null;
+          load();
+        }
+      });
+      ro.observe(el);
+    }
     return () => {
+      ro?.disconnect();
       el.innerHTML = "";
     };
   }, [kind, json]);

@@ -3851,3 +3851,137 @@ button.ft-row {
   padding-top: 0;
   border-top: 0;
 }
+
+/* ---------- 미장 하단탭 (UsTabs, 토스식) ---------- */
+.us-panel[hidden] {
+  display: none;
+}
+.shell:has(.tabbar) {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+.tabbar {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+}
+.tabbar button {
+  flex: 1;
+  max-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0 2px;
+  border: 0;
+  background: none;
+  color: var(--line-2);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tabbar button svg {
+  width: 24px;
+  height: 24px;
+}
+.tabbar button[aria-selected="true"] {
+  color: var(--ink);
+}
+.tabbar button:active {
+  transform: scale(0.94);
+}
+/* 하단탭이 있으면 떠 있는 캡처 버튼을 그 위로 */
+body:has(.tabbar) .fab-bar {
+  bottom: calc(80px + env(safe-area-inset-bottom));
+}
+body:has(.tabbar) .toast {
+  bottom: 150px;
+}
+
+/* ---------- 포트폴리오 파이차트 (PieChart) ---------- */
+.inv-item > summary {
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.inv-item > summary::-webkit-details-marker {
+  display: none;
+}
+.inv-item[open] > summary .tri {
+  transform: rotate(180deg);
+}
+.inv-pie {
+  padding: 4px 0 14px;
+}
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+  margin: 0;
+}
+.pie-svg {
+  flex: none;
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+}
+.pie-legend {
+  flex: 1 1 200px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px 14px;
+  font-size: 13px;
+}
+.inv-list .pie-legend li,
+.pie-legend li {
+  border-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.pie-legend i {
+  flex: none;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+}
+.pie-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.pie-legend b {
+  flex: none;
+  font-size: 13px;
+}
+.inv-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+  font-size: 14px;
+  font-weight: 700;
+}
