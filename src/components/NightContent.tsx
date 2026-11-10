@@ -33,10 +33,12 @@ export function NightContent() {
   return (
     <>
       <NightBoard />
-      <p className="lead">
-        코스피 야간선물(흔히 &lsquo;야선&rsquo;)이 지금 어디쯤인지, 국내 장이 끝난 15:45부터 다음 날 09:00까지 해외에서 24시간 거래되는 한국 관련 무기한선물로 코스피200 수준을 실시간
-        추정합니다. 한국거래소 야간선물(18:00~06:00)이 끝난 새벽부터 아침 개장 전까지도 이어서 보여 줍니다.
-      </p>
+      <Fold small title="이 화면은 무엇인가요" className="lead-fold">
+        <p className="lead">
+          코스피 야간선물(흔히 &lsquo;야선&rsquo;)이 지금 어디쯤인지, 국내 장이 끝난 15:45부터 다음 날 09:00까지 해외에서 24시간 거래되는 한국 관련 무기한선물로 코스피200 수준을 실시간
+          추정합니다. 한국거래소 야간선물(18:00~06:00)이 끝난 새벽부터 아침 개장 전까지도 이어서 보여 줍니다.
+        </p>
+      </Fold>
       <AdSlot slot={AD_SLOTS.board} />
       <section className="card seo-text">
         <Fold title="어떻게 계산하나요">
