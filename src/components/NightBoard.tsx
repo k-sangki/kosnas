@@ -352,9 +352,9 @@ export function NightBoard() {
           {d && <NightRecordLine refresh={state === "day" ? Math.floor(d.updated / 600_000) : 0} />}
         </section>
         <Poll weekend={weekend} />
-        <NightPnl d={d} />
         <Chat />
         <Dashboard d={d} />
+        <NightPnl d={d} />
         <TestBand />
         {!weekend && <ScheduleBand />}
         <div className="cap-only cap-foot">
