@@ -20,6 +20,7 @@ import { Chat } from "./Chat";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
 import { NightPnl } from "./NightPnl";
+import { NightContext } from "./NightContext";
 import { TestBand } from "./TestBand";
 import { ScheduleBand } from "./ScheduleBand";
 import { LogoSvg } from "./Logo";
@@ -346,6 +347,7 @@ export function NightBoard() {
               마지막 갱신 뒤 자료를 받지 못했습니다.
             </p>
           )}
+          {d && state !== "day" && <NightContext pct={d.chgPct} at={d.updated} />}
         </section>
         <Poll weekend={weekend} />
         <NightPnl d={d} />

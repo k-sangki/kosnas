@@ -3673,3 +3673,31 @@ button.ft-row {
   color: var(--ink-2);
   margin: 6px 0 0;
 }
+
+/* 크게 움직인 밤의 과거 통계 한 줄(NightContext) */
+.night-ctx {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.night-ctx p {
+  margin: 0;
+}
+.night-ctx .fold {
+  margin-top: 4px;
+}
+.night-ctx .fold-body p {
+  margin: 6px 0 0;
+  line-height: 1.6;
+}
+.night-ctx-tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--rain-soft);
+  color: var(--rain);
+  font-size: 11px;
+  font-weight: 700;
+}
