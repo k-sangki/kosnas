@@ -3664,3 +3664,12 @@ button.ft-row {
   font-size: 12px;
   margin: 6px 0 0;
 }
+/* 첫 화면 소개 글: 접어 두고, 펼치면 원래 소개 글 크기 */
+.lead-fold {
+  margin: 12px 4px 0;
+}
+.lead-fold .fold-body p.lead {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin: 6px 0 0;
+}

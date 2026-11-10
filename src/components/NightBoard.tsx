@@ -15,6 +15,7 @@ import {
 } from "@/lib/night";
 import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
+import { Fold } from "./Fold";
 import { Chat } from "./Chat";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
@@ -442,13 +443,15 @@ function Main({ d }: { d: NightData }) {
         </dl>
       </div>
       <Chart d={d} />
-      <p className="muted small-note">
-        {d.method === "blend"
-          ? "기준값은 15:45의 KR200 무기한선물 가격입니다. 기준가 자료를 받지 못해 이전 방식으로 계산했습니다. KRX 주간 선물 종가와는 평균 0.3% 안팎 차이가 날 수 있습니다."
-          : d.baseKind === "close"
-            ? "등락률은 KRX 코스피200 선물 주간 종가 대비입니다. 06:00까지는 KR200 무기한선물 기준가를 선물 수준으로 환산한 값이고, 그 뒤로는 EWY·KR200 무기한선물의 움직임을 반반 섞어 이어 갑니다."
-            : "등락률은 15:45 추정값 대비입니다. KRX 주간 선물 종가가 반영되기 전(16:10쯤까지)이거나 분기 만기일, 또는 종가를 받지 못한 때입니다."}
-      </p>
+      <Fold small title="등락률 기준과 계산 방식">
+        <p className="muted small-note">
+          {d.method === "blend"
+            ? "기준값은 15:45의 KR200 무기한선물 가격입니다. 기준가 자료를 받지 못해 이전 방식으로 계산했습니다. KRX 주간 선물 종가와는 평균 0.3% 안팎 차이가 날 수 있습니다."
+            : d.baseKind === "close"
+              ? "등락률은 KRX 코스피200 선물 주간 종가 대비입니다. 06:00까지는 KR200 무기한선물 기준가를 선물 수준으로 환산한 값이고, 그 뒤로는 EWY·KR200 무기한선물의 움직임을 반반 섞어 이어 갑니다."
+              : "등락률은 15:45 추정값 대비입니다. KRX 주간 선물 종가가 반영되기 전(16:10쯤까지)이거나 분기 만기일, 또는 종가를 받지 못한 때입니다."}
+        </p>
+      </Fold>
     </>
   );
 }
@@ -505,9 +508,11 @@ function DayMain({ d }: { d: NightData }) {
         </dl>
       </div>
       <Chart d={d} />
-      <p className="muted small-note">
-        추정 오차 = {night} {hhmm(d.window.end)} 추정값 − 오늘 KRX 코스피200 선물 주간 시가. 차트는 {night} 추정선이고, 오늘 밤 15:45부터 새 추정을 시작합니다.
-      </p>
+      <Fold small title="추정 오차란">
+        <p className="muted small-note">
+          추정 오차 = {night} {hhmm(d.window.end)} 추정값 − 오늘 KRX 코스피200 선물 주간 시가. 차트는 {night} 추정선이고, 오늘 밤 15:45부터 새 추정을 시작합니다.
+        </p>
+      </Fold>
     </>
   );
 }
