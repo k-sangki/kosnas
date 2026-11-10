@@ -3519,3 +3519,36 @@ button.ft-row {
 .sch-chips button[aria-pressed="false"] {
   opacity: 0.55;
 }
+
+/* 캡처 공유: 넣을 카드 고르기 */
+.capturing .cap-off {
+  display: none !important;
+}
+.cap-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.cap-pick button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cap-pick button[aria-pressed="true"] {
+  border-color: var(--rain);
+  background: var(--rain-soft);
+  color: var(--rain);
+}
+.sheet-preview.busy {
+  opacity: 0.45;
+  transition: opacity 0.15s;
+}
+/* 캡처에는 머리에 기준 시각이 있어 제목 옆 갱신 시각은 뺀다 */
+.capturing .night-upd {
+  display: none;
+}

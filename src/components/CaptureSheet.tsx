@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { domToBlob } from "modern-screenshot";
 import { Logo } from "./Logo";
 
@@ -10,6 +10,26 @@ interface Props {
   shareTitle: string;
   shareUrl: string;
   onClose: () => void;
+  /**
+   * 넣을 카드 고르기: target 안의 [data-cap] 카드(이름은 data-cap-label)를 단추로 보이고
+   * 고른 것만 찍는다. 값은 처음에 골라 둘 카드 id. [data-cap-group]은 고른 카드가 하나도 없으면 같이 뺀다
+   */
+  pick?: string[];
+}
+
+type Opt = { id: string; label: string };
+
+/** 고르지 않은 카드에 cap-off를 붙인다. 되돌리는 함수를 준다 */
+function applyPick(el: HTMLElement, on: Set<string>) {
+  const off: Element[] = [];
+  el.querySelectorAll("[data-cap]").forEach((n) => {
+    if (!on.has(n.getAttribute("data-cap")!)) off.push(n);
+  });
+  el.querySelectorAll("[data-cap-group]").forEach((g) => {
+    if (!Array.from(g.querySelectorAll("[data-cap]")).some((n) => on.has(n.getAttribute("data-cap")!))) off.push(g);
+  });
+  off.forEach((n) => n.classList.add("cap-off"));
+  return () => off.forEach((n) => n.classList.remove("cap-off"));
 }
 
 /** 캔버스 최대 면적(모바일 사파리 약 1,670만 px)을 넘지 않게 배율을 정한다 */
@@ -353,27 +373,62 @@ export async function captureElement(el: HTMLElement): Promise<Blob> {
   }
 }
 
-export function CaptureSheet({ target, fileName, shareTitle, shareUrl, onClose }: Props) {
+export function CaptureSheet({ target, fileName, shareTitle, shareUrl, onClose, pick }: Props) {
   const [blob, setBlob] = useState<Blob | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  // 고를 수 있는 카드는 열 때 화면에 있는 것으로 한 번 정한다
+  const [opts] = useState<Opt[]>(() => {
+    const el = pick && target();
+    if (!el) return [];
+    return Array.from(el.querySelectorAll<HTMLElement>("[data-cap]")).map((n) => ({ id: n.dataset.cap!, label: n.dataset.capLabel ?? n.dataset.cap! }));
+  });
+  const [on, setOn] = useState<string[]>(() => {
+    const first = opts.filter((o) => (pick ?? []).includes(o.id)).map((o) => o.id);
+    return first.length ? first : opts.slice(0, 1).map((o) => o.id);
+  });
+  const key = on.join(",");
+  const first = useRef(true);
 
   useEffect(() => {
     const el = target();
     if (!el) return;
     let url: string | null = null;
-    captureElement(el)
-      .then((b) => {
-        url = URL.createObjectURL(b);
-        setBlob(b);
-        setPreview(url);
-      })
-      .catch(() => setError(true));
+    let stale = false;
+    // 단추를 연달아 누를 때는 마지막 것만 찍는다
+    const t = setTimeout(
+      () => {
+        setBusy(true);
+        setError(false);
+        const undo = opts.length ? applyPick(el, new Set(key.split(","))) : () => {};
+        captureElement(el)
+          .finally(undo)
+          .then((b) => {
+            if (stale) return;
+            url = URL.createObjectURL(b);
+            setBlob(b);
+            setPreview(url);
+          })
+          .catch(() => !stale && setError(true))
+          .finally(() => !stale && setBusy(false));
+      },
+      first.current ? 0 : 300,
+    );
+    first.current = false;
     return () => {
+      stale = true;
+      clearTimeout(t);
       if (url) URL.revokeObjectURL(url);
     };
-  }, [target]);
+  }, [target, key, opts]);
+
+  const toggle = (id: string) => {
+    const next = on.includes(id) ? on.filter((x) => x !== id) : [...on, id];
+    if (!next.length) return; // 하나는 남긴다
+    setOn(opts.map((o) => o.id).filter((x) => next.includes(x)));
+  };
 
   useEffect(() => {
     if (!toast) return;
@@ -442,11 +497,20 @@ export function CaptureSheet({ target, fileName, shareTitle, shareUrl, onClose }
             ✕
           </button>
         </div>
+        {opts.length > 1 && (
+          <div className="cap-pick" role="group" aria-label="넣을 카드 고르기">
+            {opts.map((o) => (
+              <button key={o.id} type="button" aria-pressed={on.includes(o.id)} onClick={() => toggle(o.id)}>
+                {o.label}
+              </button>
+            ))}
+          </div>
+        )}
         {error ? (
           <div className="error">캡처하지 못했습니다. 다시 시도해 주세요.</div>
         ) : preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img className="sheet-preview" src={preview} alt="대시보드 캡처 미리보기" />
+          <img className={`sheet-preview${busy ? " busy" : ""}`} src={preview} alt="대시보드 캡처 미리보기" />
         ) : (
           <div className="skeleton" />
         )}
