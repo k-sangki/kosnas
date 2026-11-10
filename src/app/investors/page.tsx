@@ -5,12 +5,28 @@ import { ArkTrades, RecentMoves } from "@/components/Investors";
 import { Fold } from "@/components/Fold";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { DATA } from "@/lib/investors";
+import { InvestorList } from "@/components/Investors13F";
+import { INVESTORS } from "@/lib/investors13f";
 
 export const metadata: Metadata = pageMeta({
-  title: "유명 투자자 최근 매매 - 워런 버핏·캐시 우드 지분 공시와 매일 매매",
-  description:
-    "워런 버핏, 캐시 우드, 칼 아이칸, 댄 로브 같은 유명 투자자가 최근 30일 동안 SEC에 낸 지분 공시(13D·13G)와 내부자 매매 공시(Form 4), ARK 펀드의 매일 매매를 정리했습니다.",
-  keywords: ["버핏 매수", "캐시 우드 매매", "ARK 매매", "13D", "13G", "Form 4", "유명 투자자 매매", "헤지펀드 지분 공시"],
+  title: "유명 투자자 포트폴리오 - 워런 버핏·캐시 우드·마이클 버리 보유 종목과 최근 매매",
+  description: `워런 버핏, 캐시 우드, 마이클 버리, 레이 달리오 등 유명 투자자 ${INVESTORS.length}명의 13F 포트폴리오 비중을 파이차트로, 최근 30일 지분 공시(13D·13G)·매매 공시(Form 4)와 ARK 펀드의 매일 매매까지 정리했습니다.`,
+  keywords: [
+    "유명 투자자 포트폴리오",
+    "워런버핏 포트폴리오",
+    "워런 버핏 포트폴리오",
+    "버핏 포트폴리오",
+    "캐시우드 포트폴리오",
+    "마이클버리 포트폴리오",
+    "헤지펀드 포트폴리오",
+    "13F",
+    "버핏 매수",
+    "캐시 우드 매매",
+    "ARK 매매",
+    "13D",
+    "13G",
+    "Form 4",
+  ],
   path: "/investors",
 });
 
@@ -19,11 +35,12 @@ export default function InvestorsPage() {
     <div className="shell">
       <SiteHeader active="us" />
       <main className="stack">
-        <h1 className="page-title">유명 투자자 최근 매매</h1>
+        <h1 className="page-title">유명 투자자 포트폴리오와 최근 매매</h1>
         <p className="lead">
           유명 투자자 {DATA.investors.length}명이 최근 {DATA.window}일 동안 미국 증권거래위원회(SEC)에 낸 지분·매매 공시와, 캐시 우드의 ARK 펀드가 매일 공개하는
-          보유 내역에서 찾은 매매입니다. 줄을 누르면 SEC 원문이 열립니다.
+          보유 내역에서 찾은 매매입니다. 맨 위 포트폴리오는 투자자를 누르면 비중 파이차트가 펼쳐지고, 매매 줄을 누르면 SEC 원문이 열립니다.
         </p>
+        <InvestorList />
         <RecentMoves />
         <div id="ark">
           <ArkTrades />
@@ -47,10 +64,11 @@ export default function InvestorsPage() {
               </li>
             </ul>
           </Fold>
-          <Fold title="왜 분기 보고서(13F)는 쓰지 않나요">
+          <Fold title="포트폴리오(13F)와 최근 매매는 어떻게 다른가요">
             <p>
-              기관 투자자의 분기 보유 보고서(13F)는 분기가 끝나고 45일 뒤에 나와서, 볼 때는 이미 두세 달에서 넉 달 지난 보유 현황입니다. KosNas는 최근 한 달
-              안에 나온 공시만 보여줍니다. 그래서 큰 지분을 갖지 않은 종목의 매매나, 지분 공시 의무가 없는 작은 매매는 여기에 나오지 않습니다.
+              포트폴리오는 기관 투자자의 분기 보유 보고서(13F)로 그립니다. 13F는 분기가 끝나고 45일 안에 나와서, 볼 때는 이미 두세 달에서 넉 달 지난 보유
+              현황입니다. 그 사이의 움직임은 최근 한 달 안에 나온 지분·매매 공시로 따로 보여 줍니다. 큰 지분을 갖지 않은 종목의 매매나 지분 공시 의무가 없는 작은
+              매매는 최근 매매에 나오지 않습니다.
             </p>
             <p>
               유명 투자자가 샀다고 해서 그 종목이 오른다는 뜻은 아니며, KosNas는 특정 종목의 매수·매도를 권하지 않습니다. 원천은 SEC EDGAR와 ARK 인베스트의 공개

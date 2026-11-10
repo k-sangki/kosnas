@@ -1,4 +1,5 @@
 import raw from "@/data/investors-13f.json";
+import { koName } from "./ko-names";
 
 /** 유명 투자자 13F 보유 자료(collector/investors_13f.py가 만든다) */
 export type Holding = {
@@ -116,4 +117,27 @@ export function mainPeriod() {
   const c = new Map<string, number>();
   INVESTORS.forEach((i) => c.set(i.period, (c.get(i.period) ?? 0) + 1));
   return [...c.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+export type Slice = { key: string; name: string; ticker: string | null; tag: string; weight: number };
+
+/**
+ * 파이차트 조각: 비중 1% 이상은 한 조각씩, 1% 미만과 목록에 없는 나머지(상위 100개 밖)는 모두 '기타'.
+ * 비중은 13F 신고 총액(옵션 포함) 대비라 합이 100%가 된다.
+ */
+export function pieSlices(inv: Investor, min = 1): Slice[] {
+  const big = inv.holdings
+    .filter((h) => (h.weight ?? 0) >= min)
+    .map((h) => ({ key: h.cusip + (h.put_call ?? ""), name: koName(h.ticker, h.name), ticker: h.ticker, tag: optionTag(h), weight: h.weight ?? 0 }));
+  const rest = 100 - big.reduce((s, x) => s + x.weight, 0);
+  return rest >= 0.05 ? [...big, { key: "etc", name: "기타", ticker: null, tag: "", weight: rest }] : big;
+}
+
+/** 상위 n개를 '애플 22.0%, 아메리칸 익스프레스 17.1%' 같은 문장으로(검색 결과 설명·요약용) */
+export function topText(inv: Investor, n = 5) {
+  return inv.holdings
+    .filter((h) => !h.prn)
+    .slice(0, n)
+    .map((h) => `${koName(h.ticker, h.name)}${optionTag(h) ? `(${optionTag(h)})` : ""} ${h.weight?.toFixed(1)}%`)
+    .join(", ");
 }

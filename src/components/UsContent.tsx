@@ -8,10 +8,11 @@ import { MarketContent } from "./MarketPage";
 import { UsBoard } from "./UsBoard";
 import { UsSectors } from "./UsSectors";
 import { US_ENABLED } from "@/lib/sectors";
+import { UsTabs } from "./UsTabs";
 
-/** 미장 본문. 첫 화면과 /us가 같이 쓴다 */
+/** 미장 본문(/us). 하단탭으로 실시간·섹터·유명 투자자를 나눈다 */
 export function UsContent() {
-  return (
+  const live = (
     <>
       <h1 className="page-title">미국증시 실시간 흐름</h1>
       <p className="lead">
@@ -19,19 +20,6 @@ export function UsContent() {
         실시간으로 보여줍니다.
       </p>
       <UsBoard />
-      {!US_ENABLED && <UsSectors />}
-      <CaptureArea
-        name="us-investors"
-        heading="유명 투자자 최근 30일 매매"
-        title="유명 투자자 최근 30일 매매"
-        url="https://kosnas.com/us"
-        foot="SEC 공시·ARK 공개 보유 내역으로 정리한 참고 자료입니다"
-      >
-        <RecentMoves />
-        <ArkTrades />
-      </CaptureArea>
-      <InvestorList />
-      <SectorFlows />
       {!US_ENABLED && <AdSlot slot={AD_SLOTS.board} />}
       <section className="card seo-text">
         <Fold title="어떻게 보나요">
@@ -66,7 +54,24 @@ export function UsContent() {
           </p>
         </Fold>
       </section>
-      {US_ENABLED && <MarketContent market="us" />}
     </>
   );
+  const sector = US_ENABLED ? <MarketContent market="us" /> : <UsSectors />;
+  const investors = (
+    <>
+      <InvestorList />
+      <CaptureArea
+        name="us-investors"
+        heading="유명 투자자 최근 30일 매매"
+        title="유명 투자자 최근 30일 매매"
+        url="https://kosnas.com/us#investors"
+        foot="SEC 공시·ARK 공개 보유 내역으로 정리한 참고 자료입니다"
+      >
+        <RecentMoves />
+        <ArkTrades />
+      </CaptureArea>
+      <SectorFlows />
+    </>
+  );
+  return <UsTabs live={live} sector={sector} investors={investors} />;
 }
