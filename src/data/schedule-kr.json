@@ -1,46 +1,6 @@
 {
- "updated": "2026-11-10T13:30+09:00",
+ "updated": "2026-11-11T03:22+09:00",
  "events": [
-  {
-   "type": "dividend",
-   "code": "138930",
-   "name": "BNK금융지주",
-   "rcept": "20261026800296",
-   "record": "2026-11-10",
-   "perShare": 150.0,
-   "yield": 1.1,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "443060",
-   "name": "HD현대마린솔루션",
-   "rcept": "20261026800310",
-   "record": "2026-11-10",
-   "perShare": 900.0,
-   "yield": 0.44,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "161000",
-   "name": "애경케미칼",
-   "rcept": "20261026800621",
-   "record": "2026-11-10",
-   "perShare": 144.0,
-   "yield": 1.2,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "316140",
-   "name": "우리금융지주",
-   "rcept": "20261023800653",
-   "record": "2026-11-10",
-   "perShare": 220.0,
-   "yield": 0.7,
-   "kind": "분기배당"
-  },
   {
    "type": "ipo",
    "name": "하나에어로다이내믹스",
@@ -293,6 +253,15 @@
    "spac": false
   },
   {
+   "type": "bonus",
+   "code": "417180",
+   "name": "핑거스토리",
+   "rcept": "20261110000174",
+   "record": "2026-11-25",
+   "ratio": 0.3,
+   "listing": "2026-12-21"
+  },
+  {
    "type": "ipo",
    "name": "에이엔에이치스트럭쳐",
    "rcept": "20261103000106",
@@ -342,6 +311,16 @@
    "record": "2026-11-30",
    "perShare": 90.0,
    "yield": 2.42,
+   "kind": "분기배당"
+  },
+  {
+   "type": "dividend",
+   "code": "004170",
+   "name": "신세계",
+   "rcept": "20261110800287",
+   "record": "2026-11-30",
+   "perShare": 2600.0,
+   "yield": 1.0,
    "kind": "분기배당"
   },
   {
@@ -409,6 +388,19 @@
    "price": 20000.0,
    "brokers": [
     "한국투자증권"
+   ],
+   "spac": false
+  },
+  {
+   "type": "ipo",
+   "name": "마더스제약",
+   "rcept": "20261110000330",
+   "start": "2026-12-08",
+   "end": "2026-12-09",
+   "price": 11000.0,
+   "brokers": [
+    "NH투자증권",
+    "케이비증권"
    ],
    "spac": false
   },
