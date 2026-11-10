@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { hhmm, type NightData } from "@/lib/night";
 import { PNL_STOCKS, cleanShares, pnlRows, pnlTotal, shortWon, type Holdings } from "@/lib/night-pnl";
 import { CaptureSheet } from "./CaptureSheet";
@@ -11,6 +11,8 @@ import { LogoSvg } from "./Logo";
  * KRX 종가 대비 손익을 추정한다. 주수는 이 브라우저에만 저장하고 서버로 보내지 않는다.
  */
 const KEY = "kosnas:pnl:v1";
+/** 띠를 펼쳐 둔 채인지(2026-11-10 SK: 한 줄로 접어 둘 수 있게, 처음엔 접힘) */
+const OPEN_KEY = "kosnas:pnl:open";
 const listeners = new Set<() => void>();
 let memory: string | null = null;
 function read() {
@@ -60,6 +62,20 @@ export function NightPnl({ d }: { d: NightData | null }) {
   const [open, setOpen] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const box = useRef<HTMLElement>(null);
+  const [unfold, setUnfold] = useState(false);
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 브라우저 저장값은 화면이 뜬 뒤에만 읽을 수 있다
+      if (localStorage.getItem(OPEN_KEY) === "1") setUnfold(true);
+    } catch {}
+  }, []);
+  const toggle = (v: boolean) => {
+    setUnfold(v);
+    try {
+      if (v) localStorage.setItem(OPEN_KEY, "1");
+      else localStorage.removeItem(OPEN_KEY);
+    } catch {}
+  };
 
   if (!has && !open)
     return (
@@ -85,49 +101,62 @@ export function NightPnl({ d }: { d: NightData | null }) {
   return (
     <>
       <section className="card pnl no-capture" ref={box} aria-label="밤사이 내 손익">
-        <div className="pnl-head">
-          <h2>{live ? "자는 동안 내 주식" : "지난밤 내 주식"} <small className="muted">추정</small></h2>
-          <span className="pnl-brand cap-only">
-            <LogoSvg /> kosnas.com
-          </span>
-          <button type="button" className="pnl-edit no-capture" onClick={() => setOpen(true)}>
-            주수 바꾸기
-          </button>
-        </div>
-        {!d ? (
-          <p className="muted">불러오는 중…</p>
-        ) : !rows.length ? (
-          <p className="muted">지금은 무기한선물 가격을 받지 못했습니다.</p>
-        ) : (
-          <>
-            <p className={`pnl-total ${tone(t.won)}`}>
-              {shortWon(t.won)}
-              <span className="pnl-pct">{pct(t.pct)}</span>
-            </p>
-            <ul className="pnl-rows">
-              {rows.map((r) => (
-                <li key={r.coin}>
-                  <span>
-                    {r.name}
-                    <span className="muted no-capture"> {r.shares.toLocaleString()}주</span>
-                  </span>
-                  <span className={tone(r.won)}>
-                    {shortWon(r.won)} <small>({pct(r.pct)})</small>
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="pnl-note muted">
-              추정 · KRX 종가 대비 해외 무기한선물 원화 환산 가격 {d ? `· ${hhmm(d.updated)}` : ""}
-              {!live && " · 국내 개장 전까지"}
-            </p>
+        <details className="fold pnl-fold" open={unfold} onToggle={(e) => toggle(e.currentTarget.open)}>
+          <summary className="pnl-head">
+            <h2>
+              {live ? "자는 동안 내 주식" : "지난밤 내 주식"} <small className="muted">추정</small>
+            </h2>
+            {d && rows.length > 0 && (
+              <span className={`pnl-sum ${tone(t.won)}`}>
+                {shortWon(t.won)} <small>{pct(t.pct)}</small>
+              </span>
+            )}
+            <span className="pnl-brand cap-only">
+              <LogoSvg /> kosnas.com
+            </span>
+          </summary>
+          <div className="fold-body">
+            {!d ? (
+              <p className="muted">불러오는 중…</p>
+            ) : !rows.length ? (
+              <p className="muted">지금은 무기한선물 가격을 받지 못했습니다.</p>
+            ) : (
+              <>
+                <p className={`pnl-total ${tone(t.won)}`}>
+                  {shortWon(t.won)}
+                  <span className="pnl-pct">{pct(t.pct)}</span>
+                </p>
+                <ul className="pnl-rows">
+                  {rows.map((r) => (
+                    <li key={r.coin}>
+                      <span>
+                        {r.name}
+                        <span className="muted no-capture"> {r.shares.toLocaleString()}주</span>
+                      </span>
+                      <span className={tone(r.won)}>
+                        {shortWon(r.won)} <small>({pct(r.pct)})</small>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="pnl-note muted">
+                  추정 · KRX 종가 대비 해외 무기한선물 원화 환산 가격 {d ? `· ${hhmm(d.updated)}` : ""}
+                  {!live && " · 국내 개장 전까지"}
+                </p>
+              </>
+            )}
             <div className="pnl-actions no-capture">
-              <button type="button" className="pnl-share" onClick={() => setCapturing(true)}>
-                캡처해서 자랑하기
+              <button type="button" className="pnl-edit" onClick={() => setOpen(true)}>
+                주수 바꾸기
               </button>
+              {d && rows.length > 0 && (
+                <button type="button" className="pnl-share" onClick={() => setCapturing(true)}>
+                  캡처해서 자랑하기
+                </button>
+              )}
             </div>
-          </>
-        )}
+          </div>
+        </details>
       </section>
       {capturing && (
         <CaptureSheet

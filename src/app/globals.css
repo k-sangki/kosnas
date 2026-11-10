@@ -3804,3 +3804,50 @@ button.ft-row {
   color: var(--muted);
   font-size: 18px;
 }
+
+/* 내 주식·한 표 아래쪽은 한 줄로 접어 둔다(2026-11-10 SK) */
+.pnl-fold > summary {
+  gap: 8px;
+}
+.pnl-sum {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pnl-sum small {
+  font-size: 12px;
+  font-weight: 600;
+}
+.pnl-fold[open] .pnl-sum {
+  display: none;
+}
+.capturing .fold > summary::after {
+  display: none;
+}
+.pnl-actions .pnl-edit {
+  margin-right: auto;
+  background: none;
+  color: var(--muted);
+  font-weight: 500;
+  padding-left: 0;
+}
+.poll-more {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.poll-more > summary {
+  font-size: 12px;
+  color: var(--muted);
+}
+.poll-more > summary::after {
+  width: 5px;
+  height: 5px;
+  margin-left: 0;
+  border-width: 1.5px;
+}
+.poll-more .poll-last {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
