@@ -330,69 +330,75 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
         </p>
       )}
       {err && <p className="notice poll-err">{err}</p>}
-      {last && (
-        <p className="poll-last">
-          {dayLabel(last.target)}{" "}
-          {lastOut ? (
-            <b className={lastOut}>
-              {lastOut === "up" ? "▲" : "▼"} {last.pct! > 0 ? "+" : ""}
-              {last.pct!.toFixed(2)}%
-            </b>
-          ) : (
-            <b>{last.pct == null ? "판정 못 함" : "보합"}</b>
+      {/* 지난 결과·내 기록·안내는 한 줄로 접어 둔다(2026-11-10 SK) */}
+      <details className="fold poll-more">
+        <summary>지난 결과 · 적중 기록</summary>
+        <div className="fold-body">
+          {last && (
+            <p className="poll-last">
+              {dayLabel(last.target)}{" "}
+              {lastOut ? (
+                <b className={lastOut}>
+                  {lastOut === "up" ? "▲" : "▼"} {last.pct! > 0 ? "+" : ""}
+                  {last.pct!.toFixed(2)}%
+                </b>
+              ) : (
+                <b>{last.pct == null ? "판정 못 함" : "보합"}</b>
+              )}
+              {last.up + last.down > 0 &&
+                lastOut &&
+                majority(last.up, last.down) && (
+                  <>
+                    {majority(last.up, last.down) === lastOut
+                      ? " · 다수 적중"
+                      : " · 다수 빗나감"}
+                  </>
+                )}
+              {v && (
+                <span className={`poll-verdict ${v.hit ? "hit" : "miss"}`}>
+                  {" · "}
+                  {v.minority
+                    ? "🎯 소수파 적중"
+                    : v.hit
+                      ? "🎯 적중"
+                      : "나는 빗나감"}
+                </span>
+              )}
+              {streak >= 2 && (
+                <span className="poll-streak"> · 🔥 {streak}연속</span>
+              )}
+            </p>
           )}
-          {last.up + last.down > 0 &&
-            lastOut &&
-            majority(last.up, last.down) && (
-              <>
-                {majority(last.up, last.down) === lastOut
-                  ? " · 다수 적중"
-                  : " · 다수 빗나감"}
-              </>
-            )}
-          {v && (
-            <span className={`poll-verdict ${v.hit ? "hit" : "miss"}`}>
-              {" · "}
-              {v.minority
-                ? "🎯 소수파 적중"
-                : v.hit
-                  ? "🎯 적중"
-                  : "나는 빗나감"}
-            </span>
-          )}
-          {streak >= 2 && (
-            <span className="poll-streak"> · 🔥 {streak}연속</span>
-          )}
-        </p>
-      )}
-      {month && marks.length > 0 && (
-        <div className="poll-rec">
-          <button type="button" className="poll-rec-btn" aria-expanded={recOpen} onClick={() => setRecOpen(!recOpen)}>
-            📅 {Number(month.slice(5, 7))}월 내 기록 {marks.filter((m) => m.mark === "🟩").length}/{marks.filter((m) => m.mark !== "⬜").length}
-          </button>
-          {recOpen && (
-            <>
-              <p className="poll-marks" aria-label="날짜별 적중">
-                {marks.map((m) => (
-                  <span key={m.target} title={dayLabel(m.target)}>
-                    {m.mark}
-                  </span>
-                ))}
-              </p>
-              <button type="button" className="poll-ask" onClick={shareRec}>
-                기록 공유하기
+          {month && marks.length > 0 && (
+            <div className="poll-rec">
+              <button type="button" className="poll-rec-btn" aria-expanded={recOpen} onClick={() => setRecOpen(!recOpen)}>
+                📅 {Number(month.slice(5, 7))}월 내 기록 {marks.filter((m) => m.mark === "🟩").length}/{marks.filter((m) => m.mark !== "⬜").length}
               </button>
-              {recNote && <p className="muted small-note">{recNote}</p>}
-            </>
+              {recOpen && (
+                <>
+                  <p className="poll-marks" aria-label="날짜별 적중">
+                    {marks.map((m) => (
+                      <span key={m.target} title={dayLabel(m.target)}>
+                        {m.mark}
+                      </span>
+                    ))}
+                  </p>
+                  <button type="button" className="poll-ask" onClick={shareRec}>
+                    기록 공유하기
+                  </button>
+                  {recNote && <p className="muted small-note">{recNote}</p>}
+                </>
+              )}
+            </div>
           )}
+          <p className="muted poll-foot">
+            {crowd.n > 0 && `다수 적중 ${crowd.hit}/${crowd.n}회 · `}
+            {lean.n >= 3 && `80% 넘게 쏠린 날 다수 적중 ${lean.hit}/${lean.n}회 · `}
+            {myN > 0 && `내 적중 ${myHit}/${myN}회 · `}
+            코스피200 무기한선물 15:45 기준 · 재미로 하는 투표
+          </p>
         </div>
-      )}
-      <p className="muted poll-foot">
-        {crowd.n > 0 && `다수 적중 ${crowd.hit}/${crowd.n}회 · `}
-        {lean.n >= 3 && `80% 넘게 쏠린 날 다수 적중 ${lean.hit}/${lean.n}회 · `}
-        {myN > 0 && `내 적중 ${myHit}/${myN}회 · `}
-        코스피200 무기한선물 15:45 기준 · 재미로 하는 투표
-      </p>
+      </details>
     </section>
   );
 }
