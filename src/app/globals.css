@@ -3755,3 +3755,52 @@ button.ft-row {
   line-height: 1.4;
   word-break: break-all;
 }
+
+/* 오늘의 한 표·내 주식 띠는 위아래 강한 카드 사이의 쉬는 자리라 얇게(2026-11-10 SK 시안 A) */
+.card.poll {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  margin-left: 4px;
+  margin-right: 4px;
+  padding: 12px 4px;
+}
+.card.poll .card-title {
+  font-size: 15px;
+}
+.card.poll .poll-btn {
+  padding: 7px 0;
+  font-size: 14px;
+  border-width: 1px;
+  background: transparent;
+}
+.card.poll .poll-btn.up.on {
+  background: var(--up-soft);
+}
+.card.poll .poll-btn.down.on {
+  background: var(--down-soft);
+}
+.card.poll .poll-bar {
+  height: 4px;
+  opacity: 0.6;
+}
+.card.pnl-band {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 6px 8px;
+}
+.pnl-band .test-band-emoji {
+  font-size: 16px;
+}
+.pnl-band .test-band-text b {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.pnl-band .test-band-go {
+  color: var(--muted);
+  font-size: 18px;
+}
