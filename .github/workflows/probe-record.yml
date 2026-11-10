@@ -1,0 +1,12 @@
+name: probe record
+on:
+  push:
+    branches: [probe-record]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sleep 150
+          curl -sS https://kosnas.com/api/night-record | head -c 2000; echo
+          curl -sS https://kosnas.com/api/night | jq -c '{live:.window.live, est, open, base, baseKind}'
