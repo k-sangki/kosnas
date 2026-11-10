@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { INVESTORS, SECTOR_FLOWS, crowd, label, mainPeriod, optionTag, pieSlices, quarter, sharePct, usd, type Holding, type Investor } from "@/lib/investors13f";
 import { koName } from "@/lib/ko-names";
+import { OneOpen } from "./OneOpen";
 import { PieChart } from "./PieChart";
 import { Fold } from "./Fold";
 
@@ -13,10 +14,11 @@ export function InvestorList({ title = "유명 투자자 포트폴리오", limit
       <h2 className="card-title">
         {title} <span className="muted">{quarter(p)} 말 · SEC 13F</span>
       </h2>
+      <OneOpen name="inv-pie" />
       <ul className="inv-list">
         {INVESTORS.slice(0, limit).map((inv) => (
           <li key={inv.id}>
-            <details className="inv-item">
+            <details className="inv-item" name="inv-pie">
               <summary className="inv-row">
                 <span className="inv-who">
                   <b>{inv.person}</b>
