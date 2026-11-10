@@ -19,9 +19,11 @@ import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { SectorDetail, type MoveBy } from "@/components/SectorDetail";
 import { StockList } from "@/components/StockList";
 import { SECTOR_NOTES } from "@/lib/sector-notes";
+import { capText } from "@/lib/screens";
 import {
   MARKETS,
   QUADRANTS,
+  capLeaders,
   findSector,
   industryPages,
   moveScores,
@@ -56,14 +58,20 @@ export async function generateMetadata({
   const inds = (sectorData(hit.market).industries ?? [])
     .filter((i) => i.sector === hit.sector.id)
     .map((i) => i.name);
+  const top = hit.market === "kr" ? capLeaders(hit.sector.stocks).map((s) => s.name) : [];
   return pageMeta({
-    title: `${name} 섹터 등락률·순위 - ${where} 섹터 순환매`,
-    description: `${where} ${name} 섹터의 5·10·20·30·60일 등락률과 섹터 순위, 순환매 흐름(주도·약화·소외·관찰)${inds.length ? `, ${inds.join("·")} 산업` : ""}과 종목별 상대강도 순위.`,
+    title: hit.market === "kr" ? `${name} 대장주·섹터 등락률 - ${top.slice(0, 2).join("·")} 등 ${where} ${name}주 순위` : `${name} 섹터 등락률·순위 - ${where} 섹터 순환매`,
+    description: `${top.length ? `${name} 대장주(시가총액 순) ${top.join("·")}. ` : ""}${where} ${name} 섹터의 5·10·20·30·60일 등락률과 섹터 순위, 순환매 흐름(주도·약화·소외·관찰)${inds.length ? `, ${inds.join("·")} 산업` : ""}과 종목별 상대강도 순위.`,
     keywords: [
       name,
       `${name} 섹터`,
       `${name} 섹터 등락`,
       `${name} 관련주`,
+      `${name} 대장주`,
+      `${name.replace(/[·\s]/g, "")}대장주`,
+      `${name}주 대장주`,
+      `${name} 시총 순위`,
+      ...top.map((n) => `${n} 주가`),
       ...inds,
       ...SECTOR_KEYWORDS,
     ],
@@ -130,6 +138,7 @@ export default async function SectorPage({
   const r5 = rankNo(5);
   const r20 = rankNo(20);
   const where = hit.market === "kr" ? "국장" : "미장";
+  const leaders = hit.market === "kr" ? capLeaders(sector.stocks) : [];
   const answer =
     !data.sample && r5
       ? `${krDate(data.asof)} 종가 기준 ${sector.name} 섹터는 최근 5거래일 ${signed(sector.ret[5])}%로 ${where} ${r5.of}개 섹터 가운데 ${r5.n}위${
@@ -176,7 +185,30 @@ export default async function SectorPage({
             {sector.intro && sector.count
               ? ` 보통주 ${sector.count}종목이 이 섹터에 들어 있습니다.`
               : ""}
+            {leaders.length > 0 &&
+              ` 시가총액 기준 ${sector.name} 대장주는 ${leaders.map((s) => `${s.name}(${capText(s.capEok!)})`).join(", ")} 순입니다.`}
           </p>
+        )}
+        {leaders.length > 0 && (
+          <section className="card">
+            <h2 className="card-title">
+              {sector.name} 대장주 <span className="muted">시가총액 순 · {data.asof} 종가</span>
+            </h2>
+            <ol className="lead-list">
+              {leaders.map((s) => (
+                <li key={s.code}>
+                  <b>{s.name}</b>
+                  <small className="muted">
+                    {s.ind ?? ""} · 시총 {capText(s.capEok!)}
+                  </small>
+                  <span className={`num ${(s.r?.["20"] ?? 0) >= 0 ? "up" : "down"}`}>20일 {signed(s.r?.["20"])}%</span>
+                </li>
+              ))}
+            </ol>
+            <p className="muted small-note">
+              대장주는 보통 그 업종에서 시가총액이 크고 소식에 가장 먼저 반응하는 종목을 말합니다. 여기서는 기본 필터를 통과한 종목 중 시가총액 순으로 골랐고, 시점마다 달라질 수 있습니다.
+            </p>
+          </section>
         )}
         <section className="card">
           <h2 className="card-title">

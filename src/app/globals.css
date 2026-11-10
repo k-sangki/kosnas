@@ -4008,3 +4008,53 @@ body:has(.tabbar) .toast {
   font-size: 14px;
   font-weight: 700;
 }
+
+/* ---------- 대장주 목록 (테마 탭·섹터 페이지) ---------- */
+.lead-index,
+.lead-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lead-index li + li,
+.lead-list li + li {
+  border-top: 1px solid var(--line);
+}
+.lead-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 0;
+}
+.lead-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
+}
+.lead-head .num {
+  font-size: 13px;
+  font-weight: 600;
+}
+.lead-row small {
+  font-size: 13px;
+}
+.lead-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name num" "sub num";
+  align-items: center;
+  gap: 2px 10px;
+  padding: 10px 0;
+}
+.lead-list li b {
+  grid-area: name;
+}
+.lead-list li small {
+  grid-area: sub;
+}
+.lead-list li .num {
+  grid-area: num;
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -91,7 +91,7 @@ export const industryLabel = (name: string) => (INDUSTRY_ALIASES[name] ? `${name
 
 /** 산업 관련주 검색어: 띄어쓴 것·붙여 쓴 것 둘 다 */
 export const industryKeywords = (name: string) =>
-  [name, ...(INDUSTRY_ALIASES[name] ?? [])].flatMap((n) => [n, `${n} 관련주`, `${n.replace(/\s+/g, "")}관련주`, `${n} 주가`]);
+  [name, ...(INDUSTRY_ALIASES[name] ?? [])].flatMap((n) => [n, `${n} 관련주`, `${n.replace(/\s+/g, "")}관련주`, `${n} 대장주`, `${n.replace(/\s+/g, "")}대장주`, `${n} 주가`]);
 
 /** '2026-10-29' → '2026년 10월 29일' */
 export function krDate(iso: string) {
