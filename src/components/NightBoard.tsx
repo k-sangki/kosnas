@@ -18,6 +18,7 @@ import { CaptureSheet } from "./CaptureSheet";
 import { Chat } from "./Chat";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
+import { NightPnl } from "./NightPnl";
 import { TestBand } from "./TestBand";
 import { ScheduleBand } from "./ScheduleBand";
 import { LogoSvg } from "./Logo";
@@ -346,6 +347,7 @@ export function NightBoard() {
           )}
         </section>
         <Poll weekend={weekend} />
+        <NightPnl d={d} />
         <Chat />
         <Dashboard d={d} />
         <TestBand />
