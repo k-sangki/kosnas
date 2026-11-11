@@ -31,7 +31,7 @@ jobs:
       - name: 실시간 값 점검(워커 /api/econ 이 나스닥에 닿는지 기록만)
         continue-on-error: true
         run: |
-          curl -sS -m 30 https://kosnas.com/api/econ | python -c "import json,sys; b=json.load(sys.stdin); print('live', b.get('live'), 'rows', len(b.get('rows') or []), 'earnings', len(b.get('earnings') or []))"
+          curl -sS -m 30 https://kosnas.com/api/econ | python -c "import json,sys; b=json.load(sys.stdin); print('live', b.get('live'), 'rows', len(b.get('rows') or []), 'earnings', [(e['symbol'], e.get('a'), e.get('src')) for e in b.get('earnings') or []])"
       - name: 올리기
         env:
           GH_TOKEN: ${{ github.token }}

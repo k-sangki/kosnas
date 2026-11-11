@@ -16,6 +16,7 @@ import html
 import json
 import re
 import subprocess
+import tempfile
 import sys
 import time
 import urllib.request
@@ -127,7 +128,50 @@ def earnings(start: dt.date, days: int) -> list[dict]:
             )
         time.sleep(0.4)
     print(f"실적 {len(out)}건")
+    try:
+        yahoo_fill(out)
+    except Exception as e:
+        print(f"::warning::야후 실적 실패: {e}")
     return out
+
+
+def yahoo_fill(out: list[dict]) -> None:
+    """나스닥이 실제 EPS를 늦게 올리는 주목 기업은 야후(발표 몇 분 뒤 반영)로 채운다. 예상도 같은 야후 기준으로 바꾼다."""
+    today = dt.datetime.now(ET).date().isoformat()
+    want = [e for e in out if e["symbol"] in FOCUS and e["a"] is None and e["date"] <= today]
+    if not want:
+        return
+    jar = tempfile.NamedTemporaryFile(delete=False).name
+    ua = NASDAQ_HEADERS["User-Agent"]
+    base = ["curl", "-sS", "-m", "20", "-A", ua, "-b", jar, "-c", jar]
+    subprocess.run(base + ["-o", "/dev/null", "https://fc.yahoo.com/"], check=False)
+    crumb = subprocess.run(base + ["https://query2.finance.yahoo.com/v1/test/getcrumb"], capture_output=True, text=True).stdout.strip()
+    if not crumb or len(crumb) > 40:
+        print("::warning::야후 crumb 실패")
+        return
+    for e in want:
+        r = subprocess.run(base + [f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{e['symbol']}?modules=earnings&crumb={crumb}"], capture_output=True, text=True)
+        try:
+            q = json.loads(r.stdout)["quoteSummary"]["result"][0]["earnings"]["earningsChart"]["quarterly"]
+        except Exception:
+            continue
+        for x in q:
+            d = (x.get("reportedDate") or {}).get("fmt")
+            act = (x.get("actual") or {}).get("raw")
+            if not d or act is None or abs((dt.date.fromisoformat(d) - dt.date.fromisoformat(e["date"])).days) > 1:
+                continue
+            est = (x.get("estimate") or {}).get("raw")
+            e["a"] = round(act, 2)
+            if est is not None:
+                e["f"] = round(est, 2)
+            try:
+                e["s"] = float(x.get("surprisePct"))
+            except (TypeError, ValueError):
+                pass
+            e["src"] = "yahoo"
+            print(f"야후 실적 {e['symbol']} {e['date']} 실제 {e['a']} 예상 {e['f']}")
+            break
+        time.sleep(0.3)
 
 
 def cells(row: str) -> list[str]:
