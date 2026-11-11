@@ -4341,3 +4341,98 @@ body:has(.tabbar) .toast {
 .ev-surp.miss {
   color: var(--down);
 }
+
+.econ-wait {
+  font-size: 12px;
+  margin: 2px 0 6px;
+}
+.econ-wait a {
+  color: var(--down);
+}
+
+/* 경제지표: 직전·예상·실제 세로 막대(시안 ①) */
+.ev-m-verdict {
+  white-space: nowrap;
+}
+.ev-gap-t {
+  font-size: 13px;
+}
+.ev-gap-t.beat {
+  color: var(--up);
+}
+.ev-gap-t.miss {
+  color: var(--down);
+}
+.ev-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 92px;
+  margin: 6px 2px 2px;
+}
+.ev-bars.big {
+  height: 128px;
+}
+.ev-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.ev-col-v {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
+.ev-bars.big .ev-col-v {
+  font-size: 15px;
+}
+.ev-col-b {
+  display: block;
+  width: 100%;
+  max-width: 88px;
+  border-radius: 6px 6px 0 0;
+  flex: 0 1 auto;
+  min-height: 0;
+}
+.ev-col-l {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  width: 100%;
+  text-align: center;
+  padding-top: 3px;
+}
+.ev-col.pv .ev-col-b {
+  background: var(--line-2);
+}
+.ev-col.fc .ev-col-b {
+  background: var(--muted);
+}
+.ev-col.act .ev-col-b {
+  background: var(--ink-2);
+}
+.ev-col.act.beat .ev-col-b {
+  background: var(--up);
+}
+.ev-col.act.miss .ev-col-b {
+  background: var(--down);
+}
+.ev-col.act.beat .ev-col-v {
+  color: var(--up);
+}
+.ev-col.act.miss .ev-col-v {
+  color: var(--down);
+}
+.ev-col.act.wait .ev-col-v {
+  color: var(--muted);
+}
+.ev-col-b.neg {
+  opacity: 0.7;
+  background-image: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0, 0, 0, 0.28) 4px 8px);
+}

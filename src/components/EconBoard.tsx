@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import {
   bandPick,
   dayLabel,
+  diffText,
   dotMedians,
   earningKst,
   epsVerdict,
@@ -12,6 +13,7 @@ import {
   EARN_FOCUS,
   grace,
   relWhen,
+  waitText,
   usd,
   whenLabel,
   type Dots,
@@ -39,7 +41,9 @@ export function EconBoard() {
 
   if (!now) return <section className="card muted">불러오는 중…</section>;
   const top = bandPick(list, now);
-  const upcoming = list.filter((r) => !r.out && r.at > now - grace(r) && r.at < now + AHEAD && r.id !== top?.r.id);
+  // 발표 시각이 지났는데 실제 값이 아직인 것(실적은 달력 반영이 반나절쯤 늦다)은 '다가오는'이 아니라 따로 위에
+  const pending = list.filter((r) => r.band && !r.out && r.at <= now && now - r.at < grace(r) && r.id !== top?.r.id);
+  const upcoming = list.filter((r) => !r.out && r.at > now && r.at < now + AHEAD && r.id !== top?.r.id);
   const past = list.filter((r) => r.at <= now && now - r.at < BACK && (r.out || !r.band) && r.id !== top?.r.id).reverse();
   const byDay = new Map<string, Release[]>();
   for (const r of upcoming) byDay.set(kstDate(r.at), [...(byDay.get(kstDate(r.at)) ?? []), r]);
@@ -48,8 +52,17 @@ export function EconBoard() {
     <>
       {top && (
         <section className="card econ-top">
-          <p className="econ-kicker">{top.mode === "result" ? "방금 나온 결과" : "다음 발표"}</p>
+          <p className="econ-kicker">{top.mode === "result" ? "방금 나온 결과" : top.r.at <= now ? "방금 발표됨" : "다음 발표"}</p>
           <ReleaseCard r={top.r} now={now} dots={data.dots} big />
+        </section>
+      )}
+
+      {pending.length > 0 && (
+        <section className="card">
+          <h2 className="card-title">발표됨 · 결과 집계 중</h2>
+          {pending.map((r) => (
+            <ReleaseCard key={r.id} r={r} now={now} dots={null} />
+          ))}
         </section>
       )}
 
@@ -112,64 +125,62 @@ function ReleaseCard({ r, now, dots, big }: { r: Release; now: number; dots: Dot
         <span className="econ-rel-name">
           <span aria-hidden>{r.emoji}</span> {r.name}
         </span>
-        <span className="econ-rel-when">{waiting ? "발표 직후 · 집계 중" : relWhen(r, now)}</span>
+        <span className="econ-rel-when">{waiting ? waitText(r) : relWhen(r, now)}</span>
       </header>
+      {waiting && r.sym && (
+        <p className="econ-wait muted">
+          실적 달력에 실제 EPS가 아직 없습니다(보통 반나절 안에 들어옵니다).{" "}
+          <a href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${r.sym}&type=8-K`} target="_blank" rel="noopener noreferrer">
+            회사 보도자료 보기(미국 공시)
+          </a>
+        </p>
+      )}
       {r.metrics.map((m, i) => (
-        <MetricRow key={i} m={m} out={r.out} lead={i === 0} />
+        <MetricRow key={i} m={m} out={r.out} lead={i === 0} big={big && i === 0} />
       ))}
       {r.group === "fomc" && dots && <DotPlot d={dots} now={r.metrics[0]?.pv ?? null} />}
     </article>
   );
 }
 
-/** 예상·실제·직전 숫자와 한 줄 수직선(어디에 떨어졌는지) */
-function MetricRow({ m, out, lead }: { m: Metric; out: boolean; lead: boolean }) {
+/** 직전·예상·실제 세로 막대(0부터 같은 자, 2026-11-11 SK 채택 시안 ①) */
+function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boolean; big?: boolean }) {
   const has = out && m.av != null;
+  const gap = has ? diffText(m) : null;
+  const cols: { k: string; label: string; s: string; v: number | null }[] = [
+    { k: "pv", label: m.pLabel ?? "직전", s: m.p, v: m.pv },
+    { k: "fc", label: "예상", s: m.f, v: m.fv },
+    { k: `act ${has ? (m.verdict ?? "") : "wait"}`, label: "실제", s: has ? m.a : "?", v: has ? m.av : null },
+  ];
+  const max = Math.max(...cols.map((c) => Math.abs(c.v ?? 0)), 1e-9);
   return (
     <div className={`ev-m${lead ? " lead" : ""}`}>
       <div className="ev-m-head">
         <span className="ev-m-label">{m.label}</span>
-        {has && <Badge v={m.verdict} />}
-      </div>
-      <div className="ev-nums">
         {has && (
-          <span className={`ev-num act ${m.verdict ?? ""}`}>
-            <small>실제</small>
-            <b>{m.a}</b>
+          <span className="ev-m-verdict">
+            <Badge v={m.verdict} />
+            {gap && <b className={`ev-gap-t ${m.verdict ?? ""}`}> {gap}</b>}
           </span>
         )}
-        <span className="ev-num fc">
-          <small>예상</small>
-          <b>{m.f || "—"}</b>
-        </span>
-        <span className="ev-num pv">
-          <small>{m.pLabel ?? "직전"}</small>
-          <b>{m.p || "—"}</b>
-        </span>
       </div>
-      <NumberLine m={m} out={has} />
+      <div
+        className={`ev-bars${big ? " big" : ""}`}
+        role="img"
+        aria-label={`${m.pLabel ?? "직전"} ${m.p || "없음"}, 예상 ${m.f || "없음"}${has ? `, 실제 ${m.a}` : ""}`}
+      >
+        {cols.map((c) => (
+          <div key={c.label} className={`ev-col ${c.k}`}>
+            <span className="ev-col-v">{c.s || "—"}</span>
+            <span
+              className={`ev-col-b${c.v != null && c.v < 0 ? " neg" : ""}`}
+              style={{ height: c.v != null ? `${Math.max((Math.abs(c.v) / max) * 100, 2)}%` : 0 }}
+            />
+            <small className="ev-col-l">{c.label}</small>
+          </div>
+        ))}
+      </div>
     </div>
-  );
-}
-
-function NumberLine({ m, out }: { m: Metric; out: boolean }) {
-  const pts = [m.pv, m.fv, out ? m.av : null].filter((v): v is number => v != null);
-  if (pts.length < 2) return null;
-  let lo = Math.min(...pts);
-  let hi = Math.max(...pts);
-  const pad = Math.max((hi - lo) * 0.3, Math.abs(hi) * 0.02, 1e-9);
-  lo -= pad;
-  hi += pad;
-  const x = (v: number) => 12 + ((v - lo) / (hi - lo)) * 276;
-  const W = 300;
-  return (
-    <svg className="ev-line" viewBox={`0 0 ${W} 26`} role="img" aria-label={`${m.pLabel ?? "직전"} ${m.p}, 예상 ${m.f}${out ? `, 실제 ${m.a}` : ""}`}>
-      <line x1={8} x2={W - 8} y1={13} y2={13} className="ev-track" />
-      {m.pv != null && <circle cx={x(m.pv)} cy={13} r={5} className="ev-pv" />}
-      {m.fv != null && <rect x={x(m.fv) - 1.5} y={3} width={3} height={20} className="ev-fc" />}
-      {out && m.fv != null && m.av != null && <line x1={x(m.fv)} x2={x(m.av)} y1={13} y2={13} className={`ev-gap ${m.verdict ?? ""}`} />}
-      {out && m.av != null && <circle cx={x(m.av)} cy={13} r={7} className={`ev-act ${m.verdict ?? ""}`} />}
-    </svg>
   );
 }
 

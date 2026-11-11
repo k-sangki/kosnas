@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { atOf, bandPick, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
+import { atOf, bandPick, diffText, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
 
 const row = (n: string, a: string, f: string, p: string, d = "2026-11-11", t = "08:30"): Row => ({ d, t, c: "United States", n, a, f, p });
 
@@ -63,6 +63,17 @@ describe("경제지표", () => {
     expect(done.name).toBe("코어위브 실적");
     expect(done.metrics[0].verdict).toBe("beat");
     expect(bandPick([done], morning)).toMatchObject({ mode: "result" });
+  });
+
+  it("차이를 예상치 단위로", () => {
+    expect(diffText({ a: "0.3%", f: "0.2%" })).toBe("+0.1%p");
+    expect(diffText({ a: "165K", f: "65K" })).toBe("+100K");
+    expect(diffText({ a: "4.1%", f: "4.2%" })).toBe("−0.1%p");
+    expect(diffText({ a: "1,718K", f: "1,710K" })).toBe("+8K");
+    expect(diffText({ a: "-$0.09", f: "$0.02" })).toBe("−$0.11");
+    expect(diffText({ a: "-$1.21", f: "-$1.45" })).toBe("+$0.24");
+    expect(diffText({ a: "4.00%", f: "4.00%" })).toBe("±0.00%p");
+    expect(diffText({ a: "", f: "0.2%" })).toBeNull();
   });
 
   it("연준 인사 이름", () => {

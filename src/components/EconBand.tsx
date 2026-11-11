@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { bandPick, relWhen, VERDICT } from "@/lib/econ";
+import { bandPick, relWhen, VERDICT, waitText } from "@/lib/econ";
 import { useEcon } from "./useEcon";
 
 /**
@@ -22,7 +22,7 @@ export function EconBand() {
       </span>
       <span className="econ-band-text">
         <span className="econ-band-top">
-          {mode === "result" ? <b className="econ-band-tag">결과 나왔어요</b> : <b className="econ-band-when">{waiting ? "발표 직후 · 집계 중" : relWhen(r, now)}</b>}
+          {mode === "result" ? <b className="econ-band-tag">결과 나왔어요</b> : <b className="econ-band-when">{waiting ? waitText(r) : relWhen(r, now)}</b>}
           <span className="econ-band-name">{r.name}</span>
         </span>
         {m && (
