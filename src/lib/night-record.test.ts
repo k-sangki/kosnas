@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { errPct, summarize, type RecordRow } from "./night-record";
+import { errPct, stockRowsFrom, summarize, summarizeStocks, type RecordRow } from "./night-record";
 
 const row = (day: string, est: number, open: number, baseKind: "close" | "est" = "close"): RecordRow => ({ day, est, open, base: 800, baseKind, weekend: false });
 
@@ -15,4 +15,16 @@ describe("추정 적중 기록", () => {
     expect(s.since).toBe("2026-11-09");
   });
   it("빈 기록", () => expect(summarize([]).mae).toBeNull());
+});
+
+describe("종목 적중 기록", () => {
+  it("stocks 자료에서 줄을 만들고 요약한다", () => {
+    const d = { window: { live: false, end: Date.UTC(2026, 10, 12, 0), start: 0 }, stocks: { SMSN: { at0900: 210000, open: 211000, close: 208000 }, SKHX: { at0900: null, open: 1300000, close: 1291000 } } };
+    const rows = stockRowsFrom(d as never);
+    expect(rows).toEqual([{ day: "2026-11-12", coin: "SMSN", est: 210000, open: 211000, base: 208000 }]);
+    const s = summarizeStocks(rows).SMSN;
+    expect(s.n).toBe(1);
+    expect(s.dirHit).toBe(1);
+    expect(s.mae).toBeCloseTo(0.481, 3);
+  });
 });

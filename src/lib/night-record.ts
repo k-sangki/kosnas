@@ -16,7 +16,19 @@ export type RecordRow = {
   weekend: boolean;
 };
 
+/** 원화 환산 종목 한 줄: 09:00 추정 원화 가격 vs 그날 KRX 시가, 기준은 전일 KRX 종가 */
+export type StockRow = { day: string; coin: string; est: number; open: number; base: number };
+
+export type StockSummary = {
+  rows: (StockRow & { err: number; hit: boolean })[];
+  n: number;
+  mae: number | null;
+  dirHit: number;
+};
+
 export type RecordSummary = {
+  /** 종목별(삼성전자·SK하이닉스) 기록 */
+  stocks?: Record<string, StockSummary>;
   rows: (RecordRow & { err: number; hit: boolean | null })[];
   /** 최근 n일 등락률 차이 절댓값 평균(%p) */
   n: number;
@@ -35,6 +47,33 @@ export function rowFrom(d: NightData): RecordRow | null {
   const day = new Date(d.window.end + 9 * 3600_000).toISOString().slice(0, 10);
   const weekend = new Date(d.window.start + 9 * 3600_000).getUTCDay() === 5;
   return { day, est, open: d.open, base: d.base, baseKind: d.baseKind, weekend };
+}
+
+/** 장중 /api/night 자료에서 오늘 종목 기록(시가를 받은 종목만) */
+export function stockRowsFrom(d: NightData): StockRow[] {
+  if (d.window.live || !d.stocks) return [];
+  const day = new Date(d.window.end + 9 * 3600_000).toISOString().slice(0, 10);
+  return Object.entries(d.stocks).flatMap(([coin, v]) =>
+    v.at0900 != null && v.open != null && v.close > 0 ? [{ day, coin, est: v.at0900, open: v.open, base: v.close }] : [],
+  );
+}
+
+export function summarizeStocks(rows: StockRow[], keep = 30): Record<string, StockSummary> {
+  const out: Record<string, StockSummary> = {};
+  for (const coin of [...new Set(rows.map((r) => r.coin))]) {
+    const recent = rows
+      .filter((r) => r.coin === coin)
+      .sort((a, b) => (a.day < b.day ? 1 : -1))
+      .slice(0, keep)
+      .map((r) => ({ ...r, err: Math.round(errPct(r) * 1000) / 1000, hit: Math.sign(r.est - r.base) === Math.sign(r.open - r.base) }));
+    out[coin] = {
+      rows: recent,
+      n: recent.length,
+      mae: recent.length ? Math.round((recent.reduce((a, r) => a + Math.abs(r.err), 0) / recent.length) * 1000) / 1000 : null,
+      dirHit: recent.filter((r) => r.hit).length,
+    };
+  }
+  return out;
 }
 
 /** 등락률 차이(%p): 추정 등락률 − 시가 등락률 */

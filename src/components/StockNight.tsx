@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { hhmm, type NightData } from "@/lib/night";
+import { StockRecordLine } from "./NightRecordLine";
 
 const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : "");
 const sign = (v: number) => (v > 0 ? "+" : "");
@@ -93,6 +94,7 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
         </>
       )}
       {d && err && <p className="muted small-note">마지막 갱신 뒤 자료를 받지 못했습니다.</p>}
+      <StockRecordLine coin={coin} />
     </section>
   );
 }
