@@ -323,7 +323,7 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
       id: `earn-${e.symbol}-${e.date}`,
       group: "earn",
       sym: e.symbol,
-      name: `${e.name} 실적`,
+      name: `${tickerName(e)} 실적`,
       emoji: "💼",
       band: true,
       at: Date.parse(`${e.date}T${e.when === "pre" ? "07" : "16"}:00:00-05:00`),
@@ -385,3 +385,6 @@ export function barScale(vs: (number | null)[]) {
   const h = (v: number | null) => (v == null || !span || v === 0 ? 0 : Math.max((Math.abs(v) / span) * 100, 2));
   return { zero, hi, lo, h };
 }
+
+/** '코어위브(CRWV)'처럼 이름 옆 괄호에 티커(2026-11-11 SK). 한글 이름이 없으면 티커만 */
+export const tickerName = (e: { name: string; symbol: string }) => (e.name && e.name !== e.symbol ? `${e.name}(${e.symbol})` : e.symbol);

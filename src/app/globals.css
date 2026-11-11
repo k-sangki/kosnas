@@ -4418,7 +4418,8 @@ body:has(.tabbar) .toast {
   left: 0;
   right: 0;
   margin: 0 auto;
-  max-width: 88px;
+  width: 50%;
+  max-width: 44px;
   border-radius: 6px 6px 0 0;
 }
 .ev-col-b.neg {
@@ -4449,8 +4450,12 @@ body:has(.tabbar) .toast {
   color: var(--muted);
   text-align: center;
 }
+/* 직전(1년 전)은 예상(회색)과 구별되게 보라 계열(빨강·파랑은 상회·하회 몫) */
 .ev-col.pv .ev-col-b {
-  background: var(--line-2);
+  background: #a99bf0;
+}
+.ev-col.pv .ev-col-v {
+  color: #8f7fe6;
 }
 .ev-col.fc .ev-col-b {
   background: var(--muted);

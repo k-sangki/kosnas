@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import {
   bandPick,
   barScale,
+  tickerName,
   recentResults,
   dayLabel,
   diffText,
@@ -337,7 +338,7 @@ function EarningsCard({ list, now }: { list: Earning[]; now: number }) {
           {next.map(({ e, k }) => (
             <div key={`${e.symbol}-${e.date}`} className="ev-earn">
               <span className="ev-earn-name">
-                {e.name}
+                {tickerName(e)}
                 <small className="muted"> {k.date.slice(5).replace("-", "/")} {k.when}</small>
               </span>
               <span className="ev-earn-num">
@@ -352,7 +353,7 @@ function EarningsCard({ list, now }: { list: Earning[]; now: number }) {
             return (
               <div key={`${e.symbol}-${e.date}`} className="ev-earn">
                 <span className="ev-earn-name">
-                  {e.name}
+                  {tickerName(e)}
                   <small className="muted"> {k.date.slice(5).replace("-", "/")}</small>
                 </span>
                 <span className="ev-earn-num">
