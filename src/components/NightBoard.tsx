@@ -413,16 +413,16 @@ function Main({ d }: { d: NightData }) {
             {basis} · 개장까지 {untilText(d.window.end, d.updated)}
           </p>
           <p className="night-price">
-            <b className={t}>{fmt(d.est)}</b>
-            {/* 사람들이 말하고 공유하는 건 등락률이라 가격과 같은 크기로 */}
-            <b className={t}>
-              {sign(d.chgPct)}
-              {fmt(d.chgPct)}%
-            </b>
+            {/* 순서: 포인트 · 등락값 · 등락률. 사람들이 말하고 공유하는 건 등락률이라 가장 크게(2026-11-11 SK) */}
+            <b className={`${t} night-pt`}>{fmt(d.est)}</b>
             <span className={t}>
               {sign(d.chg)}
               {fmt(d.chg)}
             </span>
+            <b className={t}>
+              {sign(d.chgPct)}
+              {fmt(d.chgPct)}%
+            </b>
           </p>
         </div>
         <dl className="night-stats">
