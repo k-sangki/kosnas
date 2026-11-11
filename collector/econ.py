@@ -176,9 +176,52 @@ def yahoo_fill(out: list[dict]) -> None:
             except (TypeError, ValueError):
                 pass
             e["src"] = "yahoo"
-            print(f"야후 실적 {e['symbol']} {e['date']} 실제 {e['a']} 예상 {e['f']}")
+            fin = fin_quarter(json.loads(r.stdout), x.get("date"))
+            e.update(fin)
+            print(f"야후 실적 {e['symbol']} {e['date']} 실제 {e['a']} 예상 {e['f']} {fin}")
             break
         time.sleep(0.3)
+
+
+def fin_quarter(body: dict, q: str | None) -> dict:
+    """quoteSummary earnings.financialsChart 에서 그 분기('3Q2026') 실제 매출(ra)·순이익(na)"""
+    try:
+        rows = body["quoteSummary"]["result"][0]["earnings"]["financialsChart"]["quarterly"]
+    except Exception:
+        return {}
+    for x in rows:
+        if q and x.get("date") == q:
+            out = {}
+            rev = (x.get("revenue") or {}).get("raw")
+            ni = (x.get("earnings") or {}).get("raw")
+            if rev is not None:
+                out["ra"] = rev
+            if ni is not None:
+                out["na"] = ni
+            return out
+    return {}
+
+
+def yahoo_hist(base: list, crumb: str, sym: str) -> dict:
+    """분기 매출·순이익(분기 끝 날짜 → 값). 1년 전 같은 분기와 비교하는 데만 쓴다(지난 결과 화면은 만들지 않는다)."""
+    now = int(time.time())
+    url = (
+        f"https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{sym}"
+        f"?type=quarterlyTotalRevenue,quarterlyNetIncome,quarterlyDilutedEPS&period1={now - 900 * 86400}&period2={now}&crumb={crumb}"
+    )
+    r = subprocess.run(base + [url], capture_output=True, text=True)
+    out = {"rev": {}, "ni": {}, "eps": {}}
+    try:
+        res = json.loads(r.stdout)["timeseries"]["result"]
+    except Exception:
+        return out
+    for k, key in (("quarterlyTotalRevenue", "rev"), ("quarterlyNetIncome", "ni"), ("quarterlyDilutedEPS", "eps")):
+        for blk in res:
+            for x in blk.get(k) or []:
+                v = ((x or {}).get("reportedValue") or {}).get("raw")
+                if v is not None and x.get("asOfDate"):
+                    out[key][x["asOfDate"]] = v
+    return out
 
 
 def yahoo_profiles() -> dict:
@@ -227,15 +270,19 @@ def yahoo_profiles() -> dict:
                 "f": round(avg, 2) if avg is not None else None,
                 "estimate": bool(cal.get("isEarningsDateEstimate")),
                 "q": f"{chart.get('currentQuarterEstimateDate') or ''}{chart.get('currentQuarterEstimateYear') or ''}",
+                "rf": (cal.get("revenueAverage") or {}).get("raw"),
             }
         done = [q for q in quarters if q["a"] is not None and q["date"]]
-        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": max(done, key=lambda q: q["date"]) if done else None}
+        last = max(done, key=lambda q: q["date"]) if done else None
+        if last:
+            last.update(fin_quarter({"quoteSummary": {"result": [res]}}, last["q"]))
+        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": last, "hist": yahoo_hist(base, crumb, sym)}
         time.sleep(0.3)
     print(f"야후 기업 {len(out)}곳")
     return out
 
 
-def companies(path: Path, updated: str) -> None:
+def companies(path: Path, updated: str) -> dict:
     """주목 기업 다음 실적 발표일·예상 EPS와 가장 최근 분기 실적(야후). 기업별 페이지가 쓴다(지난 결과는 쌓지 않는다, 2026-11-11 SK)."""
     old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     try:
@@ -245,8 +292,45 @@ def companies(path: Path, updated: str) -> None:
         prof = {}
     # 한 기업이 막히면 지난번 값을 그대로 둔다
     out = {"updated": updated, "profiles": {**(old.get("profiles") or {}), **prof}}
+    # 예상 매출(야후 calendarEvents)은 발표 전에만 나온다 → 발표일별로 남겨 두고 발표 뒤에도 쓴다(45일 지나면 지움)
+    today = dt.datetime.now(ET).date()
+    est = {k: v for k, v in (old.get("est") or {}).items() if v.get("date", "") >= (today - dt.timedelta(days=45)).isoformat()}
+    for sym, p in prof.items():
+        n = p.get("next") or {}
+        if n.get("date") and n["date"] >= today.isoformat() and n.get("rf") is not None:
+            est[f"{sym}-{n['date']}"] = {"date": n["date"], "rf": n["rf"], "q": n.get("q")}
+    out["est"] = est
     path.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"→ {path} (기업 {len(out['profiles'])}곳)")
+    print(f"→ {path} (기업 {len(out['profiles'])}곳, 예상 매출 {len(est)}건)")
+    return out
+
+
+MONTHS = {m: i for i, m in enumerate("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(), 1)}
+
+
+def attach_fin(earn: list[dict], comp: dict) -> None:
+    """주목 기업 실적에 매출 예상(rf)·1년 전 매출(rly)·1년 전 순이익(nly)을 붙인다. 실제(ra·na)는 yahoo_fill 이 붙인다."""
+    est = comp.get("est") or {}
+    profs = comp.get("profiles") or {}
+    for e in earn:
+        if e["symbol"] not in FOCUS:
+            continue
+        d = dt.date.fromisoformat(e["date"])
+        for k in (0, -1, 1):
+            hit = est.get(f"{e['symbol']}-{(d + dt.timedelta(days=k)).isoformat()}")
+            if hit:
+                e["rf"] = hit["rf"]
+                break
+        m = re.match(r"([A-Za-z]{3})/(\d{4})", e.get("quarter") or "")
+        hist = (profs.get(e["symbol"]) or {}).get("hist") or {}
+        if not m or m.group(1) not in MONTHS:
+            continue
+        ym = f"{int(m.group(2)) - 1:04d}-{MONTHS[m.group(1)]:02d}"
+        # 1년 전 EPS 도 회사 발표(희석 GAAP) 값으로 맞춘다 — 나스닥 lastYearEPS 는 코어위브에서 -0.31(회사 -0.22)이었다
+        for key, out in (("rev", "rly"), ("ni", "nly"), ("eps", "ly")):
+            v = next((v for k2, v in (hist.get(key) or {}).items() if k2.startswith(ym)), None)
+            if v is not None:
+                e[out] = round(v, 2) if key == "eps" else v
 
 
 def group_of(country: str, name: str) -> str | None:
@@ -347,9 +431,11 @@ def main():
         except Exception as e:
             print(f"::warning::{key} 실패: {e}")
             data[key] = old.get(key)
+    comp = companies(Path(args.companies), data["updated"])
+    if data.get("earnings"):
+        attach_fin(data["earnings"], comp)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"→ {path}")
-    companies(Path(args.companies), data["updated"])
     open_pages(data, Path(args.open))
 
 

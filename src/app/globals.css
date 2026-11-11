@@ -4666,3 +4666,65 @@ body:has(.tabbar) .toast {
 :root[data-theme="dark"] .ev-tone.t-2 {
   color: #ff5a5f;
 }
+
+/* 실적 카드: EPS·매출·순이익 작은 그림 셋을 한 줄에(시안 B). 그림 안 막대는 붙이고 그림 사이는 띄운다 */
+.ev-trio {
+  display: grid;
+  gap: 20px;
+  margin-top: 6px;
+}
+.ev-m.mini .ev-m-head {
+  display: grid;
+  grid-template-rows: 18px 18px 20px;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+}
+.ev-m.mini .ev-m-label::after {
+  content: " ($)";
+  color: var(--muted);
+  font-size: 11px;
+}
+.ev-mini-v {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ev-mini-v.beat {
+  color: var(--up);
+}
+.ev-mini-v.miss {
+  color: var(--down);
+}
+.ev-mini-v.muted {
+  font-weight: 400;
+}
+.ev-m.mini .ev-tone {
+  margin-left: 0;
+}
+.ev-m.mini .ev-bars .ev-plot {
+  margin: 16px 0 18px;
+  height: 70px;
+}
+.ev-m.mini .ev-plot,
+.ev-m.mini .ev-labels {
+  gap: 2px;
+}
+.ev-m.mini .ev-col-b {
+  width: 92%;
+  max-width: 30px;
+  border-radius: 4px 4px 0 0;
+}
+.ev-m.mini .ev-col-b.neg {
+  border-radius: 0 0 4px 4px;
+}
+.ev-m.mini .ev-col-v {
+  left: -4px;
+  right: -4px;
+  font-size: 10.5px;
+  letter-spacing: -0.4px;
+}
+.ev-m.mini .ev-col-l {
+  font-size: 10px;
+  letter-spacing: -0.3px;
+}

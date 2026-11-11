@@ -218,9 +218,16 @@ function ReleaseCard({ r, now, dots, big, self }: { r: Release; now: number; dot
           </a>
         </p>
       )}
-      {r.metrics.map((m, i) => (
-        <MetricRow key={i} m={m} out={r.out} lead={i === 0} big={big && i === 0} />
-      ))}
+      {r.group === "earn" && r.metrics.length > 1 ? (
+        // 실적은 EPS·매출·순이익 작은 그림을 한 줄에 나란히(시안 B, 2026-11-11 SK): 그림 안 막대는 붙이고 그림끼리는 띄운다
+        <div className="ev-trio" style={{ gridTemplateColumns: `repeat(${r.metrics.length}, minmax(0, 1fr))` }}>
+          {r.metrics.map((m, i) => (
+            <MetricRow key={i} m={m} out={r.out} lead={false} mini />
+          ))}
+        </div>
+      ) : (
+        r.metrics.map((m, i) => <MetricRow key={i} m={m} out={r.out} lead={i === 0} big={big && i === 0} />)
+      )}
       {r.group === "fomc" && dots && <DotPlot d={dots} now={r.metrics[0]?.pv ?? null} />}
     </article>
   );
@@ -230,7 +237,7 @@ function ReleaseCard({ r, now, dots, big, self }: { r: Release; now: number; dot
  * 직전·예상·실제 세로 막대(시안 ①, 2026-11-11 SK 채택). 0이 기준선이고 음수는 그 아래로 내려 그린다
  * (코어위브 EPS −1.27처럼 손실이 줄면 막대가 짧아진다).
  */
-function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boolean; big?: boolean }) {
+function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead: boolean; big?: boolean; mini?: boolean }) {
   const has = out && m.av != null;
   const gap = has ? diffText(m) : null;
   const cols: { k: string; label: string; s: string; v: number | null }[] = [
@@ -240,7 +247,22 @@ function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boole
   ];
   const { zero, hi, lo, h } = barScale(cols.map((c) => c.v));
   return (
-    <div className={`ev-m${lead ? " lead" : ""}`}>
+    <div className={`ev-m${lead ? " lead" : ""}${mini ? " mini" : ""}`}>
+      {mini ? (
+        // 작은 그림: 이름·판정·호재 세 칸을 높이 고정으로(그림끼리 막대 높이가 맞게)
+        <div className="ev-m-head">
+          <span className="ev-m-label">{m.label.replace("주당순이익(EPS)", "EPS")}</span>
+          {has && m.verdict ? (
+            <span className={`ev-mini-v ${m.verdict}`}>
+              {m.verdict === "beat" ? "▲ 상회" : m.verdict === "miss" ? "▼ 하회" : "= 부합"}
+              {gap && m.verdict !== "match" && <> {gap}</>}
+            </span>
+          ) : (
+            <span className="ev-mini-v muted">{has && m.fv == null ? "예상 없음" : ""}</span>
+          )}
+          <span>{has && m.tone != null && <small className={`ev-tone t${m.tone}`}>{TONE[m.tone]}</small>}</span>
+        </div>
+      ) : (
       <div className="ev-m-head">
         <span className="ev-m-label">{m.label}</span>
         {has && (
@@ -251,6 +273,7 @@ function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boole
           </span>
         )}
       </div>
+      )}
       <div
         className={`ev-bars${big ? " big" : ""}${hi ? " ev-pos" : ""}${lo ? " ev-neg" : ""}`}
         role="img"
@@ -272,7 +295,7 @@ function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boole
                   className="ev-col-v"
                   style={neg ? { top: `calc(${zero + len}% + 3px)` } : { bottom: `calc(${100 - zero + len}% + 3px)` }}
                 >
-                  {c.s || "—"}
+                  {(mini ? c.s.replace("$", "") : c.s) || "—"}
                 </span>
               </div>
             );
