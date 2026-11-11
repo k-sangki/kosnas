@@ -255,7 +255,7 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
     d?.inputs.find((v) => v.coin === t.coin);
   // 원화 환산 종목은 등락률이 KRX 종가 대비라, 선 차트 점선도 그 종가를 달러 가격으로 되돌린 값에 둔다
   const krxBase = !x && i && "krxClose" in i && i.krxClose && i.krw ? (i.price * i.krxClose) / i.krw : undefined;
-  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : i && "krxClose" in i && i.krxClose ? "KRX 종가 대비" : "15:45 대비";
+  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : i && "krxClose" in i && i.krxClose ? "KRX 정규장 종가 대비" : "15:45 대비";
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>

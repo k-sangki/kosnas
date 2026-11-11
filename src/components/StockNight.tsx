@@ -77,7 +77,7 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
               </div>
               <div>
                 <dt>기준</dt>
-                <dd>{i.krxClose ? `KRX 종가 ${i.krxClose.toLocaleString()}원 대비` : "15:45 대비"}</dd>
+                <dd>{i.krxClose ? `정규장 종가 ${i.krxClose.toLocaleString()}원 대비` : "15:45 대비"}</dd>
               </div>
               <div>
                 <dt>갱신</dt>
@@ -89,7 +89,7 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
             <Line v={i.spark} t={i.sparkT} k={i.krw / i.price} name={name} base={i.krxClose ? (i.price * i.krxClose) / i.krw : undefined} />
           )}
           <p className="muted small-note">
-            가로축은 15:45부터 다음 국내 개장(09:00)까지이고, 점선은 등락률 기준({i.krxClose ? "그날 KRX 종가" : "15:45 가격"})이에요. 점선 위는 빨강, 아래는 파랑입니다. 해외 무기한선물로 계산한 참고값이며 실제 주가와 다를 수 있습니다.
+            가로축은 15:45부터 다음 국내 개장(09:00)까지이고, 점선은 등락률 기준({i.krxClose ? "그날 KRX 정규장 종가(15:30)" : "15:45 가격"})이에요. 점선 위는 빨강, 아래는 파랑입니다. 해외 무기한선물로 계산한 참고값이며 실제 주가와 다를 수 있습니다.
           </p>
         </>
       )}
