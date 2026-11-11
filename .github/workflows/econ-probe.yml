@@ -9,11 +9,13 @@ jobs:
       - name: probe
         run: |
           H=(-H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.nasdaq.com" -H "Referer: https://www.nasdaq.com/")
-          for d in 2026-11-05 2026-11-06 2026-11-10 2026-11-12 2026-11-13 2026-11-14; do
-            echo "=== econ $d"; curl -s "${H[@]}" "https://api.nasdaq.com/api/calendar/economicevents?date=$d" | head -c 6000; echo
+          d=2026-10-19
+          while [ "$d" != 2026-12-12 ]; do
+            if [ "$(date -d $d +%u)" -le 5 ]; then
+              curl -s "${H[@]}" "https://api.nasdaq.com/api/calendar/economicevents?date=$d" | jq -r --arg d "$d" '.data.rows[]? | select(.country=="United States" or .country=="South Korea" or .country=="Euro Zone" or .country=="Japan" or .country=="China") | select((.country=="United States") or (.eventName|test("Rate|Interest|Monetary";"i"))) | [$d,.gmt,.country,.eventName,.actual,.consensus,.previous] | @tsv'
+              sleep 0.5
+            fi
+            d=$(date -I -d "$d + 1 day")
           done
-          echo "=== earnings 2026-11-19"; curl -s "${H[@]}" "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-19" | head -c 2500; echo
-          echo "=== surprise NVDA"; curl -s "${H[@]}" "https://api.nasdaq.com/api/company/NVDA/earnings-surprise" | head -c 2500; echo
-          echo "=== surprise CSCO"; curl -s "${H[@]}" "https://api.nasdaq.com/api/company/CSCO/earnings-surprise" | head -c 1500; echo
-          echo "=== fed sep"; curl -s -o /dev/null -w "%{http_code}\n" "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm"
-          echo "=== fred"; curl -s "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPILFESL" | tail -3
+          echo "=== earnings past 2026-11-04"; curl -s "${H[@]}" "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-04" | jq -c '.data.headers, .data.rows[0:2]'
+          echo "=== sep"; curl -s "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm" | grep -n -i "figure 2\|midpoint of target range" | head -20
