@@ -262,6 +262,26 @@ export function whenLabel(at: number, now: number, text?: string) {
   return `${day} ${kstHm(at)}`;
 }
 
+/**
+ * 실제 − 예상을 예상치와 같은 단위·자릿수로: '+0.1%p' · '+100K' · '−$0.11'. 둘 중 하나라도 없으면 null
+ */
+export function diffText(m: Pick<Metric, "a" | "f">): string | null {
+  const read = (s: string) => {
+    const t = s.trim();
+    const x = t.match(/(\d[\d,]*)(\.\d+)?/);
+    if (!x) return null;
+    const v = Number(`${x[1].replace(/,/g, "")}${x[2] ?? ""}`) * (/^[-−(]|\$-|\(\$/.test(t) ? -1 : 1);
+    return { v, dec: x[2] ? x[2].length - 1 : 0, cash: t.includes("$"), unit: (t.match(/[KMBT%]\)?$/)?.[0] ?? "").replace(")", "") };
+  };
+  const a = read(m.a);
+  const f = read(m.f);
+  if (!a || !f || a.unit !== f.unit) return null;
+  const dec = Math.max(a.dec, f.dec);
+  const d = Number((a.v - f.v).toFixed(dec));
+  const sign = d > 0 ? "+" : d < 0 ? "−" : "±";
+  return `${sign}${f.cash ? "$" : ""}${Math.abs(d).toFixed(dec)}${f.unit === "%" ? "%p" : f.unit}`;
+}
+
 /** 발표 시각이 지났는데 값이 아직일 때 */
 export const waitText = (r: Release) => (r.group === "earn" ? "발표됨 · 결과 집계 중" : "발표 직후 · 집계 중");
 

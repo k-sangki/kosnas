@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import {
   bandPick,
   dayLabel,
+  diffText,
   dotMedians,
   earningKst,
   epsVerdict,
@@ -135,61 +136,51 @@ function ReleaseCard({ r, now, dots, big }: { r: Release; now: number; dots: Dot
         </p>
       )}
       {r.metrics.map((m, i) => (
-        <MetricRow key={i} m={m} out={r.out} lead={i === 0} />
+        <MetricRow key={i} m={m} out={r.out} lead={i === 0} big={big && i === 0} />
       ))}
       {r.group === "fomc" && dots && <DotPlot d={dots} now={r.metrics[0]?.pv ?? null} />}
     </article>
   );
 }
 
-/** 예상·실제·직전 숫자와 한 줄 수직선(어디에 떨어졌는지) */
-function MetricRow({ m, out, lead }: { m: Metric; out: boolean; lead: boolean }) {
+/** 직전·예상·실제 세로 막대(0부터 같은 자, 2026-11-11 SK 채택 시안 ①) */
+function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boolean; big?: boolean }) {
   const has = out && m.av != null;
+  const gap = has ? diffText(m) : null;
+  const cols: { k: string; label: string; s: string; v: number | null }[] = [
+    { k: "pv", label: m.pLabel ?? "직전", s: m.p, v: m.pv },
+    { k: "fc", label: "예상", s: m.f, v: m.fv },
+    { k: `act ${has ? (m.verdict ?? "") : "wait"}`, label: "실제", s: has ? m.a : "?", v: has ? m.av : null },
+  ];
+  const max = Math.max(...cols.map((c) => Math.abs(c.v ?? 0)), 1e-9);
   return (
     <div className={`ev-m${lead ? " lead" : ""}`}>
       <div className="ev-m-head">
         <span className="ev-m-label">{m.label}</span>
-        {has && <Badge v={m.verdict} />}
-      </div>
-      <div className="ev-nums">
         {has && (
-          <span className={`ev-num act ${m.verdict ?? ""}`}>
-            <small>실제</small>
-            <b>{m.a}</b>
+          <span className="ev-m-verdict">
+            <Badge v={m.verdict} />
+            {gap && <b className={`ev-gap-t ${m.verdict ?? ""}`}> {gap}</b>}
           </span>
         )}
-        <span className="ev-num fc">
-          <small>예상</small>
-          <b>{m.f || "—"}</b>
-        </span>
-        <span className="ev-num pv">
-          <small>{m.pLabel ?? "직전"}</small>
-          <b>{m.p || "—"}</b>
-        </span>
       </div>
-      <NumberLine m={m} out={has} />
+      <div
+        className={`ev-bars${big ? " big" : ""}`}
+        role="img"
+        aria-label={`${m.pLabel ?? "직전"} ${m.p || "없음"}, 예상 ${m.f || "없음"}${has ? `, 실제 ${m.a}` : ""}`}
+      >
+        {cols.map((c) => (
+          <div key={c.label} className={`ev-col ${c.k}`}>
+            <span className="ev-col-v">{c.s || "—"}</span>
+            <span
+              className={`ev-col-b${c.v != null && c.v < 0 ? " neg" : ""}`}
+              style={{ height: c.v != null ? `${Math.max((Math.abs(c.v) / max) * 100, 2)}%` : 0 }}
+            />
+            <small className="ev-col-l">{c.label}</small>
+          </div>
+        ))}
+      </div>
     </div>
-  );
-}
-
-function NumberLine({ m, out }: { m: Metric; out: boolean }) {
-  const pts = [m.pv, m.fv, out ? m.av : null].filter((v): v is number => v != null);
-  if (pts.length < 2) return null;
-  let lo = Math.min(...pts);
-  let hi = Math.max(...pts);
-  const pad = Math.max((hi - lo) * 0.3, Math.abs(hi) * 0.02, 1e-9);
-  lo -= pad;
-  hi += pad;
-  const x = (v: number) => 12 + ((v - lo) / (hi - lo)) * 276;
-  const W = 300;
-  return (
-    <svg className="ev-line" viewBox={`0 0 ${W} 26`} role="img" aria-label={`${m.pLabel ?? "직전"} ${m.p}, 예상 ${m.f}${out ? `, 실제 ${m.a}` : ""}`}>
-      <line x1={8} x2={W - 8} y1={13} y2={13} className="ev-track" />
-      {m.pv != null && <circle cx={x(m.pv)} cy={13} r={5} className="ev-pv" />}
-      {m.fv != null && <rect x={x(m.fv) - 1.5} y={3} width={3} height={20} className="ev-fc" />}
-      {out && m.fv != null && m.av != null && <line x1={x(m.fv)} x2={x(m.av)} y1={13} y2={13} className={`ev-gap ${m.verdict ?? ""}`} />}
-      {out && m.av != null && <circle cx={x(m.av)} cy={13} r={7} className={`ev-act ${m.verdict ?? ""}`} />}
-    </svg>
   );
 }
 
