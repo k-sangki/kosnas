@@ -1,0 +1,358 @@
+{
+ "updated": "2026-11-11T12:45+09:00",
+ "rows": [
+  {
+   "d": "2026-10-28",
+   "t": "09:00",
+   "c": "United States",
+   "n": "CB Consumer Confidence",
+   "a": "91.7",
+   "f": "81.2",
+   "p": "84.2"
+  },
+  {
+   "d": "2026-10-29",
+   "t": "13:00",
+   "c": "United States",
+   "n": "Fed Interest Rate Decision",
+   "a": "4.00%",
+   "f": "4.00%",
+   "p": "4.00%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "07:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "1,701K",
+   "f": "1,720K",
+   "p": "1,722K"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "07:30",
+   "c": "United States",
+   "n": "Core PCE Price Index",
+   "a": "3.1%",
+   "f": "3.1%",
+   "p": "3.0%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "07:30",
+   "c": "United States",
+   "n": "GDP",
+   "a": "3.4%",
+   "f": "3.2%",
+   "p": "2.2%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "07:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "194K",
+   "f": "198K",
+   "p": "195K"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "07:30",
+   "c": "United States",
+   "n": "PCE Price index",
+   "a": "3.6%",
+   "f": "3.6%",
+   "p": "3.4%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "07:30",
+   "c": "United States",
+   "n": "PCE price index",
+   "a": "0.5%",
+   "f": "0.5%",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "08:15",
+   "c": "Euro Zone",
+   "n": "Deposit Facility Rate",
+   "a": "2.50%",
+   "f": "2.50%",
+   "p": "2.50%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "08:15",
+   "c": "Euro Zone",
+   "n": "ECB Interest Rate Decision",
+   "a": "2.65%",
+   "f": "2.65%",
+   "p": "2.65%"
+  },
+  {
+   "d": "2026-10-30",
+   "t": "22:00",
+   "c": "Japan",
+   "n": "BoJ Interest Rate Decision",
+   "a": "1.25%",
+   "f": "1.25%",
+   "p": "1.25%"
+  },
+  {
+   "d": "2026-11-03",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Manufacturing PMI",
+   "a": "55.5",
+   "f": "54.5",
+   "p": "54.5"
+  },
+  {
+   "d": "2026-11-03",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Manufacturing Prices",
+   "a": "75.2",
+   "f": "77.2",
+   "p": "77.9"
+  },
+  {
+   "d": "2026-11-04",
+   "t": "10:00",
+   "c": "United States",
+   "n": "JOLTS Job Openings",
+   "a": "7.523M",
+   "f": "7.150M",
+   "p": "7.190M"
+  },
+  {
+   "d": "2026-11-05",
+   "t": "08:15",
+   "c": "United States",
+   "n": "ADP Nonfarm Employment Change",
+   "a": "86K",
+   "f": "67K",
+   "p": "86K"
+  },
+  {
+   "d": "2026-11-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Non-Manufacturing PMI",
+   "a": "54.5",
+   "f": "54.8",
+   "p": "54.9"
+  },
+  {
+   "d": "2026-11-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Non-Manufacturing Prices",
+   "a": "73.0",
+   "f": "74.6",
+   "p": "74.0"
+  },
+  {
+   "d": "2026-11-06",
+   "t": "07:00",
+   "c": "United Kingdom",
+   "n": "BoE Interest Rate Decision",
+   "a": "4.00%",
+   "f": "4.00%",
+   "p": "3.75%"
+  },
+  {
+   "d": "2026-11-06",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "1,718K",
+   "f": "1,710K",
+   "p": "1,695K"
+  },
+  {
+   "d": "2026-11-06",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "189K",
+   "f": "197K",
+   "p": "195K"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Average Hourly Earnings",
+   "a": "0.4%",
+   "f": "0.3%",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Nonfarm Payrolls",
+   "a": "165K",
+   "f": "65K",
+   "p": "60K"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Unemployment Rate",
+   "a": "4.1%",
+   "f": "4.2%",
+   "p": "4.2%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 1-Year Inflation Expectations",
+   "a": "4.3%",
+   "f": "4.6%",
+   "p": "4.7%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 5-Year Inflation Expectations",
+   "a": "3.4%",
+   "f": "3.5%",
+   "p": "3.5%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Expectations",
+   "a": "50.9",
+   "f": "49.5",
+   "p": "48.8"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Sentiment",
+   "a": "51.0",
+   "f": "48.1",
+   "p": "48.0"
+  },
+  {
+   "d": "2026-11-10",
+   "t": "11:00",
+   "c": "United States",
+   "n": "NY Fed 1-Year Consumer Inflation Expectations",
+   "a": "3.9%",
+   "f": "3.8%",
+   "p": "3.9%"
+  },
+  {
+   "d": "2026-11-11",
+   "t": "08:30",
+   "c": "United States",
+   "n": "CPI",
+   "a": "0.4%",
+   "f": "0.3%",
+   "p": "0.6%"
+  },
+  {
+   "d": "2026-11-11",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core CPI",
+   "a": "0.3%",
+   "f": "0.2%",
+   "p": "0.3%"
+  }
+ ],
+ "earnings": [
+  {
+   "symbol": "AAPL",
+   "name": "애플",
+   "date": "2026-11-02",
+   "quarter": "Sep/2026",
+   "f": 1.98,
+   "a": 2.05,
+   "s": 3.54,
+   "ly": null
+  },
+  {
+   "symbol": "PLTR",
+   "name": "팔란티어",
+   "date": "2026-11-02",
+   "quarter": "Sep/2026",
+   "f": 0.32,
+   "a": 0.32,
+   "s": null,
+   "ly": null
+  },
+  {
+   "symbol": "AMD",
+   "name": "AMD",
+   "date": "2026-11-03",
+   "quarter": "Sep/2026",
+   "f": 1.68,
+   "a": 1.84,
+   "s": 9.52,
+   "ly": null
+  },
+  {
+   "symbol": "ANET",
+   "name": "아리스타",
+   "date": "2026-11-03",
+   "quarter": "Sep/2026",
+   "f": 0.99,
+   "a": 1.11,
+   "s": 12.12,
+   "ly": null
+  },
+  {
+   "symbol": "SMCI",
+   "name": "슈퍼마이크로",
+   "date": "2026-11-03",
+   "quarter": "Sep/2026",
+   "f": 1.04,
+   "a": 1.7,
+   "s": 63.46,
+   "ly": null
+  },
+  {
+   "symbol": "ARM",
+   "name": "ARM",
+   "date": "2026-11-04",
+   "quarter": "Sep/2026",
+   "f": 0.22,
+   "a": 0.15,
+   "s": -31.82,
+   "ly": null
+  },
+  {
+   "symbol": "QCOM",
+   "name": "퀄컴",
+   "date": "2026-11-04",
+   "quarter": "Sep/2026",
+   "f": 1.46,
+   "a": 1.45,
+   "s": -0.68,
+   "ly": null
+  },
+  {
+   "symbol": "CRWV",
+   "name": "코어위브",
+   "date": "2026-11-10",
+   "quarter": "Sep/2026",
+   "f": -1.55,
+   "a": -1.27,
+   "s": 18.18,
+   "ly": -0.31
+  }
+ ],
+ "profiles": {}
+}

@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import {
   bandPick,
   barScale,
   tickerName,
   recentResults,
+  RESULT_HOLD,
   dayLabel,
   diffText,
   dotMedians,
@@ -15,6 +17,7 @@ import {
   VERDICT,
   EARN_FOCUS,
   grace,
+  itemHref,
   relWhen,
   waitText,
   usd,
@@ -130,6 +133,32 @@ export function EconBoard() {
   );
 }
 
+/**
+ * 지표·기업 페이지(/econ/cpi, /econ/earnings/crwv)의 실시간 카드: 가장 최근 결과와 다음 발표(막대).
+ * 발표 직후 값은 /api/econ 으로 바로 채운다. 지난 결과 표·설명은 페이지(서버)가 그린다.
+ */
+export function EconItem({ group, sym }: { group?: string; sym?: string }) {
+  const { now, list, data } = useEcon();
+  if (!now) return <section className="card muted">불러오는 중…</section>;
+  const mine = list.filter((r) => (sym ? r.sym === sym : r.group === group));
+  const last = [...mine].reverse().find((r) => r.out && r.at <= now);
+  const next = mine.find((r) => !r.out && r.at > now - grace(r));
+  const fresh = last && now - last.at < RESULT_HOLD;
+  const lastCard = last && (
+    <section className="card econ-top" key="last">
+      <p className="econ-kicker">{fresh ? "방금 나온 결과" : "가장 최근 결과"}</p>
+      <ReleaseCard r={last} now={now} dots={data.dots} big self />
+    </section>
+  );
+  const nextCard = next && (
+    <section className="card econ-top" key="next">
+      <p className="econ-kicker">{next.at <= now ? "발표됨 · 결과 집계 중" : "다음 발표"}</p>
+      <ReleaseCard r={next} now={now} dots={data.dots} big self />
+    </section>
+  );
+  return <>{fresh ? [lastCard, nextCard] : [nextCard, lastCard]}</>;
+}
+
 /** 지난 발표 중 첫 지표가 그 판정인 수 */
 const count = (rs: Release[], v: Verdict) => rs.filter((r) => r.band && r.out && r.metrics[0]?.verdict === v).length;
 
@@ -161,13 +190,22 @@ function Badge({ v }: { v: Verdict | null }) {
   return <b className={`ev-v ${v}`}>{v === "beat" ? "▲ " : v === "miss" ? "▼ " : "= "}{VERDICT[v]}</b>;
 }
 
-function ReleaseCard({ r, now, dots, big }: { r: Release; now: number; dots: Dots | null; big?: boolean }) {
+function ReleaseCard({ r, now, dots, big, self }: { r: Release; now: number; dots: Dots | null; big?: boolean; self?: boolean }) {
   const waiting = !r.out && r.at <= now;
+  // 이름을 누르면 그 지표·기업 페이지(지난 결과·설명). 그 페이지 안에서는 링크 없이
+  const href = self ? null : itemHref(r);
   return (
     <article className={`econ-rel${big ? " big" : ""}${r.out ? " out" : ""}`} id={r.id}>
       <header className="econ-rel-head">
         <span className="econ-rel-name">
-          <span aria-hidden>{r.emoji}</span> {r.name}
+          <span aria-hidden>{r.emoji}</span>{" "}
+          {href ? (
+            <Link href={href} className="econ-rel-link">
+              {r.name}
+            </Link>
+          ) : (
+            r.name
+          )}
         </span>
         <span className="econ-rel-when">{waiting ? waitText(r) : relWhen(r, now)}</span>
       </header>

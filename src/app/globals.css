@@ -4590,3 +4590,37 @@ body:has(.tabbar) .toast {
 .night-intro .small-note {
   margin: 4px 0 0;
 }
+
+/* 지표·기업별 페이지(/econ/cpi, /econ/earnings/crwv) */
+.econ-sum p {
+  margin: 0;
+  line-height: 1.6;
+}
+.econ-sum p + p {
+  margin-top: 6px;
+}
+.ptable-wrap {
+  overflow-x: auto;
+}
+.econ-hist td,
+.econ-hist th {
+  padding-right: 10px;
+  white-space: nowrap;
+}
+.econ-hist tr.sub td {
+  border-top: 0;
+  padding-top: 0;
+  font-weight: 500;
+}
+.econ-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 0 10px;
+}
+.econ-rel-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line-2);
+  text-underline-offset: 3px;
+}

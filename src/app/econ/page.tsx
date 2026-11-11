@@ -4,6 +4,7 @@ import { SITE_URL } from "@/app/layout";
 import { EconBoard } from "@/components/EconBoard";
 import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
+import { EARN_PAGES, ECON_PAGES } from "@/lib/econ-pages";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
@@ -58,6 +59,24 @@ export default function EconPage() {
               예상치·실제 값은 나스닥 경제지표 달력, 점도표는 미국 연방준비제도 경제전망 표에서 가져옵니다. 발표 직후 몇 분은 값이
               늦게 들어올 수 있습니다. 날짜별 다른 일정(배당 막차·공모주·휴장)은 <Link href="/schedule">주요일정</Link>에 있습니다.
               특정 종목의 매수·매도를 권하지 않습니다.
+            </p>
+          </Fold>
+        </section>
+        <section className="card">
+          <Fold title="지표·기업별로 보기">
+            <p className="econ-links">
+              {ECON_PAGES.map((x) => (
+                <Link key={x.id} href={`/econ/${x.id}`}>
+                  {x.short}
+                </Link>
+              ))}
+            </p>
+            <p className="econ-links">
+              {EARN_PAGES.map((x) => (
+                <Link key={x.sym} href={`/econ/earnings/${x.slug}`}>
+                  {x.name} 실적
+                </Link>
+              ))}
             </p>
           </Fold>
         </section>

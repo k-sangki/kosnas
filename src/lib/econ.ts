@@ -388,3 +388,12 @@ export function barScale(vs: (number | null)[]) {
 
 /** '코어위브(CRWV)'처럼 이름 옆 괄호에 티커(2026-11-11 SK). 한글 이름이 없으면 티커만 */
 export const tickerName = (e: { name: string; symbol: string }) => (e.name && e.name !== e.symbol ? `${e.name}(${e.symbol})` : e.symbol);
+
+/** 지표별 페이지가 있는 묶음(/econ/cpi …). src/lib/econ-pages.ts ECON_PAGES 와 같아야 한다(시험이 확인) */
+export const ECON_PAGE_IDS = ["cpi", "fomc", "pce", "ppi", "jobs", "claims", "retail", "gdp", "ismm", "isms", "jolts", "adp", "umich", "cb", "inflexp", "bok", "ecb", "boj", "boe", "pboc"];
+
+/** 카드 제목에서 그 항목 페이지로: 지표 /econ/cpi, 주목 기업 /econ/earnings/crwv */
+export function itemHref(r: Pick<Release, "group" | "sym">) {
+  if (r.group === "earn") return r.sym && EARN_FOCUS.has(r.sym) ? `/econ/earnings/${r.sym.toLowerCase()}` : null;
+  return ECON_PAGE_IDS.includes(r.group) ? `/econ/${r.group}` : null;
+}

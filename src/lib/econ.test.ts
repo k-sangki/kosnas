@@ -100,3 +100,20 @@ describe("barScale", () => {
     expect(b.zero).toBeCloseTo(66.67, 1);
   });
 });
+
+describe("항목 페이지", () => {
+  it("지표·기업 페이지 목록이 카드 링크 목록과 같다", async () => {
+    const { ECON_PAGES, EARN_PAGES } = await import("./econ-pages");
+    const { ECON_PAGE_IDS, EARN_FOCUS, itemHref } = await import("./econ");
+    expect(ECON_PAGES.map((p) => p.id).sort()).toEqual([...ECON_PAGE_IDS].sort());
+    expect(EARN_PAGES.map((p) => p.sym).sort()).toEqual([...EARN_FOCUS].sort());
+    expect(itemHref({ group: "earn", sym: "CRWV" })).toBe("/econ/earnings/crwv");
+    expect(itemHref({ group: "cpi" })).toBe("/econ/cpi");
+    expect(itemHref({ group: "speech" })).toBeNull();
+  });
+  it("색인은 정해 둔 날부터", async () => {
+    const { indexable } = await import("./econ-pages");
+    expect(indexable("2026-11-18", Date.parse("2026-11-17T23:00:00+09:00"))).toBe(false);
+    expect(indexable("2026-11-18", Date.parse("2026-11-18T00:00:00+09:00"))).toBe(true);
+  });
+});
