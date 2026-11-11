@@ -2619,6 +2619,9 @@ button.ft-row {
 .poll-result {
   margin-top: 10px;
 }
+.poll-result.voted {
+  margin-top: 4px;
+}
 .poll-bar {
   height: 8px;
   border-radius: 4px;

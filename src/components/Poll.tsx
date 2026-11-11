@@ -16,6 +16,7 @@ import {
 
 /**
  * 첫 화면 '오늘의 한 표'. 버튼 두 개만 보이고, 누른 뒤에야 비율을 보인다(먼저 보면 따라 누르기 쉽다).
+ * 누른 뒤에는 다음 회차가 열릴 때까지 버튼을 감추고 결과만 보인다(2026-11-11 SK). 내가 누른 쪽은 결과에 ✓로 표시한다.
  * 투표자 번호와 내가 누른 쪽은 이 브라우저에만 저장한다. 캡처에는 들어가지 않는다.
  */
 const VOTER_KEY = "kosnas:poll:voter";
@@ -275,22 +276,23 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
           "투표 마감 · 15:45 장 끝나면 결과"
         )}
       </p>
-      <div className="poll-btns">
-        {(["up", "down"] as const).map((side) => (
-          <button
-            key={side}
-            type="button"
-            className={`poll-btn ${side}${my === side ? " on" : ""}`}
-            disabled={!r.open || busy}
-            onClick={() => vote(side)}
-            aria-pressed={my === side}
-          >
-            {side === "up" ? "▲ 오른다" : "▼ 내린다"}
-          </button>
-        ))}
-      </div>
+      {my == null && (
+        <div className="poll-btns">
+          {(["up", "down"] as const).map((side) => (
+            <button
+              key={side}
+              type="button"
+              className={`poll-btn ${side}`}
+              disabled={!r.open || busy}
+              onClick={() => vote(side)}
+            >
+              {side === "up" ? "▲ 오른다" : "▼ 내린다"}
+            </button>
+          ))}
+        </div>
+      )}
       {shown && (
-        <div className="poll-result">
+        <div className={`poll-result${my != null ? " voted" : ""}`}>
           <div className="poll-bar" aria-hidden>
             <i
               className="up-fill"
@@ -299,7 +301,7 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
           </div>
           <p className="poll-share">
             <span className="up">
-              오른다 {pctOf(r.up, r.down)}%{" "}
+              {my === "up" && "✓ "}오른다 {pctOf(r.up, r.down)}%{" "}
               {counts && (
                 <small className="poll-n">{r.up.toLocaleString()}명</small>
               )}
@@ -308,7 +310,8 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
               {counts && (
                 <small className="poll-n">{r.down.toLocaleString()}명</small>
               )}{" "}
-              내린다 {total ? 100 - pctOf(r.up, r.down) : 0}%
+              {my === "down" && "✓ "}내린다{" "}
+              {total ? 100 - pctOf(r.up, r.down) : 0}%
             </span>
           </p>
           {ASK_ENABLED && r.open && my && (
@@ -371,8 +374,15 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
           )}
           {month && marks.length > 0 && (
             <div className="poll-rec">
-              <button type="button" className="poll-rec-btn" aria-expanded={recOpen} onClick={() => setRecOpen(!recOpen)}>
-                📅 {Number(month.slice(5, 7))}월 내 기록 {marks.filter((m) => m.mark === "🟩").length}/{marks.filter((m) => m.mark !== "⬜").length}
+              <button
+                type="button"
+                className="poll-rec-btn"
+                aria-expanded={recOpen}
+                onClick={() => setRecOpen(!recOpen)}
+              >
+                📅 {Number(month.slice(5, 7))}월 내 기록{" "}
+                {marks.filter((m) => m.mark === "🟩").length}/
+                {marks.filter((m) => m.mark !== "⬜").length}
               </button>
               {recOpen && (
                 <>
@@ -393,7 +403,8 @@ export function Poll({ weekend = false }: { weekend?: boolean }) {
           )}
           <p className="muted poll-foot">
             {crowd.n > 0 && `다수 적중 ${crowd.hit}/${crowd.n}회 · `}
-            {lean.n >= 3 && `80% 넘게 쏠린 날 다수 적중 ${lean.hit}/${lean.n}회 · `}
+            {lean.n >= 3 &&
+              `80% 넘게 쏠린 날 다수 적중 ${lean.hit}/${lean.n}회 · `}
             {myN > 0 && `내 적중 ${myHit}/${myN}회 · `}
             코스피200 무기한선물 15:45 기준 · 재미로 하는 투표
           </p>
