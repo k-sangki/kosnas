@@ -66,6 +66,45 @@ async function earnDay(d: string): Promise<Earning[]> {
   return out;
 }
 
+/**
+ * 나스닥 실적 달력은 실제 EPS를 반나절쯤 늦게 올린다(코어위브 2026-11-10 장 뒤 발표가 다음 날 오전에도 비어 있었다).
+ * 야후 파이낸스는 발표 몇 분 뒤 실제 EPS·예상(같은 회사 기준)을 준다 → 발표일이 지났는데 비어 있는 주목 기업만 야후로 채운다.
+ * 야후는 쿠키(A3)와 crumb을 먼저 받아야 한다. 막히면 조용히 넘어간다(나스닥 값이 늦게라도 채운다).
+ */
+async function yahooFill(list: Earning[]): Promise<Earning[]> {
+  const want = list.filter((e) => e.a == null);
+  if (!want.length) return list;
+  const ua = { "User-Agent": HEADERS["User-Agent"] };
+  const fc = await fetch("https://fc.yahoo.com/", { headers: ua, redirect: "manual" });
+  const cookie = (fc.headers.get("set-cookie") ?? "").match(/A3=[^;]+/)?.[0];
+  if (!cookie) return list;
+  const crumb = await (await fetch("https://query2.finance.yahoo.com/v1/test/getcrumb", { headers: { ...ua, Cookie: cookie } })).text();
+  if (!crumb || crumb.length > 40) return list;
+  const got = new Map<string, Partial<Earning>>();
+  await Promise.all(
+    want.map(async (e) => {
+      const r = await fetch(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${e.symbol}?modules=earnings&crumb=${encodeURIComponent(crumb)}`, {
+        headers: { ...ua, Cookie: cookie },
+      });
+      if (!r.ok) return;
+      type Q = { actual?: { raw?: number }; estimate?: { raw?: number }; surprisePct?: string; reportedDate?: { fmt?: string } };
+      const b = (await r.json()) as { quoteSummary?: { result?: { earnings?: { earningsChart?: { quarterly?: Q[] } } }[] } };
+      const q = b.quoteSummary?.result?.[0]?.earnings?.earningsChart?.quarterly ?? [];
+      // 발표일(미국)이 같거나 하루 뒤로 적힌 분기
+      const hit = q.find((x) => {
+        const d = x.reportedDate?.fmt;
+        return d && Math.abs(Date.parse(d) - Date.parse(e.date)) <= 86_400_000 && x.actual?.raw != null;
+      });
+      if (!hit) return;
+      const a = Math.round(hit.actual!.raw! * 100) / 100;
+      const f = hit.estimate?.raw != null ? Math.round(hit.estimate.raw * 100) / 100 : e.f;
+      const s = Number(hit.surprisePct);
+      got.set(`${e.symbol}-${e.date}`, { a, f, s: Number.isFinite(s) ? s : null, src: "yahoo" });
+    }),
+  );
+  return list.map((e) => ({ ...e, ...got.get(`${e.symbol}-${e.date}`) }));
+}
+
 export async function econGET(req: Request) {
   const cache = (globalThis as { caches?: { default?: Cache } }).caches?.default;
   const key = new Request(new URL("/api/econ", req.url).toString());
@@ -82,6 +121,7 @@ export async function econGET(req: Request) {
       Promise.all(ds.map(day)).then((x) => x.flat()),
       Promise.all(es.map(earnDay))
         .then((x) => x.flat())
+        .then((x) => yahooFill(x).catch(() => x))
         .catch(() => []),
     ]);
     body = { rows, earnings, live: true, at: Date.now() };

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import {
   bandPick,
+  recentResults,
   dayLabel,
   diffText,
   dotMedians,
@@ -25,7 +26,8 @@ import {
 import { useEcon } from "./useEcon";
 
 const DAY = 86_400_000;
-const AHEAD = 15 * DAY;
+/** 다가오는 발표는 1주일 안만(2026-11-11 SK) */
+const AHEAD = 7 * DAY;
 const BACK = 14 * DAY;
 
 /** 경제지표 예상치·결과 화면 */
@@ -36,24 +38,38 @@ export function EconBoard() {
   const ready = now > 0;
   useEffect(() => {
     if (!ready || !location.hash) return;
-    document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView({ block: "start" });
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    // 접힌 다가오는 발표면 펼쳐서 보여 준다
+    el?.closest("details")?.setAttribute("open", "");
+    el?.scrollIntoView({ block: "start" });
   }, [ready]);
 
   if (!now) return <section className="card muted">불러오는 중…</section>;
-  const top = bandPick(list, now);
+  // 하루 안에 나온 결과는 모두 맨 위에 펼쳐 둔다(어젯밤 CPI를 아침에도). 없으면 다음 발표 하나
+  const recent = recentResults(list, now);
+  const next = recent.length ? null : bandPick(list, now)?.r;
+  const topIds = new Set([...recent, ...(next ? [next] : [])].map((r) => r.id));
   // 발표 시각이 지났는데 실제 값이 아직인 것(실적은 달력 반영이 반나절쯤 늦다)은 '다가오는'이 아니라 따로 위에
-  const pending = list.filter((r) => r.band && !r.out && r.at <= now && now - r.at < grace(r) && r.id !== top?.r.id);
-  const upcoming = list.filter((r) => !r.out && r.at > now && r.at < now + AHEAD && r.id !== top?.r.id);
-  const past = list.filter((r) => r.at <= now && now - r.at < BACK && (r.out || !r.band) && r.id !== top?.r.id).reverse();
+  const pending = list.filter((r) => r.band && !r.out && r.at <= now && now - r.at < grace(r) && !topIds.has(r.id));
+  const upcoming = list.filter((r) => !r.out && r.at > now && r.at < now + AHEAD && !topIds.has(r.id));
+  const past = list.filter((r) => r.at <= now && now - r.at < BACK && (r.out || !r.band) && !topIds.has(r.id)).reverse();
   const byDay = new Map<string, Release[]>();
   for (const r of upcoming) byDay.set(kstDate(r.at), [...(byDay.get(kstDate(r.at)) ?? []), r]);
 
   return (
     <>
-      {top && (
+      {recent.length > 0 && (
         <section className="card econ-top">
-          <p className="econ-kicker">{top.mode === "result" ? "방금 나온 결과" : top.r.at <= now ? "방금 발표됨" : "다음 발표"}</p>
-          <ReleaseCard r={top.r} now={now} dots={data.dots} big />
+          <p className="econ-kicker">최근 결과 · 하루 동안</p>
+          {recent.map((r) => (
+            <ReleaseCard key={r.id} r={r} now={now} dots={data.dots} big />
+          ))}
+        </section>
+      )}
+      {next && (
+        <section className="card econ-top">
+          <p className="econ-kicker">{next.at <= now ? "방금 발표됨" : "다음 발표"}</p>
+          <ReleaseCard r={next} now={now} dots={data.dots} big />
         </section>
       )}
 
@@ -68,12 +84,12 @@ export function EconBoard() {
 
       <section className="card">
         <h2 className="card-title">다가오는 발표</h2>
-        {byDay.size === 0 && <p className="muted">앞으로 2주 안에 잡힌 발표가 없습니다.</p>}
+        {byDay.size === 0 && <p className="muted">앞으로 1주일 안에 잡힌 발표가 없습니다.</p>}
         {[...byDay].map(([d, rs]) => (
           <div key={d} className="econ-day">
             <h3 className="econ-date">{dayLabel(d)}</h3>
             {rs.map((r) =>
-              r.band ? <ReleaseCard key={r.id} r={r} now={now} dots={data.dots} /> : <MinorLine key={r.id} r={r} now={now} />,
+              r.band ? <UpFold key={r.id} r={r} now={now} dots={data.dots} /> : <MinorLine key={r.id} r={r} now={now} />,
             )}
           </div>
         ))}
@@ -103,6 +119,21 @@ export function EconBoard() {
 
 /** 지난 발표 중 첫 지표가 그 판정인 수 */
 const count = (rs: Release[], v: Verdict) => rs.filter((r) => r.band && r.out && r.metrics[0]?.verdict === v).length;
+
+/** 다가오는 발표 한 건: 제목·시각만 보이고 눌러야 예상치 막대가 펼쳐진다(기본 접힘, 2026-11-11 SK) */
+function UpFold({ r, now, dots }: { r: Release; now: number; dots: Dots | null }) {
+  return (
+    <details className="fold econ-up">
+      <summary>
+        <span className="econ-up-name">
+          <span aria-hidden>{r.emoji}</span> {r.name}
+        </span>
+        <span className="econ-up-when">{relWhen(r, now)}</span>
+      </summary>
+      <ReleaseCard r={r} now={now} dots={dots} />
+    </details>
+  );
+}
 
 function MinorLine({ r, now }: { r: Release; now: number }) {
   return (

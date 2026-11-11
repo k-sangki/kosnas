@@ -41,6 +41,8 @@ export interface Earning {
   s: number | null;
   /** 전년 같은 분기 EPS */
   ly: number | null;
+  /** 실제 값 출처(야후면 예상도 야후 기준) */
+  src?: string;
 }
 
 export interface Dots {
@@ -228,21 +230,27 @@ export function mergeRows(base: Row[], live: Row[] | null | undefined) {
   return [...base.filter((r) => !days.has(r.d)), ...live];
 }
 
-/** 결과를 띠에 남겨 두는 시간 */
-export const RESULT_HOLD = 12 * 3600_000;
+/** 결과를 띠·맨 위에 남겨 두는 시간: 밤에 나온 결과를 다음 날 일어나서도 보게 하루(2026-11-11 SK) */
+export const RESULT_HOLD = 24 * 3600_000;
 
 /** 발표 시각이 지났는데 값이 아직 없을 때 '집계 중'으로 남겨 두는 시간(실적은 정확한 시각이 없고 달력 반영이 늦다) */
 export const grace = (r: Release) => (r.group === "earn" ? 30 : 3) * 3600_000;
 
+const shown = (r: Release) => r.band && r.metrics.some((m) => m.f || m.a);
+
+/** 하루 안에 결과가 나온 발표(최근 것 먼저). 띠는 여러 개면 흘려서 모두 보인다 */
+export function recentResults(list: Release[], now: number) {
+  return list.filter((r) => shown(r) && r.out && r.at <= now && now - r.at < RESULT_HOLD).sort((a, b) => b.at - a.at);
+}
+
 /**
- * 띠에 올릴 발표 하나: 12시간 안에 결과가 나온 것이 있으면 그것(가장 최근),
+ * 띠·맨 위에 올릴 발표 하나: 하루 안에 결과가 나온 것이 있으면 그것(가장 최근),
  * 없으면 아직 결과가 없는 가장 가까운 발표(발표 시각이 지났는데 값이 아직이면 '집계 중')
  */
 export function bandPick(list: Release[], now: number): { r: Release; mode: "result" | "next" } | null {
-  const cands = list.filter((r) => r.band && r.metrics.some((m) => m.f || m.a));
-  const done = cands.filter((r) => r.out && r.at <= now && now - r.at < RESULT_HOLD);
-  if (done.length) return { r: done[done.length - 1], mode: "result" };
-  const next = cands.find((r) => !r.out && r.at > now - grace(r));
+  const done = recentResults(list, now);
+  if (done.length) return { r: done[0], mode: "result" };
+  const next = list.find((r) => shown(r) && !r.out && r.at > now - grace(r));
   return next ? { r: next, mode: "next" } : null;
 }
 

@@ -4436,3 +4436,97 @@ body:has(.tabbar) .toast {
   opacity: 0.7;
   background-image: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0, 0, 0, 0.28) 4px 8px);
 }
+
+/* 경제지표 띠: 하루 안 결과가 여러 개면 오른쪽에서 왼쪽으로 흐른다 */
+.econ-ticker {
+  overflow: hidden;
+  gap: 8px;
+  font-size: 13px;
+}
+.econ-ticker-tag {
+  flex: none;
+  margin-right: 0;
+}
+.econ-ticker-view {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+}
+.econ-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: econ-ticker linear infinite;
+}
+.econ-ticker-view:hover .econ-ticker-track,
+.econ-ticker-view:focus-within .econ-ticker-track {
+  animation-play-state: paused;
+}
+.econ-ticker-item {
+  flex: none;
+  padding-right: 28px;
+  white-space: nowrap;
+  color: var(--ink);
+  text-decoration: none;
+}
+.econ-ticker-item .econ-band-num {
+  color: var(--ink-2);
+}
+@keyframes econ-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .econ-ticker-view {
+    overflow-x: auto;
+  }
+  .econ-ticker-track {
+    animation: none;
+  }
+}
+
+/* 다가오는 발표: 제목만, 눌러야 펼침 */
+.econ-up {
+  border-top: 1px solid var(--line);
+  padding: 9px 0;
+}
+.econ-date + .econ-up {
+  border-top: 0;
+}
+.fold.econ-up + .fold.econ-up {
+  margin-top: 0;
+  padding-top: 9px;
+}
+.econ-up > summary {
+  font-size: 15px;
+}
+.econ-up-name {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.econ-up-when {
+  margin-left: auto;
+  flex: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+.econ-up > summary::after {
+  margin-left: 6px;
+}
+.econ-up .econ-rel-head {
+  display: none;
+}
+
+.econ-top .econ-rel + .econ-rel {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 14px;
+}
