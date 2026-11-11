@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/live/[slug]">): P
   const q = findLiveQuote((await params).slug);
   if (!q) return {};
   return pageMeta({
-    title: `${q.name} 실시간 - ${q.short} 24시간 시세와 등락률`,
+    title: q.title ?? `${q.name} 실시간 - ${q.short} 24시간 시세와 등락률`,
     description: `${q.name} 지금 얼마? 주말·새벽에도 24시간 거래되는 무기한선물로 ${q.short} 실시간 가격과 ${q.basis} 등락률, 밤사이 흐름 차트를 보여 줍니다.`,
     keywords: q.keywords,
     path: `/live/${q.slug}`,

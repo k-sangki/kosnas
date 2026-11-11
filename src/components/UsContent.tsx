@@ -14,7 +14,7 @@ import { BottomTabs } from "./BottomTabs";
 export function UsContent() {
   const live = (
     <>
-      <h1 className="page-title">미국증시 실시간 흐름</h1>
+      <h1 className="page-title">미국 증시 실시간 현황</h1>
       <p className="lead">
         미국 정규장(뉴욕 09:30~16:00, 한국 시각 22:30~05:00 · 표준시 기간에는 23:30~06:00) 동안 S&P 500과 나스닥 100이 전일 종가보다 얼마나 오르내렸는지
         실시간으로 보여줍니다.
