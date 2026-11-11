@@ -29,10 +29,12 @@ export type RecordSummary = {
 
 /** 장중 /api/night 자료에서 오늘 기록 한 줄(시가가 아직 없으면 null) */
 export function rowFrom(d: NightData): RecordRow | null {
-  if (d.window.live || d.open == null || !(d.base > 0) || !(d.est > 0)) return null;
+  // 장중 est는 지금 값이라 09:00 추정(at0900)을 쓴다
+  const est = d.at0900 ?? d.est;
+  if (d.window.live || d.open == null || !(d.base > 0) || !(est > 0)) return null;
   const day = new Date(d.window.end + 9 * 3600_000).toISOString().slice(0, 10);
   const weekend = new Date(d.window.start + 9 * 3600_000).getUTCDay() === 5;
-  return { day, est: d.est, open: d.open, base: d.base, baseKind: d.baseKind, weekend };
+  return { day, est, open: d.open, base: d.base, baseKind: d.baseKind, weekend };
 }
 
 /** 등락률 차이(%p): 추정 등락률 − 시가 등락률 */
