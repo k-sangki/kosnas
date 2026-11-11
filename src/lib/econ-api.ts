@@ -67,12 +67,14 @@ async function earnDay(d: string): Promise<Earning[]> {
 }
 
 /**
- * 나스닥 실적 달력은 실제 EPS를 반나절쯤 늦게 올린다(코어위브 2026-11-10 장 뒤 발표가 다음 날 오전에도 비어 있었다).
- * 야후 파이낸스는 발표 몇 분 뒤 실제 EPS·예상(같은 회사 기준)을 준다 → 발표일이 지났는데 비어 있는 주목 기업만 야후로 채운다.
+ * 나스닥 실적 달력은 실제 EPS를 반나절쯤 늦게 올리고, 틀린 값을 올리기도 한다
+ * (코어위브 2026-11-10: 회사 발표 -1.27 인데 1년 전 값 -0.31 을 실제로 올렸다).
+ * 야후 파이낸스는 발표 몇 분 뒤 실제 EPS·예상(같은 회사 기준)을 준다 → 주목 기업은 나스닥 값이 있어도 야후를 먼저 쓴다.
  * 야후는 쿠키(A3)와 crumb을 먼저 받아야 한다. 막히면 조용히 넘어간다(나스닥 값이 늦게라도 채운다).
  */
 async function yahooFill(list: Earning[]): Promise<Earning[]> {
-  const want = list.filter((e) => e.a == null);
+  const today = new Date(Date.now() - 5 * 3600_000).toISOString().slice(0, 10);
+  const want = list.filter((e) => e.date <= today);
   if (!want.length) return list;
   const ua = { "User-Agent": HEADERS["User-Agent"] };
   const fc = await fetch("https://fc.yahoo.com/", { headers: ua, redirect: "manual" });
@@ -99,7 +101,8 @@ async function yahooFill(list: Earning[]): Promise<Earning[]> {
       const a = Math.round(hit.actual!.raw! * 100) / 100;
       const f = hit.estimate?.raw != null ? Math.round(hit.estimate.raw * 100) / 100 : e.f;
       const s = Number(hit.surprisePct);
-      got.set(`${e.symbol}-${e.date}`, { a, f, s: Number.isFinite(s) ? s : null, src: "yahoo" });
+      const ly = e.ly != null && Math.abs(e.ly - a) < 0.005 ? null : e.ly;
+      got.set(`${e.symbol}-${e.date}`, { a, f, s: Number.isFinite(s) ? s : null, ly, src: "yahoo" });
     }),
   );
   return list.map((e) => ({ ...e, ...got.get(`${e.symbol}-${e.date}`) }));

@@ -136,9 +136,12 @@ def earnings(start: dt.date, days: int) -> list[dict]:
 
 
 def yahoo_fill(out: list[dict]) -> None:
-    """나스닥이 실제 EPS를 늦게 올리는 주목 기업은 야후(발표 몇 분 뒤 반영)로 채운다. 예상도 같은 야후 기준으로 바꾼다."""
-    today = dt.datetime.now(ET).date().isoformat()
-    want = [e for e in out if e["symbol"] in FOCUS and e["a"] is None and e["date"] <= today]
+    """주목 기업의 실제 EPS·예상은 야후(발표 몇 분 뒤 반영, 회사 발표 GAAP EPS)를 먼저 쓴다.
+    나스닥은 실제 EPS를 반나절 늦게 올리고, 코어위브 2026-11-10 은 1년 전 값(-0.31)을 실제로 올렸다
+    (회사 발표 -1.27). 그래서 나스닥 값이 있어도 지난 2주 안 발표는 야후로 덮는다."""
+    now = dt.datetime.now(ET).date()
+    today, since = now.isoformat(), (now - dt.timedelta(days=14)).isoformat()
+    want = [e for e in out if e["symbol"] in FOCUS and since <= e["date"] <= today]
     if not want:
         return
     jar = tempfile.NamedTemporaryFile(delete=False).name
@@ -161,7 +164,11 @@ def yahoo_fill(out: list[dict]) -> None:
             if not d or act is None or abs((dt.date.fromisoformat(d) - dt.date.fromisoformat(e["date"])).days) > 1:
                 continue
             est = (x.get("estimate") or {}).get("raw")
+            if e["a"] is not None and abs(e["a"] - act) > 0.005:
+                print(f"::warning::나스닥 실적 {e['symbol']} {e['a']} → 야후 {round(act, 2)}")
             e["a"] = round(act, 2)
+            if e.get("ly") is not None and abs(e["ly"] - act) <= 0.005:
+                e["ly"] = None
             if est is not None:
                 e["f"] = round(est, 2)
             try:

@@ -1239,11 +1239,12 @@
    "when": "after",
    "capB": 27,
    "quarter": "Sep/2026",
-   "f": -1.45,
+   "f": -1.55,
    "n": 10,
-   "a": -0.31,
-   "s": null,
-   "ly": null
+   "a": -1.27,
+   "s": 18.18,
+   "ly": null,
+   "src": "yahoo"
   },
   {
    "symbol": "QBTS",
