@@ -28,11 +28,27 @@ export const NIGHT_FAQ: [string, string][] = [
   ],
 ];
 
-/** 야간 코스피 본문. 첫 화면과 /night이 같이 쓴다 */
-export function NightContent() {
+/**
+ * 야간 코스피 본문. 첫 화면과 /night이 같이 쓴다.
+ * 두 주소가 같은 글이면 구글이 한쪽만 고르고 /night 대신 가이드 글을 띄운다(2026-11-11 SK: '코스피 야간선물' 13쪽).
+ * 그래서 '코스피 야간선물' 검색어의 주인은 /night — 고정 h1·소개 글·FAQ 구조화 데이터는 /night에만 둔다.
+ */
+export function NightContent({ page = "home" }: { page?: "home" | "night" }) {
+  const night = page === "night";
   return (
     <>
-      <NightBoard />
+      {night ? (
+        <div className="night-intro">
+          <h1 className="page-title">코스피 야간선물 실시간 시세</h1>
+          <p className="muted small-note">
+            코스피200 야간선물 추정 차트와 <Link href="/night/samsung-electronics">삼성전자 야간 차트</Link> ·{" "}
+            <Link href="/night/sk-hynix">SK하이닉스 야간 차트</Link>. 해외 24시간 시세로 계산한 추정치입니다.
+          </p>
+        </div>
+      ) : (
+        <h1 className="sr-only">코스나스 - 코스피 야간선물·나스닥 선물 실시간 대시보드</h1>
+      )}
+      <NightBoard heading="h2" />
       <Fold small title="이 화면은 무엇인가요" className="lead-fold">
         <p className="lead">
           코스피 야간선물(흔히 &lsquo;야선&rsquo;)이 지금 어디쯤인지, 국내 장이 끝난 15:45부터 다음 날 09:00까지 해외에서 24시간 거래되는 한국 관련 무기한선물로 코스피200 수준을 실시간
@@ -88,7 +104,7 @@ export function NightContent() {
           ))}
         </Fold>
         <p className="muted small-note">
-          더 자세한 설명은 <Link href="/guide/night-estimate">코스피 야간선물 추정 읽는 법</Link>에 있습니다.
+          계산 방법과 오차는 <Link href="/guide/night-estimate">야간선물 추정 계산 방법</Link>에 있습니다.
         </p>
         <p className="muted small-note">
           종목별 밤사이 가격: <Link href="/night/samsung-electronics">삼성전자 야간 시세</Link> ·{" "}
@@ -105,6 +121,7 @@ export function NightContent() {
           ))}
         </p>
       </section>
+      {night && (
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -115,6 +132,7 @@ export function NightContent() {
           }),
         }}
       />
+      )}
     </>
   );
 }

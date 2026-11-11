@@ -4582,3 +4582,11 @@ body:has(.tabbar) .toast {
   font-size: 13px;
   line-height: 1.5;
 }
+
+/* /night 고정 제목(검색용 h1)과 한 줄 안내 */
+.night-intro .page-title {
+  font-size: 20px;
+}
+.night-intro .small-note {
+  margin: 4px 0 0;
+}

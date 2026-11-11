@@ -340,10 +340,13 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "night-estimate",
-    title: "코스피 야간선물 보는 법 - 야간선물 추정 읽는 법",
-    description: "KosNas 코스피 야간선물 추정이 무엇을 재는지, 계산 방법과 등락률 기준(주간 종가), 회색 선과 점선의 뜻, 다음 날 아침 시장과 어긋나는 이유를 설명합니다.",
+    title: "야간선물 추정 계산 방법 - 기준가·등락률 기준과 오차",
+    description: "코스나스 야간선물 추정치를 어떻게 계산하는지(무기한선물 기준가·만기 이자 몫), 등락률 기준(주간 종가), 회색 선과 점선의 뜻, 실제 야간선물·다음 날 시가와 어긋나는 이유를 설명합니다. 실시간 값은 코스피 야간선물 실시간 시세 화면에서 봅니다.",
     body: (
       <>
+        <p>
+          지금 값을 보려면 <Link href="/night">코스피 야간선물 실시간 시세</Link> 화면으로 가세요. 이 글은 그 화면의 숫자를 어떻게 계산하는지 설명합니다.
+        </p>
         <p>
           국내 주식시장은 오후 3시 30분에 정규장이 끝나지만, 그 뒤에도 세계 시장은 계속 움직입니다. 밤사이 미국 증시가 크게 오르거나 내리면 다음 날 아침 코스피도
           그 영향을 받습니다. KosNas의 <Link href="/night">코스피200 야간 추정</Link>은 국내 장이 닫힌 동안 해외에서 거래되는 한국 관련 상품의 가격으로
@@ -452,7 +455,7 @@ export const GUIDES: Guide[] = [
         <p>
           밤사이 EWY와 그 무기한선물이 크게 움직였다면 다음 날 아침 국내 시장도 같은 방향으로 출발할 가능성이 높다고 보는 투자자가 많습니다. 다만 위의 세 가지
           차이 때문에 폭과 방향이 그대로 이어지지는 않습니다. KosNas의 <Link href="/night">코스피 야간선물 실시간 추정</Link>은 이 관계를 이용해 밤사이의 흐름을 코스피200
-          단위로 바꿔 보여 주는 참고 화면입니다. 계산 방법은 <Link href="/guide/night-estimate">코스피 야간선물 추정 읽는 법</Link>에 정리했습니다.
+          단위로 바꿔 보여 주는 참고 화면입니다. 계산 방법은 <Link href="/guide/night-estimate">야간선물 추정 계산 방법</Link>에 정리했습니다.
         </p>
       </>
     ),
@@ -878,7 +881,7 @@ export const GUIDES: Guide[] = [
         <p>
           밤사이 코스피 흐름은 <Link href="/night">코스피 야간선물 실시간 추정</Link>, 주말 국제유가는 <Link href="/weekend-oil">주말·실시간 유가</Link>, 미국 지수는{" "}
           <Link href="/live/nasdaq-100">나스닥 100 선물</Link>과 <Link href="/live/sp-500">S&P 500 선물</Link>에서 볼 수 있습니다. 야간 추정을 어떻게 계산하는지는{" "}
-          <Link href="/guide/night-estimate">코스피 야간선물 보는 법</Link>에 따로 적었습니다. 무기한선물은 원금 이상을 잃을 수 있는 레버리지 상품이며, KosNas는
+          <Link href="/guide/night-estimate">야간선물 추정 계산 방법</Link>에 따로 적었습니다. 무기한선물은 원금 이상을 잃을 수 있는 레버리지 상품이며, KosNas는
           특정 상품의 거래를 권하지 않습니다.
         </p>
       </>
@@ -1046,7 +1049,7 @@ export const GUIDES: Guide[] = [
           무기한선물 가격이고, 등락률은 그날 15:45 값과 비교합니다. 국내 증시가 끝난 뒤 밤사이 환율이 어느 쪽으로 움직였는지 이어서 볼 수 있습니다. 같은 값은{" "}
           <Link href="/night/samsung-electronics">삼성전자 야간 시세</Link>와 <Link href="/night/sk-hynix">SK하이닉스 야간 시세</Link>에서 달러 가격을 원화로 바꾸는 데도
           쓰입니다. 밤사이 미국 시장에서 한국 대형주가 어떻게 거래됐는지는 <Link href="/guide/ewy-kospi">EWY와 코스피는 어떻게 연결되나요</Link>, 다음 날 코스피 분위기를
-          가늠하는 법은 <Link href="/guide/night-estimate">코스피 야간선물 보는 법</Link>에 정리했습니다.
+          가늠하는 법은 <Link href="/guide/night-estimate">야간선물 추정 계산 방법</Link>에 정리했습니다.
         </p>
         <h2>유의할 점</h2>
         <p>
