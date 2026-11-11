@@ -361,6 +361,7 @@ const PAGE: Record<string, string> = {
   "P-NVDA": "/live/nvidia",
   "P-TSLA": "/live/tesla",
   "P-MU": "/live/micron",
+  "P-TSM": "/live/tsmc",
   "P-BRENT": "/weekend-oil",
 };
 
