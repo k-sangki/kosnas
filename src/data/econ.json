@@ -1,15 +1,6 @@
 {
- "updated": "2026-11-11T12:45+09:00",
+ "updated": "2026-11-11T15:49+09:00",
  "rows": [
-  {
-   "d": "2026-10-28",
-   "t": "09:00",
-   "c": "United States",
-   "n": "CB Consumer Confidence",
-   "a": "91.7",
-   "f": "81.2",
-   "p": "84.2"
-  },
   {
    "d": "2026-10-29",
    "t": "13:00",
@@ -765,6 +756,24 @@
    "a": "",
    "f": "",
    "p": "7.523M"
+  },
+  {
+   "d": "2026-12-10",
+   "t": "14:00",
+   "c": "United States",
+   "n": "Fed Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "4.00%"
+  },
+  {
+   "d": "2026-12-18",
+   "t": "22:00",
+   "c": "Japan",
+   "n": "BoJ Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "1.25%"
   }
  ],
  "earnings": [
@@ -1230,12 +1239,11 @@
    "when": "after",
    "capB": 27,
    "quarter": "Sep/2026",
-   "f": -1.55,
+   "f": -1.45,
    "n": 10,
-   "a": -1.27,
-   "s": 18.18,
-   "ly": -0.31,
-   "src": "yahoo"
+   "a": -0.31,
+   "s": null,
+   "ly": null
   },
   {
    "symbol": "QBTS",
@@ -1246,9 +1254,9 @@
    "quarter": "Sep/2026",
    "f": -0.14,
    "n": 2,
-   "a": null,
+   "a": -0.41,
    "s": null,
-   "ly": -0.41
+   "ly": null
   },
   {
    "symbol": "RGTI",
@@ -1259,9 +1267,9 @@
    "quarter": "Sep/2026",
    "f": -0.08,
    "n": 3,
-   "a": null,
+   "a": -0.03,
    "s": null,
-   "ly": -0.03
+   "ly": null
   },
   {
    "symbol": "CSCO",
