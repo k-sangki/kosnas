@@ -9,10 +9,6 @@ on:
     - cron: "45 10 * * *"
     - cron: "40 13,15,19 * * 1-5"
   workflow_dispatch:
-  push:
-    branches: [claude/project-thread-x5k7xj]
-    paths: [collector/econ.py, .github/workflows/collect-econ.yml]
-
 concurrency: collect-econ
 
 permissions:

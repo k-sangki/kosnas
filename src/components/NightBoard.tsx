@@ -24,6 +24,7 @@ import { NightContext } from "./NightContext";
 import { NightRecordLine } from "./NightRecordLine";
 import { TestBand } from "./TestBand";
 import { ScheduleBand } from "./ScheduleBand";
+import { EconBand } from "./EconBand";
 import { LogoSvg } from "./Logo";
 
 const fmt = (v: number, d = 2) =>
@@ -318,6 +319,8 @@ export function NightBoard() {
             </span>
           )}
         </div>
+        {/* 가장 가까운 경제지표 발표 하나(결과가 나오면 한동안 결과). 강한 카드가 아니라 얇은 줄(2026-11-11 SK) */}
+        <EconBand />
         {/* 주말에는 다음 주 일정이 평일보다 쓸모가 커서 맨 위에 둔다 */}
         {weekend && <ScheduleBand weekend />}
         <section

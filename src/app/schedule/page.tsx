@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SITE_URL } from "@/app/layout";
 import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
@@ -37,7 +38,8 @@ export default function SchedulePage() {
         <h1 className="page-title">📅 주요일정</h1>
         <p className="lead">
           이번 주와 다음 주에 챙길 날짜만 모았습니다. 일정을 누르면 근거 공시가
-          열립니다.
+          열립니다. CPI·FOMC·고용 같은 경제지표의 예상치와 결과는{" "}
+          <Link href="/econ">경제지표 예상과 결과</Link>에 있습니다.
         </p>
         <ScheduleBoard />
         <section className="card seo-text">
