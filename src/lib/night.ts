@@ -266,6 +266,8 @@ export type NightData = {
   at0900?: number | null;
   /** 장중(구간이 끝난 뒤) 그날 KRX 코스피200 선물 주간 시가(받았을 때) — 추정 오차를 잰다 */
   open?: number | null;
+  /** 장중에만: 원화 환산 종목의 '09:00 추정 원화 가격 vs 그날 KRX 시가'(KRX 종가 대비 배율 방식) — 적중 기록용 */
+  stocks?: Record<string, { at0900: number | null; open: number | null; close: number }>;
   /** 기준가를 선물 수준으로 바꾼 배율(기준가 방식일 때) */
   factor?: number;
   points: NightPoint[];

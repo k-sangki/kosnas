@@ -153,14 +153,20 @@ export function stockCloseFromRt(d: StockRt | undefined, ymd: string): number | 
 const KRX_CLOSE_LAG = 15 * MIN;
 
 /**
- * 원화 환산 종목을 KRX 종가 기준으로 바꾼다: 원화 가격 = 종가 × (지금 무기한선물 ÷ 종가 시각 무기한선물), 등락률은 그 배율.
- * 무기한선물 × 원/달러를 그대로 쓰면 환율·웃돈 때문에 종가와 수준이 어긋나 등락률이 1% 안팎 틀어진다(2026-11-11 삼성 −0.98%).
+ * 원화 환산 종목을 KRX 종가 기준으로 바꾼다: 원화 가격 = 종가 × (지금 원화 환산값 ÷ 종가 시각 원화 환산값), 등락률은 그 배율.
+ * 원화 환산값 = 무기한선물 × 원/달러라 밤사이 환율 변화도 들어간다. 원/달러 가격이 없으면 무기한선물 배율만 쓴다.
+ * 무기한선물 × 원/달러를 그대로 종가와 견주면 환율·웃돈 때문에 수준이 어긋나 등락률이 1% 안팎 틀어진다(2026-11-11 삼성 −0.98%).
  * 종가나 종가 시각 가격이 없으면, 또는 배율이 30% 넘게 벗어나면(자료 오류) 그대로 둔다.
  */
-export function toKrxClose(i: NightInput, close: number | null | undefined, ref: number | null | undefined): NightInput {
-  if (!close || !ref || !i.krw || !(i.price > 0)) return i;
-  const r = i.price / ref;
-  if (Math.abs(r - 1) >= 0.3) return i;
+export function krxRatio(price: number, ref: number | null | undefined, fx?: number | null, refFx?: number | null): number | null {
+  if (!(price > 0) || !ref) return null;
+  const r = fx && refFx ? (price * fx) / (ref * refFx) : price / ref;
+  return Math.abs(r - 1) < 0.3 ? r : null;
+}
+
+export function toKrxClose(i: NightInput, close: number | null | undefined, ref: number | null | undefined, fx?: number | null, refFx?: number | null): NightInput {
+  const r = close && i.krw ? krxRatio(i.price, ref, fx, refFx) : null;
+  if (!close || r == null) return i;
   return { ...i, krw: Math.round(close * r), chg: Math.round((r - 1) * 10000) / 100, krxClose: close };
 }
 
@@ -203,6 +209,27 @@ async function openFor(cache: Cache | undefined, base: string, now: number, win:
   return open;
 }
 
+/** 장중 그날 삼성전자·SK하이닉스 KRX 시가(정규장 시가, 실시간 시세 openPriceRaw). 받으면 6시간, 못 받으면 5분 둔다 */
+async function stockOpensFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
+  if (win.live || now < win.end) return {};
+  const ymd = kstYmd(win.end);
+  const key = new Request(new URL(`/api/night/stock-open-krx?${ymd}`, base).toString());
+  const hit = await cache?.match(key).catch(() => undefined);
+  if (hit) return (await hit.json()) as Record<string, number | null>;
+  const entries = await Promise.all(
+    Object.entries(KRX_CODES).map(async ([coin, code]) => {
+      const rt = await fetch(`https://polling.finance.naver.com/api/realtime/domestic/stock/${code}`, { headers: NAVER })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+      return [coin, futOpenFromRt((rt as { datas?: FutRt[] } | null)?.datas?.[0], ymd)] as const;
+    }),
+  );
+  const got = Object.fromEntries(entries);
+  const age = Object.values(got).every((v) => v != null) ? 6 * 3600 : 300;
+  await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${age}` } })).catch(() => undefined);
+  return got;
+}
+
 type FutRt = { openPriceRaw?: string; localTradedAt?: string };
 
 /** 네이버 선물 실시간 시세에서 그날(ymd) 주간 시가. 다른 날 체결이면 null */
@@ -233,7 +260,7 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   const interval = step === 60_000 ? "1m" : "5m";
   // 거래가 드문 종목(원/달러 등)도 15:45 직전 체결가를 찾도록 두 시간 앞부터 받는다
   const from = win.start - 120 * MIN;
-  const [ctx, { candles, prem }, close, extraCandles, mids, stockClose, open] = await Promise.all([
+  const [ctx, { candles, prem }, close, extraCandles, mids, stockClose, open, stockOpen] = await Promise.all([
     info<[{ universe: { name: string }[] }, HlCtx[]]>({ type: "metaAndAssetCtxs", dex: DEX }),
     // 장중에도 작은 카드 선 차트를 지금까지 이으려고 지금까지 받는다(야간 추정선은 구간 끝에서 멈춘다)
     candlesFor(cache, base, now, interval, from, now),
@@ -242,6 +269,7 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     info<Record<string, string>>({ type: "allMids" }).catch(() => ({}) as Record<string, string>),
     stockClosesFor(cache, base, now, win).catch(() => ({}) as Record<string, number | null>),
     openFor(cache, base, now, win).catch(() => null),
+    stockOpensFor(cache, base, now, win).catch(() => ({}) as Record<string, number | null>),
   ]);
   const marks: Record<string, number | null> = {};
   const extra: NonNullable<NightData["extra"]> = {};
@@ -293,14 +321,26 @@ async function load(now: number, cache: Cache | undefined, base: string) {
   if (!data) return data;
   // 원화 환산 종목(삼성전자·SK하이닉스): 등락률을 그날 KRX 종가 대비로(국내 앱의 시간외 시세와 같은 기준).
   // 종가 시각(15:30) 무기한선물 가격 대비 배율을 종가에 곱한다 — 환율·웃돈으로 생기는 수준 차이(11/11 약 1%)를 지운다
-  const inputs = data.inputs.map((i) => {
-    const ref = priceAt(candles[i.coin] ?? [], win.start - KRX_CLOSE_LAG)?.c;
-    return toKrxClose(i, stockClose[i.coin], ref);
-  });
+  const closeAt = win.start - KRX_CLOSE_LAG;
+  const fxNow = data.inputs.find((i) => i.coin === "KRW")?.price;
+  const fxClose = priceAt(candles.KRW ?? [], closeAt)?.c;
+  const inputs = data.inputs.map((i) => toKrxClose(i, stockClose[i.coin], priceAt(candles[i.coin] ?? [], closeAt)?.c, fxNow, fxClose));
+  // 장중: 원화 환산 종목의 09:00 추정 원화 가격과 오늘 KRX 시가(적중 기록용)
+  const stocks: NonNullable<NightData["stocks"]> = {};
+  if (!win.live) {
+    const fx9 = priceAt(candles.KRW ?? [], win.end)?.c;
+    for (const coin of Object.keys(KRX_CODES)) {
+      const close = stockClose[coin];
+      if (!close) continue;
+      const r = krxRatio(priceAt(candles[coin] ?? [], win.end)?.c ?? 0, priceAt(candles[coin] ?? [], closeAt)?.c, fx9, fxClose);
+      const o = stockOpen[coin];
+      stocks[coin] = { at0900: r == null ? null : Math.round(close * r), open: o != null && Math.abs(o / close - 1) < 0.3 ? o : null, close };
+    }
+  }
   // 장중: 지난밤 추정과 비교할 오늘 주간 시가(추정값과 3% 넘게 다르면 다른 월물로 보고 버린다)
   const ref = data.at0900 ?? data.est;
   const opened = open != null && Math.abs(open / ref - 1) < 0.03 ? open : null;
-  return { ...data, inputs, extra, ...(win.live ? {} : { open: opened }) };
+  return { ...data, inputs, extra, ...(win.live ? {} : { open: opened, stocks }) };
 }
 
 export async function nightGET(req: Request) {

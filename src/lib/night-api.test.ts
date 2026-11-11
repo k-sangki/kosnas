@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { futOpenFromRt, stockCloseFromRt, toKrxClose } from "./night-api";
+import { futOpenFromRt, krxRatio, stockCloseFromRt, toKrxClose } from "./night-api";
 
 describe("stockCloseFromRt (KRX 종가)", () => {
   it("장 전·마감 뒤에는 closePrice가 마지막 KRX 종가", () => {
@@ -40,5 +40,13 @@ describe("toKrxClose (종가 시각 대비 배율)", () => {
     expect(toKrxClose(i, null, 154.37)).toBe(i);
     expect(toKrxClose(i, 208000, undefined)).toBe(i);
     expect(toKrxClose(i, 208000, 50)).toBe(i);
+  });
+});
+
+describe("krxRatio (원/달러 포함)", () => {
+  it("원화 환산값끼리 견준다", () => {
+    expect(krxRatio(101, 100, 1340, 1330)).toBeCloseTo((101 * 1340) / (100 * 1330), 10);
+    expect(krxRatio(101, 100, null, 1330)).toBeCloseTo(1.01, 10);
+    expect(krxRatio(101, null)).toBeNull();
   });
 });
