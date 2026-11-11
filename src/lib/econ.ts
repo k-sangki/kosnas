@@ -85,6 +85,8 @@ export interface Release {
   out: boolean;
   /** 시각 대신 붙일 말(실적: 아침·밤). 있으면 시각을 쓰지 않는다 */
   whenText?: string;
+  /** 실적이면 종목 기호 */
+  sym?: string;
 }
 
 type Group = { name: string; emoji: string; band: boolean };
@@ -230,7 +232,7 @@ export function mergeRows(base: Row[], live: Row[] | null | undefined) {
 export const RESULT_HOLD = 12 * 3600_000;
 
 /** 발표 시각이 지났는데 값이 아직 없을 때 '집계 중'으로 남겨 두는 시간(실적은 정확한 시각이 없고 달력 반영이 늦다) */
-export const grace = (r: Release) => (r.group === "earn" ? 18 : 3) * 3600_000;
+export const grace = (r: Release) => (r.group === "earn" ? 30 : 3) * 3600_000;
 
 /**
  * 띠에 올릴 발표 하나: 12시간 안에 결과가 나온 것이 있으면 그것(가장 최근),
@@ -259,6 +261,9 @@ export function whenLabel(at: number, now: number, text?: string) {
   if (text != null) return text ? `${day} ${text}` : day;
   return `${day} ${kstHm(at)}`;
 }
+
+/** 발표 시각이 지났는데 값이 아직일 때 */
+export const waitText = (r: Release) => (r.group === "earn" ? "발표됨 · 결과 집계 중" : "발표 직후 · 집계 중");
 
 /** 발표의 때 표시(실적은 아침·밤) */
 export const relWhen = (r: Release, now: number) => whenLabel(r.at, now, r.whenText);
@@ -289,6 +294,7 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
     .map((e) => ({
       id: `earn-${e.symbol}-${e.date}`,
       group: "earn",
+      sym: e.symbol,
       name: `${e.name} 실적`,
       emoji: "💼",
       band: true,

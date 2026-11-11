@@ -4341,3 +4341,11 @@ body:has(.tabbar) .toast {
 .ev-surp.miss {
   color: var(--down);
 }
+
+.econ-wait {
+  font-size: 12px;
+  margin: 2px 0 6px;
+}
+.econ-wait a {
+  color: var(--down);
+}

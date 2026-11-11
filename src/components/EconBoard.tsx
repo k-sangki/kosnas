@@ -12,6 +12,7 @@ import {
   EARN_FOCUS,
   grace,
   relWhen,
+  waitText,
   usd,
   whenLabel,
   type Dots,
@@ -39,7 +40,9 @@ export function EconBoard() {
 
   if (!now) return <section className="card muted">불러오는 중…</section>;
   const top = bandPick(list, now);
-  const upcoming = list.filter((r) => !r.out && r.at > now - grace(r) && r.at < now + AHEAD && r.id !== top?.r.id);
+  // 발표 시각이 지났는데 실제 값이 아직인 것(실적은 달력 반영이 반나절쯤 늦다)은 '다가오는'이 아니라 따로 위에
+  const pending = list.filter((r) => r.band && !r.out && r.at <= now && now - r.at < grace(r) && r.id !== top?.r.id);
+  const upcoming = list.filter((r) => !r.out && r.at > now && r.at < now + AHEAD && r.id !== top?.r.id);
   const past = list.filter((r) => r.at <= now && now - r.at < BACK && (r.out || !r.band) && r.id !== top?.r.id).reverse();
   const byDay = new Map<string, Release[]>();
   for (const r of upcoming) byDay.set(kstDate(r.at), [...(byDay.get(kstDate(r.at)) ?? []), r]);
@@ -48,8 +51,17 @@ export function EconBoard() {
     <>
       {top && (
         <section className="card econ-top">
-          <p className="econ-kicker">{top.mode === "result" ? "방금 나온 결과" : "다음 발표"}</p>
+          <p className="econ-kicker">{top.mode === "result" ? "방금 나온 결과" : top.r.at <= now ? "방금 발표됨" : "다음 발표"}</p>
           <ReleaseCard r={top.r} now={now} dots={data.dots} big />
+        </section>
+      )}
+
+      {pending.length > 0 && (
+        <section className="card">
+          <h2 className="card-title">발표됨 · 결과 집계 중</h2>
+          {pending.map((r) => (
+            <ReleaseCard key={r.id} r={r} now={now} dots={null} />
+          ))}
         </section>
       )}
 
@@ -112,8 +124,16 @@ function ReleaseCard({ r, now, dots, big }: { r: Release; now: number; dots: Dot
         <span className="econ-rel-name">
           <span aria-hidden>{r.emoji}</span> {r.name}
         </span>
-        <span className="econ-rel-when">{waiting ? "발표 직후 · 집계 중" : relWhen(r, now)}</span>
+        <span className="econ-rel-when">{waiting ? waitText(r) : relWhen(r, now)}</span>
       </header>
+      {waiting && r.sym && (
+        <p className="econ-wait muted">
+          실적 달력에 실제 EPS가 아직 없습니다(보통 반나절 안에 들어옵니다).{" "}
+          <a href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${r.sym}&type=8-K`} target="_blank" rel="noopener noreferrer">
+            회사 보도자료 보기(미국 공시)
+          </a>
+        </p>
+      )}
       {r.metrics.map((m, i) => (
         <MetricRow key={i} m={m} out={r.out} lead={i === 0} />
       ))}
