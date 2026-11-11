@@ -280,7 +280,8 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     return c && i.krw && Math.abs(i.krw / c - 1) < 0.3 ? { ...i, chg: Math.round((i.krw / c - 1) * 10000) / 100, krxClose: c } : i;
   });
   // 장중: 지난밤 추정과 비교할 오늘 주간 시가(추정값과 3% 넘게 다르면 다른 월물로 보고 버린다)
-  const opened = open != null && Math.abs(open / data.est - 1) < 0.03 ? open : null;
+  const ref = data.at0900 ?? data.est;
+  const opened = open != null && Math.abs(open / ref - 1) < 0.03 ? open : null;
   return { ...data, inputs, extra, ...(win.live ? {} : { open: opened }) };
 }
 

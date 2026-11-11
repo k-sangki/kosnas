@@ -211,6 +211,18 @@ describe("기준가 방식 06:00 뒤", () => {
     )!;
     expect(d.est).toBeCloseTo(v06 * Math.sqrt((156 / 150) * (877.2 / 860)), 1);
   });
+  it("장중(09:00 뒤)에는 추정선을 지금까지 잇고 지금 값은 기준가 × 배율, 09:00 값은 at0900", () => {
+    const now = win.end + 90 * 60_000; // 10:30
+    const day = [...kr];
+    for (let t = win.end; t < now; t += 60_000) day.push({ t, c: 880 });
+    const ew = [...ewy];
+    for (let t = win.end; t < now; t += 60_000) ew.push({ t, c: 153 });
+    const d = assemble(now, { ...win, live: false }, { EWY: ew, KR200: day }, {}, 60_000, { ...fair, oracle: 878 })!;
+    const at09 = valueAt(d.points.filter((p) => p[0] <= win.end), win.end);
+    expect(d.at0900).toBe(at09);
+    expect(d.est).toBe(Math.round(878 * f * 100) / 100);
+    expect(valueAt(d.points, win.end + 30 * 60_000)).toBe(Math.round((880 / 1.002) * f * 100) / 100);
+  });
 });
 
 describe("windowSpark", () => {

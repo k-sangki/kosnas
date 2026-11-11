@@ -180,7 +180,7 @@ export function premiumAt(prem: Premium[], live: number | null) {
  * 기준가 방식 추정선. 06:00(야간 마감)까지는 KR200 체결가 ÷ (1 + 그 시간 평균 프리미엄) × 베이시스 배율,
  * 그 뒤는 06:00 값에서 EWY·KR200 체결가 등락(06:00 대비)을 반반 섞어 잇는다. 기준점이 없으면 null.
  */
-export function buildFair(ewy: Candle[], kr200: Candle[], win: NightWindow, prem: (t: number) => number, factor: number, step = MIN) {
+export function buildFair(ewy: Candle[], kr200: Candle[], win: NightWindow, prem: (t: number) => number, factor: number, step = MIN, until = win.end) {
   const e0 = priceAt(ewy, win.start);
   const k0 = priceAt(kr200, win.start);
   if (!e0 || !k0) return null;
@@ -197,9 +197,11 @@ export function buildFair(ewy: Candle[], kr200: Candle[], win: NightWindow, prem
     while (j < kr200.length && kr200[j].t <= k.t) kLast = kr200[j++].c;
     const t = k.t + step;
     if (t <= win.start) continue;
-    if (t > win.end) break;
+    if (t > until) break;
     let v: number;
+    // 장중(09:00 뒤, 2026-11-11 SK "장중에도 따라가게"): KRX가 열려 기준가가 코스피200을 다시 따라가므로 06:00 전처럼 기준가 환산
     if (t <= close) v = anchor.v = fair(kLast, t);
+    else if (t > win.end) v = fair(kLast, t);
     else v = round2(anchor.v * Math.sqrt((k.c / anchor.e) * (kLast / anchor.k)));
     points.push([t, v, kr.has(k.t) ? kr.get(k.t)! : null]);
   }
@@ -260,6 +262,8 @@ export type NightData = {
   /** KRX 야간선물 마감 시각(06:00)과 그때의 추정값(지났을 때만) */
   nightClose: number;
   at0600: number | null;
+  /** 장중에만: 09:00(지난밤 구간 끝) 추정값. 장중에는 est가 지금 값이라 시가와는 이 값을 견준다 */
+  at0900?: number | null;
   /** 장중(구간이 끝난 뒤) 그날 KRX 코스피200 선물 주간 시가(받았을 때) — 추정 오차를 잰다 */
   open?: number | null;
   /** 기준가를 선물 수준으로 바꾼 배율(기준가 방식일 때) */
@@ -461,7 +465,9 @@ export function assemble(
 ): NightData | null {
   const close = nightClose(win);
   const factor = carryFactor(win.start);
-  const f = fair ? buildFair(candles.EWY ?? [], candles.KR200 ?? [], win, premiumAt(fair.prem, fair.premium), factor, step) : null;
+  // 장중(구간이 끝난 뒤)에는 추정선을 지금까지 잇는다
+  const until = win.live ? win.end : now;
+  const f = fair ? buildFair(candles.EWY ?? [], candles.KR200 ?? [], win, premiumAt(fair.prem, fair.premium), factor, step, until) : null;
   let points: NightPoint[];
   let base: number;
   let baseKind: NightData["baseKind"] = "est";
@@ -472,7 +478,7 @@ export function assemble(
     const c = fair.close;
     if (c != null && c > 0 && Math.abs(c / f.level0 - 1) < 0.03) [base, baseKind] = [c, "close"];
     else base = f.level0;
-    if (win.live && now <= close) live = fair.oracle ? round2(fair.oracle * factor) : null;
+    if ((win.live && now <= close) || !win.live) live = fair.oracle ? round2(fair.oracle * factor) : null;
     else if (win.live && marks.EWY && marks.KR200) live = round2(f.anchor.v * Math.sqrt((marks.EWY / f.anchor.e) * (marks.KR200 / f.anchor.k)));
   } else {
     const s = buildSeries(candles.EWY ?? [], candles.KR200 ?? [], win, step);
@@ -523,6 +529,8 @@ export function assemble(
     kr200: marks.KR200 ?? null,
     nightClose: close,
     at0600: valueAt(points, close),
+    // 장중: 09:00(구간 끝)의 추정값 — 오늘 시가와 견주는 값(추정 적중 기록도 이 값을 쓴다)
+    ...(win.live ? {} : { at0900: valueAt(points, win.end) }),
     ...(f ? { factor: Math.round(factor * 1e6) / 1e6 } : {}),
     points,
     inputs,

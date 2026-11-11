@@ -4530,3 +4530,13 @@ body:has(.tabbar) .toast {
   margin-top: 14px;
   padding-top: 14px;
 }
+
+/* 장중 오전 한 줄: 09:00 추정 vs 오늘 시가 */
+.night-check {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--chip);
+  font-size: 13px;
+  line-height: 1.5;
+}
