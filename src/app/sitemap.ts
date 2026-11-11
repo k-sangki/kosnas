@@ -81,6 +81,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
           }),
         ),
     ),
+    at("/econ", {
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    }),
     at("/schedule", {
       lastModified: krUpdated ? new Date(krUpdated) : now,
       changeFrequency: "daily",
