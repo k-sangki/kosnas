@@ -89,9 +89,13 @@ async function yahooFill(list: Earning[]): Promise<Earning[]> {
         headers: { ...ua, Cookie: cookie },
       });
       if (!r.ok) return;
-      type Q = { actual?: { raw?: number }; estimate?: { raw?: number }; surprisePct?: string; reportedDate?: { fmt?: string } };
-      const b = (await r.json()) as { quoteSummary?: { result?: { earnings?: { earningsChart?: { quarterly?: Q[] } } }[] } };
-      const q = b.quoteSummary?.result?.[0]?.earnings?.earningsChart?.quarterly ?? [];
+      type Q = { date?: string; actual?: { raw?: number }; estimate?: { raw?: number }; surprisePct?: string; reportedDate?: { fmt?: string } };
+      type F = { date?: string; revenue?: { raw?: number }; earnings?: { raw?: number } };
+      const b = (await r.json()) as {
+        quoteSummary?: { result?: { earnings?: { earningsChart?: { quarterly?: Q[] }; financialsChart?: { quarterly?: F[] } } }[] };
+      };
+      const ern = b.quoteSummary?.result?.[0]?.earnings;
+      const q = ern?.earningsChart?.quarterly ?? [];
       // 발표일(미국)이 같거나 하루 뒤로 적힌 분기
       const hit = q.find((x) => {
         const d = x.reportedDate?.fmt;
@@ -102,7 +106,11 @@ async function yahooFill(list: Earning[]): Promise<Earning[]> {
       const f = hit.estimate?.raw != null ? Math.round(hit.estimate.raw * 100) / 100 : e.f;
       const s = Number(hit.surprisePct);
       const ly = e.ly != null && Math.abs(e.ly - a) < 0.005 ? null : e.ly;
-      got.set(`${e.symbol}-${e.date}`, { a, f, s: Number.isFinite(s) ? s : null, ly, src: "yahoo" });
+      // 같은 분기('3Q2026')의 실제 매출·순이익
+      const fin = (ern?.financialsChart?.quarterly ?? []).find((x) => x.date && x.date === hit.date);
+      const ra = fin?.revenue?.raw ?? e.ra;
+      const na = fin?.earnings?.raw ?? e.na;
+      got.set(`${e.symbol}-${e.date}`, { a, f, s: Number.isFinite(s) ? s : null, ly, ra, na, src: "yahoo" });
     }),
   );
   return list.map((e) => ({ ...e, ...got.get(`${e.symbol}-${e.date}`) }));

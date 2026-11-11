@@ -45,6 +45,13 @@ export interface Earning {
   ly: number | null;
   /** 실제 값 출처(야후면 예상도 야후 기준) */
   src?: string;
+  /** 매출(달러): 예상(야후, 발표 전에 받아 둔 값)·실제·1년 전 같은 분기 */
+  rf?: number | null;
+  ra?: number | null;
+  rly?: number | null;
+  /** 순이익(달러, 적자는 음수): 실제·1년 전. 공개된 시장 예상치가 없다 */
+  na?: number | null;
+  nly?: number | null;
 }
 
 export interface Dots {
@@ -370,9 +377,69 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
           tone: epsTone(e.a, e.f),
           pLabel: "1년 전",
         },
+        ...finMetrics(e),
       ],
       out: e.a != null,
     }));
+}
+
+/** 큰 달러 금액: 셋 중 가장 큰 값으로 단위(B·M)를 정해 같은 단위로 적는다(차이 계산이 단위를 맞춰야 한다) */
+export function moneyUnit(vs: (number | null | undefined)[]) {
+  const m = Math.max(0, ...vs.map((v) => (v != null ? Math.abs(v) : 0)));
+  const [div, u, dec]: [number, string, number] = m >= 1e12 ? [1e12, "T", 2] : m >= 1e9 ? [1e9, "B", 2] : m >= 1e6 ? [1e6, "M", 0] : [1e3, "K", 0];
+  return (v: number | null | undefined) => (v == null ? "" : `${v < 0 ? "-" : ""}$${(Math.abs(v) / div).toFixed(dec)}${u}`);
+}
+
+/** 실적 매출·순이익 항목(값이 하나라도 있을 때만). 순이익은 시장 예상치가 없어 1년 전과만 견준다 */
+export function finMetrics(e: Earning): Metric[] {
+  const out: Metric[] = [];
+  if (e.rf != null || e.ra != null || e.rly != null) {
+    const fm = moneyUnit([e.rf, e.ra, e.rly]);
+    const verdict = e.ra != null && e.rf != null ? revVerdict(e.ra, e.rf) : null;
+    out.push({
+      label: "매출",
+      a: fm(e.ra),
+      f: fm(e.rf),
+      p: fm(e.rly),
+      av: e.ra ?? null,
+      fv: e.rf ?? null,
+      pv: e.rly ?? null,
+      verdict,
+      tone: revTone(e.ra, e.rf),
+      pLabel: "1년 전",
+    });
+  }
+  if (e.na != null || e.nly != null) {
+    const fm = moneyUnit([e.na, e.nly]);
+    const loss = (e.na ?? e.nly ?? 0) < 0;
+    out.push({
+      label: loss ? "순손실" : "순이익",
+      a: fm(e.na),
+      f: "",
+      p: fm(e.nly),
+      av: e.na ?? null,
+      fv: null,
+      pv: e.nly ?? null,
+      verdict: null,
+      tone: null,
+      pLabel: "1년 전",
+    });
+  }
+  return out;
+}
+
+/** 매출: 차이가 예상의 0.1% 안이면 부합 */
+export function revVerdict(a: number, f: number): Verdict {
+  const r = (a - f) / Math.abs(f || 1);
+  return Math.abs(r) < 0.001 ? "match" : r > 0 ? "beat" : "miss";
+}
+
+/** 매출 호재·악재: 예상 대비 1% 안이면 중립, 5% 이상이면 강한 */
+export function revTone(a: number | null | undefined, f: number | null | undefined): Tone | null {
+  if (a == null || f == null) return null;
+  const r = (a - f) / Math.abs(f || 1);
+  if (Math.abs(r) < 0.01) return 0;
+  return (Math.sign(r) * (Math.abs(r) >= 0.05 ? 2 : 1)) as Tone;
 }
 
 /** 바탕 실적에 실시간 실적을 덮는다(같은 종목·날짜는 실시간 값, 이름·장 전/뒤·예상은 아는 쪽) */
@@ -382,7 +449,7 @@ export function mergeEarnings(base: Earning[] | null | undefined, live: Earning[
   for (const e of live ?? []) {
     const k = `${e.symbol}-${e.date}`;
     const b = out.get(k);
-    out.set(k, b ? { ...b, ...e, name: b.name, when: e.when || b.when, f: e.f ?? b.f, ly: e.ly ?? b.ly, capB: e.capB ?? b.capB } : e);
+    out.set(k, b ? { ...b, ...e, name: b.name, when: e.when || b.when, f: e.f ?? b.f, ly: e.ly ?? b.ly, capB: e.capB ?? b.capB, ra: e.ra ?? b.ra, na: e.na ?? b.na } : e);
   }
   return [...out.values()];
 }
