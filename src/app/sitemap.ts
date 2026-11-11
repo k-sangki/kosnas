@@ -16,7 +16,7 @@ import { SITE_URL } from "./layout";
 import { SCREENS } from "@/lib/screens";
 import { THEMES } from "@/lib/themes";
 import { CHANGELOG } from "@/lib/changelog";
-import { EARN_PAGES, ECON_PAGES, econUpdated, indexable } from "@/lib/econ-pages";
+import { econUpdated, openEarn, openEcon } from "@/lib/econ-pages";
 
 type Entry = MetadataRoute.Sitemap[number];
 
@@ -87,11 +87,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 0.8,
     }),
-    // 지표·기업별 페이지는 정해 둔 날부터 조금씩(한 주에 열 몇 개, 2026-11-11 SK)
-    ...ECON_PAGES.filter((p) => indexable(p.from)).map((p) =>
+    // 지표·기업별 페이지는 발표가 일주일 안으로 다가온 것부터 차례로(2026-11-11 SK)
+    ...openEcon.map((p) =>
       at(`/econ/${p.id}`, { lastModified: day(econUpdated.slice(0, 10)), changeFrequency: "daily", priority: 0.6 }),
     ),
-    ...EARN_PAGES.filter((p) => indexable(p.from)).map((p) =>
+    ...openEarn.map((p) =>
       at(`/econ/earnings/${p.slug}`, { lastModified: day(econUpdated.slice(0, 10)), changeFrequency: "daily", priority: 0.6 }),
     ),
     at("/schedule", {

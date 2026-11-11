@@ -2,7 +2,7 @@ name: Collect econ
 
 # 경제지표 예상치·결과(/econ): 나스닥 경제지표·실적 달력과 연준 점도표를 받는다(collector/econ.py).
 # 발표 직후의 실제 값은 화면이 /api/econ(워커가 나스닥에서 바로 받음)으로 채우고, 이 작업은 하루 몇 번 바탕 자료를 새로 쓴다.
-# 지난 결과·기업별 다음 발표일은 src/data/econ-history.json 에 쌓는다(지표·기업별 페이지).
+# 지난 결과·기업별 다음 발표일은 src/data/econ-companies.json 에 쌓는다(지표·기업별 페이지).
 # 예약(UTC): 07:45·19:45 KST와 미국 발표 직후(08:30·10:00·14:00 ET 뒤). GitHub 예약은 늦을 수 있다.
 on:
   schedule:
@@ -10,10 +10,6 @@ on:
     - cron: "45 10 * * *"
     - cron: "40 13,15,19 * * 1-5"
   workflow_dispatch:
-    inputs:
-      backfill:
-        description: "지표 지난 결과를 이만큼(일) 더 거슬러 받기(한 번만, 0이면 안 함)"
-        default: "0"
 concurrency: collect-econ
 
 permissions:
@@ -32,7 +28,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: 받기
-        run: python collector/econ.py --out src/data/econ.json --backfill "${{ inputs.backfill || 0 }}"
+        run: python collector/econ.py --out src/data/econ.json
       - name: 실시간 값 점검(워커 /api/econ 이 나스닥에 닿는지 기록만)
         continue-on-error: true
         run: |
@@ -42,7 +38,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          git add src/data/econ.json src/data/econ-history.json
+          git add src/data/econ.json src/data/econ-companies.json src/data/econ-open.json
           # 갱신 시각만 바뀐 것은 올리지 않는다
           if git diff --cached --quiet -I '"updated"'; then exit 0; fi
           git config user.name "kosnas-bot"

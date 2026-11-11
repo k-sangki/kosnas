@@ -4624,3 +4624,45 @@ body:has(.tabbar) .toast {
   text-decoration-color: var(--line-2);
   text-underline-offset: 3px;
 }
+
+/* 결과 카드의 증시 쪽 일반 해석(강한 호재 … 강한 악재, 2026-11-11 SK: 호재 밝은 녹색·악재 붉은색·중립 흰색, 사이는 중간색) */
+.ev-tone {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.ev-tone.t2 {
+  color: #12a150;
+}
+.ev-tone.t1 {
+  color: #5fae80;
+}
+.ev-tone.t0 {
+  color: var(--ink);
+}
+.ev-tone.t-1 {
+  color: #d9776f;
+}
+.ev-tone.t-2 {
+  color: #e5383b;
+}
+:root[data-theme="dark"] .ev-tone.t2 {
+  color: #3ddc84;
+}
+:root[data-theme="dark"] .ev-tone.t1 {
+  color: #8fd1a9;
+}
+:root[data-theme="dark"] .ev-tone.t0 {
+  color: #fff;
+}
+:root[data-theme="dark"] .ev-tone.t-1 {
+  color: #f0a39c;
+}
+:root[data-theme="dark"] .ev-tone.t-2 {
+  color: #ff5a5f;
+}

@@ -8,17 +8,17 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import names from "@/data/econ-names.json";
 import { VERDICT, dayLabel, kstDate, kstHm, type Release } from "@/lib/econ";
-import { ECON_PAGES, econUpdated, findEcon, indexable, indicatorReleases } from "@/lib/econ-pages";
+import { findEcon, indicatorReleases, openEcon } from "@/lib/econ-pages";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 /**
  * 지표 하나의 페이지(/econ/cpi …): 'CPI 예상'·'CPI 결과' 검색어의 주인.
- * 다음 발표 예상치와 지난 결과 표는 서버가 글로 그리고(검색 로봇이 읽는다), 막대 카드는 실시간으로 다시 그린다.
+ * 다음 발표 예상치와 가장 최근 결과는 서버가 글로 그리고(검색 로봇이 읽는다), 막대 카드는 실시간으로 다시 그린다.
  */
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return ECON_PAGES.map((p) => ({ id: p.id }));
+  return openEcon.map((p) => ({ id: p.id }));
 }
 
 const GROUPS = names.groups as Record<string, { name: string; emoji: string }>;
@@ -27,8 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/econ/[id]">): Pro
   const { id } = await params;
   const p = findEcon(id);
   if (!p) return {};
-  const meta = pageMeta({ title: p.title, description: p.description, keywords: p.keywords, path: `/econ/${id}` });
-  return indexable(p.from) ? meta : { ...meta, robots: { index: false, follow: true } };
+  return pageMeta({ title: p.title, description: p.description, keywords: p.keywords, path: `/econ/${id}` });
 }
 
 const when = (r: Release) => `${dayLabel(kstDate(r.at))} ${kstHm(r.at)}`;
@@ -38,11 +37,10 @@ export default async function EconItemPage({ params }: PageProps<"/econ/[id]">) 
   const p = findEcon(id);
   if (!p) notFound();
   const g = GROUPS[id];
-  const { past, next } = indicatorReleases(id);
-  const last = past[0];
+  const { last, next } = indicatorReleases(id);
   const nm = next?.metrics[0];
   const lm = last?.metrics[0];
-  const others = ECON_PAGES.filter((x) => x.id !== id);
+  const others = openEcon.filter((x) => x.id !== id);
 
   return (
     <div className="shell">
@@ -58,7 +56,7 @@ export default async function EconItemPage({ params }: PageProps<"/econ/[id]">) 
           {g?.emoji} {p.short} 예상치와 발표 결과
         </h1>
         <p className="lead">
-          {g?.name}의 다음 발표 예상치와 지난 결과를 모았습니다. 시각은 모두 한국 시각입니다.
+          {g?.name}의 다음 발표 예상치와 가장 최근 결과입니다. 시각은 모두 한국 시각입니다.
         </p>
         <section className="card econ-sum">
           {next && nm ? (
@@ -82,46 +80,6 @@ export default async function EconItemPage({ params }: PageProps<"/econ/[id]">) 
 
         <EconItem group={id} />
 
-        {past.length > 0 && (
-          <section className="card">
-            <h2 className="card-title">
-              지난 {p.short} 결과 <span className="muted">· 예상 대비</span>
-            </h2>
-            <div className="ptable-wrap">
-              <table className="ptable econ-hist">
-                <thead>
-                  <tr>
-                    <th>발표</th>
-                    <th>항목</th>
-                    <th>실제</th>
-                    <th>예상</th>
-                    <th>직전</th>
-                    <th>판정</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {past.slice(0, 24).flatMap((r) =>
-                    r.metrics.map((m, i) => (
-                      <tr key={`${r.id}-${i}`} className={i ? "sub" : undefined}>
-                        <td>{i ? "" : kstDate(r.at).slice(2).replace(/-/g, ".")}</td>
-                        <td>{m.label}</td>
-                        <td className={m.verdict === "beat" ? "up" : m.verdict === "miss" ? "down" : undefined}>{m.a || "—"}</td>
-                        <td>{m.f || "—"}</td>
-                        <td>{m.p || "—"}</td>
-                        <td>{m.verdict ? VERDICT[m.verdict].replace("예상 ", "") : "—"}</td>
-                      </tr>
-                    )),
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <p className="muted small-note">
-              예상치는 발표 전 시장 컨센서스(나스닥 경제지표 달력), {econUpdated.slice(0, 10)} 기준. 지난 결과는 이 사이트가 모으기 시작한 뒤부터
-              쌓입니다.
-            </p>
-          </section>
-        )}
-
         <section className="card seo-text">
           <Fold title={`${p.short}란? · 발표 시각 · 보는 법`}>
             <h2>{g?.name}</h2>
@@ -135,13 +93,13 @@ export default async function EconItemPage({ params }: PageProps<"/econ/[id]">) 
               <p key={t}>{t}</p>
             ))}
             <p className="muted">
-              이 화면은 예상과의 차이만 보여 주고 좋다·나쁘다를 붙이지 않습니다. 특정 종목의 매수·매도를 권하지 않습니다.
+              결과 옆 호재·악재 표시는 미국 증시 쪽에서 흔히 하는 해석을 차이 크기로 나눈 추정일 뿐이며 실제 시장 반응은 다를 수 있습니다. 특정 종목의 매수·매도를 권하지 않습니다.
             </p>
           </Fold>
         </section>
 
         <section className="card">
-          <h2 className="card-title">다른 지표</h2>
+          {others.length > 0 && <h2 className="card-title">다른 지표</h2>}
           <p className="econ-links">
             {others.map((x) => (
               <Link key={x.id} href={`/econ/${x.id}`}>

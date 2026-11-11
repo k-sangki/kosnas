@@ -7,9 +7,11 @@
  * 어떤 지표를 넣을지는 src/data/econ-names.json 한 곳에 적는다(수집기와 함께 읽는다).
  *
  * 판정은 실제와 예상(시장 예상치)만 비교한다: 같으면 부합, 크면 상회, 작으면 하회.
- * 좋다·나쁘다는 붙이지 않는다(물가 상회는 증시에 나쁠 수 있고 고용 상회는 좋을 수 있다).
+ * 항목마다 미국 증시 쪽 흔한 해석(호재·악재)을 차이 크기로 다섯 단계 표시한다(toneOf, 2026-11-11 SK 요청).
+ * 방향·문턱은 econ-names.json 의 tone [방향, 작은 차이, 큰 차이]. 실제 시장 반응과 다를 수 있는 추정 표시다.
  */
 import names from "../data/econ-names.json";
+import opened from "../data/econ-open.json";
 
 export interface Row {
   /** 달력에 물은 날짜(발표일 다음 날) */
@@ -72,6 +74,32 @@ export interface Metric {
   verdict: Verdict | null;
   /** 직전 칸 이름(기본 '직전', 실적은 '1년 전') */
   pLabel?: string;
+  /** 미국 증시 쪽 일반 해석: 2 강한 호재 … -2 강한 악재(2026-11-11 SK) */
+  tone?: Tone | null;
+}
+
+export type Tone = -2 | -1 | 0 | 1 | 2;
+/** 결과 카드에 작게 붙이는 말(지표마다 방향·문턱은 econ-names.json metrics[].tone) */
+export const TONE: Record<Tone, string> = { 2: "강한 호재", 1: "호재", 0: "중립", [-1]: "악재", [-2]: "강한 악재" };
+
+/** 실제가 예상보다 크면 dir 쪽, 차이가 small 미만이면 중립, big 이상이면 강한 */
+export function toneOf(av: number | null, fv: number | null, t: readonly number[] | undefined, verdict: Verdict | null): Tone | null {
+  if (av == null || fv == null || !t) return null;
+  if (verdict === "match") return 0;
+  const [dir, small, big] = t;
+  const d = av - fv;
+  const eps = 1e-9;
+  if (Math.abs(d) + eps < small) return 0;
+  const k = Math.abs(d) + eps >= big ? 2 : 1;
+  return (Math.sign(d) * dir * k) as Tone;
+}
+
+/** 실적 EPS: 예상 대비 3% 미만 차이는 중립, 15% 이상은 강한(손실 기업은 손실이 줄면 호재) */
+export function epsTone(a: number | null, f: number | null): Tone | null {
+  if (a == null || f == null) return null;
+  const r = (a - f) / Math.max(Math.abs(f), 0.01);
+  if (Math.abs(r) < 0.03 || Math.round(a * 100) === Math.round(f * 100)) return 0;
+  return (Math.sign(r) * (Math.abs(r) >= 0.15 ? 2 : 1)) as Tone;
 }
 
 export interface Release {
@@ -92,7 +120,7 @@ export interface Release {
 }
 
 type Group = { name: string; emoji: string; band: boolean };
-type Def = { country: string; name?: string; re?: string; group: string; label: string; primary?: boolean };
+type Def = { country: string; name?: string; re?: string; group: string; label: string; primary?: boolean; tone?: number[] };
 const GROUPS = names.groups as Record<string, Group>;
 /** 띠와 발표 목록에 CPI처럼 한 건씩 올리는 주목 기업 */
 export const EARN_FOCUS = new Set<string>(names.earnFocus);
@@ -202,6 +230,7 @@ export function releases(rows: Row[]): Release[] {
         fv: parseNum(x.row.f),
         pv: parseNum(x.row.p),
         verdict: verdictOf(x.row.a, x.row.f),
+        tone: toneOf(parseNum(x.row.a), parseNum(x.row.f), x.def.tone, verdictOf(x.row.a, x.row.f)),
         primary,
         order: DEFS.indexOf(x.def),
       });
@@ -338,6 +367,7 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
           fv: e.f,
           pv: e.ly,
           verdict: epsVerdict(e),
+          tone: epsTone(e.a, e.f),
           pLabel: "1년 전",
         },
       ],
@@ -392,8 +422,13 @@ export const tickerName = (e: { name: string; symbol: string }) => (e.name && e.
 /** 지표별 페이지가 있는 묶음(/econ/cpi …). src/lib/econ-pages.ts ECON_PAGES 와 같아야 한다(시험이 확인) */
 export const ECON_PAGE_IDS = ["cpi", "fomc", "pce", "ppi", "jobs", "claims", "retail", "gdp", "ismm", "isms", "jolts", "adp", "umich", "cb", "inflexp", "bok", "ecb", "boj", "boe", "pboc"];
 
-/** 카드 제목에서 그 항목 페이지로: 지표 /econ/cpi, 주목 기업 /econ/earnings/crwv */
+/** 열린 항목 페이지(발표가 일주일 안으로 다가온 날 수집기가 적는다, 지우지 않는다) */
+const OPEN = opened as { econ?: Record<string, string>; earn?: Record<string, string> };
+export const econOpen = (id: string) => ECON_PAGE_IDS.includes(id) && !!OPEN.econ?.[id];
+export const earnOpen = (sym: string) => EARN_FOCUS.has(sym) && !!OPEN.earn?.[sym.toLowerCase()];
+
+/** 카드 제목에서 그 항목 페이지로: 지표 /econ/cpi, 주목 기업 /econ/earnings/crwv(열린 것만) */
 export function itemHref(r: Pick<Release, "group" | "sym">) {
-  if (r.group === "earn") return r.sym && EARN_FOCUS.has(r.sym) ? `/econ/earnings/${r.sym.toLowerCase()}` : null;
-  return ECON_PAGE_IDS.includes(r.group) ? `/econ/${r.group}` : null;
+  if (r.group === "earn") return r.sym && earnOpen(r.sym) ? `/econ/earnings/${r.sym.toLowerCase()}` : null;
+  return econOpen(r.group) ? `/econ/${r.group}` : null;
 }

@@ -15,6 +15,7 @@ import {
   epsVerdict,
   kstDate,
   VERDICT,
+  TONE,
   EARN_FOCUS,
   grace,
   itemHref,
@@ -246,6 +247,7 @@ function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boole
           <span className="ev-m-verdict">
             <Badge v={m.verdict} />
             {gap && <b className={`ev-gap-t ${m.verdict ?? ""}`}> {gap}</b>}
+            {m.tone != null && <small className={`ev-tone t${m.tone}`}>{TONE[m.tone]}</small>}
           </span>
         )}
       </div>

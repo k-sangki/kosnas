@@ -4,7 +4,7 @@ import { SITE_URL } from "@/app/layout";
 import { EconBoard } from "@/components/EconBoard";
 import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
-import { EARN_PAGES, ECON_PAGES } from "@/lib/econ-pages";
+import { openEarn, openEcon } from "@/lib/econ-pages";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
@@ -48,8 +48,8 @@ export default function EconPage() {
             </p>
             <p>
               상회가 늘 좋은 소식은 아닙니다. 물가가 예상을 웃돌면 금리 인하 기대가 줄어 주가에 부담이 될 수 있고, 고용이 예상을
-              웃돌면 경기에는 좋지만 같은 이유로 금리 쪽에는 부담이 될 수 있습니다. 그래서 이 화면은 좋다·나쁘다를 붙이지 않고
-              예상과의 차이만 보여 줍니다.
+              웃돌면 경기에는 좋지만 같은 이유로 금리 쪽에는 부담이 될 수 있습니다. 항목 옆의 <b>강한 호재·호재·중립·악재·강한 악재</b>는
+              미국 증시 쪽에서 흔히 하는 해석을 예상과의 차이 크기로 나눈 추정 표시일 뿐이고, 실제 시장 반응은 다를 수 있습니다.
             </p>
             <p>
               <b>점도표</b>는 FOMC 위원들이 각자 생각하는 연말 기준금리를 점 하나씩 찍은 그림입니다. 3·6·9·12월 회의 때만 새로
@@ -65,14 +65,14 @@ export default function EconPage() {
         <section className="card">
           <Fold title="지표·기업별로 보기">
             <p className="econ-links">
-              {ECON_PAGES.map((x) => (
+              {openEcon.map((x) => (
                 <Link key={x.id} href={`/econ/${x.id}`}>
                   {x.short}
                 </Link>
               ))}
             </p>
             <p className="econ-links">
-              {EARN_PAGES.map((x) => (
+              {openEarn.map((x) => (
                 <Link key={x.sym} href={`/econ/earnings/${x.slug}`}>
                   {x.name} 실적
                 </Link>

@@ -175,7 +175,7 @@ def yahoo_fill(out: list[dict]) -> None:
 
 
 def yahoo_profiles() -> dict:
-    """주목 기업마다 다음 실적 발표일·예상 EPS와 지난 4분기 실제·예상 EPS(야후). 기업별 페이지(/econ/earnings/심볼)가 쓴다."""
+    """주목 기업마다 다음 실적 발표일·예상 EPS와 가장 최근 분기 실제·예상 EPS(야후). 기업별 페이지(/econ/earnings/심볼)가 쓴다."""
     jar = tempfile.NamedTemporaryFile(delete=False).name
     ua = NASDAQ_HEADERS["User-Agent"]
     base = ["curl", "-sS", "-m", "20", "-A", ua, "-b", jar, "-c", jar]
@@ -221,36 +221,56 @@ def yahoo_profiles() -> dict:
                 "estimate": bool(cal.get("isEarningsDateEstimate")),
                 "q": f"{chart.get('currentQuarterEstimateDate') or ''}{chart.get('currentQuarterEstimateYear') or ''}",
             }
-        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "quarters": quarters}
+        done = [q for q in quarters if q["a"] is not None and q["date"]]
+        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": max(done, key=lambda q: q["date"]) if done else None}
         time.sleep(0.3)
     print(f"야후 기업 {len(out)}곳")
     return out
 
 
-def history(data: dict, path: Path, backfill: list[dict]) -> None:
-    """지표·실적 결과를 쌓아 둔다(econ.json 은 앞뒤 몇 주만). 지표·기업별 페이지의 '지난 결과' 표가 쓴다."""
+def companies(path: Path, updated: str) -> None:
+    """주목 기업 다음 실적 발표일·예상 EPS와 가장 최근 분기 실적(야후). 기업별 페이지가 쓴다(지난 결과는 쌓지 않는다, 2026-11-11 SK)."""
     old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    cut = (dt.date.today() - dt.timedelta(days=3 * 365)).isoformat()
-    rows = {(r["d"], r["t"], r["c"], r["n"]): r for r in [*(old.get("rows") or []), *backfill, *(data.get("rows") or [])] if r.get("a") and r["d"] >= cut}
-    earns = {
-        (e["symbol"], e["date"]): {k: e.get(k) for k in ("symbol", "name", "date", "quarter", "f", "a", "s", "ly")}
-        for e in [*(old.get("earnings") or []), *(data.get("earnings") or [])]
-        if e.get("a") is not None and e["symbol"] in FOCUS and e["date"] >= cut
-    }
     try:
         prof = yahoo_profiles()
     except Exception as e:
         print(f"::warning::야후 기업 실패: {e}")
         prof = {}
-    out = {
-        "updated": data["updated"],
-        "rows": sorted(rows.values(), key=lambda r: (r["d"], r["t"], r["n"])),
-        "earnings": sorted(earns.values(), key=lambda e: (e["date"], e["symbol"])),
-        # 한 기업이 막히면 지난번 값을 그대로 둔다
-        "profiles": {**(old.get("profiles") or {}), **prof},
-    }
+    # 한 기업이 막히면 지난번 값을 그대로 둔다
+    out = {"updated": updated, "profiles": {**(old.get("profiles") or {}), **prof}}
     path.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"→ {path} (지표 {len(out['rows'])}줄 · 실적 {len(out['earnings'])}건 · 기업 {len(out['profiles'])}곳)")
+    print(f"→ {path} (기업 {len(out['profiles'])}곳)")
+
+
+def group_of(country: str, name: str) -> str | None:
+    n = name.strip().lower()
+    for m in NAMES["metrics"]:
+        if m["country"] == country and (("name" in m and m["name"].lower() == n) or ("re" in m and re.search(m["re"], name.strip(), re.I))):
+            return m["group"]
+    return None
+
+
+def open_pages(data: dict, path: Path) -> None:
+    """지표·기업별 페이지는 발표가 일주일 안으로 다가온 것부터 차례로 연다(2026-11-11 SK). 한 번 연 것은 지우지 않는다."""
+    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    econ, earn = dict(old.get("econ") or {}), dict(old.get("earn") or {})
+    today = dt.datetime.now(ET).date()
+    end = today + dt.timedelta(days=7)
+    now = dt.datetime.now(KST).date().isoformat()
+    pages = {k for k, g in NAMES["groups"].items() if g.get("band")}
+    for r in data.get("rows") or []:
+        # 이 달력은 날짜 하루 전(미국)에 발표된다
+        us = dt.date.fromisoformat(r["d"]) - dt.timedelta(days=1)
+        g = group_of(r["c"], r["n"])
+        if g in pages and today <= us <= end and g not in econ:
+            econ[g] = now
+            print(f"페이지 열기 /econ/{g}")
+    for e in data.get("earnings") or []:
+        s = e["symbol"].lower()
+        if e["symbol"] in FOCUS and today <= dt.date.fromisoformat(e["date"]) <= end and s not in earn:
+            earn[s] = now
+            print(f"페이지 열기 /econ/earnings/{s}")
+    path.write_text(json.dumps({"econ": econ, "earn": earn}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
 
 def cells(row: str) -> list[str]:
@@ -296,8 +316,8 @@ def dots() -> dict | None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="src/data/econ.json")
-    ap.add_argument("--history", default="src/data/econ-history.json")
-    ap.add_argument("--backfill", type=int, default=0, help="지표 지난 결과를 이만큼(일) 더 거슬러 받아 쌓는다(한 번만)")
+    ap.add_argument("--companies", default="src/data/econ-companies.json")
+    ap.add_argument("--open", default="src/data/econ-open.json")
     args = ap.parse_args()
     path = Path(args.out)
     old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
@@ -322,13 +342,8 @@ def main():
             data[key] = old.get(key)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"→ {path}")
-    back = []
-    if args.backfill:
-        try:
-            back = econ_rows(today - dt.timedelta(days=13 + args.backfill), args.backfill)
-        except Exception as e:
-            print(f"::warning::지난 지표 받기 실패: {e}")
-    history(data, Path(args.history), back)
+    companies(Path(args.companies), data["updated"])
+    open_pages(data, Path(args.open))
 
 
 if __name__ == "__main__":
