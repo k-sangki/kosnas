@@ -267,7 +267,9 @@ function Chart({ d }: { d: NightData }) {
 /** 캡처 공유에서 처음 골라 둘 카드(2026-11-10 SK) */
 const CAP_PICK = ["night", "SMSN", "SKHX"];
 
-export function NightBoard() {
+/** heading: 페이지에 따로 h1이 있으면 "h2"(검색용 고정 제목은 페이지가 갖는다) */
+export function NightBoard({ heading = "h1" }: { heading?: "h1" | "h2" } = {}) {
+  const Title = heading;
   const [d, setD] = useState<NightData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const live = useRef(true);
@@ -333,7 +335,7 @@ export function NightBoard() {
           data-cap-label="코스피 야간선물"
         >
           <div className="night-top">
-            <h1 className="night-title">{titleOf(d, state)}</h1>
+            <Title className="night-title">{titleOf(d, state)}</Title>
             {d && <span className="night-upd">{hhmm(d.updated)} 갱신</span>}
           </div>
           {weekend && (
