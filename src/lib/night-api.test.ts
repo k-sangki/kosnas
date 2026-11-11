@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { futOpenFromRt, stockCloseFromRt } from "./night-api";
+import { futOpenFromRt, stockCloseFromRt, toKrxClose } from "./night-api";
 
 describe("stockCloseFromRt (KRX 종가)", () => {
   it("장 전·마감 뒤에는 closePrice가 마지막 KRX 종가", () => {
@@ -24,5 +24,21 @@ describe("futOpenFromRt (주간 시가)", () => {
     expect(futOpenFromRt(d, "20261109")).toBe(784);
     expect(futOpenFromRt(d, "20261110")).toBeNull();
     expect(futOpenFromRt({ openPriceRaw: "0", localTradedAt: "2026-11-10T09:20:00+09:00" }, "20261110")).toBeNull();
+  });
+});
+
+describe("toKrxClose (종가 시각 대비 배율)", () => {
+  const i = { coin: "SMSN", label: "삼성전자", price: 156.37, chg: 1.3, krw: 208628 };
+  it("종가 × (지금 ÷ 종가 시각 무기한선물)", () => {
+    // 2026-11-11: 종가 208,000, 15:30 무기한선물 154.37 → +1.30%
+    const r = toKrxClose(i, 208000, 154.37);
+    expect(r.chg).toBe(1.3);
+    expect(r.krw).toBe(Math.round((208000 * 156.37) / 154.37));
+    expect(r.krxClose).toBe(208000);
+  });
+  it("종가나 종가 시각 가격이 없거나 배율이 이상하면 그대로", () => {
+    expect(toKrxClose(i, null, 154.37)).toBe(i);
+    expect(toKrxClose(i, 208000, undefined)).toBe(i);
+    expect(toKrxClose(i, 208000, 50)).toBe(i);
   });
 });
