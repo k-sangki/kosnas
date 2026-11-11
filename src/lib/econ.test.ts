@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { atOf, bandPick, kstDate, kstHm, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, type Row } from "./econ";
+import { atOf, bandPick, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
 
 const row = (n: string, a: string, f: string, p: string, d = "2026-11-11", t = "08:30"): Row => ({ d, t, c: "United States", n, a, f, p });
 
@@ -46,6 +46,23 @@ describe("경제지표", () => {
     const cpi = atOf({ d: "2026-11-11", t: "08:30" });
     expect(bandPick(list, cpi + 3600_000)).toMatchObject({ mode: "result", r: { group: "cpi" } });
     expect(bandPick(list, cpi + RESULT_HOLD + 60_000)).toMatchObject({ mode: "next", r: { group: "claims" } });
+  });
+
+  it("주목 기업 실적은 발표 한 건: 장 뒤는 한국 다음 날 아침, 결과 나오면 띠에", () => {
+    const e = { symbol: "CRWV", name: "코어위브", date: "2026-11-10", when: "after" as const, capB: 27, quarter: "", f: -1.45, n: 5, a: null, s: null, ly: -0.6 };
+    const [r] = earnReleases([e, { ...e, symbol: "ZZZZ" }]);
+    expect(r.name).toBe("코어위브 실적");
+    expect(kstDate(r.at)).toBe("2026-11-11");
+    expect(whenLabel(r.at, Date.parse("2026-11-10T12:00:00+09:00"), r.whenText)).toBe("내일 아침");
+    expect(r.metrics[0]).toMatchObject({ f: "-$1.45", p: "-$0.60", pLabel: "1년 전" });
+    // 발표 뒤 값이 아직이면 집계 중으로 남는다
+    const morning = Date.parse("2026-11-11T10:00:00+09:00");
+    expect(bandPick([r], morning)).toMatchObject({ mode: "next" });
+    // 실시간 값이 오면 결과
+    const [done] = earnReleases(mergeEarnings([e], [{ ...e, name: "CRWV", when: "", a: -1.2, s: 17.2 }]));
+    expect(done.name).toBe("코어위브 실적");
+    expect(done.metrics[0].verdict).toBe("beat");
+    expect(bandPick([done], morning)).toMatchObject({ mode: "result" });
   });
 
   it("연준 인사 이름", () => {

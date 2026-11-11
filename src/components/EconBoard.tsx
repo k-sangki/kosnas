@@ -9,6 +9,10 @@ import {
   epsVerdict,
   kstDate,
   VERDICT,
+  EARN_FOCUS,
+  grace,
+  relWhen,
+  usd,
   whenLabel,
   type Dots,
   type Earning,
@@ -24,7 +28,7 @@ const BACK = 14 * DAY;
 
 /** 경제지표 예상치·결과 화면 */
 export function EconBoard() {
-  const { now, list, data } = useEcon();
+  const { now, list, earnings, data } = useEcon();
 
   // 띠에서 눌러 들어오면(#발표id) 그 카드로 내려간다
   const ready = now > 0;
@@ -35,7 +39,7 @@ export function EconBoard() {
 
   if (!now) return <section className="card muted">불러오는 중…</section>;
   const top = bandPick(list, now);
-  const upcoming = list.filter((r) => !r.out && r.at > now - 3 * 3600_000 && r.at < now + AHEAD && r.id !== top?.r.id);
+  const upcoming = list.filter((r) => !r.out && r.at > now - grace(r) && r.at < now + AHEAD && r.id !== top?.r.id);
   const past = list.filter((r) => r.at <= now && now - r.at < BACK && (r.out || !r.band) && r.id !== top?.r.id).reverse();
   const byDay = new Map<string, Release[]>();
   for (const r of upcoming) byDay.set(kstDate(r.at), [...(byDay.get(kstDate(r.at)) ?? []), r]);
@@ -62,7 +66,7 @@ export function EconBoard() {
         ))}
       </section>
 
-      {data.earnings && data.earnings.length > 0 && <EarningsCard list={data.earnings} now={now} />}
+      {earnings.length > 0 && <EarningsCard list={earnings.filter((e) => !EARN_FOCUS.has(e.symbol))} now={now} />}
 
       {past.length > 0 && (
         <section className="card">
@@ -87,9 +91,6 @@ export function EconBoard() {
 /** 지난 발표 중 첫 지표가 그 판정인 수 */
 const count = (rs: Release[], v: Verdict) => rs.filter((r) => r.band && r.out && r.metrics[0]?.verdict === v).length;
 
-/** 주당순이익 $ 표기(음수는 -$0.12) */
-const usd = (v: number) => `${v < 0 ? "-" : ""}$${Math.abs(v).toFixed(2)}`;
-
 function MinorLine({ r, now }: { r: Release; now: number }) {
   return (
     <p className="econ-minor" id={r.id}>
@@ -111,7 +112,7 @@ function ReleaseCard({ r, now, dots, big }: { r: Release; now: number; dots: Dot
         <span className="econ-rel-name">
           <span aria-hidden>{r.emoji}</span> {r.name}
         </span>
-        <span className="econ-rel-when">{waiting ? "발표 직후 · 집계 중" : whenLabel(r.at, now)}</span>
+        <span className="econ-rel-when">{waiting ? "발표 직후 · 집계 중" : relWhen(r, now)}</span>
       </header>
       {r.metrics.map((m, i) => (
         <MetricRow key={i} m={m} out={r.out} lead={i === 0} />
@@ -142,7 +143,7 @@ function MetricRow({ m, out, lead }: { m: Metric; out: boolean; lead: boolean })
           <b>{m.f || "—"}</b>
         </span>
         <span className="ev-num pv">
-          <small>직전</small>
+          <small>{m.pLabel ?? "직전"}</small>
           <b>{m.p || "—"}</b>
         </span>
       </div>
@@ -162,7 +163,7 @@ function NumberLine({ m, out }: { m: Metric; out: boolean }) {
   const x = (v: number) => 12 + ((v - lo) / (hi - lo)) * 276;
   const W = 300;
   return (
-    <svg className="ev-line" viewBox={`0 0 ${W} 26`} role="img" aria-label={`직전 ${m.p}, 예상 ${m.f}${out ? `, 실제 ${m.a}` : ""}`}>
+    <svg className="ev-line" viewBox={`0 0 ${W} 26`} role="img" aria-label={`${m.pLabel ?? "직전"} ${m.p}, 예상 ${m.f}${out ? `, 실제 ${m.a}` : ""}`}>
       <line x1={8} x2={W - 8} y1={13} y2={13} className="ev-track" />
       {m.pv != null && <circle cx={x(m.pv)} cy={13} r={5} className="ev-pv" />}
       {m.fv != null && <rect x={x(m.fv) - 1.5} y={3} width={3} height={20} className="ev-fc" />}
@@ -248,7 +249,7 @@ function EarningsCard({ list, now }: { list: Earning[]; now: number }) {
   const next = rows.filter(({ e }) => e.a == null);
   return (
     <section className="card econ-earn" id="earnings">
-      <h2 className="card-title">💼 기업 실적 <span className="muted">· 주당순이익(EPS) 예상과 결과</span></h2>
+      <h2 className="card-title">💼 그 밖의 기업 실적 <span className="muted">· 주당순이익(EPS) 예상과 결과</span></h2>
       <details className="fold">
         <summary>
           <span>

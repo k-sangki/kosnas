@@ -64,5 +64,7 @@
   { "country": "China", "name": "China Loan Prime Rate 5Y", "group": "pboc", "label": "5년 LPR" },
   { "country": "United States", "name": "FOMC Meeting Minutes", "group": "minutes", "label": "의사록" },
   { "country": "United States", "re": "^(Fed|FOMC Member|Fed Chair|Fed Vice Chair).*(Speaks|Testifies)$", "group": "speech", "label": "" }
- ]
+ ],
+ "_earnFocus": "띠와 발표 목록에 CPI처럼 한 건씩 올리는 주목 기업(그 밖의 실적은 '기업 실적' 칸에 모아 둔다).",
+ "earnFocus": ["NVDA", "MSFT", "AAPL", "GOOGL", "AMZN", "META", "TSLA", "AVGO", "TSM", "ORCL", "AMD", "MU", "NFLX", "PLTR", "CRWV", "NBIS", "ASML", "ARM", "SMCI", "DELL", "HPE", "AMAT", "LRCX", "KLAC", "MRVL", "INTC", "QCOM", "ANET", "CSCO", "SNOW", "CRM", "WMT", "JPM"]
 }

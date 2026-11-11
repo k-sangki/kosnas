@@ -68,6 +68,8 @@ export interface Metric {
   fv: number | null;
   pv: number | null;
   verdict: Verdict | null;
+  /** 직전 칸 이름(기본 '직전', 실적은 '1년 전') */
+  pLabel?: string;
 }
 
 export interface Release {
@@ -81,11 +83,15 @@ export interface Release {
   metrics: Metric[];
   /** 결과가 나왔는지(주요 수치의 실제 값) */
   out: boolean;
+  /** 시각 대신 붙일 말(실적: 아침·밤). 있으면 시각을 쓰지 않는다 */
+  whenText?: string;
 }
 
 type Group = { name: string; emoji: string; band: boolean };
 type Def = { country: string; name?: string; re?: string; group: string; label: string; primary?: boolean };
 const GROUPS = names.groups as Record<string, Group>;
+/** 띠와 발표 목록에 CPI처럼 한 건씩 올리는 주목 기업 */
+export const EARN_FOCUS = new Set<string>(names.earnFocus);
 const DEFS = names.metrics as Def[];
 
 function defOf(r: Pick<Row, "c" | "n">): Def | null {
@@ -223,6 +229,9 @@ export function mergeRows(base: Row[], live: Row[] | null | undefined) {
 /** 결과를 띠에 남겨 두는 시간 */
 export const RESULT_HOLD = 12 * 3600_000;
 
+/** 발표 시각이 지났는데 값이 아직 없을 때 '집계 중'으로 남겨 두는 시간(실적은 정확한 시각이 없고 달력 반영이 늦다) */
+export const grace = (r: Release) => (r.group === "earn" ? 18 : 3) * 3600_000;
+
 /**
  * 띠에 올릴 발표 하나: 12시간 안에 결과가 나온 것이 있으면 그것(가장 최근),
  * 없으면 아직 결과가 없는 가장 가까운 발표(발표 시각이 지났는데 값이 아직이면 '집계 중')
@@ -231,7 +240,7 @@ export function bandPick(list: Release[], now: number): { r: Release; mode: "res
   const cands = list.filter((r) => r.band && r.metrics.some((m) => m.f || m.a));
   const done = cands.filter((r) => r.out && r.at <= now && now - r.at < RESULT_HOLD);
   if (done.length) return { r: done[done.length - 1], mode: "result" };
-  const next = cands.find((r) => !r.out && r.at > now - 3 * 3600_000);
+  const next = cands.find((r) => !r.out && r.at > now - grace(r));
   return next ? { r: next, mode: "next" } : null;
 }
 
@@ -241,14 +250,18 @@ export const kstDate = (ms: number) => kst(ms).toISOString().slice(0, 10);
 export const kstHm = (ms: number) => kst(ms).toISOString().slice(11, 16);
 
 /** '오늘 22:30' · '내일 04:00' · '11/14(금) 22:30' */
-export function whenLabel(at: number, now: number) {
+export function whenLabel(at: number, now: number, text?: string) {
   const d = kstDate(at);
   const today = kstDate(now);
   const tomorrow = kstDate(now + DAY);
   const k = kst(at);
   const day = d === today ? "오늘" : d === tomorrow ? "내일" : `${k.getUTCMonth() + 1}/${k.getUTCDate()}(${WD[k.getUTCDay()]})`;
+  if (text != null) return text ? `${day} ${text}` : day;
   return `${day} ${kstHm(at)}`;
 }
+
+/** 발표의 때 표시(실적은 아침·밤) */
+export const relWhen = (r: Release, now: number) => whenLabel(r.at, now, r.whenText);
 
 export const dayLabel = (d: string) => {
   const k = new Date(`${d}T00:00:00Z`);
@@ -261,6 +274,53 @@ export const VERDICT: Record<Verdict, string> = { beat: "예상 상회", match: 
 export function earningKst(e: Earning) {
   const d = e.when === "after" ? new Date(Date.parse(`${e.date}T00:00:00Z`) + DAY).toISOString().slice(0, 10) : e.date;
   return { date: d, when: e.when === "after" ? "아침" : e.when === "pre" ? "밤" : "" };
+}
+
+/** 주당순이익 $ 표기(음수는 -$0.12) */
+export const usd = (v: number) => `${v < 0 ? "-" : ""}$${Math.abs(v).toFixed(2)}`;
+
+/**
+ * 주목 기업 실적 → 발표(띠·발표 목록에 CPI처럼). 시각이 정해져 있지 않아 장 뒤 발표는 미국 16:00(한국 다음 날 아침),
+ * 장 전 발표는 미국 07:00(한국 밤)으로 두고 화면에는 '아침'·'밤'만 적는다. 시점을 모르면 장 뒤로 본다.
+ */
+export function earnReleases(list: Earning[] | null | undefined): Release[] {
+  return (list ?? [])
+    .filter((e) => EARN_FOCUS.has(e.symbol))
+    .map((e) => ({
+      id: `earn-${e.symbol}-${e.date}`,
+      group: "earn",
+      name: `${e.name} 실적`,
+      emoji: "💼",
+      band: true,
+      at: Date.parse(`${e.date}T${e.when === "pre" ? "07" : "16"}:00:00-05:00`),
+      whenText: e.when === "pre" ? "밤" : e.when === "after" ? "아침" : "",
+      metrics: [
+        {
+          label: "주당순이익(EPS)",
+          a: e.a != null ? usd(e.a) : "",
+          f: e.f != null ? usd(e.f) : "",
+          p: e.ly != null ? usd(e.ly) : "",
+          av: e.a,
+          fv: e.f,
+          pv: e.ly,
+          verdict: epsVerdict(e),
+          pLabel: "1년 전",
+        },
+      ],
+      out: e.a != null,
+    }));
+}
+
+/** 바탕 실적에 실시간 실적을 덮는다(같은 종목·날짜는 실시간 값, 이름·장 전/뒤·예상은 아는 쪽) */
+export function mergeEarnings(base: Earning[] | null | undefined, live: Earning[] | null | undefined) {
+  const out = new Map<string, Earning>();
+  for (const e of base ?? []) out.set(`${e.symbol}-${e.date}`, e);
+  for (const e of live ?? []) {
+    const k = `${e.symbol}-${e.date}`;
+    const b = out.get(k);
+    out.set(k, b ? { ...b, ...e, name: b.name, when: e.when || b.when, f: e.f ?? b.f, ly: e.ly ?? b.ly, capB: e.capB ?? b.capB } : e);
+  }
+  return [...out.values()];
 }
 
 export function epsVerdict(e: Earning): Verdict | null {
