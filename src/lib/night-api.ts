@@ -19,6 +19,8 @@ import {
   nightWindow,
   stepFor,
   windowSpark,
+  priceAt,
+  type NightInput,
   type Candle,
   type NightData,
   type NightWindow,
@@ -145,6 +147,21 @@ export function stockCloseFromRt(d: StockRt | undefined, ymd: string): number | 
   const falling = /FALL|LOWER/.test(d.compareToPreviousPrice?.name ?? "");
   const prev = falling ? close + diff : close - diff;
   return prev > 0 ? prev : null;
+}
+
+/** KRX 정규장 종가(15:30)는 야간 구간 시작(15:45)보다 15분 앞이다 */
+const KRX_CLOSE_LAG = 15 * MIN;
+
+/**
+ * 원화 환산 종목을 KRX 종가 기준으로 바꾼다: 원화 가격 = 종가 × (지금 무기한선물 ÷ 종가 시각 무기한선물), 등락률은 그 배율.
+ * 무기한선물 × 원/달러를 그대로 쓰면 환율·웃돈 때문에 종가와 수준이 어긋나 등락률이 1% 안팎 틀어진다(2026-11-11 삼성 −0.98%).
+ * 종가나 종가 시각 가격이 없으면, 또는 배율이 30% 넘게 벗어나면(자료 오류) 그대로 둔다.
+ */
+export function toKrxClose(i: NightInput, close: number | null | undefined, ref: number | null | undefined): NightInput {
+  if (!close || !ref || !i.krw || !(i.price > 0)) return i;
+  const r = i.price / ref;
+  if (Math.abs(r - 1) >= 0.3) return i;
+  return { ...i, krw: Math.round(close * r), chg: Math.round((r - 1) * 10000) / 100, krxClose: close };
 }
 
 async function loadStockClose(code: string, ymd: string) {
@@ -274,10 +291,11 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     close,
   });
   if (!data) return data;
-  // 원화 환산 종목(삼성전자·SK하이닉스): 등락률을 그날 KRX 종가 대비로(국내 앱의 시간외 시세와 같은 기준)
+  // 원화 환산 종목(삼성전자·SK하이닉스): 등락률을 그날 KRX 종가 대비로(국내 앱의 시간외 시세와 같은 기준).
+  // 종가 시각(15:30) 무기한선물 가격 대비 배율을 종가에 곱한다 — 환율·웃돈으로 생기는 수준 차이(11/11 약 1%)를 지운다
   const inputs = data.inputs.map((i) => {
-    const c = stockClose[i.coin];
-    return c && i.krw && Math.abs(i.krw / c - 1) < 0.3 ? { ...i, chg: Math.round((i.krw / c - 1) * 10000) / 100, krxClose: c } : i;
+    const ref = priceAt(candles[i.coin] ?? [], win.start - KRX_CLOSE_LAG)?.c;
+    return toKrxClose(i, stockClose[i.coin], ref);
   });
   // 장중: 지난밤 추정과 비교할 오늘 주간 시가(추정값과 3% 넘게 다르면 다른 월물로 보고 버린다)
   const ref = data.at0900 ?? data.est;
