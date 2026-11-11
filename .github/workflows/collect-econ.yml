@@ -1,0 +1,48 @@
+name: Collect econ
+
+# 경제지표 예상치·결과(/econ): 나스닥 경제지표·실적 달력과 연준 점도표를 받는다(collector/econ.py).
+# 발표 직후의 실제 값은 화면이 /api/econ(워커가 나스닥에서 바로 받음)으로 채우고, 이 작업은 하루 몇 번 바탕 자료를 새로 쓴다.
+# 예약(UTC): 07:45·19:45 KST와 미국 발표 직후(08:30·10:00·14:00 ET 뒤). GitHub 예약은 늦을 수 있다.
+on:
+  schedule:
+    - cron: "45 22 * * *"
+    - cron: "45 10 * * *"
+    - cron: "40 13,15,19 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [claude/project-thread-x5k7xj]
+    paths: [collector/econ.py, .github/workflows/collect-econ.yml]
+
+concurrency: collect-econ
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 받기
+        run: python collector/econ.py --out src/data/econ.json
+      - name: 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+        run: |
+          git add src/data/econ.json
+          # 갱신 시각만 바뀐 것은 올리지 않는다
+          if git diff --cached --quiet -I '"updated"'; then exit 0; fi
+          git config user.name "kosnas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -qm "경제지표 $(jq -r '.updated' src/data/econ.json)"
+          git pull -q --rebase origin "$BRANCH"
+          git push -q origin "HEAD:$BRANCH"
+          if [ "$BRANCH" = main ]; then gh workflow run deploy.yml --ref main; fi
