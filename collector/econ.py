@@ -4,7 +4,7 @@
   이 달력은 date=D 로 물으면 D 하루 전(미국 동부) 발표가 나오고, 시각은 UTC-5 고정이다(2026-11-11 확인:
   date=2026-11-11 에 11/10 08:30 CPI, date=2026-11-27 에 추수감사절). 날짜 계산은 화면(src/lib/econ.ts)이 한다.
 - 실적: api.nasdaq.com/api/calendar/earnings?date=D (이 달력은 date가 발표일 그대로). 시총 2,000억 달러 이상이거나
-  한국 투자자가 많이 보는 종목(schedule.KO_NAMES)만. 지난 날짜에는 실제 EPS·서프라이즈가 붙는다.
+  한국 투자자가 많이 보는 종목(schedule.KO_NAMES)·주목 기업(econ-names.json earnFocus)만. 지난 날짜에는 실제 EPS·서프라이즈가 붙는다.
 - 점도표: 연준 FOMC 일정 페이지에서 가장 최근 경제전망(SEP) 표 주소를 찾아 Figure 2(위원별 연말 금리 전망) 표를 읽는다.
 
 결과는 src/data/econ.json. 하나가 막혀도 나머지는 낸다(막힌 부분은 직전 파일 값을 그대로 둔다).
@@ -28,6 +28,7 @@ KST = dt.timezone(dt.timedelta(hours=9))
 ET = dt.timezone(dt.timedelta(hours=-5))
 NAMES = json.loads((Path(__file__).parent.parent / "src/data/econ-names.json").read_text(encoding="utf-8"))
 FED = "https://www.federalreserve.gov"
+FOCUS = set(NAMES.get("earnFocus", []))
 
 
 def get(url: str, headers: dict | None = None) -> bytes:
@@ -106,7 +107,7 @@ def earnings(start: dt.date, days: int) -> list[dict]:
         for r in (body.get("data") or {}).get("rows") or []:
             sym = (r.get("symbol") or "").strip()
             cap = num(str(r.get("marketCap") or "").replace("$", "")) or 0
-            if sym not in KO_NAMES and cap < BIG_CAP:
+            if sym not in KO_NAMES and sym not in FOCUS and cap < BIG_CAP:
                 continue
             t = r.get("time") or ""
             out.append(
@@ -185,6 +186,12 @@ def main():
         try:
             v = fn()
             data[key] = v if v is not None else old.get(key)
+            if key == "earnings" and v:
+                # 지난 날짜는 달력이 발표 시점(장 전·장 뒤)을 지운다 → 전에 받아 둔 값을 이어 쓴다
+                was = {(e["symbol"], e["date"]): e.get("when") for e in old.get("earnings") or []}
+                for e in v:
+                    if not e["when"]:
+                        e["when"] = was.get((e["symbol"], e["date"])) or ""
         except Exception as e:
             print(f"::warning::{key} 실패: {e}")
             data[key] = old.get(key)
