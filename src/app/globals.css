@@ -4680,9 +4680,7 @@ body:has(.tabbar) .toast {
   gap: 2px;
   font-size: 13px;
 }
-.ev-m.mini .ev-m-label::after {
-  content: " ($)";
-  color: var(--muted);
+.ev-m.mini .ev-m-label small {
   font-size: 11px;
 }
 .ev-mini-v {

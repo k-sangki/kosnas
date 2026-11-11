@@ -251,7 +251,9 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
       {mini ? (
         // 작은 그림: 이름·판정·호재 세 칸을 높이 고정으로(그림끼리 막대 높이가 맞게)
         <div className="ev-m-head">
-          <span className="ev-m-label">{m.label.replace("주당순이익(EPS)", "EPS")}</span>
+          <span className="ev-m-label">
+            {m.label.replace("주당순이익(EPS)", "EPS")} <small className="muted">({m.unit ?? "$"})</small>
+          </span>
           {has && m.verdict ? (
             <span className={`ev-mini-v ${m.verdict}`}>
               {m.verdict === "beat" ? "▲ 상회" : m.verdict === "miss" ? "▼ 하회" : "= 부합"}
@@ -295,7 +297,7 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
                   className="ev-col-v"
                   style={neg ? { top: `calc(${zero + len}% + 3px)` } : { bottom: `calc(${100 - zero + len}% + 3px)` }}
                 >
-                  {(mini ? c.s.replace("$", "") : c.s) || "—"}
+                  {(mini ? c.s.replace("$", "").replace(`${m.unit} `, "") : c.s) || "—"}
                 </span>
               </div>
             );

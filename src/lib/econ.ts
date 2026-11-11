@@ -52,6 +52,8 @@ export interface Earning {
   /** 순이익(달러, 적자는 음수): 실제·1년 전. 공개된 시장 예상치가 없다 */
   na?: number | null;
   nly?: number | null;
+  /** 매출·순이익 통화가 달러가 아니면(TSM 대만 달러, ASML 유로) */
+  cur?: string;
 }
 
 export interface Dots {
@@ -83,6 +85,8 @@ export interface Metric {
   pLabel?: string;
   /** 미국 증시 쪽 일반 해석: 2 강한 호재 … -2 강한 악재(2026-11-11 SK) */
   tone?: Tone | null;
+  /** 값의 통화(없으면 달러) */
+  unit?: string;
 }
 
 export type Tone = -2 | -1 | 0 | 1 | 2;
@@ -384,17 +388,18 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
 }
 
 /** 큰 달러 금액: 셋 중 가장 큰 값으로 단위(B·M)를 정해 같은 단위로 적는다(차이 계산이 단위를 맞춰야 한다) */
-export function moneyUnit(vs: (number | null | undefined)[]) {
+export function moneyUnit(vs: (number | null | undefined)[], cur?: string) {
+  const sym = cur && cur !== "USD" ? `${cur} ` : "$";
   const m = Math.max(0, ...vs.map((v) => (v != null ? Math.abs(v) : 0)));
   const [div, u, dec]: [number, string, number] = m >= 1e12 ? [1e12, "T", 2] : m >= 1e9 ? [1e9, "B", 2] : m >= 1e6 ? [1e6, "M", 0] : [1e3, "K", 0];
-  return (v: number | null | undefined) => (v == null ? "" : `${v < 0 ? "-" : ""}$${(Math.abs(v) / div).toFixed(dec)}${u}`);
+  return (v: number | null | undefined) => (v == null ? "" : `${v < 0 ? "-" : ""}${sym}${(Math.abs(v) / div).toFixed(dec)}${u}`);
 }
 
 /** 실적 매출·순이익 항목(값이 하나라도 있을 때만). 순이익은 시장 예상치가 없어 1년 전과만 견준다 */
 export function finMetrics(e: Earning): Metric[] {
   const out: Metric[] = [];
   if (e.rf != null || e.ra != null || e.rly != null) {
-    const fm = moneyUnit([e.rf, e.ra, e.rly]);
+    const fm = moneyUnit([e.rf, e.ra, e.rly], e.cur);
     const verdict = e.ra != null && e.rf != null ? revVerdict(e.ra, e.rf) : null;
     out.push({
       label: "매출",
@@ -407,10 +412,11 @@ export function finMetrics(e: Earning): Metric[] {
       verdict,
       tone: revTone(e.ra, e.rf),
       pLabel: "1년 전",
+      unit: e.cur,
     });
   }
   if (e.na != null || e.nly != null) {
-    const fm = moneyUnit([e.na, e.nly]);
+    const fm = moneyUnit([e.na, e.nly], e.cur);
     const loss = (e.na ?? e.nly ?? 0) < 0;
     out.push({
       label: loss ? "순손실" : "순이익",
@@ -423,6 +429,7 @@ export function finMetrics(e: Earning): Metric[] {
       verdict: null,
       tone: null,
       pLabel: "1년 전",
+      unit: e.cur,
     });
   }
   return out;

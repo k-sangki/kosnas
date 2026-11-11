@@ -276,7 +276,8 @@ def yahoo_profiles() -> dict:
         last = max(done, key=lambda q: q["date"]) if done else None
         if last:
             last.update(fin_quarter({"quoteSummary": {"result": [res]}}, last["q"]))
-        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": last, "hist": yahoo_hist(base, crumb, sym)}
+        cur = (res.get("earnings") or {}).get("financialCurrency") or "USD"
+        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": last, "hist": yahoo_hist(base, crumb, sym), "cur": cur}
         time.sleep(0.3)
     print(f"야후 기업 {len(out)}곳")
     return out
@@ -323,6 +324,9 @@ def attach_fin(earn: list[dict], comp: dict) -> None:
                 break
         m = re.match(r"([A-Za-z]{3})/(\d{4})", e.get("quarter") or "")
         hist = (profs.get(e["symbol"]) or {}).get("hist") or {}
+        cur = (profs.get(e["symbol"]) or {}).get("cur")
+        if cur and cur != "USD":
+            e["cur"] = cur
         if not m or m.group(1) not in MONTHS:
             continue
         ym = f"{int(m.group(2)) - 1:04d}-{MONTHS[m.group(1)]:02d}"
