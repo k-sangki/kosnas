@@ -1073,6 +1073,9 @@ body:has(.fab-bar) .foot {
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
+.night-price b.night-pt {
+  font-size: 24px;
+}
 .night-price span {
   font-size: 16px;
   font-weight: 700;
