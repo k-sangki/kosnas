@@ -1,0 +1,19 @@
+name: Econ probe
+on:
+  push:
+    branches: [econ-probe]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe
+        run: |
+          H=(-H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.nasdaq.com" -H "Referer: https://www.nasdaq.com/")
+          for d in 2026-11-05 2026-11-06 2026-11-10 2026-11-12 2026-11-13 2026-11-14; do
+            echo "=== econ $d"; curl -s "${H[@]}" "https://api.nasdaq.com/api/calendar/economicevents?date=$d" | head -c 6000; echo
+          done
+          echo "=== earnings 2026-11-19"; curl -s "${H[@]}" "https://api.nasdaq.com/api/calendar/earnings?date=2026-11-19" | head -c 2500; echo
+          echo "=== surprise NVDA"; curl -s "${H[@]}" "https://api.nasdaq.com/api/company/NVDA/earnings-surprise" | head -c 2500; echo
+          echo "=== surprise CSCO"; curl -s "${H[@]}" "https://api.nasdaq.com/api/company/CSCO/earnings-surprise" | head -c 1500; echo
+          echo "=== fed sep"; curl -s -o /dev/null -w "%{http_code}\n" "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm"
+          echo "=== fred"; curl -s "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPILFESL" | tail -3
