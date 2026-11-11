@@ -15,6 +15,7 @@ import datetime as dt
 import html
 import json
 import re
+import subprocess
 import sys
 import time
 import urllib.request
@@ -43,6 +44,15 @@ def get(url: str, headers: dict | None = None) -> bytes:
     return b""
 
 
+def nasdaq(url: str) -> dict:
+    """나스닥은 파이썬 urllib 요청을 403으로 막는다(2026-11-11, 같은 머리글의 curl은 됨). curl로 받는다"""
+    args = ["curl", "-sS", "--compressed", "-m", "30", "--retry", "2", "-f"]
+    for k, v in NASDAQ_HEADERS.items():
+        args += ["-H", f"{k}: {v}"]
+    out = subprocess.run([*args, url], capture_output=True, check=True).stdout
+    return json.loads(out)
+
+
 def wanted(country: str, name: str) -> bool:
     n = name.strip().lower()
     for m in NAMES["metrics"]:
@@ -64,7 +74,7 @@ def econ_rows(start: dt.date, days: int) -> list[dict]:
     out = []
     for k in range(days):
         d = start + dt.timedelta(days=k)
-        body = json.loads(get(f"https://api.nasdaq.com/api/calendar/economicevents?date={d.isoformat()}", NASDAQ_HEADERS))
+        body = nasdaq(f"https://api.nasdaq.com/api/calendar/economicevents?date={d.isoformat()}")
         for r in (body.get("data") or {}).get("rows") or []:
             c, n = clean(r.get("country")), clean(r.get("eventName"))
             t = clean(r.get("gmt"))
@@ -92,7 +102,7 @@ def earnings(start: dt.date, days: int) -> list[dict]:
         d = start + dt.timedelta(days=k)
         if d.weekday() >= 5:
             continue
-        body = json.loads(get(f"https://api.nasdaq.com/api/calendar/earnings?date={d.isoformat()}", NASDAQ_HEADERS))
+        body = nasdaq(f"https://api.nasdaq.com/api/calendar/earnings?date={d.isoformat()}")
         for r in (body.get("data") or {}).get("rows") or []:
             sym = (r.get("symbol") or "").strip()
             cap = num(str(r.get("marketCap") or "").replace("$", "")) or 0
