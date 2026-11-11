@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { atOf, bandPick, diffText, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
+import { atOf, bandPick, barScale, diffText, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
 
 const row = (n: string, a: string, f: string, p: string, d = "2026-11-11", t = "08:30"): Row => ({ d, t, c: "United States", n, a, f, p });
 
@@ -79,5 +79,24 @@ describe("경제지표", () => {
   it("연준 인사 이름", () => {
     expect(speechLabel("Fed Governor Jefferson Speaks")).toMatch(/^연준 이사 /);
     expect(speechLabel("Fed Chair Powell Testifies")).toMatch(/^연준 의장 .*의회 증언$/);
+  });
+});
+
+describe("barScale", () => {
+  it("모두 양수면 기준선이 바닥", () => {
+    const b = barScale([2, 4, null]);
+    expect(b.zero).toBe(100);
+    expect(b.h(4)).toBe(100);
+    expect(b.h(null)).toBe(0);
+  });
+  it("모두 음수면 기준선이 꼭대기, 손실이 줄면 막대가 짧다(코어위브 EPS)", () => {
+    const b = barScale([-0.6, -1.55, -1.27]);
+    expect(b.zero).toBe(0);
+    expect(b.h(-1.55)).toBe(100);
+    expect(b.h(-1.27)).toBeLessThan(b.h(-1.55));
+  });
+  it("양·음이 섞이면 그 사이", () => {
+    const b = barScale([1, -1, 2]);
+    expect(b.zero).toBeCloseTo(66.67, 1);
   });
 });

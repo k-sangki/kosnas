@@ -374,3 +374,14 @@ export function dotMedians(d: Dots) {
     return xs.length % 2 ? xs[m] : (xs[m - 1] + xs[m]) / 2;
   });
 }
+
+/** 막대 자: 0 기준선 위치(위에서 %)와 값마다 막대 길이(%). 모두 양수면 기준선이 바닥, 모두 음수면 꼭대기 */
+export function barScale(vs: (number | null)[]) {
+  const xs = vs.filter((v): v is number => v != null && Number.isFinite(v));
+  const hi = Math.max(0, ...xs);
+  const lo = Math.max(0, ...xs.map((v) => -v));
+  const span = hi + lo;
+  const zero = span ? (hi / span) * 100 : 100;
+  const h = (v: number | null) => (v == null || !span || v === 0 ? 0 : Math.max((Math.abs(v) / span) * 100, 2));
+  return { zero, hi, lo, h };
+}

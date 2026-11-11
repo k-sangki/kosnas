@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import {
   bandPick,
+  barScale,
   recentResults,
   dayLabel,
   diffText,
@@ -23,6 +24,7 @@ import {
   type Release,
   type Verdict,
 } from "@/lib/econ";
+import { CaptureArea } from "./CaptureArea";
 import { useEcon } from "./useEcon";
 
 const DAY = 86_400_000;
@@ -59,12 +61,22 @@ export function EconBoard() {
   return (
     <>
       {recent.length > 0 && (
-        <section className="card econ-top">
-          <p className="econ-kicker">최근 결과 · 하루 동안</p>
-          {recent.map((r) => (
-            <ReleaseCard key={r.id} r={r} now={now} dots={data.dots} big />
-          ))}
-        </section>
+        // 결과만 이미지로(다가오는 발표는 빼고, 2026-11-11 SK). 버튼은 오른쪽 아래에 작게
+        <CaptureArea
+          name="econ"
+          heading="경제지표 · 실적 결과"
+          title="경제지표 결과"
+          url="https://kosnas.com/econ"
+          foot="시장 예상치 대비 실제 값"
+          corner
+        >
+          <section className="card econ-top">
+            <p className="econ-kicker">최근 결과 · 하루 동안</p>
+            {recent.map((r) => (
+              <ReleaseCard key={r.id} r={r} now={now} dots={data.dots} big />
+            ))}
+          </section>
+        </CaptureArea>
       )}
       {next && (
         <section className="card econ-top">
@@ -174,7 +186,10 @@ function ReleaseCard({ r, now, dots, big }: { r: Release; now: number; dots: Dot
   );
 }
 
-/** 직전·예상·실제 세로 막대(0부터 같은 자, 2026-11-11 SK 채택 시안 ①) */
+/**
+ * 직전·예상·실제 세로 막대(시안 ①, 2026-11-11 SK 채택). 0이 기준선이고 음수는 그 아래로 내려 그린다
+ * (코어위브 EPS −1.27처럼 손실이 줄면 막대가 짧아진다).
+ */
 function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boolean; big?: boolean }) {
   const has = out && m.av != null;
   const gap = has ? diffText(m) : null;
@@ -183,7 +198,7 @@ function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boole
     { k: "fc", label: "예상", s: m.f, v: m.fv },
     { k: `act ${has ? (m.verdict ?? "") : "wait"}`, label: "실제", s: has ? m.a : "?", v: has ? m.av : null },
   ];
-  const max = Math.max(...cols.map((c) => Math.abs(c.v ?? 0)), 1e-9);
+  const { zero, hi, lo, h } = barScale(cols.map((c) => c.v));
   return (
     <div className={`ev-m${lead ? " lead" : ""}`}>
       <div className="ev-m-head">
@@ -196,20 +211,39 @@ function MetricRow({ m, out, lead, big }: { m: Metric; out: boolean; lead: boole
         )}
       </div>
       <div
-        className={`ev-bars${big ? " big" : ""}`}
+        className={`ev-bars${big ? " big" : ""}${hi ? " ev-pos" : ""}${lo ? " ev-neg" : ""}`}
         role="img"
         aria-label={`${m.pLabel ?? "직전"} ${m.p || "없음"}, 예상 ${m.f || "없음"}${has ? `, 실제 ${m.a}` : ""}`}
       >
-        {cols.map((c) => (
-          <div key={c.label} className={`ev-col ${c.k}`}>
-            <span className="ev-col-v">{c.s || "—"}</span>
-            <span
-              className={`ev-col-b${c.v != null && c.v < 0 ? " neg" : ""}`}
-              style={{ height: c.v != null ? `${Math.max((Math.abs(c.v) / max) * 100, 2)}%` : 0 }}
-            />
-            <small className="ev-col-l">{c.label}</small>
-          </div>
-        ))}
+        <div className="ev-plot">
+          <i className="ev-zero" style={{ top: `${zero}%` }} />
+          {cols.map((c) => {
+            // 값이 아직 없는 '실제'(?)도 모두 음수인 그림에서는 기준선 아래에 둔다
+            const neg = c.v != null ? c.v < 0 : !hi && lo > 0;
+            const len = h(c.v);
+            return (
+              <div key={c.label} className={`ev-col ${c.k}`}>
+                <span
+                  className={`ev-col-b${neg ? " neg" : ""}`}
+                  style={neg ? { top: `${zero}%`, height: `${len}%` } : { bottom: `${100 - zero}%`, height: `${len}%` }}
+                />
+                <span
+                  className="ev-col-v"
+                  style={neg ? { top: `calc(${zero + len}% + 3px)` } : { bottom: `calc(${100 - zero + len}% + 3px)` }}
+                >
+                  {c.s || "—"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="ev-labels">
+          {cols.map((c) => (
+            <small key={c.label} className="ev-col-l">
+              {c.label}
+            </small>
+          ))}
+        </div>
       </div>
     </div>
   );
