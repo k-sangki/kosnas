@@ -2,6 +2,7 @@ name: Collect econ
 
 # 경제지표 예상치·결과(/econ): 나스닥 경제지표·실적 달력과 연준 점도표를 받는다(collector/econ.py).
 # 발표 직후의 실제 값은 화면이 /api/econ(워커가 나스닥에서 바로 받음)으로 채우고, 이 작업은 하루 몇 번 바탕 자료를 새로 쓴다.
+# 지난 결과·기업별 다음 발표일은 src/data/econ-companies.json 에 쌓는다(지표·기업별 페이지).
 # 예약(UTC): 07:45·19:45 KST와 미국 발표 직후(08:30·10:00·14:00 ET 뒤). GitHub 예약은 늦을 수 있다.
 on:
   schedule:
@@ -22,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -35,9 +36,9 @@ jobs:
       - name: 올리기
         env:
           GH_TOKEN: ${{ github.token }}
-          BRANCH: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+          BRANCH: ${{ github.ref_name }}
         run: |
-          git add src/data/econ.json
+          git add src/data/econ.json src/data/econ-companies.json src/data/econ-open.json
           # 갱신 시각만 바뀐 것은 올리지 않는다
           if git diff --cached --quiet -I '"updated"'; then exit 0; fi
           git config user.name "kosnas-bot"

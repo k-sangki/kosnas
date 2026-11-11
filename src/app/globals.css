@@ -4590,3 +4590,79 @@ body:has(.tabbar) .toast {
 .night-intro .small-note {
   margin: 4px 0 0;
 }
+
+/* 지표·기업별 페이지(/econ/cpi, /econ/earnings/crwv) */
+.econ-sum p {
+  margin: 0;
+  line-height: 1.6;
+}
+.econ-sum p + p {
+  margin-top: 6px;
+}
+.ptable-wrap {
+  overflow-x: auto;
+}
+.econ-hist td,
+.econ-hist th {
+  padding-right: 10px;
+  white-space: nowrap;
+}
+.econ-hist tr.sub td {
+  border-top: 0;
+  padding-top: 0;
+  font-weight: 500;
+}
+.econ-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 0 10px;
+}
+.econ-rel-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line-2);
+  text-underline-offset: 3px;
+}
+
+/* 결과 카드의 증시 쪽 일반 해석(강한 호재 … 강한 악재, 2026-11-11 SK: 호재 밝은 녹색·악재 붉은색·중립 흰색, 사이는 중간색) */
+.ev-tone {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.ev-tone.t2 {
+  color: #12a150;
+}
+.ev-tone.t1 {
+  color: #5fae80;
+}
+.ev-tone.t0 {
+  color: var(--ink);
+}
+.ev-tone.t-1 {
+  color: #d9776f;
+}
+.ev-tone.t-2 {
+  color: #e5383b;
+}
+:root[data-theme="dark"] .ev-tone.t2 {
+  color: #3ddc84;
+}
+:root[data-theme="dark"] .ev-tone.t1 {
+  color: #8fd1a9;
+}
+:root[data-theme="dark"] .ev-tone.t0 {
+  color: #fff;
+}
+:root[data-theme="dark"] .ev-tone.t-1 {
+  color: #f0a39c;
+}
+:root[data-theme="dark"] .ev-tone.t-2 {
+  color: #ff5a5f;
+}

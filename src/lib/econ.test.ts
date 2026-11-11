@@ -100,3 +100,41 @@ describe("barScale", () => {
     expect(b.zero).toBeCloseTo(66.67, 1);
   });
 });
+
+describe("항목 페이지", () => {
+  it("지표·기업 페이지 목록이 카드 링크 목록과 같다", async () => {
+    const { ECON_PAGES, EARN_PAGES } = await import("./econ-pages");
+    const { ECON_PAGE_IDS, EARN_FOCUS, itemHref } = await import("./econ");
+    expect(ECON_PAGES.map((p) => p.id).sort()).toEqual([...ECON_PAGE_IDS].sort());
+    expect(EARN_PAGES.map((p) => p.sym).sort()).toEqual([...EARN_FOCUS].sort());
+    const { econOpen, earnOpen } = await import("./econ");
+    // 열린 것만 링크
+    for (const id of ECON_PAGE_IDS) expect(itemHref({ group: id })).toBe(econOpen(id) ? `/econ/${id}` : null);
+    for (const s of EARN_FOCUS) expect(itemHref({ group: "earn", sym: s })).toBe(earnOpen(s) ? `/econ/earnings/${s.toLowerCase()}` : null);
+    expect(itemHref({ group: "speech" })).toBeNull();
+  });
+});
+
+describe("증시 쪽 해석(tone)", () => {
+  it("CPI 0.1%p 상회는 악재, 0.2%p 이상은 강한 악재, 부합은 중립", async () => {
+    const { toneOf } = await import("./econ");
+    const t = [-1, 0.1, 0.2];
+    expect(toneOf(0.3, 0.2, t, "beat")).toBe(-1);
+    expect(toneOf(0.4, 0.2, t, "beat")).toBe(-2);
+    expect(toneOf(0.1, 0.2, t, "miss")).toBe(1);
+    expect(toneOf(0.2, 0.2, t, "match")).toBe(0);
+  });
+  it("고용 10만 상회는 강한 호재, 1만 차이는 중립", async () => {
+    const { toneOf } = await import("./econ");
+    const t = [1, 20000, 50000];
+    expect(toneOf(165000, 65000, t, "beat")).toBe(2);
+    expect(toneOf(75000, 65000, t, "beat")).toBe(0);
+  });
+  it("실적 EPS: 손실이 예상보다 크게 줄면 강한 호재(코어위브 -1.27 대 -1.55)", async () => {
+    const { epsTone } = await import("./econ");
+    expect(epsTone(-1.27, -1.55)).toBe(2);
+    expect(epsTone(2.05, 1.98)).toBe(1);
+    expect(epsTone(0.32, 0.32)).toBe(0);
+    expect(epsTone(0.9, 1.0)).toBe(-1);
+  });
+});
