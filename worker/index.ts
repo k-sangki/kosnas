@@ -138,14 +138,25 @@ async function ogImage(req: Request, env: Env, kind: "night" | "poll") {
   }
 }
 
+/** 이 배포의 버전 id. 화면(UpdateWatcher)이 지금 열린 화면의 버전과 비교해 새 배포를 알아챈다 */
+const versionOf = (env: Env) => env.CF_VERSION_METADATA?.id ?? "dev";
+
+/** HTML 머리에 이 배포의 버전을 적는다(<meta name="kn-version">) */
+function withVersion(res: Response, version: string) {
+  if (!(res.headers.get("content-type") ?? "").startsWith("text/html")) return res;
+  return new HTMLRewriter()
+    .on("head", { element: (el) => void el.append(`<meta name="kn-version" content="${version.replace(/[^\w-]/g, "")}">`, { html: true }) })
+    .transform(res);
+}
+
 async function page(req: Request, env: Env, ctx: ExecutionContext) {
-  return withLiveOg(req, await cachedPage(req, env, ctx));
+  return withVersion(withLiveOg(req, await cachedPage(req, env, ctx)), versionOf(env));
 }
 
 async function cachedPage(req: Request, env: Env, ctx: ExecutionContext) {
   const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
   if (!cache || req.method !== "GET") return handler.fetch(req, env, ctx) as Promise<Response>;
-  const key = await pageKey(req, env.CF_VERSION_METADATA?.id ?? "dev");
+  const key = await pageKey(req, versionOf(env));
   const hit = await cache.match(key).catch(() => undefined);
   if (hit) {
     const out = new Response(hit.body, hit);
@@ -178,6 +189,10 @@ const worker = {
       const out = new Response(res.body, res);
       out.headers.set("X-Robots-Tag", "noindex");
       return out;
+    }
+    if (url.pathname === "/api/version") {
+      // 홈 화면 앱이 새 배포(코드·자료)를 알아채는 데 쓴다. 캐시하지 않는다
+      return Response.json({ v: versionOf(env) }, { headers: { "Cache-Control": "no-store" } });
     }
     if (url.pathname === "/api/night") return nightGET(req);
     if (url.pathname === "/og/night.png") return ogImage(req, env, "night");

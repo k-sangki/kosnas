@@ -1073,6 +1073,9 @@ body:has(.fab-bar) .foot {
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
+.night-price b.night-pt {
+  font-size: 24px;
+}
 .night-price span {
   font-size: 16px;
   font-weight: 700;
@@ -3930,6 +3933,16 @@ button.ft-row {
   border-radius: 22px;
   font-size: 15px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+/* 새 버전 적용 단추(UpdateWatcher) */
+.update-toast {
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  -webkit-tap-highlight-color: transparent;
 }
 body:has(.tabbar) .toast {
   bottom: 150px;
