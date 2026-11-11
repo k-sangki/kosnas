@@ -18,10 +18,12 @@ interface Props {
   foot: string;
   /** 하단탭이 있는 화면: 탭 바로 위 오른쪽에 작은 '캡처' 버튼만(홈 화면 추가 없이) */
   dock?: boolean;
+  /** 하단탭이 없는 화면: 화면 오른쪽 아래 구석에 작은 '캡처' 버튼만 */
+  corner?: boolean;
 }
 
 /** 감싼 카드들을 이미지로 저장·공유하는 떠 있는 버튼(홈 화면 추가 포함). 국장·미장 탭이 쓴다 */
-export function CaptureArea({ children, stamp, heading, name, title, url, foot, dock }: Props) {
+export function CaptureArea({ children, stamp, heading, name, title, url, foot, dock, corner }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const target = useCallback(() => ref.current, []);
   const [at, setAt] = useState<number | null>(null);
@@ -42,14 +44,14 @@ export function CaptureArea({ children, stamp, heading, name, title, url, foot, 
           <b>kosnas.com</b>
         </div>
       </div>
-      {at == null && dock && (
-        <div className="fab-dock">
+      {at == null && (dock || corner) && (
+        <div className={`fab-dock${corner ? " fab-corner" : ""}`}>
           <button type="button" className="fab fab-cap" onClick={() => setAt(Date.now())}>
             <i className="logo-dot" aria-hidden /> 캡처
           </button>
         </div>
       )}
-      {at == null && !dock && (
+      {at == null && !dock && !corner && (
         <div className="fab-bar">
           <InstallButton />
           <button type="button" className="fab" onClick={() => setAt(Date.now())}>

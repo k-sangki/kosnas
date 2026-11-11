@@ -3934,6 +3934,16 @@ button.ft-row {
   font-size: 15px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
+/* 하단탭 없는 화면: 오른쪽 아래 구석의 작은 캡처 버튼(CaptureArea corner) */
+.fab-dock.fab-corner {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.fab-corner .fab.fab-cap {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 19px;
+  font-size: 13px;
+}
 /* 새 버전 적용 단추(UpdateWatcher) */
 .update-toast {
   border: 0;
@@ -4364,49 +4374,80 @@ body:has(.tabbar) .toast {
   color: var(--down);
 }
 .ev-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  height: 92px;
   margin: 6px 2px 2px;
 }
-.ev-bars.big {
-  height: 128px;
+/* 막대 칸: 0 기준선(.ev-zero) 위로 양수, 아래로 음수. 값 글씨 자리만큼 위·아래를 비운다 */
+.ev-plot {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  height: 72px;
+  margin: 20px 0 0;
+}
+.ev-bars.ev-neg .ev-plot {
+  margin-bottom: 24px;
+}
+.ev-bars.ev-neg:not(.ev-pos) .ev-plot {
+  margin-top: 4px;
+}
+.ev-bars.big .ev-plot {
+  height: 104px;
+  margin-top: 22px;
+}
+.ev-bars.big.ev-neg .ev-plot {
+  margin-bottom: 27px;
+}
+.ev-bars.big.ev-neg:not(.ev-pos) .ev-plot {
+  margin-top: 4px;
+}
+.ev-zero {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px solid var(--line);
+  z-index: 1;
 }
 .ev-col {
+  position: relative;
   flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
   min-width: 0;
 }
+.ev-col-b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  max-width: 88px;
+  border-radius: 6px 6px 0 0;
+}
+.ev-col-b.neg {
+  border-radius: 0 0 6px 6px;
+}
 .ev-col-v {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  text-align: center;
   font-size: 13px;
   font-weight: 700;
-  margin-bottom: 3px;
+  line-height: 1.2;
   white-space: nowrap;
 }
 .ev-bars.big .ev-col-v {
   font-size: 15px;
 }
-.ev-col-b {
-  display: block;
-  width: 100%;
-  max-width: 88px;
-  border-radius: 6px 6px 0 0;
-  flex: 0 1 auto;
-  min-height: 0;
+.ev-labels {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
 }
 .ev-col-l {
+  flex: 1;
+  min-width: 0;
   font-size: 11px;
   color: var(--muted);
-  margin-top: 4px;
-  border-top: 1px solid var(--line);
-  width: 100%;
   text-align: center;
-  padding-top: 3px;
 }
 .ev-col.pv .ev-col-b {
   background: var(--line-2);
@@ -4431,10 +4472,6 @@ body:has(.tabbar) .toast {
 }
 .ev-col.act.wait .ev-col-v {
   color: var(--muted);
-}
-.ev-col-b.neg {
-  opacity: 0.7;
-  background-image: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0, 0, 0, 0.28) 4px 8px);
 }
 
 /* 경제지표 띠: 하루 안 결과가 여러 개면 오른쪽에서 왼쪽으로 흐른다 */
