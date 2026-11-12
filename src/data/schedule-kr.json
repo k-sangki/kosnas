@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-12T03:09+09:00",
+ "updated": "2026-11-12T12:33+09:00",
  "events": [
   {
    "type": "dividend",
@@ -283,6 +283,16 @@
   },
   {
    "type": "dividend",
+   "code": "0039P0",
+   "name": "매드업",
+   "rcept": "20261112900257",
+   "record": "2026-11-30",
+   "perShare": 54.0,
+   "yield": 1.05,
+   "kind": "분기배당"
+  },
+  {
+   "type": "dividend",
    "code": "004170",
    "name": "신세계",
    "rcept": "20261110800287",
@@ -334,6 +344,16 @@
     "우리투자증권"
    ],
    "spac": true
+  },
+  {
+   "type": "dividend",
+   "code": "200670",
+   "name": "휴메딕스",
+   "rcept": "20261112900355",
+   "record": "2026-12-04",
+   "perShare": 200.0,
+   "yield": 0.9,
+   "kind": "분기배당"
   },
   {
    "type": "ipo",
