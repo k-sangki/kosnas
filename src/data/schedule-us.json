@@ -1,180 +1,124 @@
 {
- "updated": "2026-11-10T13:31+09:00",
+ "updated": "2026-11-13T03:47+09:00",
  "events": [
-  {
-   "symbol": "CEG",
-   "name": "컨스텔레이션 에너지",
-   "date": "2026-11-09",
-   "when": "pre",
-   "capB": 89
-  },
-  {
-   "symbol": "RKLB",
-   "name": "로켓랩",
-   "date": "2026-11-09",
-   "when": "after",
-   "capB": 33
-  },
-  {
-   "symbol": "ASTS",
-   "name": "AST 스페이스모바일",
-   "date": "2026-11-09",
-   "when": "after",
-   "capB": 13
-  },
-  {
-   "symbol": "HIMS",
-   "name": "힘스앤허스",
-   "date": "2026-11-09",
-   "when": "after",
-   "capB": 6
-  },
-  {
-   "symbol": "LCID",
-   "name": "루시드",
-   "date": "2026-11-09",
-   "when": "after",
-   "capB": 1
-  },
-  {
-   "symbol": "CRWV",
-   "name": "코어위브",
-   "date": "2026-11-10",
-   "when": "after",
-   "capB": 26
-  },
-  {
-   "symbol": "QBTS",
-   "name": "디웨이브",
-   "date": "2026-11-10",
-   "when": "pre",
-   "capB": 4
-  },
-  {
-   "symbol": "RGTI",
-   "name": "리게티",
-   "date": "2026-11-10",
-   "when": "after",
-   "capB": 4
-  },
   {
    "symbol": "CSCO",
    "name": "시스코",
    "date": "2026-11-12",
    "when": "after",
-   "capB": 370
+   "capB": 397
   },
   {
    "symbol": "AMAT",
    "name": "어플라이드 머티어리얼즈",
    "date": "2026-11-12",
    "when": "after",
-   "capB": 264
+   "capB": 314
   },
   {
    "symbol": "NBIS",
    "name": "네비우스",
    "date": "2026-11-12",
    "when": "pre",
-   "capB": 35
+   "capB": 42
   },
   {
    "symbol": "MUFG",
    "name": "미쓰비시UFJ",
    "date": "2026-11-13",
    "when": "",
-   "capB": 249
+   "capB": 260
   },
   {
    "symbol": "NVDA",
    "name": "엔비디아",
    "date": "2026-11-17",
    "when": "after",
-   "capB": 4498
+   "capB": 4187
   },
   {
    "symbol": "HD",
    "name": "홈디포",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 343
+   "capB": 350
   },
   {
    "symbol": "BHP",
    "name": "BHP",
    "date": "2026-11-17",
    "when": "",
-   "capB": 203
+   "capB": 208
   },
   {
    "symbol": "DIS",
    "name": "디즈니",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 202
+   "capB": 207
   },
   {
    "symbol": "PDD",
    "name": "PDD(테무)",
    "date": "2026-11-17",
    "when": "",
-   "capB": 118
+   "capB": 112
   },
   {
    "symbol": "JD",
    "name": "징둥",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 39
+   "capB": 37
   },
   {
    "symbol": "PANW",
    "name": "팔로알토",
    "date": "2026-11-18",
    "when": "after",
-   "capB": 257
+   "capB": 274
   },
   {
    "symbol": "LOW",
    "name": "로우스",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 126
+   "capB": 130
   },
   {
    "symbol": "TGT",
    "name": "타깃",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 72
+   "capB": 74
   },
   {
    "symbol": "WMT",
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 996
+   "capB": 997
   },
   {
    "symbol": "BABA",
    "name": "알리바바",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 265
+   "capB": 246
   },
   {
    "symbol": "HPE",
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 59
+   "capB": 67
   },
   {
    "symbol": "DELL",
    "name": "델",
    "date": "2026-11-24",
-   "when": "",
-   "capB": 209
+   "when": "after",
+   "capB": 238
   },
   {
    "symbol": "NIO",
@@ -182,6 +126,41 @@
    "date": "2026-11-24",
    "when": "",
    "capB": 8
+  },
+  {
+   "symbol": "CRWD",
+   "name": "크라우드스트라이크",
+   "date": "2026-12-01",
+   "when": "after",
+   "capB": 235
+  },
+  {
+   "symbol": "MRVL",
+   "name": "마벨",
+   "date": "2026-12-01",
+   "when": "after",
+   "capB": 148
+  },
+  {
+   "symbol": "MDB",
+   "name": "몽고DB",
+   "date": "2026-12-01",
+   "when": "after",
+   "capB": 27
+  },
+  {
+   "symbol": "CRM",
+   "name": "세일즈포스",
+   "date": "2026-12-02",
+   "when": "after",
+   "capB": 179
+  },
+  {
+   "symbol": "SNOW",
+   "name": "스노우플레이크",
+   "date": "2026-12-02",
+   "when": "after",
+   "capB": 106
   }
  ]
 }
