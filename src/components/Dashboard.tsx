@@ -362,6 +362,7 @@ const PAGE: Record<string, string> = {
   "P-TSLA": "/live/tesla",
   "P-MU": "/live/micron",
   "P-TSM": "/live/tsmc",
+  EWY: "/live/ewy",
   "P-BRENT": "/weekend-oil",
 };
 
