@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-13T03:47+09:00",
+ "updated": "2026-11-13T12:06+09:00",
  "events": [
   {
    "symbol": "CSCO",
@@ -27,14 +27,14 @@
    "name": "미쓰비시UFJ",
    "date": "2026-11-13",
    "when": "",
-   "capB": 260
+   "capB": 257
   },
   {
    "symbol": "NVDA",
    "name": "엔비디아",
    "date": "2026-11-17",
    "when": "after",
-   "capB": 4187
+   "capB": 4070
   },
   {
    "symbol": "HD",
@@ -48,28 +48,28 @@
    "name": "BHP",
    "date": "2026-11-17",
    "when": "",
-   "capB": 208
+   "capB": 206
   },
   {
    "symbol": "DIS",
    "name": "디즈니",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 207
+   "capB": 206
   },
   {
    "symbol": "PDD",
    "name": "PDD(테무)",
    "date": "2026-11-17",
    "when": "",
-   "capB": 112
+   "capB": 113
   },
   {
    "symbol": "JD",
    "name": "징둥",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 37
+   "capB": 38
   },
   {
    "symbol": "PANW",
