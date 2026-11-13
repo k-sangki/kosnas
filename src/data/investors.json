@@ -82,6 +82,133 @@
  ],
  "events": [
   {
+   "kind": "stake",
+   "issuer": "Recursion Pharmaceuticals, Inc.",
+   "ticker": "RXRX",
+   "pct": 8.36,
+   "shares": 44745024.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126833",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126833/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "Prime Medicine, Inc.",
+   "ticker": "PRME",
+   "pct": 5.54,
+   "shares": 10043508.0,
+   "event_date": "2026-09-30",
+   "amend": false,
+   "active": false,
+   "investor": "wood",
+   "form": "SCHEDULE 13G",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126830",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126830/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "Personalis, Inc.",
+   "ticker": "PSNL",
+   "pct": 6.67,
+   "shares": 7119390.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126828",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126828/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "GeneDx Holdings Corp.",
+   "ticker": "WGS",
+   "pct": 6.42,
+   "shares": 1913123.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126827",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126827/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "CRISPR Therapeutics AG",
+   "ticker": "CRSP",
+   "pct": 10.4,
+   "shares": 10056844.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126825",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126825/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "CERUS CORP",
+   "ticker": "CERS",
+   "pct": 10.18,
+   "shares": 20508004.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126824",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126824/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "Beam Therapeutics Inc.",
+   "ticker": "BEAM",
+   "pct": 11.43,
+   "shares": 11805372.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": 9.95,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126822",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126822/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
+   "kind": "stake",
+   "issuer": "Absci Corp",
+   "ticker": "ABSI",
+   "pct": 6.95,
+   "shares": 11928917.0,
+   "event_date": "2026-09-30",
+   "amend": true,
+   "active": false,
+   "prev_pct": null,
+   "investor": "wood",
+   "form": "SCHEDULE 13G/A",
+   "filed": "2026-11-13",
+   "acc": "0001104659-26-126821",
+   "url": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926126821/xslSCHEDULE_13G_X02/primary_doc.xml"
+  },
+  {
    "kind": "sell",
    "shares": 1500433.0,
    "value": 30147705,
@@ -306,160 +433,160 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-11-12",
+  "asof": "2026-11-13",
   "trades": [
    {
-    "date": "2026-11-12",
-    "fund": "ARKG",
-    "ticker": "PRME",
-    "name": "PRIME MEDICINE INC",
-    "kind": "buy",
-    "shares": 1744752,
-    "value": 7502436
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKG",
-    "ticker": "ABSI",
-    "name": "ABSCI CORP",
-    "kind": "sell",
-    "shares": 478356,
-    "value": 4840967
-   },
-   {
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "fund": "ARKK",
-    "ticker": "KTOS",
-    "name": "KRATOS DEFENSE & SECURITY",
-    "kind": "buy",
-    "shares": 66183,
-    "value": 2428241
+    "ticker": "",
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "sell",
+    "shares": 54339,
+    "value": 53907943
    },
    {
-    "date": "2026-11-12",
+    "date": "2026-11-13",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "KALSHI INC.",
+    "kind": "sell",
+    "shares": 19223,
+    "value": 20499220
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKK",
+    "ticker": "CRWV",
+    "name": "COREWEAVE INC-CL A",
+    "kind": "buy",
+    "shares": 223144,
+    "value": 12629959
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKK",
+    "ticker": "PLTR",
+    "name": "PALANTIR TECHNOLOGIES INC-A",
+    "kind": "sell",
+    "shares": 53720,
+    "value": 9217311
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKK",
+    "ticker": "TWST",
+    "name": "TWIST BIOSCIENCE CORP",
+    "kind": "buy",
+    "shares": 54782,
+    "value": 6257176
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKK",
+    "ticker": "AMZN",
+    "name": "AMAZON.COM INC",
+    "kind": "sell",
+    "shares": 16030,
+    "value": 4286980
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 2627375,
+    "value": 2627375
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKG",
+    "ticker": "TEM",
+    "name": "TEMPUS AI INC-CL A",
+    "kind": "sell",
+    "shares": 30888,
+    "value": 2344053
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKG",
+    "ticker": "TWST",
+    "name": "TWIST BIOSCIENCE CORP",
+    "kind": "buy",
+    "shares": 18001,
+    "value": 2056090
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 1999873,
+    "value": 1999873
+   },
+   {
+    "date": "2026-11-13",
     "fund": "ARKQ",
     "ticker": "BYDDY",
     "name": "BYD CO LTD-UNSPONSORED ADR",
     "kind": "sell",
-    "shares": 220348,
-    "value": 1921433
+    "shares": 230040,
+    "value": 1955340
    },
    {
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "fund": "ARKK",
-    "ticker": "ACHR",
-    "name": "ARCHER AVIATION INC-A",
-    "kind": "buy",
-    "shares": 184605,
-    "value": 897178
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKF",
-    "ticker": "HOOD",
-    "name": "ROBINHOOD MARKETS INC - A",
-    "kind": "sell",
-    "shares": 9785,
-    "value": 827574
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKF",
     "ticker": "",
-    "name": "OPENAI GROUP PBC SERIES C",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
     "kind": "sell",
-    "shares": 761,
-    "value": 754984
+    "shares": 1490151,
+    "value": 1490150
    },
    {
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "fund": "ARKQ",
-    "ticker": "ACHR",
-    "name": "ARCHER AVIATION INC-A",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 1201259,
+    "value": 1201259
+   },
+   {
+    "date": "2026-11-13",
+    "fund": "ARKQ",
+    "ticker": "KTOS",
+    "name": "KRATOS DEFENSE & SECURITY",
     "kind": "buy",
-    "shares": 132698,
-    "value": 644910
+    "shares": 29556,
+    "value": 1027071
    },
    {
-    "date": "2026-11-12",
-    "fund": "ARKF",
-    "ticker": "",
-    "name": "ARK BITCOIN ETF HOLDCO (ARKF)",
-    "kind": "sell",
-    "shares": 25123,
-    "value": 621047
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKX",
-    "ticker": "HONA",
-    "name": "HONEYWELL AEROSPACE INC",
-    "kind": "sell",
-    "shares": 3333,
-    "value": 565005
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKF",
-    "ticker": "",
-    "name": "KALSHI INC.",
-    "kind": "sell",
-    "shares": 268,
-    "value": 285439
-   },
-   {
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "fund": "ARKG",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 121758,
-    "value": 121758
+    "ticker": "SCTX",
+    "name": "SCRIBE THERAPEUTICS INC",
+    "kind": "buy",
+    "shares": 39093,
+    "value": 664197
    },
    {
-    "date": "2026-11-12",
-    "fund": "ARKK",
-    "ticker": "TER",
-    "name": "TERADYNE INC",
-    "kind": "exit",
-    "shares": 415,
-    "value": 101905
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKQ",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 48819,
-    "value": 48819
-   },
-   {
-    "date": "2026-11-12",
-    "fund": "ARKF",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 29708,
-    "value": 29708
-   },
-   {
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "fund": "ARKX",
     "ticker": "",
     "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "buy",
-    "shares": 8597,
-    "value": 8597
+    "kind": "sell",
+    "shares": 146029,
+    "value": 146029
    },
    {
-    "date": "2026-11-12",
-    "fund": "ARKF",
+    "date": "2026-11-13",
+    "fund": "ARKK",
     "ticker": "",
     "name": "BRERA HOLDINGS PLC WTS",
     "kind": "sell",
-    "shares": 1875,
-    "value": 2156
+    "shares": 92167,
+    "value": 103227
    }
   ]
  }
