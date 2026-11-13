@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-12",
- "since": "2026-10-13",
+ "updated": "2026-11-13",
+ "since": "2026-10-14",
  "window": 30,
  "failed": [],
  "investors": [
@@ -81,6 +81,22 @@
   }
  ],
  "events": [
+  {
+   "kind": "sell",
+   "shares": 1500433.0,
+   "value": 30147705,
+   "price": 20.09,
+   "after": 13710474.0,
+   "from": "2026-11-09",
+   "to": "2026-11-12",
+   "issuer": "Centuri Holdings, Inc.",
+   "ticker": "CTRI",
+   "investor": "icahn",
+   "form": "4",
+   "filed": "2026-11-12",
+   "acc": "0001539497-26-002941",
+   "url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726002941/xslF345X06/ownership.xml"
+  },
   {
    "kind": "stake",
    "issuer": "Tempus AI, Inc.",
