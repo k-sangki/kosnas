@@ -1,13 +1,6 @@
 {
- "updated": "2026-11-14T11:52+09:00",
+ "updated": "2026-11-15T01:55+09:00",
  "events": [
-  {
-   "symbol": "MUFG",
-   "name": "미쓰비시UFJ",
-   "date": "2026-11-13",
-   "when": "",
-   "capB": 258
-  },
   {
    "symbol": "NVDA",
    "name": "엔비디아",
