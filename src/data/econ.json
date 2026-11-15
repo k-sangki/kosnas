@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T01:44+09:00",
+ "updated": "2026-11-15T11:06+09:00",
  "rows": [
   {
    "d": "2026-11-03",
@@ -444,6 +444,15 @@
   },
   {
    "d": "2026-11-17",
+   "t": "05:00",
+   "c": "United States",
+   "n": "Fed Vice Chair for Supervision Barr Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-17",
    "t": "09:05",
    "c": "United States",
    "n": "FOMC Member Williams Speaks",
@@ -456,6 +465,15 @@
    "t": "12:00",
    "c": "United States",
    "n": "Fed Chair Warsh Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-17",
+   "t": "18:10",
+   "c": "United States",
+   "n": "FOMC Member Barkin Speaks",
    "a": "",
    "f": "",
    "p": ""
@@ -484,8 +502,17 @@
    "c": "United States",
    "n": "Retail Sales",
    "a": "",
-   "f": "0.0%",
+   "f": "0.2%",
    "p": "0.8%"
+  },
+  {
+   "d": "2026-11-18",
+   "t": "09:10",
+   "c": "United States",
+   "n": "Fed Waller Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
   },
   {
    "d": "2026-11-18",
@@ -547,8 +574,17 @@
    "c": "United States",
    "n": "Initial Jobless Claims",
    "a": "",
-   "f": "",
+   "f": "199K",
    "p": "200K"
+  },
+  {
+   "d": "2026-11-20",
+   "t": "09:25",
+   "c": "United States",
+   "n": "Fed Governor Jefferson Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
   },
   {
    "d": "2026-11-20",
@@ -583,7 +619,7 @@
    "c": "China",
    "n": "China Loan Prime Rate 5Y",
    "a": "",
-   "f": "",
+   "f": "3.50%",
    "p": "3.50%"
   },
   {
@@ -592,8 +628,17 @@
    "c": "China",
    "n": "PBoC Loan Prime Rate",
    "a": "",
-   "f": "",
+   "f": "3.00%",
    "p": "3.00%"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "08:25",
+   "c": "United States",
+   "n": "Fed Waller Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
   },
   {
    "d": "2026-11-21",
@@ -630,6 +675,15 @@
    "a": "",
    "f": "51.0",
    "p": "51.0"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "12:15",
+   "c": "United States",
+   "n": "Fed Governor Cook Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
   },
   {
    "d": "2026-11-25",
@@ -1360,7 +1414,7 @@
    "a": null,
    "s": null,
    "ly": 0.77,
-   "rf": 187185091390,
+   "rf": 187238713120,
    "rly": 179496000000.0,
    "nly": 6143000000.0
   },
@@ -1418,7 +1472,7 @@
    "a": null,
    "s": null,
    "ly": 2.28,
-   "rf": 49169931760,
+   "rf": 49169949940,
    "rly": 27005000000.0,
    "nly": 1548000000.0
   },
