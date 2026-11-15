@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-14",
- "since": "2026-10-15",
+ "updated": "2026-11-15",
+ "since": "2026-10-16",
  "window": 30,
  "failed": [],
  "investors": [
@@ -538,37 +538,6 @@
    "filed": "2026-10-20",
    "acc": "0001140361-26-040304",
    "url": "https://www.sec.gov/Archives/edgar/data/949509/000114036126040304/xslSCHEDULE_13G_X02/primary_doc.xml"
-  },
-  {
-   "kind": "sell",
-   "shares": 5224.0,
-   "value": 80972,
-   "price": 15.5,
-   "after": 7205667.0,
-   "from": "2026-08-20",
-   "to": "2026-08-20",
-   "issuer": "QVC Group, Inc.",
-   "ticker": "QVCG",
-   "investor": "marks",
-   "form": "4",
-   "filed": "2026-10-15",
-   "acc": "0001193125-26-423121",
-   "url": "https://www.sec.gov/Archives/edgar/data/949509/000119312526423121/xslF345X06/ownership.xml"
-  },
-  {
-   "kind": "stake",
-   "issuer": "Strata Critical Medical, Inc.",
-   "ticker": "SRTA",
-   "pct": 5.8,
-   "shares": 5126511.0,
-   "event_date": "2026-10-13",
-   "amend": false,
-   "active": true,
-   "investor": "loeb",
-   "form": "SCHEDULE 13D",
-   "filed": "2026-10-15",
-   "acc": "0000899140-26-001108",
-   "url": "https://www.sec.gov/Archives/edgar/data/1040273/000089914026001108/xslSCHEDULE_13D_X02/primary_doc.xml"
   }
  ],
  "ark": {
