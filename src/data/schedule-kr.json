@@ -1,26 +1,6 @@
 {
- "updated": "2026-11-16T11:36+09:00",
+ "updated": "2026-11-17T05:47+09:00",
  "events": [
-  {
-   "type": "dividend",
-   "code": "066360",
-   "name": "체리부로",
-   "rcept": "20261102900318",
-   "record": "2026-11-16",
-   "perShare": 50.0,
-   "yield": 3.45,
-   "kind": "분기배당"
-  },
-  {
-   "type": "dividend",
-   "code": "023160",
-   "name": "태광",
-   "rcept": "20261030900537",
-   "record": "2026-11-16",
-   "perShare": 78.0,
-   "yield": 0.3,
-   "kind": "분기배당"
-  },
   {
    "type": "dividend",
    "code": "051390",
@@ -306,6 +286,16 @@
    "spac": false
   },
   {
+   "type": "dividend",
+   "code": "084440",
+   "name": "유비온",
+   "rcept": "20261116901405",
+   "record": "2026-12-01",
+   "perShare": 35.0,
+   "yield": 0.7,
+   "kind": "결산배당"
+  },
+  {
    "type": "ipo",
    "name": "우리투자제1호기업인수목적",
    "rcept": "20261106000449",
@@ -417,18 +407,6 @@
    "price": 19000.0,
    "brokers": [
     "NH투자증권"
-   ],
-   "spac": false
-  },
-  {
-   "type": "ipo",
-   "name": "데스틴파워",
-   "rcept": "20261028000434",
-   "start": "2026-12-14",
-   "end": "2026-12-15",
-   "price": 8000.0,
-   "brokers": [
-    "한국투자증권"
    ],
    "spac": false
   },

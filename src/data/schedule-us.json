@@ -1,40 +1,40 @@
 {
- "updated": "2026-11-16T11:37+09:00",
+ "updated": "2026-11-17T05:48+09:00",
  "events": [
   {
    "symbol": "NVDA",
    "name": "엔비디아",
    "date": "2026-11-17",
    "when": "after",
-   "capB": 4005
+   "capB": 3925
   },
   {
    "symbol": "HD",
    "name": "홈디포",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 347
-  },
-  {
-   "symbol": "BHP",
-   "name": "BHP",
-   "date": "2026-11-17",
-   "when": "",
-   "capB": 206
+   "capB": 348
   },
   {
    "symbol": "DIS",
    "name": "디즈니",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 204
+   "capB": 205
+  },
+  {
+   "symbol": "BHP",
+   "name": "BHP",
+   "date": "2026-11-17",
+   "when": "",
+   "capB": 202
   },
   {
    "symbol": "JD",
    "name": "징둥",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 37
+   "capB": 38
   },
   {
    "symbol": "PANW",
@@ -83,21 +83,21 @@
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 67
+   "capB": 64
   },
   {
    "symbol": "DELL",
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 236
+   "capB": 219
   },
   {
    "symbol": "NIO",
    "name": "니오",
    "date": "2026-11-24",
    "when": "",
-   "capB": 8
+   "capB": 7
   },
   {
    "symbol": "CRWD",
@@ -132,14 +132,14 @@
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 105
+   "capB": 103
   },
   {
    "symbol": "RY",
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 281
+   "capB": 280
   },
   {
    "symbol": "TD",
