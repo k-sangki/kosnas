@@ -9,6 +9,10 @@ export interface Change {
 
 export const CHANGELOG: Change[] = [
   {
+    date: "2026-11-16",
+    items: ["가이드 추가: VIX 지수(공포지수) 읽는 법 - 숫자의 뜻과 코스피와의 관계"],
+  },
+  {
     date: "2026-11-12",
     items: ["가이드 추가: 이동평균선 읽는 법 - 50일선·200일선과 정배열"],
   },
