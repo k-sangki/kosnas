@@ -542,160 +542,151 @@
  ],
  "ark": {
   "started": "2026-10-22",
-  "asof": "2026-11-13",
+  "asof": "2026-11-16",
   "trades": [
    {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
     "fund": "ARKK",
     "ticker": "",
     "name": "OPENAI GROUP PBC SERIES C",
     "kind": "sell",
-    "shares": 54339,
-    "value": 53907943
+    "shares": 128914,
+    "value": 127890888
    },
    {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
+    "fund": "ARKK",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "buy",
+    "shares": 69223236,
+    "value": 69223236
+   },
+   {
+    "date": "2026-11-16",
+    "fund": "ARKK",
+    "ticker": "NTLA",
+    "name": "INTELLIA THERAPEUTICS INC",
+    "kind": "sell",
+    "shares": 7124478,
+    "value": 69107432
+   },
+   {
+    "date": "2026-11-16",
     "fund": "ARKK",
     "ticker": "",
     "name": "KALSHI INC.",
     "kind": "sell",
-    "shares": 19223,
-    "value": 20499220
+    "shares": 45605,
+    "value": 48632230
    },
    {
-    "date": "2026-11-13",
-    "fund": "ARKK",
-    "ticker": "CRWV",
-    "name": "COREWEAVE INC-CL A",
-    "kind": "buy",
-    "shares": 223144,
-    "value": 12629959
-   },
-   {
-    "date": "2026-11-13",
-    "fund": "ARKK",
-    "ticker": "PLTR",
-    "name": "PALANTIR TECHNOLOGIES INC-A",
+    "date": "2026-11-16",
+    "fund": "ARKF",
+    "ticker": "HOOD",
+    "name": "ROBINHOOD MARKETS INC - A",
     "kind": "sell",
-    "shares": 53720,
-    "value": 9217311
+    "shares": 35839,
+    "value": 2790452
    },
    {
-    "date": "2026-11-13",
-    "fund": "ARKK",
-    "ticker": "TWST",
-    "name": "TWIST BIOSCIENCE CORP",
-    "kind": "buy",
-    "shares": 54782,
-    "value": 6257176
-   },
-   {
-    "date": "2026-11-13",
-    "fund": "ARKK",
-    "ticker": "AMZN",
-    "name": "AMAZON.COM INC",
-    "kind": "sell",
-    "shares": 16030,
-    "value": 4286980
-   },
-   {
-    "date": "2026-11-13",
-    "fund": "ARKG",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 2627375,
-    "value": 2627375
-   },
-   {
-    "date": "2026-11-13",
-    "fund": "ARKG",
-    "ticker": "TEM",
-    "name": "TEMPUS AI INC-CL A",
-    "kind": "sell",
-    "shares": 30888,
-    "value": 2344053
-   },
-   {
-    "date": "2026-11-13",
-    "fund": "ARKG",
-    "ticker": "TWST",
-    "name": "TWIST BIOSCIENCE CORP",
-    "kind": "buy",
-    "shares": 18001,
-    "value": 2056090
-   },
-   {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
     "fund": "ARKF",
     "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "buy",
-    "shares": 1999873,
-    "value": 1999873
+    "name": "OPENAI GROUP PBC SERIES C",
+    "kind": "sell",
+    "shares": 2788,
+    "value": 2765405
    },
    {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "ARK BITCOIN ETF HOLDCO (ARKF)",
+    "kind": "sell",
+    "shares": 92023,
+    "value": 2097207
+   },
+   {
+    "date": "2026-11-16",
     "fund": "ARKQ",
     "ticker": "BYDDY",
     "name": "BYD CO LTD-UNSPONSORED ADR",
     "kind": "sell",
-    "shares": 230040,
-    "value": 1955340
+    "shares": 219468,
+    "value": 1830363
    },
    {
-    "date": "2026-11-13",
-    "fund": "ARKK",
+    "date": "2026-11-16",
+    "fund": "ARKF",
     "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "name": "KALSHI INC.",
     "kind": "sell",
-    "shares": 1490151,
-    "value": 1490150
+    "shares": 980,
+    "value": 1045523
    },
    {
-    "date": "2026-11-13",
-    "fund": "ARKQ",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 1201259,
-    "value": 1201259
-   },
-   {
-    "date": "2026-11-13",
-    "fund": "ARKQ",
-    "ticker": "KTOS",
-    "name": "KRATOS DEFENSE & SECURITY",
-    "kind": "buy",
-    "shares": 29556,
-    "value": 1027071
-   },
-   {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
     "fund": "ARKG",
     "ticker": "SCTX",
     "name": "SCRIBE THERAPEUTICS INC",
     "kind": "buy",
-    "shares": 39093,
-    "value": 664197
+    "shares": 28903,
+    "value": 472855
    },
    {
-    "date": "2026-11-13",
-    "fund": "ARKX",
-    "ticker": "",
-    "name": "GOLDMAN FS TRSY OBLIG INST 468",
-    "kind": "sell",
-    "shares": 146029,
-    "value": 146029
-   },
-   {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
     "fund": "ARKK",
     "ticker": "",
     "name": "BRERA HOLDINGS PLC WTS",
     "kind": "sell",
-    "shares": 92167,
-    "value": 103227
+    "shares": 218656,
+    "value": 233962
+   },
+   {
+    "date": "2026-11-16",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 209790,
+    "value": 209790
+   },
+   {
+    "date": "2026-11-16",
+    "fund": "ARKG",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 125726,
+    "value": 125726
+   },
+   {
+    "date": "2026-11-16",
+    "fund": "ARKQ",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 116251,
+    "value": 116251
+   },
+   {
+    "date": "2026-11-16",
+    "fund": "ARKX",
+    "ticker": "",
+    "name": "GOLDMAN FS TRSY OBLIG INST 468",
+    "kind": "sell",
+    "shares": 46363,
+    "value": 46363
+   },
+   {
+    "date": "2026-11-16",
+    "fund": "ARKF",
+    "ticker": "",
+    "name": "BRERA HOLDINGS PLC WTS",
+    "kind": "sell",
+    "shares": 6867,
+    "value": 7347
    }
   ]
  }
