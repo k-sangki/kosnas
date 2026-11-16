@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-17T05:40+09:00",
+ "updated": "2026-11-17T08:01+09:00",
  "rows": [
   {
    "d": "2026-11-03",
@@ -27,15 +27,6 @@
    "a": "",
    "f": "",
    "p": ""
-  },
-  {
-   "d": "2026-11-04",
-   "t": "10:00",
-   "c": "United States",
-   "n": "JOLTS Job Openings",
-   "a": "7.523M",
-   "f": "7.150M",
-   "p": "7.190M"
   },
   {
    "d": "2026-11-05",
@@ -236,132 +227,6 @@
    "p": ""
   },
   {
-   "d": "2026-11-11",
-   "t": "04:00",
-   "c": "United States",
-   "n": "Fed Waller Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-11",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Core CPI",
-   "a": "0.3%",
-   "f": "0.2%",
-   "p": "0.3%"
-  },
-  {
-   "d": "2026-11-11",
-   "t": "08:30",
-   "c": "United States",
-   "n": "CPI",
-   "a": "0.4%",
-   "f": "0.3%",
-   "p": "0.6%"
-  },
-  {
-   "d": "2026-11-11",
-   "t": "09:35",
-   "c": "United States",
-   "n": "Fed Logan Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-11",
-   "t": "13:30",
-   "c": "United States",
-   "n": "Fed Schmid Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-11",
-   "t": "15:30",
-   "c": "United States",
-   "n": "FOMC Member Bowman Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-11",
-   "t": "18:30",
-   "c": "United States",
-   "n": "FOMC Member Bowman Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Continuing Jobless Claims",
-   "a": "1,697K",
-   "f": "1,710K",
-   "p": "1,717K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Initial Jobless Claims",
-   "a": "200K",
-   "f": "194K",
-   "p": "191K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Fed Vice Chair for Supervision Barr Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "11:30",
-   "c": "United States",
-   "n": "Fed Goolsbee Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:10",
-   "c": "United States",
-   "n": "FOMC Member Daly Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:30",
-   "c": "United States",
-   "n": "Fed Schmid Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "18:30",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
    "d": "2026-11-14",
    "t": "08:30",
    "c": "United States",
@@ -524,42 +389,6 @@
    "p": ""
   },
   {
-   "d": "2026-11-19",
-   "t": "13:35",
-   "c": "United States",
-   "n": "Fed Vice Chair for Supervision Barr Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-19",
-   "t": "14:00",
-   "c": "United States",
-   "n": "FOMC Meeting Minutes",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-19",
-   "t": "14:30",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-19",
-   "t": "16:15",
-   "c": "United States",
-   "n": "FOMC Member Kashkari Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
    "d": "2026-11-20",
    "t": "08:30",
    "c": "United States",
@@ -630,60 +459,6 @@
    "a": "",
    "f": "3.00%",
    "p": "3.00%"
-  },
-  {
-   "d": "2026-11-21",
-   "t": "08:25",
-   "c": "United States",
-   "n": "Fed Waller Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-21",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Michigan 1-Year Inflation Expectations",
-   "a": "",
-   "f": "4.3%",
-   "p": "4.3%"
-  },
-  {
-   "d": "2026-11-21",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Michigan 5-Year Inflation Expectations",
-   "a": "",
-   "f": "3.4%",
-   "p": "3.4%"
-  },
-  {
-   "d": "2026-11-21",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Michigan Consumer Expectations",
-   "a": "",
-   "f": "50.9",
-   "p": "50.9"
-  },
-  {
-   "d": "2026-11-21",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Michigan Consumer Sentiment",
-   "a": "",
-   "f": "51.0",
-   "p": "51.0"
-  },
-  {
-   "d": "2026-11-21",
-   "t": "12:15",
-   "c": "United States",
-   "n": "Fed Governor Cook Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
   },
   {
    "d": "2026-11-25",
@@ -873,15 +648,6 @@
    "a": "",
    "f": "",
    "p": "4.00%"
-  },
-  {
-   "d": "2026-12-18",
-   "t": "22:00",
-   "c": "Japan",
-   "n": "BoJ Interest Rate Decision",
-   "a": "",
-   "f": "",
-   "p": "1.25%"
   }
  ],
  "earnings": [
@@ -1202,7 +968,7 @@
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 1016,
+   "capB": 1001,
    "quarter": "Oct/2026",
    "f": 0.64,
    "n": 12,
@@ -1231,7 +997,7 @@
    "name": "PDD(테무)",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 112,
+   "capB": 110,
    "quarter": "Sep/2026",
    "f": 2.61,
    "n": 2,
@@ -1244,7 +1010,7 @@
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 64,
+   "capB": 67,
    "quarter": "Oct/2026",
    "f": 1.17,
    "n": 7,
