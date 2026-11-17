@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { atOf, bandPick, barScale, diffText, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
+import { atOf, bandItems, bandPick, barScale, diffText, earnReleases, kstDate, kstHm, mergeEarnings, parseNum, releases, RESULT_HOLD, speechLabel, verdictOf, whenLabel, type Row } from "./econ";
 
 const row = (n: string, a: string, f: string, p: string, d = "2026-11-11", t = "08:30"): Row => ({ d, t, c: "United States", n, a, f, p });
 
@@ -63,6 +63,20 @@ describe("경제지표", () => {
     expect(done.name).toBe("코어위브(CRWV) 실적");
     expect(done.metrics[0].verdict).toBe("beat");
     expect(bandPick([done], morning)).toMatchObject({ mode: "result" });
+  });
+
+  it("큰 실적은 다른 결과에 가려지지 않고 48시간 앞서 띠에(엔비디아 2026-11-17 장 뒤)", () => {
+    const nv = { symbol: "NVDA", name: "엔비디아", date: "2026-11-17", when: "after" as const, capB: 3763, quarter: "", f: 2.49, n: 14, a: null, s: null, ly: 1.3 };
+    const hd = { ...nv, symbol: "WMT", name: "월마트", date: "2026-11-17", when: "pre" as const, capB: 800, f: 0.6, a: 0.62 };
+    const list = earnReleases([nv, hd]);
+    // 하루 전 아침(한국): 아직 멀었지만 이미 띠에
+    expect(bandItems(list, Date.parse("2026-11-17T07:00:00+09:00")).map((x) => x.r.sym)).toContain("NVDA");
+    // 다른 결과가 나와 있어도 함께
+    const items = bandItems(list, Date.parse("2026-11-18T06:30:00+09:00"));
+    expect(items.map((x) => [x.r.sym, x.mode])).toEqual([["NVDA", "next"], ["WMT", "result"]]);
+    // 48시간보다 멀면 아직 없음
+    expect(bandItems([list[0]], Date.parse("2026-11-15T12:00:00+09:00")).map((x) => x.r.sym)).toEqual(["NVDA"]);
+    expect(bandItems(list, Date.parse("2026-11-15T12:00:00+09:00"))).toHaveLength(1);
   });
 
   it("차이를 예상치 단위로", () => {

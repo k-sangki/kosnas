@@ -128,6 +128,8 @@ export interface Release {
   whenText?: string;
   /** 실적이면 종목 기호 */
   sym?: string;
+  /** 다가오는 큰 발표(결과 전부터 띠에 올림): FOMC·CPI 같은 지표, 시총 1조 달러 이상·earnBig 실적 */
+  big?: boolean;
 }
 
 type Group = { name: string; emoji: string; band: boolean };
@@ -135,6 +137,10 @@ type Def = { country: string; name?: string; re?: string; group: string; label: 
 const GROUPS = names.groups as Record<string, Group>;
 /** 띠와 발표 목록에 CPI처럼 한 건씩 올리는 주목 기업 */
 export const EARN_FOCUS = new Set<string>(names.earnFocus);
+const BAND_AHEAD = new Set<string>(names.bandAhead);
+const EARN_BIG = new Set<string>(names.earnBig);
+/** 큰 발표는 이만큼 앞서부터 띠에 올린다(장 뒤 실적은 한국 아침이라 이틀 전 아침부터) */
+export const BAND_AHEAD_MS = 48 * 3600_000;
 const DEFS = names.metrics as Def[];
 
 function defOf(r: Pick<Row, "c" | "n">): Def | null {
@@ -254,6 +260,7 @@ export function releases(rows: Row[]): Release[] {
       name: grp.name,
       emoji: grp.emoji,
       band: grp.band,
+      big: BAND_AHEAD.has(g.group),
       at: g.at,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       metrics: metrics.map(({ primary, order, ...m }) => m),
@@ -281,6 +288,23 @@ const shown = (r: Release) => r.band && r.metrics.some((m) => m.f || m.a);
 /** 하루 안에 결과가 나온 발표(최근 것 먼저). 띠는 여러 개면 흘려서 모두 보인다 */
 export function recentResults(list: Release[], now: number) {
   return list.filter((r) => shown(r) && r.out && r.at <= now && now - r.at < RESULT_HOLD).sort((a, b) => b.at - a.at);
+}
+
+/**
+ * 첫 화면 띠에 올릴 발표들: 하루 안에 나온 결과 + 48시간 안의 큰 발표(결과 전·집계 중).
+ * 큰 발표가 결과 띠에 가려 안 보이던 것을 고침(2026-11-18, 엔비디아 실적이 홈디포·디즈니 결과에 밀려 빠졌다).
+ * 둘 다 없으면 가장 가까운 발표 하나.
+ */
+export function bandItems(list: Release[], now: number): { r: Release; mode: "result" | "next" }[] {
+  const ahead = list
+    .filter((r) => r.big && shown(r) && !r.out && r.at > now - grace(r) && r.at - now < BAND_AHEAD_MS)
+    .sort((a, b) => a.at - b.at)
+    .map((r) => ({ r, mode: "next" as const }));
+  const done = recentResults(list, now).map((r) => ({ r, mode: "result" as const }));
+  const items = [...ahead, ...done];
+  if (items.length) return items;
+  const pick = bandPick(list, now);
+  return pick ? [pick] : [];
 }
 
 /**
@@ -366,6 +390,7 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
       name: `${tickerName(e)} 실적`,
       emoji: "💼",
       band: true,
+      big: EARN_BIG.has(e.symbol) || (e.capB ?? 0) >= 1000,
       at: Date.parse(`${e.date}T${e.when === "pre" ? "07" : "16"}:00:00-05:00`),
       whenText: e.when === "pre" ? "밤" : e.when === "after" ? "아침" : "",
       metrics: [

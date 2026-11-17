@@ -65,6 +65,9 @@
   { "country": "United States", "name": "FOMC Meeting Minutes", "group": "minutes", "label": "의사록" },
   { "country": "United States", "re": "^(Fed|FOMC Member|Fed Chair|Fed Vice Chair).*(Speaks|Testifies)$", "group": "speech", "label": "" }
  ],
+ "_bandAhead": "다가오는 큰 발표: 결과가 나오기 전부터(48시간 앞서) 첫 화면 띠에 결과와 함께 올린다(2026-11-18 SK: 엔비디아 실적은 하루 전부터 띠에 있어야 했다). 지표는 묶음 이름, 실적은 시총 1조 달러 이상 또는 earnBig.",
+ "bandAhead": ["fomc", "cpi", "pce", "jobs", "bok"],
+ "earnBig": ["NVDA", "MSFT", "AAPL", "GOOGL", "AMZN", "META", "TSLA", "AVGO", "TSM", "CRWV", "PLTR", "ORCL", "MU", "AMD"],
  "_earnFocus": "띠와 발표 목록에 CPI처럼 한 건씩 올리는 주목 기업(그 밖의 실적은 '기업 실적' 칸에 모아 둔다).",
  "earnFocus": ["NVDA", "MSFT", "AAPL", "GOOGL", "AMZN", "META", "TSLA", "AVGO", "TSM", "ORCL", "AMD", "MU", "NFLX", "PLTR", "CRWV", "NBIS", "ASML", "ARM", "SMCI", "DELL", "HPE", "AMAT", "LRCX", "KLAC", "MRVL", "INTC", "QCOM", "ANET", "CSCO", "SNOW", "CRM", "WMT", "JPM"],
  "_tone": "metrics[].tone = [방향, 보통 문턱, 큰 문턱]: 실제가 예상보다 크면 미국 증시에 +1(호재 쪽)/-1(악재 쪽), 차이(실제 단위, %는 %p)가 보통 문턱 미만이면 중립, 큰 문턱 이상이면 '강한'. 일반적인 해석일 뿐 실제 시장 반응은 다를 수 있다(2026-11-11 SK)"

@@ -1,29 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { bandPick, diffText, recentResults, relWhen, VERDICT, waitText, type Release } from "@/lib/econ";
+import { bandItems, diffText, relWhen, VERDICT, waitText, type Release } from "@/lib/econ";
 import { useEcon } from "./useEcon";
 
 /**
  * 첫 화면 한 줄 띠 → /econ. 캡처에는 들어가지 않는다.
  * 결과가 나오면 하루 동안 '결과 나왔어요'로 두고, 하루 안에 결과가 여러 개면 오른쪽에서 왼쪽으로 흘려 모두 보인다.
  * 결과가 없으면 가장 가까운 발표의 예상치(2026-11-11 SK).
+ * 엔비디아 실적·CPI·FOMC 같은 큰 발표는 48시간 앞서부터 결과와 함께 흘린다(2026-11-18 SK).
  */
 export function EconBand() {
   const { now, list } = useEcon();
   if (!now) return null;
-  const done = recentResults(list, now);
-  if (done.length > 1) {
+  const all = bandItems(list, now);
+  if (all.length > 1) {
     // 같은 줄을 두 번 이어 붙여 끊김 없이 흐르게 한다(움직임 줄이기 설정이면 멈추고 옆으로 밀어 본다)
-    const items = [...done, ...done];
+    const items = [...all, ...all];
+    const anyNext = all.some((x) => x.mode === "next");
     return (
-      <div className="econ-band econ-ticker no-capture" aria-label="최근 발표 결과">
-        <b className="econ-band-tag econ-ticker-tag">결과 나왔어요</b>
+      <div className="econ-band econ-ticker no-capture" aria-label={anyNext ? "주목할 발표" : "최근 발표 결과"}>
+        <b className="econ-band-tag econ-ticker-tag">{anyNext ? "주목 발표" : "결과 나왔어요"}</b>
         <div className="econ-ticker-view">
-          <div className="econ-ticker-track" style={{ animationDuration: `${done.length * 9}s` }}>
-            {items.map((r, i) => (
-              <Link key={`${r.id}-${i}`} href={`/econ#${r.id}`} className="econ-ticker-item" aria-hidden={i >= done.length || undefined} tabIndex={i >= done.length ? -1 : undefined}>
-                <span aria-hidden>{r.emoji}</span> <span className="econ-band-name">{r.name}</span> <ResultNum r={r} />
+          <div className="econ-ticker-track" style={{ animationDuration: `${all.length * 9}s` }}>
+            {items.map(({ r, mode }, i) => (
+              <Link key={`${r.id}-${i}`} href={`/econ#${r.id}`} className="econ-ticker-item" aria-hidden={i >= all.length || undefined} tabIndex={i >= all.length ? -1 : undefined}>
+                <span aria-hidden>{r.emoji}</span>{" "}
+                {mode === "next" && <b className="econ-band-when">{r.at <= now ? waitText(r) : relWhen(r, now)}</b>}
+                {mode === "result" && anyNext && <b className="econ-band-tag">결과</b>} <span className="econ-band-name">{r.name}</span>{" "}
+                {mode === "result" ? <ResultNum r={r} /> : <NextNum r={r} />}
               </Link>
             ))}
           </div>
@@ -31,7 +36,7 @@ export function EconBand() {
       </div>
     );
   }
-  const pick = bandPick(list, now);
+  const pick = all[0];
   if (!pick) return null;
   const { r, mode } = pick;
   const m = r.metrics[0];
@@ -46,23 +51,24 @@ export function EconBand() {
           {mode === "result" ? <b className="econ-band-tag">결과 나왔어요</b> : <b className="econ-band-when">{waiting ? waitText(r) : relWhen(r, now)}</b>}
           <span className="econ-band-name">{r.name}</span>
         </span>
-        {m && (
-          <span className="econ-band-num">
-            {mode === "result" ? (
-              <ResultNum r={r} />
-            ) : (
-              <>
-                {m.label} 예상 <b>{m.f || "—"}</b>
-                {m.p && <span className="muted"> · {m.pLabel ?? "직전"} {m.p}</span>}
-              </>
-            )}
-          </span>
-        )}
+        {m && (mode === "result" ? <ResultNum r={r} /> : <NextNum r={r} />)}
       </span>
       <span className="econ-band-go" aria-hidden>
         ›
       </span>
     </Link>
+  );
+}
+
+/** '주당순이익(EPS) 예상 $2.49 · 1년 전 $1.30' */
+function NextNum({ r }: { r: Release }) {
+  const m = r.metrics[0];
+  if (!m) return null;
+  return (
+    <span className="econ-band-num">
+      {m.label} 예상 <b>{m.f || "—"}</b>
+      {m.p && <span className="muted"> · {m.pLabel ?? "직전"} {m.p}</span>}
+    </span>
   );
 }
 
