@@ -178,7 +178,12 @@ async function cachedPage(req: Request, env: Env, ctx: ExecutionContext) {
 const worker = {
   async fetch(req: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(req.url);
-    if (url.hostname === "www.kosnas.com" || (url.hostname === "kosnas.com" && url.protocol === "http:")) {
+    // *.workers.dev 기본 주소도 같은 페이지를 내므로 구글이 복사본으로 모으지 않게 한 주소로 보낸다(2026-11-17 노출 급감 점검)
+    if (
+      url.hostname === "www.kosnas.com" ||
+      url.hostname.endsWith(".workers.dev") ||
+      (url.hostname === "kosnas.com" && url.protocol === "http:")
+    ) {
       url.hostname = "kosnas.com";
       url.protocol = "https:";
       return Response.redirect(url.toString(), 301);
