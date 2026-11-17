@@ -8,19 +8,21 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // 첫 화면 익명 채팅방(worker/chat-room.ts)과 '오늘의 한 표' 투표함(worker/poll-room.ts).
+  // 첫 화면 익명 채팅방(worker/chat-room.ts), '오늘의 한 표' 투표함(worker/poll-room.ts), '오늘의 한 줄' 담벼락(worker/wall-room.ts).
   // SQLite 저장소라 무료 요금제에서도 쓸 수 있다
   "durable_objects": {
     "bindings": [
       { "name": "CHAT", "class_name": "ChatRoom" },
       { "name": "POLL", "class_name": "PollRoom" },
-      { "name": "RECORD", "class_name": "NightRecord" }
+      { "name": "RECORD", "class_name": "NightRecord" },
+      { "name": "WALL", "class_name": "WallRoom" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["ChatRoom"] },
     { "tag": "v2", "new_sqlite_classes": ["PollRoom"] },
-    { "tag": "v3", "new_sqlite_classes": ["NightRecord"] }
+    { "tag": "v3", "new_sqlite_classes": ["NightRecord"] },
+    { "tag": "v4", "new_sqlite_classes": ["WallRoom"] }
   ],
   // 배포마다 바뀌는 버전 id. worker/index.ts 가 페이지 엣지 캐시 키에 넣어 새 배포가 옛 페이지를 내지 않게 한다
   "version_metadata": { "binding": "CF_VERSION_METADATA" },

@@ -18,6 +18,7 @@ import { InstallButton } from "./InstallButton";
 import { CaptureSheet } from "./CaptureSheet";
 import { Fold } from "./Fold";
 import { Chat } from "./Chat";
+import { Wall } from "./Wall";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
 import { NightPnl } from "./NightPnl";
@@ -361,6 +362,7 @@ export function NightBoard({ heading = "h1" }: { heading?: "h1" | "h2" } = {}) {
           {d && <NightRecordLine refresh={state === "day" ? Math.floor(d.updated / 600_000) : 0} />}
         </section>
         <Poll weekend={weekend} />
+        <Wall />
         <Chat />
         <Dashboard d={d} />
         <NightPnl d={d} />

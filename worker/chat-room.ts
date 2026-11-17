@@ -27,7 +27,7 @@ type Row = { id: number; at: number; nick: string; tag: string; text: string; re
 const ADMIN_HASH = "8f07591cc9cde0fbb483bbe8771477cd0de3b6b0acc28ca56abc9579cefc528b";
 const BAN_MS = 24 * 3600_000;
 
-async function isAdmin(key: unknown) {
+export async function isAdmin(key: unknown) {
   if (typeof key !== "string" || !key) return false;
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`kosnas-chat-admin:${key}`));
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("") === ADMIN_HASH;
