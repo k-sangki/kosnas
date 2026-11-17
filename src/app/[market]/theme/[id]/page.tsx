@@ -8,6 +8,7 @@ import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
+import { THEME_GUIDES } from "@/lib/theme-guides";
 import { asofDay, asofPrefix, breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
 import { capText } from "@/lib/screens";
 import { sectorData, signed } from "@/lib/sectors";
@@ -169,8 +170,24 @@ export default async function ThemePage({
             확인하세요. 종목을 누르면 차트가 열립니다.
           </p>
         </section>
+        {stocks.length > 0 && (
+          <section className="card seo-text">
+            <h2 className="card-title">
+              숫자로 본 {t.name} 관련주{" "}
+              <span className="muted">{themeAsof} 종가</span>
+            </h2>
+            <p>{themeSummary(t.name, stocks)}</p>
+          </section>
+        )}
         <AdSlot slot={AD_SLOTS.sector} />
         <section className="card seo-text">
+          {(THEME_GUIDES[t.id] ?? []).map(([title, paras]) => (
+            <Fold key={title} title={title}>
+              {paras.map((x) => (
+                <p key={x.slice(0, 20)}>{x}</p>
+              ))}
+            </Fold>
+          ))}
           <Fold title={`${t.name} 관련주는 무엇에 움직이나요`}>
             <p>{t.drivers}</p>
           </Fold>
@@ -215,4 +232,36 @@ export default async function ThemePage({
       <SiteFooter />
     </div>
   );
+}
+
+/** 그날 자료로 쓰는 한 문단(날마다 달라지는 고유 내용). 지나간 시세를 적을 뿐 권유하지 않는다 */
+function themeSummary(
+  name: string,
+  stocks: { name: string; above50: boolean; fromHigh: number | null; r: Record<string, number | null> }[],
+) {
+  const n = stocks.length;
+  const up50 = stocks.filter((s) => s.above50).length;
+  const r20 = stocks.filter((s) => s.r["20"] != null).sort((a, b) => b.r["20"]! - a.r["20"]!);
+  const rising = r20.filter((s) => s.r["20"]! > 0).length;
+  const fh = stocks.map((s) => s.fromHigh).filter((v): v is number => v != null).sort((a, b) => a - b);
+  const med = fh.length ? fh[Math.floor(fh.length / 2)] : null;
+  const parts = [
+    `${name} 관련주 ${n}종목 가운데 50일 이동평균선 위에 있는 종목은 ${up50}개(${Math.round((up50 / n) * 100)}%)입니다.`,
+  ];
+  if (r20.length) {
+    const best = r20[0];
+    const worst = r20[r20.length - 1];
+    parts.push(
+      `최근 20거래일 동안 오른 종목은 ${rising}개, 내린 종목은 ${r20.length - rising}개였고, 가장 많이 오른 종목은 ${best.name}(${signed(best.r["20"])}%), 가장 많이 내린 종목은 ${worst.name}(${signed(worst.r["20"])}%)입니다.`,
+    );
+  }
+  if (med != null) parts.push(`종목들의 52주 고점 대비 거리는 중간값 ${med.toFixed(1)}%입니다.`);
+  parts.push(
+    up50 / n >= 0.6
+      ? "절반이 훨씬 넘는 종목이 50일선 위에 있어 테마 전반이 함께 움직이는 구간으로 볼 수 있습니다."
+      : up50 / n <= 0.3
+        ? "50일선 위 종목이 적어 테마 전반은 약한 흐름이고, 오르는 종목은 일부에 그치고 있습니다."
+        : "50일선 위 종목이 절반 안팎이라 테마 안에서도 종목별로 흐름이 갈리고 있습니다.",
+  );
+  return parts.join(" ");
 }
