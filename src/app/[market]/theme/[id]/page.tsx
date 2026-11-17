@@ -101,7 +101,7 @@ export default async function ThemePage({
         <Link href="/kr" className="back">
           ← 국장 섹터 순환
         </Link>
-        <h1 className="page-title">{themeLabel(t)} 관련주·대장주</h1>
+        <h1 className="page-title">{themeLabel(t)} 관련주 대장주 {stocks.length}종목</h1>
         <p className="lead">
           {t.about} {y}년 {m}월 {d}일 종가 기준 {stocks.length}종목
           {top.length > 0 &&
