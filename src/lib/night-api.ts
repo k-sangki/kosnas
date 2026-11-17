@@ -222,15 +222,19 @@ export function futOpenFromRt(d: FutRt | undefined, ymd: string): number | null 
   return d.localTradedAt?.slice(0, 10).replace(/-/g, "") === ymd ? v : null;
 }
 
-/** 주간 종가는 그날 16:10(네이버 20분 지연 뒤)부터 받는다. 만기일은 끝나는 월물의 종가라 쓰지 않는다 */
+/**
+ * 주간 종가. 네이버 선물 시세는 20분 늦어 16:05쯤 확정 종가가 들어오므로, 15:45~16:10에는 그 시각 지연 가격(종가 직전 값)을
+ * 1분마다 다시 받아 임시 기준으로 쓴다 — 전에는 이 사이 15:45 추정값을 기준으로 썼는데, 그 1분봉이 튀면(2026-11-17 772.44 →
+ * 1분 뒤 770.22) 등락률 부호가 뒤집혔다. 만기일은 끝나는 월물의 종가라 쓰지 않는다
+ */
 async function closeFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
-  if (isExpiryDay(win) || now < win.start + 25 * MIN) return null;
+  if (isExpiryDay(win) || now < win.start) return null;
   const key = new Request(new URL(`/api/night/close?${win.start}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
   if (hit) return ((await hit.json()) as { close: number | null }).close;
   const close = await loadClose(win).catch(() => null);
   // 받은 첫 한 시간은 10분마다 다시 확인하고, 그 뒤로는 6시간 둔다. 못 받으면 5분 뒤 다시
-  const age = close == null ? 300 : now < win.start + 75 * MIN ? 600 : 6 * 3600;
+  const age = now < win.start + 25 * MIN ? 60 : close == null ? 300 : now < win.start + 75 * MIN ? 600 : 6 * 3600;
   await cache?.put(key, Response.json({ close }, { headers: { "Cache-Control": `public, max-age=${age}` } })).catch(() => undefined);
   return close;
 }
