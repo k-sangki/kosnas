@@ -32,6 +32,20 @@ jobs:
               case "$1" in 2*) ;; *) echo "::warning::https://kosnas.com/$p 응답 $1";; esac
             done
           done
+      - name: 검색로봇이 보는 제목·robots·canonical
+        run: |
+          ua="Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+          for p in "" night kr/theme/nuclear kr/theme/ess live/nasdaq-100 guide kr/sector/semis; do
+            u="https://kosnas.com/$p"
+            curl -sS --compressed -A "$ua" -D h.txt -o b.html "$u"
+            echo "== $u"
+            grep -i -E '^(HTTP/|x-robots-tag|location|cf-cache-status|content-type)' h.txt | tr -d '\r'
+            grep -o '<title>[^<]*</title>' b.html | head -1
+            grep -o '<meta name="robots"[^>]*>' b.html | head -2
+            grep -o '<link rel="canonical"[^>]*>' b.html | head -1
+            grep -o '<h1[^>]*>[^<]*' b.html | head -1
+            grep -qi 'noindex' h.txt b.html && echo "::warning::$u noindex 발견"
+          done
       - name: Cloudflare Worker 최근 7일 요청·오류·CPU
         if: env.CLOUDFLARE_API_TOKEN != ''
         run: |
