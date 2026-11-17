@@ -235,7 +235,7 @@ def yahoo_profiles() -> dict:
         raise RuntimeError("야후 crumb 실패")
     out = {}
     for sym in sorted(FOCUS):
-        url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{sym}?modules=earnings,calendarEvents&crumb={crumb}"
+        url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{sym}?modules=earnings,calendarEvents,earningsTrend&crumb={crumb}"
         r = subprocess.run(base + [url], capture_output=True, text=True)
         try:
             res = json.loads(r.stdout)["quoteSummary"]["result"][0]
@@ -272,12 +272,20 @@ def yahoo_profiles() -> dict:
                 "q": f"{chart.get('currentQuarterEstimateDate') or ''}{chart.get('currentQuarterEstimateYear') or ''}",
                 "rf": (cal.get("revenueAverage") or {}).get("raw"),
             }
+        # 분기별 매출 예상(earningsTrend): 다음 분기 매출 가이던스와 비교할 시장 예상
+        trend = []
+        for t in ((res.get("earningsTrend") or {}).get("trend") or []):
+            rev = ((t.get("revenueEstimate") or {}).get("avg") or {}).get("raw")
+            if t.get("period") in ("0q", "+1q") and t.get("endDate") and rev:
+                trend.append({"period": t["period"], "end": t["endDate"], "rev": rev})
+        if nxt:
+            nxt["gf"] = next((t["rev"] for t in trend if t["period"] == "+1q"), None)
         done = [q for q in quarters if q["a"] is not None and q["date"]]
         last = max(done, key=lambda q: q["date"]) if done else None
         if last:
             last.update(fin_quarter({"quoteSummary": {"result": [res]}}, last["q"]))
         cur = (res.get("earnings") or {}).get("financialCurrency") or "USD"
-        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": last, "hist": yahoo_hist(base, crumb, sym), "cur": cur}
+        out[sym] = {"name": KO_NAMES.get(sym) or sym, "next": nxt, "last": last, "hist": yahoo_hist(base, crumb, sym), "cur": cur, "trend": trend}
         time.sleep(0.3)
     print(f"야후 기업 {len(out)}곳")
     return out
@@ -299,7 +307,7 @@ def companies(path: Path, updated: str) -> dict:
     for sym, p in prof.items():
         n = p.get("next") or {}
         if n.get("date") and n["date"] >= today.isoformat() and n.get("rf") is not None:
-            est[f"{sym}-{n['date']}"] = {"date": n["date"], "rf": n["rf"], "q": n.get("q")}
+            est[f"{sym}-{n['date']}"] = {"date": n["date"], "rf": n["rf"], "q": n.get("q"), "gf": n.get("gf")}
     out["est"] = est
     path.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"→ {path} (기업 {len(out['profiles'])}곳, 예상 매출 {len(est)}건)")
@@ -321,6 +329,8 @@ def attach_fin(earn: list[dict], comp: dict) -> None:
             hit = est.get(f"{e['symbol']}-{(d + dt.timedelta(days=k)).isoformat()}")
             if hit:
                 e["rf"] = hit["rf"]
+                if hit.get("gf"):
+                    e["gf"] = hit["gf"]
                 break
         m = re.match(r"([A-Za-z]{3})/(\d{4})", e.get("quarter") or "")
         hist = (profs.get(e["symbol"]) or {}).get("hist") or {}
@@ -329,12 +339,47 @@ def attach_fin(earn: list[dict], comp: dict) -> None:
             e["cur"] = cur
         if not m or m.group(1) not in MONTHS:
             continue
+        if not e.get("gf"):
+            # 발표 전에 받아 둔 다음 분기 매출 예상이 없으면, 끝나는 날이 발표 분기 뒤 두세 달인 예상(야후가 분기를 넘긴 뒤면 0q)
+            qend = dt.date(int(m.group(2)), MONTHS[m.group(1)], 28)
+            for t in (profs.get(e["symbol"]) or {}).get("trend") or []:
+                try:
+                    gap = (dt.date.fromisoformat(t["end"]) - qend).days
+                except ValueError:
+                    continue
+                if 50 <= gap <= 130:
+                    e["gf"] = t["rev"]
+                    break
         ym = f"{int(m.group(2)) - 1:04d}-{MONTHS[m.group(1)]:02d}"
         # 1년 전 EPS 도 회사 발표(희석 GAAP) 값으로 맞춘다 — 나스닥 lastYearEPS 는 코어위브에서 -0.31(회사 -0.22)이었다
         for key, out in (("rev", "rly"), ("ni", "nly"), ("eps", "ly")):
             v = next((v for k2, v in (hist.get(key) or {}).items() if k2.startswith(ym)), None)
             if v is not None:
                 e[out] = round(v, 2) if key == "eps" else v
+
+
+def keep_live(earn: list[dict], old: list[dict]) -> None:
+    """워커(/api/econ)가 회사 공시 보도자료에서 바로 읽은 값(실제 EPS·매출·다음 분기 매출 전망)을 바탕 자료에 남긴다.
+    워커는 어제·오늘 발표만 보므로, 받아 두지 않으면 하루 뒤 사라진다. 전에 남긴 값도 이어 쓴다."""
+    try:
+        body = json.loads(get("https://kosnas.com/api/econ", {"User-Agent": "kosnas-collector"}))
+    except Exception as ex:
+        print(f"::warning::실시간 값 받기 실패: {ex}")
+        body = {}
+    src = {(e["symbol"], e["date"]): e for e in old}
+    for e in body.get("earnings") or []:
+        if e.get("a") is not None or e.get("ga") is not None:
+            src[(e["symbol"], e["date"])] = {**src.get((e["symbol"], e["date"]), {}), **{k: v for k, v in e.items() if v is not None}}
+    for e in earn:
+        o = src.get((e["symbol"], e["date"]))
+        if not o:
+            continue
+        # 실제 EPS 는 회사 보도자료(src=sec) 값이 이긴다(나스닥 달력이 틀린 값을 올린 적이 있다). 야후 값은 비어 있을 때만
+        if o.get("a") is not None and (o.get("src") == "sec" or (o.get("src") == "yahoo" and e.get("a") is None)):
+            e["a"], e["s"], e["src"] = o["a"], o.get("s"), o["src"]
+        for k in ("ra", "na", "ga", "gl", "gh", "secUrl"):
+            if e.get(k) is None and o.get(k) is not None:
+                e[k] = o[k]
 
 
 def group_of(country: str, name: str) -> str | None:
@@ -438,6 +483,7 @@ def main():
     comp = companies(Path(args.companies), data["updated"])
     if data.get("earnings"):
         attach_fin(data["earnings"], comp)
+        keep_live(data["earnings"], old.get("earnings") or [])
     path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"→ {path}")
     open_pages(data, Path(args.open))

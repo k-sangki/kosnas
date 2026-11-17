@@ -153,16 +153,17 @@ describe("증시 쪽 해석(tone)", () => {
   });
 });
 
-describe("실적 매출·순이익", () => {
+describe("실적 매출·다음 분기 전망", () => {
   const base = { symbol: "CRWV", name: "코어위브", date: "2026-11-10", when: "after" as const, capB: 27, quarter: "Sep/2026", f: -1.55, n: 10, a: -1.27, s: 18.18, ly: -0.22 };
   it("매출은 같은 단위로, 차이는 +$0.07B", () => {
-    const [eps, rev, ni] = earnReleases([{ ...base, rf: 3.59e9, ra: 3.66e9, rly: 1.36e9, na: -7.09e8, nly: -1.1e8 }])[0].metrics;
+    const [eps, rev, g] = earnReleases([{ ...base, rf: 3.59e9, ra: 3.66e9, rly: 1.36e9, na: -7.09e8, nly: -1.1e8, ga: 4.1e9, gl: 4e9, gh: 4.2e9, gf: 4.3e9 }])[0].metrics;
     expect(eps.label).toBe("주당순이익(EPS)");
     expect([rev.label, rev.p, rev.f, rev.a, rev.verdict, rev.tone]).toEqual(["매출", "$1.36B", "$3.59B", "$3.66B", "beat", 1]);
     expect(diffText(rev)).toBe("+$0.07B");
-    expect([ni.label, ni.p, ni.a, ni.f, ni.verdict]).toEqual(["순손실", "-$110M", "-$709M", "", null]);
+    // 셋째 그림은 다음 분기 매출 가이던스(회사 전망 vs 시장 예상), 순이익은 쓰지 않는다
+    expect([g.label, g.p, g.f, g.a, g.verdict, g.aLabel, g.note]).toEqual(["가이던스", "$3.66B", "$4.30B", "$4.10B", "miss", "전망", "다음 분기 매출 전망 $4.00B~$4.20B"]);
   });
-  it("매출·순이익 값이 없으면 EPS 한 줄", () => {
+  it("매출·전망 값이 없으면 EPS 한 줄", () => {
     expect(earnReleases([base])[0].metrics).toHaveLength(1);
   });
 });
