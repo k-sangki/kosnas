@@ -1,0 +1,59 @@
+name: Site health
+
+# 서치콘솔 노출이 갑자기 줄었을 때(2026-11-17) 사이트 쪽 원인을 바로 보려고 만든 점검.
+# ① 주요 페이지를 구글 검색로봇 이름으로 열어 응답 코드·첫 바이트 시간·전체 시간·크기
+# ② Cloudflare Worker 의 최근 7일 요청·오류·CPU 시간(무료 요금제 하루 10만 요청·요청당 CPU 10ms 한도 확인)
+# 값만 찍고 아무것도 바꾸지 않는다. 수동 실행 + 매일 한 번.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 0 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: 검색로봇 이름으로 페이지 응답 시간
+        run: |
+          ua="Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+          printf '%-55s %5s %8s %8s %9s\n' 주소 코드 첫바이트 전체 바이트
+          for p in "" night night/samsung-electronics live/nasdaq-100 live/nvidia kr kr/sector/semis kr/theme/robot kr/screener/market-cap us econ schedule guide/vix sitemap.xml robots.txt; do
+            for i in 1 2; do
+              out=$(curl -sS -o /dev/null --compressed -A "$ua" -w '%{http_code} %{time_starttransfer} %{time_total} %{size_download}' "https://kosnas.com/$p" || echo "ERR 0 0 0")
+              set -- $out
+              printf '%-55s %5s %8s %8s %9s\n' "https://kosnas.com/$p ($i)" "$1" "$2" "$3" "$4"
+              case "$1" in 2*) ;; *) echo "::warning::https://kosnas.com/$p 응답 $1";; esac
+            done
+          done
+      - name: Cloudflare Worker 최근 7일 요청·오류·CPU
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          since=$(date -u -d '7 days ago' +%Y-%m-%dT00:00:00Z)
+          until=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          q='query($a:String!,$s:Time!,$u:Time!){viewer{accounts(filter:{accountTag:$a}){workersInvocationsAdaptive(limit:2000,filter:{scriptName:"kosnas",datetime_geq:$s,datetime_leq:$u}){sum{requests errors subrequests} quantiles{cpuTimeP50 cpuTimeP99} dimensions{date status}}}}}'
+          body=$(jq -n --arg q "$q" --arg a "$CLOUDFLARE_ACCOUNT_ID" --arg s "$since" --arg u "$until" '{query:$q,variables:{a:$a,s:$s,u:$u}}')
+          curl -sS https://api.cloudflare.com/client/v4/graphql \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            -d "$body" > cf.json
+          if jq -e '.errors and (.errors|length>0)' cf.json >/dev/null; then
+            echo "::warning::Cloudflare 분석 조회 실패(토큰에 Account Analytics 읽기 권한이 없을 수 있음)"
+            jq -c '.errors' cf.json
+            exit 0
+          fi
+          echo "날짜(UTC) 상태 요청 오류 CPU중앙ms CPU99%ms"
+          jq -r '.data.viewer.accounts[0].workersInvocationsAdaptive
+                 | sort_by(.dimensions.date, .dimensions.status)[]
+                 | "\(.dimensions.date) \(.dimensions.status) \(.sum.requests) \(.sum.errors) \(.quantiles.cpuTimeP50/1000|floor) \(.quantiles.cpuTimeP99/1000|floor)"' cf.json
+          echo
+          echo "하루 합계(무료 요금제 한도 100,000):"
+          jq -r '.data.viewer.accounts[0].workersInvocationsAdaptive
+                 | group_by(.dimensions.date)[]
+                 | "\(.[0].dimensions.date) 요청 \(map(.sum.requests)|add) 오류 \(map(.sum.errors)|add)"' cf.json
+          jq -r '.data.viewer.accounts[0].workersInvocationsAdaptive[] | select(.dimensions.status!="success") | "::warning::\(.dimensions.date) \(.dimensions.status) \(.sum.requests)건"' cf.json
