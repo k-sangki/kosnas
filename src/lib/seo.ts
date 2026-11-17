@@ -37,6 +37,12 @@ export function asofPrefix(asof: string | undefined) {
   return m ? `${Number(m[1])}월 ${Number(m[2])}일 장 마감 기준 · ` : "";
 }
 
+/** 제목 꼬리용 짧은 날짜 '11월 14일'. 없으면 빈 문자열 */
+export function asofDay(asof: string | undefined) {
+  const m = asof?.match(/^\d{4}-(\d{2})-(\d{2})/);
+  return m ? `${Number(m[1])}월 ${Number(m[2])}일` : "";
+}
+
 /** 섹터 화면 공통 검색어 */
 export const SECTOR_KEYWORDS = ["섹터", "순환매", "국장 순환매", "섹터 순위", "섹터 등락", "섹터 등락률", "업종 순위", "업종 등락률", "섹터 순환"];
 
