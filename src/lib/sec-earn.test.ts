@@ -34,6 +34,10 @@ describe("SEC 실적 보도자료", () => {
     expect(netIncome("GAAP net loss of $120 million")).toBe(-120e6);
     expect(netIncome("(in millions) Non-GAAP Net income $ 64,900 GAAP Net income $ 65,287")).toBe(65_287e6);
   });
+  it("사업부 매출 문장보다 전체 매출", () => {
+    expect(revenue("Data Center revenue was a record $107.6 billion. ($ in millions) Revenue $ 115,800")).toBe(115_800e6);
+    expect(revenue("NVIDIA reported revenue for the third quarter ended October 25, 2026, of $115.8 billion")).toBe(115.8e9);
+  });
   it("표 단위로 매출", () => {
     expect(revenue("(in millions) Total revenues $ 12,345 $ 11,000")).toBe(12_345e6);
   });

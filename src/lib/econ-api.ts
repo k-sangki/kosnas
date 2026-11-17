@@ -4,6 +4,7 @@
  * 나스닥이 막으면 빈 줄을 돌려주고 화면은 바탕 자료만 쓴다.
  */
 import { EARN_FOCUS, wanted, type Earning, type Row } from "./econ";
+import base from "../data/econ.json";
 import { secEarning, secTrace } from "./sec-earn";
 
 const TTL = 120;
@@ -128,7 +129,9 @@ async function secFill(list: Earning[]): Promise<Earning[]> {
   const got = new Map<string, Partial<Earning>>();
   await Promise.all(
     due.map(async (e) => {
-      const r = await secEarning(e.symbol, e.date, e.f, e.rf).catch((err) => {
+      // 매출 예상은 바탕 자료에만 있다(야후, 발표 전에 받아 둔 값)
+      const b = ((base as { earnings?: Earning[] }).earnings ?? []).find((x) => x.symbol === e.symbol && x.date === e.date);
+      const r = await secEarning(e.symbol, e.date, e.f ?? b?.f ?? null, e.rf ?? b?.rf).catch((err) => {
         secTrace.push(`${e.symbol} error ${String(err).slice(0, 80)}`);
         return null;
       });
