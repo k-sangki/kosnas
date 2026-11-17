@@ -10,7 +10,9 @@ const BASE = data as unknown as EconData;
 const ACT = actuals as unknown as Record<string, Partial<Earning>>;
 const BASE_EARN = (BASE.earnings ?? []).map((e) => {
   const x = ACT[`${e.symbol}-${e.date}`];
-  if (!x || e.a != null) return x?.secUrl ? { ...e, secUrl: e.secUrl ?? x.secUrl } : e;
+  if (!x) return e;
+  // 매출 시장 예상(rf·gf)은 발표 전 값을 손으로 옮긴 쪽이 이긴다(발표 뒤 자동 값은 다음 분기로 넘어간 예상)
+  if (e.a != null) return { ...e, secUrl: e.secUrl ?? x.secUrl, rf: x.rf ?? e.rf, gf: x.gf ?? e.gf };
   const a = x.a ?? null;
   return { ...e, ...x, s: a != null && e.f ? Math.round(((a - e.f) / Math.abs(e.f)) * 1000) / 10 : e.s };
 });

@@ -306,6 +306,11 @@ def companies(path: Path, updated: str) -> dict:
     est = {k: v for k, v in (old.get("est") or {}).items() if v.get("date", "") >= (today - dt.timedelta(days=45)).isoformat()}
     for sym, p in prof.items():
         n = p.get("next") or {}
+        k = f"{sym}-{n.get('date')}"
+        # 발표 당일에는 처음 받은 값만 남긴다: 발표 뒤 야후는 날짜를 그대로 둔 채 예상을 다음 분기로 넘긴다
+        # (엔비디아 26-11-17: 이번 분기 매출 예상 $109.1B → $124.9B, 다음 분기 $125.3B → $142.9B)
+        if n.get("date") == today.isoformat() and k in est:
+            continue
         if n.get("date") and n["date"] >= today.isoformat() and n.get("rf") is not None:
             est[f"{sym}-{n['date']}"] = {"date": n["date"], "rf": n["rf"], "q": n.get("q"), "gf": n.get("gf")}
     out["est"] = est
@@ -339,8 +344,9 @@ def attach_fin(earn: list[dict], comp: dict) -> None:
             e["cur"] = cur
         if not m or m.group(1) not in MONTHS:
             continue
-        if not e.get("gf"):
-            # 발표 전에 받아 둔 다음 분기 매출 예상이 없으면, 끝나는 날이 발표 분기 뒤 두세 달인 예상(야후가 분기를 넘긴 뒤면 0q)
+        if not e.get("gf") and e["date"] > dt.date.today().isoformat():
+            # 발표 전에만: 끝나는 날이 발표 분기 뒤 두세 달인 예상. 발표 뒤 야후 예상은 회사 전망을 반영해 고쳐진 값이라
+            # 시장 예상으로 쓸 수 없다(엔비디아 26-11-17: 발표 전 $125.3B → 발표 뒤 $142.9B)
             qend = dt.date(int(m.group(2)), MONTHS[m.group(1)], 28)
             for t in (profs.get(e["symbol"]) or {}).get("trend") or []:
                 try:
@@ -380,6 +386,20 @@ def keep_live(earn: list[dict], old: list[dict]) -> None:
         for k in ("ra", "na", "ga", "gl", "gh", "secUrl"):
             if e.get(k) is None and o.get(k) is not None:
                 e[k] = o[k]
+        # 다음 분기 매출 시장 예상은 발표 전에 받아 둔 값을 지킨다(발표 뒤 값은 고쳐진 예상)
+        if o.get("gf") is not None and e["date"] <= dt.date.today().isoformat():
+            e["gf"] = o["gf"]
+    # 손으로 옮긴 값(src/data/econ-actuals.json)이 가장 우선
+    try:
+        act = json.loads((Path(__file__).parent.parent / "src/data/econ-actuals.json").read_text(encoding="utf-8"))
+    except Exception:
+        act = {}
+    for e in earn:
+        x = act.get(f"{e['symbol']}-{e['date']}")
+        if x:
+            for k in ("rf", "gf", "ga", "gl", "gh", "ra", "na", "secUrl"):
+                if x.get(k) is not None:
+                    e[k] = x[k]
 
 
 def group_of(country: str, name: str) -> str | None:
