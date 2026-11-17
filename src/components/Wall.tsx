@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { Fold } from "./Fold";
 import { WALL_MAX, type Thumb, type WallAction, type WallPost, type WallState } from "@/lib/wall";
 
 /**
@@ -231,10 +232,12 @@ function WallCard({ admin }: { admin: string }) {
           </li>
         ))}
       </ul>
-      <p className="muted small-note">
+      <Fold small title="이용 규칙">
+        <p className="muted small-note">
         누구나 보는 익명 한 줄이에요. 욕설은 가려지고 링크·연락처·종목 추천·단톡방 홍보는 올릴 수 없으며, 신고가 3번 모이면 숨겨집니다. 닉네임은 이 브라우저에 고정으로 붙고, IP는 저장하지
         않아요. 투자 판단은 본인 몫이에요.
-      </p>
+        </p>
+      </Fold>
     </section>
   );
 }
