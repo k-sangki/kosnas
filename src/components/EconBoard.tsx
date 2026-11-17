@@ -288,9 +288,20 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
         if (dy > 0) down = Math.max(down, dy);
         placed.push(r);
       }
-      // 띄운 만큼 그림 위·아래 여백을 늘려 머리글과 겹치지 않게
-      if (up) el.style.marginTop = `${parseFloat(getComputedStyle(el).marginTop) + up}px`;
-      if (down) el.style.marginBottom = `${parseFloat(getComputedStyle(el).marginBottom) + down}px`;
+      // 띄운 만큼 그림 위·아래 여백을 늘린다. 실적처럼 그림이 나란히 있으면 모두 같은 만큼(기준선이 어긋나지 않게, 2026-11-18 SK)
+      el.dataset.up = String(up);
+      el.dataset.down = String(down);
+      const group = el.closest(".ev-trio");
+      const plots = group ? [...group.querySelectorAll<HTMLElement>(".ev-plot")] : [el];
+      const maxUp = Math.max(...plots.map((x) => Number(x.dataset.up ?? 0)));
+      const maxDown = Math.max(...plots.map((x) => Number(x.dataset.down ?? 0)));
+      for (const x of plots) {
+        x.style.marginTop = "";
+        x.style.marginBottom = "";
+        const cs = getComputedStyle(x);
+        if (maxUp) x.style.marginTop = `${parseFloat(cs.marginTop) + maxUp}px`;
+        if (maxDown) x.style.marginBottom = `${parseFloat(cs.marginBottom) + maxDown}px`;
+      }
     };
     fit();
     const ro = new ResizeObserver(fit);
