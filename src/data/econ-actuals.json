@@ -1,4 +1,10 @@
 {
- "_doc": "회사 실적 보도자료에서 손으로 옮긴 실제 값(나스닥·야후·공시 자동 읽기가 늦을 때). 키는 '종목-미국 발표일'. 자동 값이 오면 자동 값이 이긴다(useEcon). a = 조정(Non-GAAP) 희석 EPS, ra = 매출(달러).",
- "NVDA-2026-11-17": { "a": 2.68, "ra": 115800000000, "src": "company", "secUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000088/q3fy27pr.htm" }
+ "_doc": "회사 실적 보도자료에서 손으로 옮긴 실제 값(나스닥·야후·공시 자동 읽기가 늦을 때). 키는 '종목-미국 발표일'. 자동 값이 오면 자동 값이 이긴다(useEcon). a = 조정(Non-GAAP) 희석 EPS, ra = 매출(달러), na = 순이익(GAAP, 달러).",
+ "NVDA-2026-11-17": {
+  "a": 2.68,
+  "ra": 115800000000,
+  "na": 65287000000,
+  "src": "company",
+  "secUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000088/q3fy27pr.htm"
+ }
 }
