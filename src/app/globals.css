@@ -4726,3 +4726,35 @@ body:has(.tabbar) .toast {
   font-size: 10px;
   letter-spacing: -0.3px;
 }
+
+/* 13F 지난 분기 대비 변화 */
+.qc-compact {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.qc-title {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.qc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 4px 24px;
+}
+.qc-h {
+  margin: 10px 0 0;
+  font-size: 14px;
+}
+.qc-h small {
+  font-weight: 600;
+}
+.qc .inv-holdings li {
+  padding: 8px 0;
+}
+.inv-stale {
+  background: var(--amber-soft);
+  color: var(--amber-ink);
+  padding: 8px 10px;
+  border-radius: 8px;
+}

@@ -2,7 +2,7 @@
 
 import unittest
 
-from investors_13f import aggregate, compare, flow_rows, parse_table, sector_flows, sector_of, sic_sector, summarize
+from investors_13f import aggregate, compare, moves, flow_rows, parse_table, sector_flows, sector_of, sic_sector, summarize
 
 XML = b"""<?xml version="1.0"?>
 <informationTable xmlns="http://www.sec.gov/edgar/document/thirteenf/informationtable">
@@ -35,7 +35,12 @@ class T(unittest.TestCase):
         self.assertEqual(by["78462F103"]["change"], "new")
         self.assertAlmostEqual(by["037833100"]["weight"], 50)
         self.assertEqual([s["cusip"] for s in sold], ["594918104"])
+        self.assertAlmostEqual(by["037833100"]["prev_weight"], 62.5)  # 500 / 800
+        self.assertAlmostEqual(sold[0]["prev_weight"], 37.5)
         self.assertIsNone(compare(cur, None)[0][0]["change"])
+        mv = {m["cusip"]: m for m in moves(holdings)}
+        self.assertAlmostEqual(mv["037833100"]["amount"], 200)  # 1주 더 × 200달러
+        self.assertNotIn("78462F103", mv)  # 풋옵션은 뺀다
 
 
 class Sectors(unittest.TestCase):

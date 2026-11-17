@@ -4,10 +4,18 @@ import { breadcrumbLd, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Holdings, Sold } from "@/components/Investors13F";
+import { Holdings, QuarterChanges, Sold } from "@/components/Investors13F";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
-import { INVESTORS, findInvestor, pieSlices, quarter, topText, usd } from "@/lib/investors13f";
-import { koName } from "@/lib/ko-names";
+import {
+  INVESTORS,
+  STALE_NOTE,
+  findInvestor,
+  mainPeriod,
+  pieSlices,
+  quarter,
+  topText,
+  usd,
+} from "@/lib/investors13f";
 import { PieChart } from "@/components/PieChart";
 import { INVESTOR_NOTES } from "@/lib/investor-notes";
 import { Fold } from "@/components/Fold";
@@ -18,7 +26,9 @@ export function generateStaticParams() {
   return INVESTORS.map((i) => ({ id: i.id }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/investors/[id]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/investors/[id]">): Promise<Metadata> {
   const inv = findInvestor((await params).id);
   if (!inv) return {};
   const q = quarter(inv.period);
@@ -44,29 +54,45 @@ export async function generateMetadata({ params }: PageProps<"/investors/[id]">)
   });
 }
 
-export default async function InvestorPage({ params }: PageProps<"/investors/[id]">) {
+export default async function InvestorPage({
+  params,
+}: PageProps<"/investors/[id]">) {
   const inv = findInvestor((await params).id);
   if (!inv) notFound();
   const note = INVESTOR_NOTES[inv.id];
-  const fresh = inv.holdings.filter((h) => h.change === "new" && !h.put_call && !h.prn);
   return (
     <div className="shell">
       <SiteHeader active="us" />
       <main className="stack">
-        <JsonLd data={breadcrumbLd(SITE_URL, [["유명 투자자", "/investors"], [`${inv.person} 포트폴리오`, `/investors/${inv.id}`]])} />
+        <JsonLd
+          data={breadcrumbLd(SITE_URL, [
+            ["유명 투자자", "/investors"],
+            [`${inv.person} 포트폴리오`, `/investors/${inv.id}`],
+          ])}
+        />
         <p className="muted">
           <Link href="/us#investors">← 유명 투자자 포트폴리오</Link>
         </p>
         <h1 className="page-title">{inv.person} 포트폴리오</h1>
         <p className="lead">
-          {inv.person}({inv.firm})의 {quarter(inv.period)} 말 미국 주식 포트폴리오입니다. 보유 종목은 {inv.count}개이고, 비중 상위는{" "}
+          {inv.person}({inv.firm})의 {quarter(inv.period)} 말 미국 주식
+          포트폴리오입니다. 보유 종목은 {inv.count}개이고, 비중 상위는{" "}
           {`${topText(inv, 5)}입니다.`}
         </p>
+        {inv.period !== mainPeriod() && STALE_NOTE[inv.id] && (
+          <p className="small-note inv-stale">{STALE_NOTE[inv.id]}</p>
+        )}
         <section className="card">
           <h2 className="card-title">
-            포트폴리오 비중 <span className="muted">{quarter(inv.period)} 말 · 1% 미만은 기타</span>
+            포트폴리오 비중{" "}
+            <span className="muted">
+              {quarter(inv.period)} 말 · 1% 미만은 기타
+            </span>
           </h2>
-          <PieChart slices={pieSlices(inv)} label={`${inv.person} 포트폴리오 비중`} />
+          <PieChart
+            slices={pieSlices(inv)}
+            label={`${inv.person} 포트폴리오 비중`}
+          />
         </section>
         {note && (
           <section className="card seo-text">
@@ -96,27 +122,20 @@ export default async function InvestorPage({ params }: PageProps<"/investors/[id
             </div>
           </dl>
           <p className="small-note muted">
-            {inv.filed} SEC 신고({inv.sec_name}){inv.prev_period && ` · 변화는 ${quarter(inv.prev_period)} 말 대비`}. 신규 {inv.new_count} · 추가{" "}
-            {inv.add_count} · 축소 {inv.reduce_count} · 매도 {inv.sold_count}
+            {inv.filed} SEC 신고({inv.sec_name})
+            {inv.prev_period && ` · 변화는 ${quarter(inv.prev_period)} 말 대비`}
+            . 신규 {inv.new_count} · 추가 {inv.add_count} · 축소{" "}
+            {inv.reduce_count} · 매도 {inv.sold_count}
           </p>
         </section>
-        {fresh.length > 0 && (
-          <section className="card">
-            <h2 className="card-title">이번 분기 새로 산 종목</h2>
-            <p className="inv-top">
-              {fresh.map((h) => (
-                <span key={h.cusip}>
-                  {koName(h.ticker, h.name)} <small className="muted">{h.weight?.toFixed(1)}%</small>
-                </span>
-              ))}
-            </p>
-          </section>
-        )}
+        <QuarterChanges inv={inv} />
         <Holdings inv={inv} />
         <Sold inv={inv} />
         <p className="small-note muted">
-          SEC 13F 보고서는 분기 말 기준 미국 상장 주식 보유만 담고, 분기가 끝나고 최대 45일 뒤에 공개됩니다. 읽는 법은{" "}
-          <Link href="/us#investors">미장 탭 유명 투자자 포트폴리오</Link>에 있습니다. 특정 종목의 매수·매도를 권하지 않습니다.
+          SEC 13F 보고서는 분기 말 기준 미국 상장 주식 보유만 담고, 분기가
+          끝나고 최대 45일 뒤에 공개됩니다. 읽는 법은{" "}
+          <Link href="/us#investors">미장 탭 유명 투자자 포트폴리오</Link>에
+          있습니다. 특정 종목의 매수·매도를 권하지 않습니다.
         </p>
       </main>
       <SiteFooter />
