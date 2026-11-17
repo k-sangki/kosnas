@@ -8,9 +8,9 @@ import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
-import { breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
+import { asofPrefix, breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
 import { capText } from "@/lib/screens";
-import { signed } from "@/lib/sectors";
+import { sectorData, signed } from "@/lib/sectors";
 import {
   THEMES,
   findTheme,
@@ -41,7 +41,7 @@ export async function generateMetadata({
   const names = stocks.slice(0, 3).map((s) => s.name);
   return pageMeta({
     title: `${themeLabel(t)} 관련주·대장주 - ${t.name}주 시총 순위와 등락률`,
-    description: `${t.name} 관련주 ${stocks.length}종목을 시가총액 순으로 정리했습니다. ${names.length ? `${names.join("·")} 등 ` : ""}종목별 관련 사업과 오늘·5·20·60일 등락률, 52주 고점 대비, 테마 평균 등락률을 매일 장 마감 자료로 봅니다.`,
+    description: `${asofPrefix(sectorData("kr").asof)}${t.name} 관련주 ${stocks.length}종목을 시가총액 순으로 정리했습니다. ${names.length ? `${names.join("·")} 등 ` : ""}종목별 관련 사업과 오늘·5·20·60일 등락률, 52주 고점 대비, 테마 평균 등락률을 매일 장 마감 자료로 봅니다.`,
     keywords: [
       ...t.keywords,
       `${t.name} 주식`,

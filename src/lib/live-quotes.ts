@@ -260,7 +260,8 @@ export const LIVE_QUOTES: LiveQuote[] = [
   {
     slug: "ewy",
     coin: "EWY",
-    name: "EWY 실시간 시세",
+    name: "EWY",
+    title: "EWY 실시간 시세 - 한국 ETF(MSCI 코리아) 24시간 시세와 등락률",
     short: "EWY",
     unit: "$",
     basis: "전일 미국 정규장 종가(뉴욕 16:00) 대비",

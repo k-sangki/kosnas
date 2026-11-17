@@ -28,6 +28,15 @@ export function pageMeta(p: { title: string; description: string; path: string; 
   };
 }
 
+/**
+ * 장 마감 자료 페이지 설명 앞머리 '11월 14일 장 마감 기준 · '. 검색 결과 설명에 자료 날짜가 보이면
+ * 지금 자료라는 것이 드러나 눌러 볼 이유가 생긴다(2026-11-17 CTR 개선). 날짜가 없으면 빈 문자열.
+ */
+export function asofPrefix(asof: string | undefined) {
+  const m = asof?.match(/^\d{4}-(\d{2})-(\d{2})/);
+  return m ? `${Number(m[1])}월 ${Number(m[2])}일 장 마감 기준 · ` : "";
+}
+
 /** 섹터 화면 공통 검색어 */
 export const SECTOR_KEYWORDS = ["섹터", "순환매", "국장 순환매", "섹터 순위", "섹터 등락", "섹터 등락률", "업종 순위", "업종 등락률", "섹터 순환"];
 
