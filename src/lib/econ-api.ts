@@ -4,7 +4,7 @@
  * 나스닥이 막으면 빈 줄을 돌려주고 화면은 바탕 자료만 쓴다.
  */
 import { EARN_FOCUS, wanted, type Earning, type Row } from "./econ";
-import { secEarning } from "./sec-earn";
+import { secEarning, secTrace } from "./sec-earn";
 
 const TTL = 120;
 const HEADERS = {
@@ -128,7 +128,10 @@ async function secFill(list: Earning[]): Promise<Earning[]> {
   const got = new Map<string, Partial<Earning>>();
   await Promise.all(
     due.map(async (e) => {
-      const r = await secEarning(e.symbol, e.date, e.f, e.rf).catch(() => null);
+      const r = await secEarning(e.symbol, e.date, e.f, e.rf).catch((err) => {
+        secTrace.push(`${e.symbol} error ${String(err).slice(0, 80)}`);
+        return null;
+      });
       if (!r) return;
       got.set(`${e.symbol}-${e.date}`, {
         secUrl: r.url,
@@ -150,7 +153,8 @@ export async function econGET(req: Request) {
   const ds = [0, 1].map((k) => new Date(et + k * 86_400_000).toISOString().slice(0, 10));
   // 실적 달력은 날짜가 발표일 그대로: 미국 동부 어제(장 뒤 발표 = 한국 오늘 아침)와 오늘
   const es = [-1, 0].map((k) => new Date(et + k * 86_400_000).toISOString().slice(0, 10));
-  let body: { rows: Row[]; earnings: Earning[]; live: boolean; at: number };
+  let body: { rows: Row[]; earnings: Earning[]; live: boolean; at: number; sec?: string[] };
+  secTrace.length = 0;
   try {
     const [rows, earnings] = await Promise.all([
       Promise.all(ds.map(day)).then((x) => x.flat()),
@@ -160,7 +164,7 @@ export async function econGET(req: Request) {
         .then((x) => secFill(x).catch(() => x))
         .catch(() => []),
     ]);
-    body = { rows, earnings, live: true, at: Date.now() };
+    body = { rows, earnings, live: true, at: Date.now(), sec: secTrace.slice(-12) };
   } catch {
     body = { rows: [], earnings: [], live: false, at: Date.now() };
   }
