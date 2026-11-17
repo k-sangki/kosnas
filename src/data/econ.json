@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-17T08:01+09:00",
+ "updated": "2026-11-17T13:46+09:00",
  "rows": [
   {
    "d": "2026-11-03",
@@ -27,6 +27,15 @@
    "a": "",
    "f": "",
    "p": ""
+  },
+  {
+   "d": "2026-11-04",
+   "t": "10:00",
+   "c": "United States",
+   "n": "JOLTS Job Openings",
+   "a": "7.523M",
+   "f": "7.150M",
+   "p": "7.190M"
   },
   {
    "d": "2026-11-05",
@@ -227,6 +236,132 @@
    "p": ""
   },
   {
+   "d": "2026-11-11",
+   "t": "04:00",
+   "c": "United States",
+   "n": "Fed Waller Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-11",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core CPI",
+   "a": "0.3%",
+   "f": "0.2%",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-11-11",
+   "t": "08:30",
+   "c": "United States",
+   "n": "CPI",
+   "a": "0.4%",
+   "f": "0.3%",
+   "p": "0.6%"
+  },
+  {
+   "d": "2026-11-11",
+   "t": "09:35",
+   "c": "United States",
+   "n": "Fed Logan Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-11",
+   "t": "13:30",
+   "c": "United States",
+   "n": "Fed Schmid Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-11",
+   "t": "15:30",
+   "c": "United States",
+   "n": "FOMC Member Bowman Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-11",
+   "t": "18:30",
+   "c": "United States",
+   "n": "FOMC Member Bowman Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "1,697K",
+   "f": "1,710K",
+   "p": "1,717K"
+  },
+  {
+   "d": "2026-11-13",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "200K",
+   "f": "194K",
+   "p": "191K"
+  },
+  {
+   "d": "2026-11-13",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Fed Vice Chair for Supervision Barr Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "11:30",
+   "c": "United States",
+   "n": "Fed Goolsbee Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "13:10",
+   "c": "United States",
+   "n": "FOMC Member Daly Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "13:30",
+   "c": "United States",
+   "n": "Fed Schmid Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "18:30",
+   "c": "United States",
+   "n": "FOMC Member Williams Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
    "d": "2026-11-14",
    "t": "08:30",
    "c": "United States",
@@ -389,6 +524,42 @@
    "p": ""
   },
   {
+   "d": "2026-11-19",
+   "t": "13:35",
+   "c": "United States",
+   "n": "Fed Vice Chair for Supervision Barr Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-19",
+   "t": "14:00",
+   "c": "United States",
+   "n": "FOMC Meeting Minutes",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-19",
+   "t": "14:30",
+   "c": "United States",
+   "n": "FOMC Member Williams Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-19",
+   "t": "16:15",
+   "c": "United States",
+   "n": "FOMC Member Kashkari Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
    "d": "2026-11-20",
    "t": "08:30",
    "c": "United States",
@@ -459,6 +630,60 @@
    "a": "",
    "f": "3.00%",
    "p": "3.00%"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "08:25",
+   "c": "United States",
+   "n": "Fed Waller Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-21",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 1-Year Inflation Expectations",
+   "a": "",
+   "f": "4.3%",
+   "p": "4.3%"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 5-Year Inflation Expectations",
+   "a": "",
+   "f": "3.4%",
+   "p": "3.4%"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Expectations",
+   "a": "",
+   "f": "50.9",
+   "p": "50.9"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Sentiment",
+   "a": "",
+   "f": "51.0",
+   "p": "51.0"
+  },
+  {
+   "d": "2026-11-21",
+   "t": "12:15",
+   "c": "United States",
+   "n": "Fed Governor Cook Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
   },
   {
    "d": "2026-11-25",
@@ -648,6 +873,15 @@
    "a": "",
    "f": "",
    "p": "4.00%"
+  },
+  {
+   "d": "2026-12-18",
+   "t": "22:00",
+   "c": "Japan",
+   "n": "BoJ Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "1.25%"
   }
  ],
  "earnings": [
@@ -791,7 +1025,7 @@
    "name": "시스코",
    "date": "2026-11-12",
    "when": "after",
-   "capB": 377,
+   "capB": 402,
    "quarter": "Oct/2026",
    "f": 1.33,
    "n": 8,
@@ -810,7 +1044,7 @@
    "name": "어플라이드 머티어리얼즈",
    "date": "2026-11-12",
    "when": "after",
-   "capB": 294,
+   "capB": 302,
    "quarter": "Oct/2026",
    "f": 4.05,
    "n": 10,
@@ -829,7 +1063,7 @@
    "name": "네비우스",
    "date": "2026-11-12",
    "when": "pre",
-   "capB": 34,
+   "capB": 35,
    "quarter": "Sep/2026",
    "f": -1.24,
    "n": 4,
@@ -868,7 +1102,7 @@
    "a": null,
    "s": null,
    "ly": 1.3,
-   "rf": 108731903900,
+   "rf": 108710527430,
    "rly": 57006000000.0,
    "nly": 31910000000.0
   },
@@ -975,7 +1209,7 @@
    "a": null,
    "s": null,
    "ly": 0.77,
-   "rf": 187256605980,
+   "rf": 187254355980,
    "rly": 179496000000.0,
    "nly": 6143000000.0
   },
@@ -1017,7 +1251,7 @@
    "a": null,
    "s": null,
    "ly": 0.11,
-   "rf": 14406617280,
+   "rf": 14425411720,
    "rly": 9679000000.0,
    "nly": 175000000.0
   },
@@ -1026,14 +1260,14 @@
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 219,
+   "capB": 236,
    "quarter": "Oct/2026",
    "f": 6.41,
    "n": 8,
    "a": null,
    "s": null,
    "ly": 2.28,
-   "rf": 49169949940,
+   "rf": 49196513130,
    "rly": 27005000000.0,
    "nly": 1548000000.0
   },
@@ -1042,7 +1276,7 @@
    "name": "니오",
    "date": "2026-11-24",
    "when": "",
-   "capB": 7,
+   "capB": 8,
    "quarter": "Sep/2026",
    "f": -0.03,
    "n": 1,
