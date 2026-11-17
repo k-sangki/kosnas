@@ -91,14 +91,7 @@ export function usd(v: number): string {
 /** 이름 대신 쓸 기호(못 찾았으면 회사 이름) */
 export const label = (h: Holding) => h.ticker ?? h.name;
 
-export const optionTag = (h: Holding) =>
-  h.put_call === "Put"
-    ? "풋옵션"
-    : h.put_call === "Call"
-      ? "콜옵션"
-      : h.prn
-        ? "채권"
-        : "";
+export const optionTag = (h: Holding) => (h.put_call === "Put" ? "풋옵션" : h.put_call === "Call" ? "콜옵션" : h.prn ? "채권" : "");
 
 /** 전 분기 대비 주식 수 변화(%) */
 export function sharePct(h: Holding) {
@@ -112,18 +105,8 @@ export function crowd(kind: "buy" | "sell", n = 10) {
   for (const inv of INVESTORS) {
     const rows =
       kind === "buy"
-        ? inv.holdings.filter(
-            (h) =>
-              !h.put_call &&
-              !h.prn &&
-              (h.change === "new" || h.change === "add"),
-          )
-        : [
-            ...inv.holdings.filter(
-              (h) => !h.put_call && !h.prn && h.change === "reduce",
-            ),
-            ...inv.sold.filter((h) => !h.put_call && !h.prn),
-          ];
+        ? inv.holdings.filter((h) => !h.put_call && !h.prn && (h.change === "new" || h.change === "add"))
+        : [...inv.holdings.filter((h) => !h.put_call && !h.prn && h.change === "reduce"), ...inv.sold.filter((h) => !h.put_call && !h.prn)];
     for (const h of rows) {
       const k = h.cusip;
       const e = by.get(k) ?? { h, who: [] };
@@ -167,12 +150,7 @@ export function pieSlices(inv: Investor, min = 1): Slice[] {
       weight: h.weight ?? 0,
     }));
   const rest = 100 - big.reduce((s, x) => s + x.weight, 0);
-  return rest >= 0.05
-    ? [
-        ...big,
-        { key: "etc", name: "기타", ticker: null, tag: "", weight: rest },
-      ]
-    : big;
+  return rest >= 0.05 ? [...big, { key: "etc", name: "기타", ticker: null, tag: "", weight: rest }] : big;
 }
 
 /** 상위 n개를 '애플 22.0%, 아메리칸 익스프레스 17.1%' 같은 문장으로(검색 결과 설명·요약용) */
@@ -180,19 +158,14 @@ export function topText(inv: Investor, n = 5) {
   return inv.holdings
     .filter((h) => !h.prn)
     .slice(0, n)
-    .map(
-      (h) =>
-        `${koName(h.ticker, h.name)}${optionTag(h) ? `(${optionTag(h)})` : ""} ${h.weight?.toFixed(1)}%`,
-    )
+    .map((h) => `${koName(h.ticker, h.name)}${optionTag(h) ? `(${optionTag(h)})` : ""} ${h.weight?.toFixed(1)}%`)
     .join(", ");
 }
 
 /** 이 분기 신고가 없는 투자자의 사정(최근 분기가 다른 사람보다 오래된 경우) */
 export const STALE_NOTE: Record<string, string> = {
-  burry:
-    "사이언 자산운용이 2025년 말 SEC 등록을 정리해 2025년 3분기가 마지막 13F입니다.",
-  marks:
-    "오크트리는 2026년 3분기에 보유 표 대신 13F-NT(보유를 다른 회사 보고서에 넣어 신고)를 내 2분기가 마지막 표입니다.",
+  burry: "사이언 자산운용이 2025년 말 SEC 등록을 정리해 2025년 3분기가 마지막 13F입니다.",
+  marks: "오크트리는 2026년 3분기에 보유 표 대신 13F-NT(보유를 다른 회사 보고서에 넣어 신고)를 내 2분기가 마지막 표입니다.",
 };
 
 export type Change = {
@@ -207,14 +180,8 @@ export function quarterChanges(inv: Investor) {
   const stock = (h: Holding) => !h.put_call && !h.prn;
   const base = inv.moves?.length ? inv.moves : inv.holdings;
   const amt = (h: Holding) =>
-    h.amount ??
-    (h.change === "new"
-      ? h.value
-      : h.prev_shares != null && h.shares > 0
-        ? (h.shares - h.prev_shares) * (h.value / h.shares)
-        : 0);
-  const pw = (h: Holding) =>
-    h.prev_weight ?? (inv.prev_total && h.change === "new" ? 0 : null);
+    h.amount ?? (h.change === "new" ? h.value : h.prev_shares != null && h.shares > 0 ? (h.shares - h.prev_shares) * (h.value / h.shares) : 0);
+  const pw = (h: Holding) => h.prev_weight ?? (inv.prev_total && h.change === "new" ? 0 : null);
   const rows = (kind: "new" | "add" | "reduce"): Change[] =>
     base
       .filter((h) => stock(h) && h.change === kind)
@@ -226,9 +193,7 @@ export function quarterChanges(inv: Investor) {
     .map((h) => ({
       h,
       amount: -h.value,
-      prevWeight:
-        h.prev_weight ??
-        (inv.prev_total ? (h.value / inv.prev_total) * 100 : null),
+      prevWeight: h.prev_weight ?? (inv.prev_total ? (h.value / inv.prev_total) * 100 : null),
       pct: -100,
     }))
     .sort((a, b) => a.amount - b.amount);
