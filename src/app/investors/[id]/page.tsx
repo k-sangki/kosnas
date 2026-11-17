@@ -4,10 +4,9 @@ import { breadcrumbLd, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Holdings, Sold } from "@/components/Investors13F";
+import { Holdings, QuarterChanges, Sold } from "@/components/Investors13F";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
-import { INVESTORS, findInvestor, pieSlices, quarter, topText, usd } from "@/lib/investors13f";
-import { koName } from "@/lib/ko-names";
+import { INVESTORS, STALE_NOTE, findInvestor, mainPeriod, pieSlices, quarter, topText, usd } from "@/lib/investors13f";
 import { PieChart } from "@/components/PieChart";
 import { INVESTOR_NOTES } from "@/lib/investor-notes";
 import { Fold } from "@/components/Fold";
@@ -48,12 +47,16 @@ export default async function InvestorPage({ params }: PageProps<"/investors/[id
   const inv = findInvestor((await params).id);
   if (!inv) notFound();
   const note = INVESTOR_NOTES[inv.id];
-  const fresh = inv.holdings.filter((h) => h.change === "new" && !h.put_call && !h.prn);
   return (
     <div className="shell">
       <SiteHeader active="us" />
       <main className="stack">
-        <JsonLd data={breadcrumbLd(SITE_URL, [["유명 투자자", "/investors"], [`${inv.person} 포트폴리오`, `/investors/${inv.id}`]])} />
+        <JsonLd
+          data={breadcrumbLd(SITE_URL, [
+            ["유명 투자자", "/investors"],
+            [`${inv.person} 포트폴리오`, `/investors/${inv.id}`],
+          ])}
+        />
         <p className="muted">
           <Link href="/us#investors">← 유명 투자자 포트폴리오</Link>
         </p>
@@ -62,6 +65,7 @@ export default async function InvestorPage({ params }: PageProps<"/investors/[id
           {inv.person}({inv.firm})의 {quarter(inv.period)} 말 미국 주식 포트폴리오입니다. 보유 종목은 {inv.count}개이고, 비중 상위는{" "}
           {`${topText(inv, 5)}입니다.`}
         </p>
+        {inv.period !== mainPeriod() && STALE_NOTE[inv.id] && <p className="small-note inv-stale">{STALE_NOTE[inv.id]}</p>}
         <section className="card">
           <h2 className="card-title">
             포트폴리오 비중 <span className="muted">{quarter(inv.period)} 말 · 1% 미만은 기타</span>
@@ -100,18 +104,7 @@ export default async function InvestorPage({ params }: PageProps<"/investors/[id
             {inv.add_count} · 축소 {inv.reduce_count} · 매도 {inv.sold_count}
           </p>
         </section>
-        {fresh.length > 0 && (
-          <section className="card">
-            <h2 className="card-title">이번 분기 새로 산 종목</h2>
-            <p className="inv-top">
-              {fresh.map((h) => (
-                <span key={h.cusip}>
-                  {koName(h.ticker, h.name)} <small className="muted">{h.weight?.toFixed(1)}%</small>
-                </span>
-              ))}
-            </p>
-          </section>
-        )}
+        <QuarterChanges inv={inv} />
         <Holdings inv={inv} />
         <Sold inv={inv} />
         <p className="small-note muted">

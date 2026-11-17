@@ -16,6 +16,10 @@ export type Holding = {
   weight?: number;
   change?: "new" | "add" | "reduce" | "same" | null;
   prev_shares?: number | null;
+  /** 전 분기 말 비중(%) */
+  prev_weight?: number;
+  /** 이번 분기 사고판 금액(달러, 늘린·줄인 주식 수 × 분기 말 주가, 신규는 평가액, 판 것은 -) */
+  amount?: number;
 };
 
 export type Investor = {
@@ -28,6 +32,8 @@ export type Investor = {
   filed: string;
   prev_period: string | null;
   total: number;
+  /** 전 분기 신고 총액(달러) */
+  prev_total?: number | null;
   count: number;
   new_count: number;
   add_count: number;
@@ -35,6 +41,8 @@ export type Investor = {
   sold_count: number;
   holdings: Holding[];
   sold: Holding[];
+  /** 지난 분기 대비 주요 변화(신규·확대·축소, 금액 큰 순, 상위 100개 밖 종목 포함) */
+  moves?: Holding[];
 };
 
 export type SectorFlow = {
@@ -119,7 +127,13 @@ export function mainPeriod() {
   return [...c.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 }
 
-export type Slice = { key: string; name: string; ticker: string | null; tag: string; weight: number };
+export type Slice = {
+  key: string;
+  name: string;
+  ticker: string | null;
+  tag: string;
+  weight: number;
+};
 
 /**
  * 파이차트 조각: 비중 1% 이상은 한 조각씩, 1% 미만과 목록에 없는 나머지(상위 100개 밖)는 모두 '기타'.
@@ -128,7 +142,13 @@ export type Slice = { key: string; name: string; ticker: string | null; tag: str
 export function pieSlices(inv: Investor, min = 1): Slice[] {
   const big = inv.holdings
     .filter((h) => (h.weight ?? 0) >= min)
-    .map((h) => ({ key: h.cusip + (h.put_call ?? ""), name: koName(h.ticker, h.name), ticker: h.ticker, tag: optionTag(h), weight: h.weight ?? 0 }));
+    .map((h) => ({
+      key: h.cusip + (h.put_call ?? ""),
+      name: koName(h.ticker, h.name),
+      ticker: h.ticker,
+      tag: optionTag(h),
+      weight: h.weight ?? 0,
+    }));
   const rest = 100 - big.reduce((s, x) => s + x.weight, 0);
   return rest >= 0.05 ? [...big, { key: "etc", name: "기타", ticker: null, tag: "", weight: rest }] : big;
 }
@@ -140,4 +160,42 @@ export function topText(inv: Investor, n = 5) {
     .slice(0, n)
     .map((h) => `${koName(h.ticker, h.name)}${optionTag(h) ? `(${optionTag(h)})` : ""} ${h.weight?.toFixed(1)}%`)
     .join(", ");
+}
+
+/** 이 분기 신고가 없는 투자자의 사정(최근 분기가 다른 사람보다 오래된 경우) */
+export const STALE_NOTE: Record<string, string> = {
+  burry: "사이언 자산운용이 2025년 말 SEC 등록을 정리해 2025년 3분기가 마지막 13F입니다.",
+  marks: "오크트리는 2026년 3분기에 보유 표 대신 13F-NT(보유를 다른 회사 보고서에 넣어 신고)를 내 2분기가 마지막 표입니다.",
+};
+
+export type Change = {
+  h: Holding;
+  amount: number;
+  prevWeight: number | null;
+  pct: number | null;
+};
+
+/** 지난 분기 대비 변화 네 가지(신규 편입·비중 확대·비중 축소·전량 매도). 옵션·채권은 뺀다. 금액 큰 순 */
+export function quarterChanges(inv: Investor) {
+  const stock = (h: Holding) => !h.put_call && !h.prn;
+  const base = inv.moves?.length ? inv.moves : inv.holdings;
+  const amt = (h: Holding) =>
+    h.amount ?? (h.change === "new" ? h.value : h.prev_shares != null && h.shares > 0 ? (h.shares - h.prev_shares) * (h.value / h.shares) : 0);
+  const pw = (h: Holding) => h.prev_weight ?? (inv.prev_total && h.change === "new" ? 0 : null);
+  const rows = (kind: "new" | "add" | "reduce"): Change[] =>
+    base
+      .filter((h) => stock(h) && h.change === kind)
+      .map((h) => ({ h, amount: amt(h), prevWeight: pw(h), pct: sharePct(h) }))
+      .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+  // 전량 매도: value는 전 분기 말 평가액
+  const sold: Change[] = inv.sold
+    .filter(stock)
+    .map((h) => ({
+      h,
+      amount: -h.value,
+      prevWeight: h.prev_weight ?? (inv.prev_total ? (h.value / inv.prev_total) * 100 : null),
+      pct: -100,
+    }))
+    .sort((a, b) => a.amount - b.amount);
+  return { added: rows("new"), up: rows("add"), down: rows("reduce"), sold };
 }

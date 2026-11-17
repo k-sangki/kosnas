@@ -32,7 +32,7 @@ INVESTORS = [
     ("wood", 1697748, "캐시 우드", "ARK 인베스트"),
     ("burry", 1649339, "마이클 버리", "사이언 자산운용"),
     ("druckenmiller", 1536411, "스탠리 드러켄밀러", "듀케인 패밀리 오피스"),
-    ("ackman", 1336528, "빌 애크먼", "퍼싱 스퀘어"),
+    ("ackman", 2026053, "빌 애크먼", "퍼싱 스퀘어"),  # 2026년 2분기부터 Pershing Square Inc. 이름으로 신고(전 CIK 1336528)
     ("dalio", 1350694, "레이 달리오", "브리지워터"),
     ("tepper", 1656456, "데이비드 테퍼", "아팔루사"),
     ("soros", 1029160, "조지 소로스", "소로스 펀드"),
@@ -47,6 +47,7 @@ INVESTORS = [
 
 KEEP = 100  # 화면에 싣는 보유 종목 수(평가액 순)
 KEEP_SOLD = 40
+KEEP_MOVES = 15  # 지난 분기 대비 변화: 신규·확대·축소마다 금액 큰 순으로(상위 100개 밖 종목도)
 
 
 def get(url, data=None, headers=None, tries=4):
@@ -132,6 +133,7 @@ def aggregate(rows):
 def compare(cur, prev):
     """지금 분기 보유(cur)와 전 분기(prev) → (보유 목록, 전량 매도 목록, 총액)"""
     total = sum(r["value"] for r in cur.values()) or 1
+    ptotal = (sum(r["value"] for r in prev.values()) or 1) if prev is not None else None
     holdings = []
     for k, r in cur.items():
         p = prev.get(k) if prev is not None else None
@@ -150,13 +152,14 @@ def compare(cur, prev):
                 **r,
                 "weight": r["value"] / total * 100,
                 "prev_shares": p["shares"] if p else None,
+                "prev_weight": p["value"] / ptotal * 100 if p else None,
                 "change": change,
             }
         )
     holdings.sort(key=lambda h: -h["value"])
     sold = []
     if prev is not None:
-        sold = [{**p, "prev_value": p["value"]} for k, p in prev.items() if k not in cur]
+        sold = [{**p, "prev_value": p["value"], "prev_weight": p["value"] / ptotal * 100} for k, p in prev.items() if k not in cur]
         sold.sort(key=lambda s: -s["prev_value"])
     return holdings, sold, total
 
@@ -222,6 +225,23 @@ def flow_rows(holdings, sold):
         out.append((h["cusip"], h["value"] if h["change"] == "new" else (h["shares"] - h["prev_shares"]) * price))
     out += [(s["cusip"], -s["prev_value"]) for s in sold if not s["put_call"] and not s.get("prn")]
     return out
+
+
+def moves(holdings):
+    """지난 분기 대비 주요 변화: 신규 편입(평가액 순)·비중 확대·축소(사고판 주식 수 × 분기 말 주가 순).
+    옵션·채권은 뺀다. 각 줄에 amount(달러, 판 것은 -)를 붙인다"""
+    out = {"new": [], "add": [], "reduce": []}
+    for h in holdings:
+        if h["put_call"] or h.get("prn") or h["change"] not in out or h["shares"] <= 0:
+            continue
+        price = h["value"] / h["shares"]
+        amount = h["value"] if h["change"] == "new" else (h["shares"] - h["prev_shares"]) * price
+        out[h["change"]].append({**h, "amount": amount})
+    rows = []
+    for k, v in out.items():
+        v.sort(key=lambda r: -abs(r["amount"]))
+        rows += v[:KEEP_MOVES]
+    return rows
 
 
 # SEC 업종 코드(SIC) → 섹터. 범위는 앞에서부터 처음 맞는 것
@@ -389,9 +409,11 @@ def round_row(r, ticker):
         out["put_call"] = r["put_call"]
     if r.get("prn"):
         out["prn"] = True
-    for k in ("weight",):
-        if k in r:
+    for k in ("weight", "prev_weight"):
+        if r.get(k) is not None:
             out[k] = round(r[k], 2)
+    if "amount" in r:
+        out["amount"] = round(r["amount"])
     if "change" in r:
         out["change"] = r["change"]
         out["prev_shares"] = None if r["prev_shares"] is None else round(r["prev_shares"])
@@ -405,7 +427,8 @@ def build_one(spec, old):
         raise RuntimeError("13F-HR이 없다")
     cur_acc, period, filed = fl[0]
     prev = fl[1] if len(fl) > 1 else None
-    if old and old.get("accession") == cur_acc and old.get("prev_accession") == (prev[0] if prev else None):
+    # prev_total(전 분기 총액)이 없는 예전 자료는 전 분기 비중을 낼 수 있게 한 번 다시 받는다
+    if old and old.get("accession") == cur_acc and old.get("prev_accession") == (prev[0] if prev else None) and "prev_total" in old:
         print(f"{person}: 그대로({period})", file=sys.stderr)
         return old, []
     print(f"{person}: {period} 보고서 받기", file=sys.stderr)
@@ -413,6 +436,8 @@ def build_one(spec, old):
     pv = aggregate(info_table(cik, prev[0], prev[2])) if prev else None
     holdings, sold, total = compare(cur, pv)
     flows = [] if pv is None else flow_rows(holdings, sold)
+    prev_total = sum(r["value"] for r in pv.values()) if pv else None
+    mv = moves(holdings) if pv else []
     return {
         "id": iid,
         "cik": cik,
@@ -425,6 +450,7 @@ def build_one(spec, old):
         "prev_period": prev[1] if prev else None,
         "prev_accession": prev[0] if prev else None,
         "total": round(total),
+        "prev_total": round(prev_total) if prev_total else None,
         "count": len(holdings),
         "new_count": sum(h["change"] == "new" for h in holdings),
         "add_count": sum(h["change"] == "add" for h in holdings),
@@ -433,8 +459,9 @@ def build_one(spec, old):
         "_holdings": holdings[:KEEP],
         "_sold": sold[:KEEP_SOLD],
         "_flows": flows,
+        "_moves": mv,
         "_names": {r["cusip"]: r["name"] for r in holdings + sold},
-    }, [h["cusip"] for h in holdings[:KEEP]] + [s["cusip"] for s in sold[:KEEP_SOLD]] + [f[0] for f in flows]
+    }, [h["cusip"] for h in holdings[:KEEP]] + [s["cusip"] for s in sold[:KEEP_SOLD]] + [f[0] for f in flows] + [m["cusip"] for m in mv]
 
 
 def main():
@@ -478,8 +505,9 @@ def main():
             inv["sector_flows"] = sector_flows(inv.pop("_flows"), names, tick, sic_cache) if inv["prev_period"] else None
             inv["holdings"] = [round_row(h, tick.get(h["cusip"])) for h in inv.pop("_holdings")]
             inv["sold"] = [round_row(s, tick.get(s["cusip"])) for s in inv.pop("_sold")]
+            inv["moves"] = [round_row(m, tick.get(m["cusip"])) for m in inv.pop("_moves")]
         else:  # 그대로 쓴 것: 새로 찾은 기호만 채운다
-            for h in inv["holdings"] + inv["sold"]:
+            for h in inv["holdings"] + inv["sold"] + inv.get("moves", []):
                 if not h.get("ticker"):
                     h["ticker"] = tick.get(h["cusip"])
 
