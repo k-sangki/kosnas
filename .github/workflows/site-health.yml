@@ -44,7 +44,7 @@ jobs:
             grep -o '<meta name="robots"[^>]*>' b.html | head -2
             grep -o '<link rel="canonical"[^>]*>' b.html | head -1
             grep -o '<h1[^>]*>[^<]*' b.html | head -1
-            grep -qi 'noindex' h.txt b.html && echo "::warning::$u noindex 발견"
+            if grep -qi noindex h.txt b.html; then echo "::warning::$u noindex 발견"; fi
           done
       - name: Cloudflare Worker 최근 7일 요청·오류·CPU
         if: env.CLOUDFLARE_API_TOKEN != ''
