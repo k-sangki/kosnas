@@ -52,6 +52,8 @@ export interface Earning {
   /** 순이익(달러, 적자는 음수): 실제·1년 전. 공개된 시장 예상치가 없다 */
   na?: number | null;
   nly?: number | null;
+  /** 회사 공시 보도자료(SEC 8-K) 주소 — 값을 거기서 읽었거나 공시만 확인한 경우 */
+  secUrl?: string;
   /** 매출·순이익 통화가 달러가 아니면(TSM 대만 달러, ASML 유로) */
   cur?: string;
 }
@@ -128,6 +130,8 @@ export interface Release {
   whenText?: string;
   /** 실적이면 종목 기호 */
   sym?: string;
+  /** 실적 값 출처가 회사 보도자료(미국 공시)면 그 주소 */
+  srcUrl?: string;
   /** 다가오는 큰 발표(결과 전부터 띠에 올림): FOMC·CPI 같은 지표, 시총 1조 달러 이상·earnBig 실적 */
   big?: boolean;
 }
@@ -409,6 +413,7 @@ export function earnReleases(list: Earning[] | null | undefined): Release[] {
         ...finMetrics(e),
       ],
       out: e.a != null,
+      srcUrl: e.src === "sec" || e.src === "company" ? e.secUrl : undefined,
     }));
 }
 
@@ -481,7 +486,25 @@ export function mergeEarnings(base: Earning[] | null | undefined, live: Earning[
   for (const e of live ?? []) {
     const k = `${e.symbol}-${e.date}`;
     const b = out.get(k);
-    out.set(k, b ? { ...b, ...e, name: b.name, when: e.when || b.when, f: e.f ?? b.f, ly: e.ly ?? b.ly, capB: e.capB ?? b.capB, ra: e.ra ?? b.ra, na: e.na ?? b.na } : e);
+    // 실시간이 빈 값이면 바탕 자료(수집기·회사 발표로 넣은 값)를 지우지 않는다
+    out.set(
+      k,
+      b
+        ? {
+            ...b,
+            ...e,
+            name: b.name,
+            when: e.when || b.when,
+            f: e.f ?? b.f,
+            ly: e.ly ?? b.ly,
+            capB: e.capB ?? b.capB,
+            ra: e.ra ?? b.ra,
+            na: e.na ?? b.na,
+            ...(e.a == null ? { a: b.a, s: b.s, src: b.src } : {}),
+            secUrl: e.secUrl ?? b.secUrl,
+          }
+        : e,
+    );
   }
   return [...out.values()];
 }
