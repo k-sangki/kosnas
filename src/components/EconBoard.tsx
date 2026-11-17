@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import {
   bandPick,
   barScale,
@@ -254,6 +254,49 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
     { k: `act ${has ? (m.verdict ?? "") : "wait"}`, label: "실제", s: has ? m.a : "?", v: has ? m.av : null },
   ];
   const { zero, hi, lo, h } = barScale(cols.map((c) => c.v));
+  const plot = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = plot.current;
+    if (!el) return;
+    // 좁은 화면에서 이웃 막대의 값 글씨가 겹치면 겹친 만큼 위로(음수 막대는 아래로) 띄운다(2026-11-18 SK)
+    const fit = () => {
+      const tags = [...el.querySelectorAll<HTMLElement>(".ev-col-v")];
+      tags.forEach((t) => (t.style.transform = ""));
+      el.style.marginTop = "";
+      el.style.marginBottom = "";
+      const placed: DOMRect[] = [];
+      // 맨 끝 글씨가 그림 칸 밖으로 나가면 안쪽으로 당긴다
+      const box = (el.closest(".ev-m") ?? el).getBoundingClientRect();
+      let up = 0;
+      let down = 0;
+      for (const t of tags) {
+        const txt = t.firstElementChild as HTMLElement | null;
+        let r = (txt ?? t).getBoundingClientRect();
+        const below = t.dataset.neg === "1";
+        const dx = r.right > box.right ? box.right - r.right : r.left < box.left ? box.left - r.left : 0;
+        if (dx) r = new DOMRect(r.x + dx, r.y, r.width, r.height);
+        let dy = 0;
+        for (let k = 0; k < 4; k++) {
+          const hit = placed.find((q) => r.left < q.right + 2 && q.left < r.right + 2 && r.top < q.bottom && q.top < r.bottom);
+          if (!hit) break;
+          const step = below ? hit.bottom - r.top + 1 : r.bottom - hit.top + 1;
+          dy += below ? step : -step;
+          r = new DOMRect(r.x, r.y + (below ? step : -step), r.width, r.height);
+        }
+        if (dx || dy) t.style.transform = `translate(${dx}px, ${dy}px)`;
+        if (dy < 0) up = Math.max(up, -dy);
+        if (dy > 0) down = Math.max(down, dy);
+        placed.push(r);
+      }
+      // 띄운 만큼 그림 위·아래 여백을 늘려 머리글과 겹치지 않게
+      if (up) el.style.marginTop = `${parseFloat(getComputedStyle(el).marginTop) + up}px`;
+      if (down) el.style.marginBottom = `${parseFloat(getComputedStyle(el).marginBottom) + down}px`;
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [m.a, m.f, m.p, has]);
   return (
     <div className={`ev-m${lead ? " lead" : ""}${mini ? " mini" : ""}`}>
       {mini ? (
@@ -289,7 +332,7 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
         role="img"
         aria-label={`${m.pLabel ?? "직전"} ${m.p || "없음"}, 예상 ${m.f || "없음"}${has ? `, 실제 ${m.a}` : ""}`}
       >
-        <div className="ev-plot">
+        <div className="ev-plot" ref={plot}>
           <i className="ev-zero" style={{ top: `${zero}%` }} />
           {cols.map((c) => {
             // 값이 아직 없는 '실제'(?)도 모두 음수인 그림에서는 기준선 아래에 둔다
@@ -303,9 +346,10 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
                 />
                 <span
                   className="ev-col-v"
+                  data-neg={neg ? "1" : undefined}
                   style={neg ? { top: `calc(${zero + len}% + 3px)` } : { bottom: `calc(${100 - zero + len}% + 3px)` }}
                 >
-                  {(mini ? c.s.replace("$", "").replace(`${m.unit} `, "") : c.s) || "—"}
+                  <span>{(mini ? c.s.replace("$", "").replace(`${m.unit} `, "") : c.s) || "—"}</span>
                 </span>
               </div>
             );
