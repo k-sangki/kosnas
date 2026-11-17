@@ -3,7 +3,7 @@
  * 가입 없이 60자 한 줄, 매일 아침 8시(KST)에 비우고, 최근 30개만 보인다. 글마다 👍👎와 신고.
  * 링크·연락처·욕설은 채팅 규칙(./chat)을 그대로 쓰고, 리딩방 홍보 말을 더 막는다.
  */
-import { checkText } from "./chat";
+import { checkText, randomNick } from "./chat";
 
 export const WALL_MAX = 60;
 export const WALL_SHOW = 30;
@@ -20,8 +20,10 @@ export type Thumb = 1 | -1 | 0;
 export type WallPost = {
   id: number;
   at: number;
-  /** 같은 날 같은 IP면 같은 짧은 꼬리표(IP는 저장하지 않는다) */
-  tag: string;
+  /** 브라우저마다 고정되는 한글 닉네임(익명 번호에서 만든다) */
+  nick: string;
+  /** 이 브라우저가 쓴 글 */
+  own: boolean;
   text: string;
   up: number;
   down: number;
@@ -35,8 +37,8 @@ export type WallState = {
   /** 오늘 남은(숨기지 않은) 글 수 */
   total: number;
   posts: WallPost[];
-  /** 내 꼬리표(내 글에는 신고 버튼을 숨긴다) */
-  tag: string;
+  /** 이 브라우저의 닉네임(익명 번호를 보냈을 때) */
+  me: string | null;
 };
 
 /** 화면 → 서버(POST /api/wall) */
@@ -116,4 +118,11 @@ export function wallLimit(times: number[], now: number) {
   if (last != null && now - last < WALL_GAP_MS) return "조금 있다가 다시 써 주세요(30초에 한 줄).";
   if (times.length >= WALL_PER_DAY) return `하루에 ${WALL_PER_DAY}줄까지 쓸 수 있어요. 내일 아침 8시에 다시 열려요.`;
   return null;
+}
+
+/** 익명 번호를 해시한 바이트 넷으로 닉네임을 고른다(같은 번호면 늘 같은 닉네임) */
+export function nickFromBytes(b: ArrayLike<number>) {
+  const a = ((b[0] << 8) | b[1]) / 65536;
+  const c = ((b[2] << 8) | b[3]) / 65536;
+  return randomNick(a, c);
 }

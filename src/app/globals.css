@@ -2650,6 +2650,14 @@ button.ft-row {
   font-weight: 600;
   color: var(--muted);
 }
+.wall-tag em {
+  font-style: normal;
+  color: var(--mint-ink);
+}
+.wall-me {
+  margin: 6px 2px 0;
+  font-size: 12px;
+}
 .wall-text {
   margin: 1px 0 4px;
   font-size: 15px;

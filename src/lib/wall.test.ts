@@ -1,5 +1,6 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { WALL_GAP_MS, WALL_MAX, WALL_PER_DAY, checkWallText, isPromo, isThumb, isVoterId, wallDay, wallLimit } from "./wall";
+import { WALL_GAP_MS, WALL_MAX, WALL_PER_DAY, checkWallText, isPromo, nickFromBytes, isThumb, isVoterId, wallDay, wallLimit } from "./wall";
 
 describe("오늘의 한 줄 규칙", () => {
   it("담벼락 날짜는 아침 8시(KST)에 바뀐다", () => {
@@ -38,6 +39,15 @@ describe("오늘의 한 줄 규칙", () => {
     expect(wallLimit([1_000_000], 1_000_000 + WALL_GAP_MS)).toBeNull();
     const day = Array.from({ length: WALL_PER_DAY }, (_, k) => k * 3600_000);
     expect(wallLimit(day, 99 * 3600_000)).not.toBeNull();
+  });
+
+  it("닉네임은 같은 바이트면 늘 같고, 한글 두 단어", () => {
+    expect(nickFromBytes([1, 2, 3, 4])).toBe(nickFromBytes([1, 2, 3, 4]));
+    expect(nickFromBytes([0, 0, 0, 0])).toBe("물린 개미");
+    expect(nickFromBytes([255, 255, 255, 255])).toMatch(/^[가-힣0-9 ]+$/);
+    const seen = new Set(Array.from({ length: 20000 }, (_, k) => nickFromBytes(createHash("sha256").update(String(k)).digest())));
+    // 40 x 40 = 1,600가지가 고루 쓰인다
+    expect(seen.size).toBeGreaterThan(1590);
   });
 
   it("투표자 번호와 엄지 값", () => {

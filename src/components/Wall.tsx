@@ -164,6 +164,7 @@ function WallCard({ admin }: { admin: string }) {
           남기기
         </button>
       </form>
+      {s?.me && <p className="muted wall-me">내 닉네임 · {s.me}</p>}
       {error && (
         <p className="chat-error" role="alert">
           {error}
@@ -178,7 +179,7 @@ function WallCard({ admin }: { admin: string }) {
       <ul className="wall-list">
         {s?.posts.map((p) => (
           <li key={p.id} className="wall-item">
-            <span className="wall-tag">#{p.tag}</span>
+            <span className="wall-tag">{p.nick}{p.own && <em> · 나</em>}</span>
             <p className="wall-text">
               {p.text}
               <small>{ago(p.at, now)}</small>
@@ -196,7 +197,7 @@ function WallCard({ admin }: { admin: string }) {
               >
                 👎 <b>{p.down}</b>
               </button>
-              {s.tag !== p.tag && (
+              {!p.own && (
                 <button
                   type="button"
                   className="wall-report"
@@ -219,7 +220,7 @@ function WallCard({ admin }: { admin: string }) {
                     type="button"
                     className="wall-report chat-admin"
                     onClick={() => {
-                      if (confirm(`#${p.tag}의 오늘 글을 모두 지우고 오늘 글쓰기를 막을까요?`)) send({ type: "admin", id: p.id, key: admin, action: "ban" });
+                      if (confirm(`${p.nick}의 오늘 글을 모두 지우고 오늘 글쓰기를 막을까요?`)) send({ type: "admin", id: p.id, key: admin, action: "ban" });
                     }}
                   >
                     차단
@@ -231,8 +232,8 @@ function WallCard({ admin }: { admin: string }) {
         ))}
       </ul>
       <p className="muted small-note">
-        누구나 보는 익명 한 줄이에요. 욕설은 가려지고 링크·연락처·종목 추천·단톡방 홍보는 올릴 수 없으며, 신고가 3번 모이면 숨겨집니다. #꼬리표는 같은 날 같은 곳에서 쓴
-        글에 같게 붙는 짧은 표시예요(IP는 저장하지 않아요). 투자 판단은 본인 몫이에요.
+        누구나 보는 익명 한 줄이에요. 욕설은 가려지고 링크·연락처·종목 추천·단톡방 홍보는 올릴 수 없으며, 신고가 3번 모이면 숨겨집니다. 닉네임은 이 브라우저에 고정으로 붙고, IP는 저장하지
+        않아요. 투자 판단은 본인 몫이에요.
       </p>
     </section>
   );
