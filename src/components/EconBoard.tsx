@@ -218,6 +218,14 @@ function ReleaseCard({ r, now, dots, big, self }: { r: Release; now: number; dot
           </a>
         </p>
       )}
+      {r.srcUrl && r.out && (
+        <p className="econ-wait muted">
+          회사 실적 보도자료 기준(EPS는 조정 기준).{" "}
+          <a href={r.srcUrl} target="_blank" rel="noopener noreferrer">
+            원문 보기(미국 공시)
+          </a>
+        </p>
+      )}
       {r.group === "earn" && r.metrics.length > 1 ? (
         // 실적은 EPS·매출·순이익 작은 그림을 한 줄에 나란히(시안 B, 2026-11-11 SK): 그림 안 막대는 붙이고 그림끼리는 띄운다
         <div className="ev-trio" style={{ gridTemplateColumns: `repeat(${r.metrics.length}, minmax(0, 1fr))` }}>

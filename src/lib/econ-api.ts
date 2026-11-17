@@ -4,6 +4,7 @@
  * 나스닥이 막으면 빈 줄을 돌려주고 화면은 바탕 자료만 쓴다.
  */
 import { EARN_FOCUS, wanted, type Earning, type Row } from "./econ";
+import { secEarning } from "./sec-earn";
 
 const TTL = 120;
 const HEADERS = {
@@ -116,6 +117,29 @@ async function yahooFill(list: Earning[]): Promise<Earning[]> {
   return list.map((e) => ({ ...e, ...got.get(`${e.symbol}-${e.date}`) }));
 }
 
+/**
+ * 야후에도 아직 없으면 회사가 낸 공시 보도자료(SEC 8-K 2.02)에서 바로 읽는다 — 발표 시각에 올라온다(2026-11-18 SK: "빠르고 신뢰도 있게").
+ * 발표 예정 시각이 지난 것만, 한 번에 몇 곳만.
+ */
+async function secFill(list: Earning[]): Promise<Earning[]> {
+  const now = Date.now();
+  const due = list.filter((e) => e.a == null && now >= Date.parse(`${e.date}T${e.when === "pre" ? "07" : "16"}:00:00-05:00`)).slice(0, 4);
+  if (!due.length) return list;
+  const got = new Map<string, Partial<Earning>>();
+  await Promise.all(
+    due.map(async (e) => {
+      const r = await secEarning(e.symbol, e.date, e.f, e.rf).catch(() => null);
+      if (!r) return;
+      got.set(`${e.symbol}-${e.date}`, {
+        secUrl: r.url,
+        ...(r.a != null ? { a: r.a, s: e.f ? Math.round(((r.a - e.f) / Math.abs(e.f)) * 1000) / 10 : null, src: "sec" } : {}),
+        ...(r.ra != null ? { ra: r.ra } : {}),
+      });
+    }),
+  );
+  return list.map((e) => ({ ...e, ...got.get(`${e.symbol}-${e.date}`) }));
+}
+
 export async function econGET(req: Request) {
   const cache = (globalThis as { caches?: { default?: Cache } }).caches?.default;
   const key = new Request(new URL("/api/econ", req.url).toString());
@@ -133,6 +157,7 @@ export async function econGET(req: Request) {
       Promise.all(es.map(earnDay))
         .then((x) => x.flat())
         .then((x) => yahooFill(x).catch(() => x))
+        .then((x) => secFill(x).catch(() => x))
         .catch(() => []),
     ]);
     body = { rows, earnings, live: true, at: Date.now() };
