@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-17T05:48+09:00",
+ "updated": "2026-11-17T14:01+09:00",
  "events": [
   {
    "symbol": "NVDA",
@@ -104,14 +104,14 @@
    "name": "크라우드스트라이크",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 235
+   "capB": 232
   },
   {
    "symbol": "MRVL",
    "name": "마벨",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 144
+   "capB": 137
   },
   {
    "symbol": "MDB",
