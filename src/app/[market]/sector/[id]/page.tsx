@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import {
+  asofPrefix,
   SECTOR_KEYWORDS,
   breadcrumbLd,
   datasetLd,
@@ -60,8 +61,8 @@ export async function generateMetadata({
     .map((i) => i.name);
   const top = hit.market === "kr" ? capLeaders(hit.sector.stocks).map((s) => s.name) : [];
   return pageMeta({
-    title: hit.market === "kr" ? `${name} 대장주·섹터 등락률 - ${top.slice(0, 2).join("·")} 등 ${where} ${name}주 순위` : `${name} 섹터 등락률·순위 - ${where} 섹터 순환매`,
-    description: `${top.length ? `${name} 대장주(시가총액 순) ${top.join("·")}. ` : ""}${where} ${name} 섹터의 5·10·20·30·60일 등락률과 섹터 순위, 순환매 흐름(주도·약화·소외·관찰)${inds.length ? `, ${inds.join("·")} 산업` : ""}과 종목별 상대강도 순위.`,
+    title: hit.market === "kr" ? `${name} 대장주 - ${top.slice(0, 2).join("·")} 등 ${name}주 시총 순위·등락률` : `${name} 섹터 등락률·순위 - ${where} 섹터 순환매`,
+    description: `${hit.market === "kr" ? asofPrefix(sectorData("kr").asof) : ""}${top.length ? `${name} 대장주(시가총액 순) ${top.join("·")}. ` : ""}${where} ${name} 섹터의 5·10·20·30·60일 등락률과 섹터 순위, 순환매 흐름(주도·약화·소외·관찰)${inds.length ? `, ${inds.join("·")} 산업` : ""}과 종목별 상대강도 순위.`,
     keywords: [
       name,
       `${name} 섹터`,

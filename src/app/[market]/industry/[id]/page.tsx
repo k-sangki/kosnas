@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import {
+  asofPrefix,
   SECTOR_KEYWORDS,
   breadcrumbLd,
   datasetLd,
@@ -63,7 +64,7 @@ export async function generateMetadata({
   const note = INDUSTRY_NOTES[ind.name];
   const meta = pageMeta({
     title: `${industryLabel(ind.name)} 관련주·대장주 등락률·순위 - ${sector.name} 섹터 산업 순환매`,
-    description: `${note ? `${note.what} ` : ""}국장 ${industryLabel(ind.name)} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
+    description: `${asofPrefix(sectorData("kr").asof)}${note ? `${note.what} ` : ""}국장 ${industryLabel(ind.name)} 관련주(${sector.name} 섹터) ${ind.count ?? ""}종목의 5·10·20·30·60일 등락률과 전체 산업 중 순위, 순환매 흐름(주도·약화·소외·관찰)${
       names.length ? `, 대장주 ${names.join("·")} 등 종목별 상대강도 순위` : ""
     }.`,
     keywords: [

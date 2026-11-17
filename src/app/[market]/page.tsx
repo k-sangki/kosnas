@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SECTOR_KEYWORDS, datasetLd, pageMeta } from "@/lib/seo";
+import { SECTOR_KEYWORDS, asofPrefix, datasetLd, pageMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/app/layout";
 import { sectorData } from "@/lib/sectors";
@@ -53,7 +53,7 @@ export async function generateMetadata({
   const names = sectorData("kr").sectors.map((s) => s.name);
   return pageMeta({
     title: "국장 섹터 순위 - 코스피·코스닥 섹터 등락률과 순환매",
-    description: `국장 섹터 순위와 섹터별 등락률을 매일 장 마감 자료로. ${names.slice(0, 8).join(", ")} 등 코스피·코스닥 ${names.length}개 섹터의 순환매 흐름(주도·약화·소외·관찰)과 시장 폭을 한눈에.`,
+    description: `${asofPrefix(sectorData("kr").asof)}국장 섹터 순위와 섹터별 등락률을 매일 장 마감 자료로. ${names.slice(0, 8).join(", ")} 등 코스피·코스닥 ${names.length}개 섹터의 순환매 흐름(주도·약화·소외·관찰)과 시장 폭을 한눈에.`,
     keywords: [
       ...SECTOR_KEYWORDS,
       "코스피 섹터",

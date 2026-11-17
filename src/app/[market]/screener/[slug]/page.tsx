@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
 import { SITE_URL } from "@/app/layout";
-import { breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
+import { asofPrefix, breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
 import { BASE_FILTER, sectorData } from "@/lib/sectors";
 import { krScreenStocks } from "@/lib/screen-data";
 import {
@@ -38,7 +38,7 @@ export async function generateMetadata({
   if (!s) return {};
   return pageMeta({
     title: s.title,
-    description: s.description,
+    description: `${asofPrefix(sectorData("kr").asof)}${s.description}`,
     keywords: s.keywords,
     path: `/kr/screener/${s.slug}`,
   });
