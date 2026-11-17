@@ -76,12 +76,19 @@ export function readRelease(html: string, f: number | null, rf: number | null | 
 const SEC_UA = { "User-Agent": "KosNas kosnas.com contact@kosnas.com", Accept: "*/*" };
 
 /** 그 종목이 발표일(미국) 이후 낸 2.02 실적 8-K의 보도자료(EX-99.1) 주소. 종목 기호로 바로 찾는다(EDGAR 목록 atom) */
+/** 마지막으로 공시 읽기가 멈춘 곳(점검 기록용) */
+export const secTrace: string[] = [];
+
 export async function findRelease(sym: string, date: string): Promise<{ url: string; index: string } | null> {
   const feed = await fetch(`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${encodeURIComponent(sym)}&type=8-K&dateb=&owner=include&count=5&output=atom`, {
     headers: SEC_UA,
   });
-  if (!feed.ok) return null;
+  if (!feed.ok) {
+    secTrace.push(`${sym} feed ${feed.status}`);
+    return null;
+  }
   const xml = await feed.text();
+  secTrace.push(`${sym} feed ok ${xml.split("<entry>").length - 1}`);
   for (const ent of xml.split("<entry>").slice(1)) {
     const filed = ent.match(/<filing-date>([\d-]+)<\/filing-date>/)?.[1];
     const href = ent.match(/<filing-href>([^<]+)<\/filing-href>/)?.[1]?.replace(/&amp;/g, "&");
@@ -91,13 +98,19 @@ export async function findRelease(sym: string, date: string): Promise<{ url: str
     if (Date.parse(filed) - Date.parse(date) > 2 * 86_400_000) continue;
     if (!/2\.02/.test(items) && !/results of operations/i.test(items)) continue;
     const idx = await fetch(href, { headers: SEC_UA });
-    if (!idx.ok) continue;
+    if (!idx.ok) {
+      secTrace.push(`${sym} index ${idx.status}`);
+      continue;
+    }
     const page = await idx.text();
     // 문서 표에서 EX-99.1(없으면 첫 EX-99) 줄의 링크
     const rows = page.split(/<tr[\s>]/i);
     const pick = rows.find((r) => /EX-99\.?1\b/i.test(r)) ?? rows.find((r) => /EX-99/i.test(r));
     const link = pick?.match(/href="([^"]+\.htm[l]?)"/i)?.[1];
-    if (!link) continue;
+    if (!link) {
+      secTrace.push(`${sym} no ex99`);
+      continue;
+    }
     return { url: new URL(link.replace(/^\/ix\?doc=/, ""), "https://www.sec.gov").toString(), index: href };
   }
   return null;
@@ -108,6 +121,11 @@ export async function secEarning(sym: string, date: string, f: number | null, rf
   const rel = await findRelease(sym, date);
   if (!rel) return null;
   const r = await fetch(rel.url, { headers: SEC_UA });
-  if (!r.ok) return { url: rel.url, a: null, ra: null };
-  return { url: rel.url, ...readRelease(await r.text(), f, rf) };
+  if (!r.ok) {
+    secTrace.push(`${sym} doc ${r.status}`);
+    return { url: rel.url, a: null, ra: null };
+  }
+  const got = readRelease(await r.text(), f, rf);
+  secTrace.push(`${sym} read a=${got.a} ra=${got.ra}`);
+  return { url: rel.url, ...got };
 }
