@@ -227,7 +227,7 @@ function ReleaseCard({ r, now, dots, big, self }: { r: Release; now: number; dot
         </p>
       )}
       {r.group === "earn" && r.metrics.length > 1 ? (
-        // 실적은 EPS·매출·순이익 작은 그림을 한 줄에 나란히(시안 B, 2026-11-11 SK): 그림 안 막대는 붙이고 그림끼리는 띄운다
+        // 실적은 EPS·매출·다음 분기 매출 전망 작은 그림을 한 줄에 나란히(시안 B, 2026-11-11 SK): 그림 안 막대는 붙이고 그림끼리는 띄운다
         <div className="ev-trio" style={{ gridTemplateColumns: `repeat(${r.metrics.length}, minmax(0, 1fr))` }}>
           {r.metrics.map((m, i) => (
             <MetricRow key={i} m={m} out={r.out} lead={false} mini />
@@ -251,7 +251,7 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
   const cols: { k: string; label: string; s: string; v: number | null }[] = [
     { k: "pv", label: m.pLabel ?? "직전", s: m.p, v: m.pv },
     { k: "fc", label: "예상", s: m.f, v: m.fv },
-    { k: `act ${has ? (m.verdict ?? "") : "wait"}`, label: "실제", s: has ? m.a : "?", v: has ? m.av : null },
+    { k: `act ${has ? (m.verdict ?? "") : "wait"}`, label: m.aLabel ?? "실제", s: has ? m.a : "?", v: has ? m.av : null },
   ];
   const { zero, hi, lo, h } = barScale(cols.map((c) => c.v));
   const plot = useRef<HTMLDivElement>(null);
@@ -374,6 +374,7 @@ function MetricRow({ m, out, lead, big, mini }: { m: Metric; out: boolean; lead:
           ))}
         </div>
       </div>
+      {m.note && <small className="ev-m-note muted">{m.note}</small>}
     </div>
   );
 }

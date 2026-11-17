@@ -52,6 +52,11 @@ export interface Earning {
   /** 순이익(달러, 적자는 음수): 실제·1년 전. 공개된 시장 예상치가 없다 */
   na?: number | null;
   nly?: number | null;
+  /** 다음 분기 매출: 시장 예상(야후, 발표 전 값)·회사 전망 가운데 값과 범위(보도자료) */
+  gf?: number | null;
+  ga?: number | null;
+  gl?: number | null;
+  gh?: number | null;
   /** 회사 공시 보도자료(SEC 8-K) 주소 — 값을 거기서 읽었거나 공시만 확인한 경우 */
   secUrl?: string;
   /** 매출·순이익 통화가 달러가 아니면(TSM 대만 달러, ASML 유로) */
@@ -89,6 +94,10 @@ export interface Metric {
   tone?: Tone | null;
   /** 값의 통화(없으면 달러) */
   unit?: string;
+  /** '실제' 칸 이름(가이던스는 '회사 전망') */
+  aLabel?: string;
+  /** 그림 아래 작은 설명 */
+  note?: string;
 }
 
 export type Tone = -2 | -1 | 0 | 1 | 2;
@@ -445,20 +454,23 @@ export function finMetrics(e: Earning): Metric[] {
       unit: e.cur,
     });
   }
-  if (e.na != null || e.nly != null) {
-    const fm = moneyUnit([e.na, e.nly], e.cur);
-    const loss = (e.na ?? e.nly ?? 0) < 0;
+  // 순이익 자리: 다음 분기 매출 가이던스(회사 전망 vs 시장 예상, 2026-11-18 SK). 순이익은 공개 예상치가 없어 뺐다
+  if (e.ga != null || e.gf != null) {
+    const fm = moneyUnit([e.ga, e.gf, e.ra], e.cur);
+    const range = e.ga != null && e.gl != null && e.gh != null && e.gh > e.gl ? `${fm(e.gl)}~${fm(e.gh)}` : "";
     out.push({
-      label: loss ? "순손실" : "순이익",
-      a: fm(e.na),
-      f: "",
-      p: fm(e.nly),
-      av: e.na ?? null,
-      fv: null,
-      pv: e.nly ?? null,
-      verdict: null,
-      tone: null,
-      pLabel: "1년 전",
+      label: "가이던스",
+      a: fm(e.ga),
+      f: fm(e.gf),
+      p: fm(e.ra),
+      av: e.ga ?? null,
+      fv: e.gf ?? null,
+      pv: e.ra ?? null,
+      verdict: e.ga != null && e.gf != null ? revVerdict(e.ga, e.gf) : null,
+      tone: revTone(e.ga, e.gf),
+      pLabel: "이번",
+      aLabel: "전망",
+      note: range ? `다음 분기 매출 전망 ${range}` : "다음 분기 매출 전망",
       unit: e.cur,
     });
   }

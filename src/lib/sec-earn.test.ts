@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { netIncome, nonGaapEps, plainText, readRelease, revenue } from "./sec-earn";
+import { guidance, netIncome, nonGaapEps, plainText, readRelease, revenue } from "./sec-earn";
 
 // 엔비디아 보도자료 모양(2026-11-17 3분기 FY27: 매출 $115.8B, GAAP $2.70 · Non-GAAP $2.68)
 const NVDA = `<p>NVIDIA Announces Financial Results for Third Quarter Fiscal 2027</p>
 <ul><li>Record revenue of $115.8 billion, up 103% from a year ago</li></ul>
 <p>NVIDIA reported revenue for the third quarter ended October 25, 2026, of $115.8 billion. GAAP and non-GAAP gross margins were 74.8% and 74.9%, respectively. For the quarter, GAAP and non-GAAP earnings per diluted share were $2.70 and $2.68, respectively.</p>
+<p>Outlook</p><p>NVIDIA's outlook for the fourth quarter of fiscal 2027 is as follows: Revenue is expected to be $130.0 billion, plus or minus 3%.</p>
 <table><tr><td>GAAP</td></tr><tr><td>($ in millions, except earnings per share)</td><td>Q3 FY27</td></tr>
 <tr><td>Revenue</td><td>$</td><td>115,800</td></tr><tr><td>Net income</td><td>$</td><td>65,287</td></tr><tr><td>Diluted earnings per share</td><td>$</td><td>2.70</td></tr></table>
 <table><tr><td>Non-GAAP</td></tr><tr><td>Net income</td><td>$</td><td>64,900</td></tr><tr><td>Diluted earnings per share</td><td>$</td><td>2.68</td></tr></table>`;
@@ -14,7 +15,7 @@ describe("SEC 실적 보도자료", () => {
     const t = plainText(NVDA);
     expect(nonGaapEps(t)).toBe(2.68);
     expect(revenue(t)).toBe(115.8e9);
-    expect(readRelease(NVDA, 2.49, 108.7e9)).toEqual({ a: 2.68, ra: 115.8e9, na: 65_287e6 });
+    expect(readRelease(NVDA, 2.49, 108.7e9)).toMatchObject({ a: 2.68, ra: 115.8e9, na: 65_287e6, ga: 130e9 });
   });
   it("문장이 없으면 표의 Non-GAAP 줄(GAAP 줄은 건너뜀)", () => {
     const t = plainText(NVDA.replace(/For the quarter, GAAP and non-GAAP[^<]*/, ""));
@@ -37,6 +38,12 @@ describe("SEC 실적 보도자료", () => {
   it("사업부 매출 문장보다 전체 매출", () => {
     expect(revenue("Data Center revenue was a record $107.6 billion. ($ in millions) Revenue $ 115,800")).toBe(115_800e6);
     expect(revenue("NVIDIA reported revenue for the third quarter ended October 25, 2026, of $115.8 billion")).toBe(115.8e9);
+  });
+  it("다음 분기 매출 가이던스", () => {
+    expect(guidance("Outlook Revenue is expected to be $130.0 billion, plus or minus 3%.")).toEqual({ ga: 130e9, gl: 126.1e9, gh: 133.9e9 });
+    expect(guidance("Outlook For the fourth quarter, AMD expects revenue to be approximately $9.6 billion, plus or minus $300 million")).toEqual({ ga: 9.6e9, gl: 9.3e9, gh: 9.9e9 });
+    expect(guidance("Guidance: revenue in the range of $4.10 billion to $4.30 billion")?.ga).toBeCloseTo(4.2e9);
+    expect(guidance("Revenue was $5.0 billion, up 10%")).toBeNull();
   });
   it("표 단위로 매출", () => {
     expect(revenue("(in millions) Total revenues $ 12,345 $ 11,000")).toBe(12_345e6);

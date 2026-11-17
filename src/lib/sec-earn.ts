@@ -85,6 +85,41 @@ export function netIncome(text: string): number | null {
   return null;
 }
 
+const UNIT = (u: string | undefined) => (u?.toLowerCase() === "billion" ? 1e9 : u?.toLowerCase() === "million" ? 1e6 : null);
+const money = (v: string, u: string | undefined) => {
+  const m = UNIT(u);
+  return m ? Number(v.replace(/,/g, "")) * m : null;
+};
+
+/**
+ * 다음 분기 매출 가이던스(회사 전망): 가운데 값과 범위. 'Outlook' 뒤의 문장만 본다.
+ * 'Revenue is expected to be $130.0 billion, plus or minus 3%' · '... plus or minus $300 million' · 'between $X and $Y billion' · 'to be approximately $X billion'
+ */
+export function guidance(text: string): { ga: number; gl: number; gh: number } | null {
+  const at = text.search(/\b(outlook|guidance)\b/i);
+  const t = at >= 0 ? text.slice(at, at + 4000) : text;
+  const pm = t.match(/revenue[^$]{0,80}?\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million),?\s*(?:plus\s+or\s+minus|±|\+\/-)\s*(?:(\d+(?:\.\d+)?)\s*(?:%|percent)|\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million))/i);
+  if (pm) {
+    const ga = money(pm[1], pm[2]);
+    if (ga == null) return null;
+    const w = pm[3] ? ga * (Number(pm[3]) / 100) : (money(pm[4], pm[5]) ?? 0);
+    return { ga, gl: ga - w, gh: ga + w };
+  }
+  const rg = t.match(/revenue[^$]{0,80}?(?:between|range\s+of|from)\s+\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million)?\s*(?:and|to|-)\s+\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million)/i);
+  if (rg) {
+    const lo = money(rg[1], rg[2] ?? rg[4]);
+    const hi = money(rg[3], rg[4]);
+    if (lo == null || hi == null || hi < lo) return null;
+    return { ga: (lo + hi) / 2, gl: lo, gh: hi };
+  }
+  const one = t.match(/revenue[^$.]{0,60}?(?:expected|anticipated|forecast)\s+to\s+be\s+(?:approximately\s+|about\s+)?\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million)/i);
+  if (one) {
+    const ga = money(one[1], one[2]);
+    return ga == null ? null : { ga, gl: ga, gh: ga };
+  }
+  return null;
+}
+
 /** 예상치와 맞춰 본 값만 돌려준다 */
 export function readRelease(html: string, f: number | null, rf: number | null | undefined) {
   const text = plainText(html);
@@ -96,7 +131,11 @@ export function readRelease(html: string, f: number | null, rf: number | null | 
   let na = netIncome(text);
   // 순이익은 공개 예상이 없어 매출보다 클 수 없다는 것만 본다
   if (na != null && (ra == null || Math.abs(na) > ra)) na = null;
-  return { a, ra, na };
+  // 다음 분기 전망은 이번 분기 매출(없으면 예상)의 절반~두 배 안만
+  let g = guidance(text);
+  const ref = ra ?? rf ?? null;
+  if (g && (!ref || g.ga < ref * 0.5 || g.ga > ref * 2)) g = null;
+  return { a, ra, na, ...(g ?? { ga: null, gl: null, gh: null }) };
 }
 
 const CIK = (names as { cik?: Record<string, number> }).cik ?? {};
@@ -157,9 +196,9 @@ export async function secEarning(sym: string, date: string, f: number | null, rf
   const r = await fetch(rel.url, { headers: SEC_UA });
   if (!r.ok) {
     secTrace.push(`${sym} doc ${r.status}`);
-    return { url: rel.url, a: null, ra: null, na: null };
+    return { url: rel.url, a: null, ra: null, na: null, ga: null, gl: null, gh: null };
   }
   const got = readRelease(await r.text(), f, rf);
-  secTrace.push(`${sym} read a=${got.a} ra=${got.ra} na=${got.na}`);
+  secTrace.push(`${sym} read a=${got.a} ra=${got.ra} na=${got.na} ga=${got.ga}`);
   return { url: rel.url, ...got };
 }

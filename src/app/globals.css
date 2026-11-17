@@ -4758,3 +4758,12 @@ body:has(.tabbar) .toast {
   padding: 8px 10px;
   border-radius: 8px;
 }
+
+/* 실적 그림 아래 작은 설명(회사 전망 범위) */
+.ev-m-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+}

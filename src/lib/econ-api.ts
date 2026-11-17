@@ -124,7 +124,8 @@ async function yahooFill(list: Earning[]): Promise<Earning[]> {
  */
 async function secFill(list: Earning[]): Promise<Earning[]> {
   const now = Date.now();
-  const due = list.filter((e) => e.a == null && now >= Date.parse(`${e.date}T${e.when === "pre" ? "07" : "16"}:00:00-05:00`)).slice(0, 4);
+  // 실제 EPS 가 없거나(야후보다 먼저) 다음 분기 전망이 아직 없는 것
+  const due = list.filter((e) => (e.a == null || e.ga == null) && now >= Date.parse(`${e.date}T${e.when === "pre" ? "07" : "16"}:00:00-05:00`)).slice(0, 4);
   if (!due.length) return list;
   const got = new Map<string, Partial<Earning>>();
   await Promise.all(
@@ -138,9 +139,10 @@ async function secFill(list: Earning[]): Promise<Earning[]> {
       if (!r) return;
       got.set(`${e.symbol}-${e.date}`, {
         secUrl: r.url,
-        ...(r.a != null ? { a: r.a, s: e.f ? Math.round(((r.a - e.f) / Math.abs(e.f)) * 1000) / 10 : null, src: "sec" } : {}),
+        ...(r.a != null && e.a == null ? { a: r.a, s: e.f ? Math.round(((r.a - e.f) / Math.abs(e.f)) * 1000) / 10 : null, src: "sec" } : {}),
         ...(r.ra != null ? { ra: r.ra } : {}),
         ...(r.na != null ? { na: r.na } : {}),
+        ...(r.ga != null ? { ga: r.ga, gl: r.gl, gh: r.gh } : {}),
       });
     }),
   );
