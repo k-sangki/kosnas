@@ -1,19 +1,19 @@
 {
- "updated": "2026-11-17T14:01+09:00",
+ "updated": "2026-11-18T04:34+09:00",
  "events": [
   {
    "symbol": "NVDA",
    "name": "엔비디아",
    "date": "2026-11-17",
    "when": "after",
-   "capB": 3925
+   "capB": 3763
   },
   {
    "symbol": "HD",
    "name": "홈디포",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 348
+   "capB": 347
   },
   {
    "symbol": "DIS",
@@ -27,28 +27,28 @@
    "name": "BHP",
    "date": "2026-11-17",
    "when": "",
-   "capB": 202
+   "capB": 195
   },
   {
    "symbol": "JD",
    "name": "징둥",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 38
+   "capB": 37
   },
   {
    "symbol": "PANW",
    "name": "팔로알토",
    "date": "2026-11-18",
    "when": "after",
-   "capB": 264
+   "capB": 259
   },
   {
    "symbol": "LOW",
    "name": "로우스",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 128
+   "capB": 126
   },
   {
    "symbol": "TGT",
@@ -62,35 +62,35 @@
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 1001
+   "capB": 1019
   },
   {
    "symbol": "BABA",
    "name": "알리바바",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 229
+   "capB": 220
   },
   {
    "symbol": "PDD",
    "name": "PDD(테무)",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 110
+   "capB": 111
   },
   {
    "symbol": "HPE",
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 64
+   "capB": 62
   },
   {
    "symbol": "DELL",
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 219
+   "capB": 204
   },
   {
    "symbol": "NIO",
@@ -104,49 +104,42 @@
    "name": "크라우드스트라이크",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 232
+   "capB": 229
   },
   {
    "symbol": "MRVL",
    "name": "마벨",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 137
+   "capB": 127
   },
   {
    "symbol": "MDB",
    "name": "몽고DB",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 27
+   "capB": 26
   },
   {
    "symbol": "CRM",
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 179
+   "capB": 177
   },
   {
    "symbol": "SNOW",
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 103
+   "capB": 99
   },
   {
    "symbol": "RY",
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 280
-  },
-  {
-   "symbol": "TD",
-   "name": "Toronto Dominion Bank (The)",
-   "date": "2026-12-03",
-   "when": "pre",
-   "capB": 202
+   "capB": 277
   }
  ]
 }
