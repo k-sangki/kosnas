@@ -53,15 +53,19 @@ export function nonGaapEps(text: string): number | null {
   return null;
 }
 
-/** 이번 분기 매출(달러). 'revenue of $115.8 billion' 문장 먼저, 없으면 표의 첫 Revenue 줄 × 표 단위 */
+/**
+ * 이번 분기 매출(달러). 'revenue of $115.8 billion' 같은 문장과 표의 첫 Revenue 줄 × 표 단위를 함께 보고,
+ * 둘이 다르면 큰 쪽(문장이 사업부 매출 'Data Center revenue was $107.6 billion'일 수 있다 — 전체가 더 크다)
+ */
 export function revenue(text: string): number | null {
-  const s = text.match(/(?:record\s+)?(?:quarterly\s+|total\s+|net\s+)?(?:revenue|revenues|net\s+sales|sales)\s+(?:was|were|of)\s+(?:a\s+record\s+)?\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million)/i);
-  if (s) return Number(s[1].replace(/,/g, "")) * (s[2].toLowerCase() === "billion" ? 1e9 : 1e6);
+  const s = text.match(/(?:revenue|revenues|net\s+sales)\b[^$]{0,80}?\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million)/i);
+  const said = s ? Number(s[1].replace(/,/g, "")) * (s[2].toLowerCase() === "billion" ? 1e9 : 1e6) : null;
   const unit = text.match(/in\s+(millions|billions|thousands)/i)?.[1].toLowerCase();
   const mult = unit === "billions" ? 1e9 : unit === "thousands" ? 1e3 : unit === "millions" ? 1e6 : null;
-  if (!mult) return null;
-  const row = text.match(/\b(?:total\s+)?(?:net\s+)?revenues?\s+\$\s?([\d,]+(?:\.\d+)?)/i);
-  return row ? Number(row[1].replace(/,/g, "")) * mult : null;
+  const row = mult ? text.match(/\b(?:total\s+)?(?:net\s+)?revenues?\s+\$\s?([\d,]+(?:\.\d+)?)/i) : null;
+  const table = row && mult ? Number(row[1].replace(/,/g, "")) * mult : null;
+  if (said != null && table != null) return Math.max(said, table);
+  return said ?? table;
 }
 
 /** 이번 분기 순이익(GAAP, 달러, 적자는 음수). 'GAAP net income was $65.3 billion' 문장 먼저, 없으면 GAAP 표의 첫 Net income 줄 × 표 단위 */
