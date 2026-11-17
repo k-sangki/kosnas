@@ -7,6 +7,8 @@
  * 그 값을 못 찾거나 예상치에서 50% 넘게 벗어나면 쓰지 않는다(틀린 숫자보다 빈 칸이 낫다). 매출도 예상의 ±40% 안만.
  */
 
+import names from "../data/econ-names.json";
+
 /** 보도자료 HTML → 한 줄 글 */
 export function plainText(html: string) {
   return html
@@ -62,6 +64,23 @@ export function revenue(text: string): number | null {
   return row ? Number(row[1].replace(/,/g, "")) * mult : null;
 }
 
+/** 이번 분기 순이익(GAAP, 달러, 적자는 음수). 'GAAP net income was $65.3 billion' 문장 먼저, 없으면 GAAP 표의 첫 Net income 줄 × 표 단위 */
+export function netIncome(text: string): number | null {
+  const s = text.match(/(?<!non-)\bGAAP\s+net\s+(income|loss)\s+(?:was|of)\s+\$\s?([\d,]+(?:\.\d+)?)\s*(billion|million)/i);
+  if (s) return Number(s[2].replace(/,/g, "")) * (s[3].toLowerCase() === "billion" ? 1e9 : 1e6) * (s[1].toLowerCase() === "loss" ? -1 : 1);
+  const unit = text.match(/in\s+(millions|billions|thousands)/i)?.[1].toLowerCase();
+  const mult = unit === "billions" ? 1e9 : unit === "thousands" ? 1e3 : unit === "millions" ? 1e6 : null;
+  if (!mult) return null;
+  for (const m of text.matchAll(/\bnet\s+income(?:\s*\(loss\))?\s+\$?\s*(\(?-?[\d,]+(?:\.\d+)?\)?)/gi)) {
+    const before = text.slice(Math.max(0, m.index - 1500), m.index);
+    const lastNon = Math.max(...[...before.matchAll(/non-GAAP|adjusted/gi)].map((x) => x.index), -1);
+    if (lastNon >= 0 && lastNon > Math.max(...[...before.matchAll(/(?<!non-)\bGAAP\b/gi)].map((x) => x.index), -1)) continue;
+    const v = num(m[1].replace(/,/g, ""));
+    if (v != null) return v * mult;
+  }
+  return null;
+}
+
 /** 예상치와 맞춰 본 값만 돌려준다 */
 export function readRelease(html: string, f: number | null, rf: number | null | undefined) {
   const text = plainText(html);
@@ -70,62 +89,73 @@ export function readRelease(html: string, f: number | null, rf: number | null | 
   let ra = revenue(text);
   if (ra != null && rf && Math.abs(ra - rf) > rf * 0.4) ra = null;
   if (ra != null && !rf) ra = null;
-  return { a, ra };
+  let na = netIncome(text);
+  // 순이익은 공개 예상이 없어 매출보다 클 수 없다는 것만 본다
+  if (na != null && (ra == null || Math.abs(na) > ra)) na = null;
+  return { a, ra, na };
 }
 
+const CIK = (names as { cik?: Record<string, number> }).cik ?? {};
 const SEC_UA = { "User-Agent": "KosNas kosnas.com contact@kosnas.com", Accept: "*/*" };
 
 /** 그 종목이 발표일(미국) 이후 낸 2.02 실적 8-K의 보도자료(EX-99.1) 주소. 종목 기호로 바로 찾는다(EDGAR 목록 atom) */
 /** 마지막으로 공시 읽기가 멈춘 곳(점검 기록용) */
 export const secTrace: string[] = [];
 
+/**
+ * 그 종목이 발표일(미국) 이후 이틀 안에 낸 2.02(실적) 8-K의 보도자료(EX-99.1) 주소.
+ * 회사 번호(econ-names.json cik)로 공시 목록(data.sec.gov)을 받는다 — 종목 기호로 찾는 옛 EDGAR 화면은 워커에서 400이었다(2026-11-18).
+ */
 export async function findRelease(sym: string, date: string): Promise<{ url: string; index: string } | null> {
-  const feed = await fetch(`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${encodeURIComponent(sym)}&type=8-K&dateb=&owner=include&count=5&output=atom`, {
-    headers: SEC_UA,
-  });
-  if (!feed.ok) {
-    secTrace.push(`${sym} feed ${feed.status}`);
+  const cik = CIK[sym];
+  if (!cik) return null;
+  const sub = await fetch(`https://data.sec.gov/submissions/CIK${String(cik).padStart(10, "0")}.json`, { headers: SEC_UA });
+  if (!sub.ok) {
+    secTrace.push(`${sym} list ${sub.status}`);
     return null;
   }
-  const xml = await feed.text();
-  secTrace.push(`${sym} feed ok ${xml.split("<entry>").length - 1}`);
-  for (const ent of xml.split("<entry>").slice(1)) {
-    const filed = ent.match(/<filing-date>([\d-]+)<\/filing-date>/)?.[1];
-    const href = ent.match(/<filing-href>([^<]+)<\/filing-href>/)?.[1]?.replace(/&amp;/g, "&");
-    const items = ent.match(/<items-desc>([\s\S]*?)<\/items-desc>/)?.[1] ?? "";
-    if (!filed || !href || filed < date) continue;
-    // 발표일에서 이틀 안, 2.02(실적)
-    if (Date.parse(filed) - Date.parse(date) > 2 * 86_400_000) continue;
-    if (!/2\.02/.test(items) && !/results of operations/i.test(items)) continue;
-    const idx = await fetch(href, { headers: SEC_UA });
+  const body = (await sub.json()) as { tickers?: string[]; filings?: { recent?: Record<string, string[]> } };
+  // 회사 번호를 잘못 적었으면 쓰지 않는다
+  if (!(body.tickers ?? []).includes(sym)) {
+    secTrace.push(`${sym} cik mismatch`);
+    return null;
+  }
+  const r = body.filings?.recent ?? {};
+  const n = Math.min(r.form?.length ?? 0, 40);
+  for (let i = 0; i < n; i++) {
+    const filed = r.filingDate[i];
+    if (r.form[i] !== "8-K" || filed < date || Date.parse(filed) - Date.parse(date) > 2 * 86_400_000) continue;
+    if (!/2\.02/.test(r.items?.[i] ?? "")) continue;
+    const acc = r.accessionNumber[i];
+    const index = `https://www.sec.gov/Archives/edgar/data/${cik}/${acc.replace(/-/g, "")}/${acc}-index.htm`;
+    const idx = await fetch(index, { headers: SEC_UA });
     if (!idx.ok) {
       secTrace.push(`${sym} index ${idx.status}`);
       continue;
     }
-    const page = await idx.text();
-    // 문서 표에서 EX-99.1(없으면 첫 EX-99) 줄의 링크
-    const rows = page.split(/<tr[\s>]/i);
-    const pick = rows.find((r) => /EX-99\.?1\b/i.test(r)) ?? rows.find((r) => /EX-99/i.test(r));
-    const link = pick?.match(/href="([^"]+\.htm[l]?)"/i)?.[1];
+    const rows = (await idx.text()).split(/<tr[\s>]/i);
+    const pick = rows.find((x) => /EX-99\.?0?1\b/i.test(x)) ?? rows.find((x) => /EX-99/i.test(x));
+    const link = pick?.match(/href="([^"]+\.html?)"/i)?.[1];
     if (!link) {
       secTrace.push(`${sym} no ex99`);
       continue;
     }
-    return { url: new URL(link.replace(/^\/ix\?doc=/, ""), "https://www.sec.gov").toString(), index: href };
+    return { url: new URL(link.replace(/^\/ix\?doc=/, ""), "https://www.sec.gov").toString(), index };
   }
+  secTrace.push(`${sym} no 8-K yet`);
   return null;
 }
 
-/** 공시 보도자료에서 EPS·매출. 공시가 아직이면 null, 공시는 있는데 숫자를 못 읽으면 주소만 */
+/** 공시 보도자료에서 EPS·매출·순이익. 공시가 아직이면 null, 공시는 있는데 숫자를 못 읽으면 주소만 */
 export async function secEarning(sym: string, date: string, f: number | null, rf: number | null | undefined) {
   const rel = await findRelease(sym, date);
   if (!rel) return null;
   const r = await fetch(rel.url, { headers: SEC_UA });
   if (!r.ok) {
     secTrace.push(`${sym} doc ${r.status}`);
-    return { url: rel.url, a: null, ra: null };
+    return { url: rel.url, a: null, ra: null, na: null };
   }
   const got = readRelease(await r.text(), f, rf);
-  secTrace.push(`${sym} read a=${got.a} ra=${got.ra}`);
+  secTrace.push(`${sym} read a=${got.a} ra=${got.ra} na=${got.na}`);
   return { url: rel.url, ...got };
 }

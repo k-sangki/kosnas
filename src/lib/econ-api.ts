@@ -137,6 +137,7 @@ async function secFill(list: Earning[]): Promise<Earning[]> {
         secUrl: r.url,
         ...(r.a != null ? { a: r.a, s: e.f ? Math.round(((r.a - e.f) / Math.abs(e.f)) * 1000) / 10 : null, src: "sec" } : {}),
         ...(r.ra != null ? { ra: r.ra } : {}),
+        ...(r.na != null ? { na: r.na } : {}),
       });
     }),
   );
