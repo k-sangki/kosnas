@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-17",
- "since": "2026-10-18",
+ "updated": "2026-11-18",
+ "since": "2026-10-19",
  "window": 30,
  "failed": [],
  "investors": [
@@ -81,6 +81,22 @@
   }
  ],
  "events": [
+  {
+   "kind": "sell",
+   "shares": 163261.0,
+   "value": 3565620,
+   "price": 21.84,
+   "after": 12672350.0,
+   "from": "2026-11-13",
+   "to": "2026-11-13",
+   "issuer": "Centuri Holdings, Inc.",
+   "ticker": "CTRI",
+   "investor": "icahn",
+   "form": "4",
+   "filed": "2026-11-17",
+   "acc": "0001539497-26-003035",
+   "url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726003035/xslF345X06/ownership.xml"
+  },
   {
    "kind": "stake",
    "issuer": "VERISIGN, INC.",
