@@ -1,5 +1,5 @@
 /**
- * Workers 진입점. 채팅 웹소켓(/api/chat)은 채팅방, 투표(/api/poll)는 투표함(둘 다 Durable Object)으로 보내고
+ * Workers 진입점. 채팅 웹소켓(/api/chat)은 채팅방, 투표(/api/poll)는 투표함, 한 줄 담벼락(/api/wall)은 담벼락(모두 Durable Object)으로 보내고
  * 나머지는 OpenNext(Next.js)가 받는다.
  * .open-next/worker.js 는 빌드 때 생긴다.
  *
@@ -20,17 +20,19 @@ import { econGET } from "../src/lib/econ-api";
 import { ChatRoom } from "./chat-room";
 import { PollRoom } from "./poll-room";
 import { NightRecord } from "./night-record";
+import { WallRoom } from "./wall-room";
 
 type Env = {
   CHAT: DurableObjectNamespace<ChatRoom>;
   POLL: DurableObjectNamespace<PollRoom>;
   RECORD: DurableObjectNamespace<NightRecord>;
+  WALL: DurableObjectNamespace<WallRoom>;
   CF_VERSION_METADATA?: { id: string };
   /** kosnas 저장소 Actions 쓰기만 되는 GitHub 토큰(wrangler secret). 없으면 예약 작업이 아무것도 하지 않는다 */
   GH_DISPATCH_TOKEN?: string;
 };
 
-export { ChatRoom, PollRoom, NightRecord };
+export { ChatRoom, PollRoom, NightRecord, WallRoom };
 
 /** /api/night-record: 기록 요약. 엣지에 2분 담는다 */
 async function recordGET(req: Request, env: Env) {
@@ -224,6 +226,17 @@ const worker = {
         if (host !== url.host) return new Response("forbidden", { status: 403 });
       }
       return env.POLL.get(env.POLL.idFromName("main")).fetch(req);
+    }
+    if (url.pathname === "/api/wall") {
+      // '오늘의 한 줄' 담벼락. 쓰기·누르기는 같은 주소의 화면에서 보낸 것만 받는다
+      if (req.method === "POST") {
+        let host = "";
+        try {
+          host = new URL(req.headers.get("Origin") ?? "").host;
+        } catch {}
+        if (host !== url.host) return new Response("forbidden", { status: 403 });
+      }
+      return env.WALL.get(env.WALL.idFromName("main")).fetch(req);
     }
     return page(req, env, ctx);
   },
