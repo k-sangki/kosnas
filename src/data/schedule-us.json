@@ -1,145 +1,110 @@
 {
- "updated": "2026-11-18T12:59+09:00",
+ "updated": "2026-11-19T04:14+09:00",
  "events": [
-  {
-   "symbol": "NVDA",
-   "name": "엔비디아",
-   "date": "2026-11-17",
-   "when": "after",
-   "capB": 3763
-  },
-  {
-   "symbol": "HD",
-   "name": "홈디포",
-   "date": "2026-11-17",
-   "when": "pre",
-   "capB": 347
-  },
-  {
-   "symbol": "DIS",
-   "name": "디즈니",
-   "date": "2026-11-17",
-   "when": "pre",
-   "capB": 205
-  },
-  {
-   "symbol": "BHP",
-   "name": "BHP",
-   "date": "2026-11-17",
-   "when": "",
-   "capB": 195
-  },
-  {
-   "symbol": "JD",
-   "name": "징둥",
-   "date": "2026-11-17",
-   "when": "pre",
-   "capB": 37
-  },
   {
    "symbol": "PANW",
    "name": "팔로알토",
    "date": "2026-11-18",
    "when": "after",
-   "capB": 259
+   "capB": 253
   },
   {
    "symbol": "LOW",
    "name": "로우스",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 126
+   "capB": 124
   },
   {
    "symbol": "TGT",
    "name": "타깃",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 73
+   "capB": 72
   },
   {
    "symbol": "WMT",
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 1019
+   "capB": 1012
   },
   {
    "symbol": "BABA",
    "name": "알리바바",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 220
+   "capB": 210
   },
   {
    "symbol": "PDD",
    "name": "PDD(테무)",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 111
+   "capB": 110
   },
   {
    "symbol": "HPE",
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 62
+   "capB": 61
   },
   {
    "symbol": "DELL",
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 204
-  },
-  {
-   "symbol": "NIO",
-   "name": "니오",
-   "date": "2026-11-24",
-   "when": "",
-   "capB": 7
+   "capB": 205
   },
   {
    "symbol": "CRWD",
    "name": "크라우드스트라이크",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 229
+   "capB": 225
   },
   {
    "symbol": "MRVL",
    "name": "마벨",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 127
+   "capB": 130
   },
   {
    "symbol": "MDB",
    "name": "몽고DB",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 26
+   "capB": 24
+  },
+  {
+   "symbol": "NIO",
+   "name": "니오",
+   "date": "2026-12-01",
+   "when": "pre",
+   "capB": 7
   },
   {
    "symbol": "CRM",
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 177
+   "capB": 160
   },
   {
    "symbol": "SNOW",
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 99
+   "capB": 96
   },
   {
    "symbol": "RY",
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 277
+   "capB": 272
   }
  ]
 }
