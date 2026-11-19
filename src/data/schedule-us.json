@@ -1,40 +1,19 @@
 {
- "updated": "2026-11-19T12:59+09:00",
+ "updated": "2026-11-20T04:16+09:00",
  "events": [
-  {
-   "symbol": "PANW",
-   "name": "팔로알토",
-   "date": "2026-11-18",
-   "when": "after",
-   "capB": 253
-  },
-  {
-   "symbol": "LOW",
-   "name": "로우스",
-   "date": "2026-11-18",
-   "when": "pre",
-   "capB": 124
-  },
-  {
-   "symbol": "TGT",
-   "name": "타깃",
-   "date": "2026-11-18",
-   "when": "pre",
-   "capB": 72
-  },
   {
    "symbol": "WMT",
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 1012
+   "capB": 1010
   },
   {
    "symbol": "BABA",
    "name": "알리바바",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 210
+   "capB": 204
   },
   {
    "symbol": "PDD",
@@ -55,28 +34,28 @@
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 205
+   "capB": 199
   },
   {
    "symbol": "CRWD",
    "name": "크라우드스트라이크",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 225
+   "capB": 243
   },
   {
    "symbol": "MRVL",
    "name": "마벨",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 130
+   "capB": 128
   },
   {
    "symbol": "MDB",
    "name": "몽고DB",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 24
+   "capB": 25
   },
   {
    "symbol": "NIO",
@@ -90,21 +69,42 @@
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 160
+   "capB": 157
   },
   {
    "symbol": "SNOW",
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 96
+   "capB": 99
   },
   {
    "symbol": "RY",
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 272
+   "capB": 263
+  },
+  {
+   "symbol": "AVGO",
+   "name": "브로드컴",
+   "date": "2026-12-09",
+   "when": "after",
+   "capB": 1690
+  },
+  {
+   "symbol": "ORCL",
+   "name": "오라클",
+   "date": "2026-12-09",
+   "when": "",
+   "capB": 344
+  },
+  {
+   "symbol": "ADBE",
+   "name": "어도비",
+   "date": "2026-12-09",
+   "when": "after",
+   "capB": 88
   }
  ]
 }
