@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-19T06:35+09:00",
+ "updated": "2026-11-19T12:50+09:00",
  "rows": [
   {
    "d": "2026-11-05",
@@ -69,6 +69,87 @@
    "t": "19:00",
    "c": "United States",
    "n": "Fed Logan Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-07",
+   "t": "04:30",
+   "c": "United States",
+   "n": "FOMC Member Williams Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-07",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Average Hourly Earnings",
+   "a": "0.4%",
+   "f": "0.3%",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Nonfarm Payrolls",
+   "a": "165K",
+   "f": "65K",
+   "p": "60K"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Unemployment Rate",
+   "a": "4.1%",
+   "f": "4.2%",
+   "p": "4.2%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 1-Year Inflation Expectations",
+   "a": "4.3%",
+   "f": "4.6%",
+   "p": "4.7%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 5-Year Inflation Expectations",
+   "a": "3.4%",
+   "f": "3.5%",
+   "p": "3.5%"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Expectations",
+   "a": "50.9",
+   "f": "49.5",
+   "p": "48.8"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Sentiment",
+   "a": "51.0",
+   "f": "48.1",
+   "p": "48.0"
+  },
+  {
+   "d": "2026-11-07",
+   "t": "12:15",
+   "c": "United States",
+   "n": "FOMC Member Bowman Speaks",
    "a": "",
    "f": "",
    "p": ""
