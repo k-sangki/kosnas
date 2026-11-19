@@ -9,6 +9,10 @@ export interface Change {
 
 export const CHANGELOG: Change[] = [
   {
+    date: "2026-11-19",
+    items: ["가이드 추가: 선물·옵션 만기일(네 마녀의 날)이란 - 날짜 계산과 장 막판 변동"],
+  },
+  {
     date: "2026-11-17",
     items: [
       "원전·ESS·로봇 관련주 페이지에 해설 추가: 산업이 돈을 버는 순서, 수주와 실적의 시간차, 확인할 점",
