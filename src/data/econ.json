@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21T03:49+09:00",
+ "updated": "2026-11-21T06:31+09:00",
  "rows": [
   {
    "d": "2026-11-10",
@@ -105,150 +105,6 @@
    "t": "18:30",
    "c": "United States",
    "n": "FOMC Member Bowman Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Continuing Jobless Claims",
-   "a": "1,697K",
-   "f": "1,710K",
-   "p": "1,717K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Initial Jobless Claims",
-   "a": "200K",
-   "f": "194K",
-   "p": "191K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Fed Vice Chair for Supervision Barr Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "11:30",
-   "c": "United States",
-   "n": "Fed Goolsbee Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:10",
-   "c": "United States",
-   "n": "FOMC Member Daly Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:30",
-   "c": "United States",
-   "n": "Fed Schmid Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "18:30",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-14",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Core PPI",
-   "a": "0.3%",
-   "f": "0.3%",
-   "p": "0.8%"
-  },
-  {
-   "d": "2026-11-14",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Core PPI",
-   "a": "5.0%",
-   "f": "5.0%",
-   "p": "5.0%"
-  },
-  {
-   "d": "2026-11-14",
-   "t": "08:30",
-   "c": "United States",
-   "n": "PPI",
-   "a": "0.3%",
-   "f": "0.4%",
-   "p": "1.4%"
-  },
-  {
-   "d": "2026-11-14",
-   "t": "08:30",
-   "c": "United States",
-   "n": "PPI",
-   "a": "6.5%",
-   "f": "6.6%",
-   "p": "6.3%"
-  },
-  {
-   "d": "2026-11-14",
-   "t": "09:10",
-   "c": "United States",
-   "n": "Fed Collins Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-14",
-   "t": "09:40",
-   "c": "United States",
-   "n": "Fed Logan Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-14",
-   "t": "10:50",
-   "c": "United States",
-   "n": "FOMC Member Bowman Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-14",
-   "t": "12:00",
-   "c": "United States",
-   "n": "FOMC Member Daly Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-14",
-   "t": "19:00",
-   "c": "United States",
-   "n": "Fed Governor Jefferson Speaks",
    "a": "",
    "f": "",
    "p": ""
@@ -443,6 +299,42 @@
    "p": ""
   },
   {
+   "d": "2026-11-25",
+   "t": "10:00",
+   "c": "United States",
+   "n": "CB Consumer Confidence",
+   "a": "",
+   "f": "92.0",
+   "p": "91.7"
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Manufacturing PMI",
+   "a": "",
+   "f": "",
+   "p": "55.5"
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Manufacturing Prices",
+   "a": "",
+   "f": "",
+   "p": "75.2"
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
+   "n": "JOLTS Job Openings",
+   "a": "",
+   "f": "",
+   "p": "7.523M"
+  },
+  {
    "d": "2026-12-03",
    "t": "08:15",
    "c": "United States",
@@ -470,40 +362,76 @@
    "p": "73.0"
   },
   {
-   "d": "2026-12-11",
+   "d": "2026-12-05",
    "t": "08:30",
    "c": "United States",
-   "n": "Core CPI",
+   "n": "Average Hourly Earnings",
    "a": "",
    "f": "",
-   "p": "0.3%"
+   "p": "0.4%"
   },
   {
-   "d": "2026-12-11",
+   "d": "2026-12-05",
    "t": "08:30",
    "c": "United States",
-   "n": "Core CPI",
+   "n": "Nonfarm Payrolls",
    "a": "",
    "f": "",
-   "p": "2.6%"
+   "p": "165K"
   },
   {
-   "d": "2026-12-11",
+   "d": "2026-12-05",
    "t": "08:30",
    "c": "United States",
-   "n": "CPI",
+   "n": "Unemployment Rate",
+   "a": "",
+   "f": "",
+   "p": "4.1%"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 1-Year Inflation Expectations",
    "a": "",
    "f": "",
    "p": "3.7%"
   },
   {
-   "d": "2026-12-11",
-   "t": "08:30",
+   "d": "2026-12-05",
+   "t": "10:00",
    "c": "United States",
-   "n": "CPI",
+   "n": "Michigan 5-Year Inflation Expectations",
    "a": "",
    "f": "",
-   "p": "0.4%"
+   "p": "3.3%"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Expectations",
+   "a": "",
+   "f": "",
+   "p": "52.9"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Sentiment",
+   "a": "",
+   "f": "",
+   "p": "51.5"
+  },
+  {
+   "d": "2026-12-10",
+   "t": "14:00",
+   "c": "United States",
+   "n": "Fed Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "4.00%"
   },
   {
    "d": "2026-12-18",
@@ -521,7 +449,7 @@
    "name": "코어위브",
    "date": "2026-11-10",
    "when": "after",
-   "capB": 25,
+   "capB": 27,
    "quarter": "Sep/2026",
    "f": -1.55,
    "n": 10,
@@ -536,19 +464,6 @@
    "gf": 4845077070
   },
   {
-   "symbol": "RGTI",
-   "name": "리게티",
-   "date": "2026-11-10",
-   "when": "after",
-   "capB": 3,
-   "quarter": "Sep/2026",
-   "f": -0.08,
-   "n": 3,
-   "a": -0.09,
-   "s": -12.5,
-   "ly": null
-  },
-  {
    "symbol": "QBTS",
    "name": "디웨이브",
    "date": "2026-11-10",
@@ -559,6 +474,19 @@
    "n": 2,
    "a": -0.13,
    "s": 7.14,
+   "ly": null
+  },
+  {
+   "symbol": "RGTI",
+   "name": "리게티",
+   "date": "2026-11-10",
+   "when": "after",
+   "capB": 3,
+   "quarter": "Sep/2026",
+   "f": -0.08,
+   "n": 3,
+   "a": -0.09,
+   "s": -12.5,
    "ly": null
   },
   {
@@ -702,7 +630,7 @@
    "name": "팔로알토",
    "date": "2026-11-18",
    "when": "after",
-   "capB": 278,
+   "capB": 296,
    "quarter": "Oct/2026",
    "f": 0.52,
    "n": 16,
@@ -715,7 +643,7 @@
    "name": "로우스",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 125,
+   "capB": 123,
    "quarter": "Oct/2026",
    "f": 2.86,
    "n": 11,
@@ -728,7 +656,7 @@
    "name": "타깃",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 75,
+   "capB": 76,
    "quarter": "Oct/2026",
    "f": 2.05,
    "n": 13,
@@ -746,9 +674,9 @@
    "f": 0.64,
    "n": 13,
    "a": 0.65,
-   "s": 1.56,
+   "s": 2.16,
    "ly": 0.77,
-   "src": "sec",
+   "src": "yahoo",
    "ra": 188835000000,
    "na": 4945000000,
    "rf": 187254274740,
@@ -807,7 +735,7 @@
    "when": "after",
    "capB": 199,
    "quarter": "Oct/2026",
-   "f": 6.48,
+   "f": 6.55,
    "n": 8,
    "a": null,
    "s": null,
@@ -816,6 +744,19 @@
    "gf": 53647901840,
    "rly": 27005000000.0,
    "nly": 1548000000.0
+  },
+  {
+   "symbol": "BHP",
+   "name": "BHP",
+   "date": "2026-11-24",
+   "when": "",
+   "capB": 176,
+   "quarter": "Sep/2026",
+   "f": null,
+   "n": 3,
+   "a": null,
+   "s": null,
+   "ly": null
   },
   {
    "symbol": "CRWD",
@@ -878,7 +819,7 @@
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 151,
+   "capB": 157,
    "quarter": "Oct/2026",
    "f": 2.41,
    "n": 13,
@@ -895,7 +836,7 @@
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 95,
+   "capB": 99,
    "quarter": "Oct/2026",
    "f": -0.32,
    "n": 11,
