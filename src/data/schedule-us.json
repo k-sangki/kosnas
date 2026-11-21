@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21T12:39+09:00",
+ "updated": "2026-11-22T02:57+09:00",
  "events": [
   {
    "symbol": "HPE",
@@ -90,14 +90,14 @@
    "name": "코스트코",
    "date": "2026-12-10",
    "when": "after",
-   "capB": 486
+   "capB": 485
   },
   {
    "symbol": "CIEN",
    "name": "시에나",
    "date": "2026-12-10",
    "when": "pre",
-   "capB": 38
+   "capB": 37
   }
  ]
 }
