@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21T04:02+09:00",
+ "updated": "2026-11-21T12:39+09:00",
  "events": [
   {
    "symbol": "HPE",
@@ -14,6 +14,13 @@
    "date": "2026-11-24",
    "when": "after",
    "capB": 199
+  },
+  {
+   "symbol": "BHP",
+   "name": "BHP",
+   "date": "2026-11-24",
+   "when": "",
+   "capB": 176
   },
   {
    "symbol": "CRWD",
