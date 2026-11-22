@@ -17,6 +17,7 @@ import { nightImage, pollImage } from "../src/lib/og-image";
 import type { PollState } from "../src/lib/poll";
 import { usGET } from "../src/lib/us-api";
 import { econGET } from "../src/lib/econ-api";
+import { quotesGET } from "../src/lib/quotes-api";
 import { ChatRoom } from "./chat-room";
 import { PollRoom } from "./poll-room";
 import { NightRecord } from "./night-record";
@@ -206,6 +207,7 @@ const worker = {
     if (url.pathname === "/og/poll.png") return ogImage(req, env, "poll");
     if (url.pathname === "/api/us") return usGET(req);
     if (url.pathname === "/api/econ") return econGET(req);
+    if (url.pathname === "/api/quotes") return quotesGET(req);
     if (url.pathname === "/api/night-record") return recordGET(req, env);
     if (url.pathname === "/api/chat") {
       // 다른 사이트에서 붙지 못하게 같은 주소에서 연 웹소켓만 받는다

@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { REF_RULES, type NightData } from "@/lib/night";
 import { NIGHT_STOCKS } from "@/lib/night-stocks";
 import { TvWidget } from "./TvWidget";
+import type { Quote } from "@/lib/quotes-api";
 
 /**
  * 대시보드의 작은 카드들. 무기한선물 카드는 야간 추정과 같은 자료(/api/night)로 그리고,
  * 그 밖의 시세는 트레이딩뷰 위젯이 직접 보여 준다(값을 받거나 저장하지 않는다).
  * 어떤 카드를 어떤 순서로 볼지는 이 브라우저에만 저장한다.
  */
-type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit?: "₩" | "$" } | { kind: "tv"; symbol: string });
+type Tile = { id: string; label: string } & ({ kind: "hl"; coin: string; sub: string; unit?: "₩" | "$" } | { kind: "tv"; symbol: string; unit?: "$"; digits?: number });
 
 const XSUB = "무기한선물 · 주말에도 거래";
 
@@ -23,15 +24,15 @@ const TILES: Tile[] = [
   { id: "XYZ100", label: "나스닥 100 선물", kind: "hl", coin: "XYZ100", sub: "무기한선물 · 포인트" },
   { id: "SP500", label: "S&P 500 선물", kind: "hl", coin: "SP500", sub: "무기한선물 · 포인트" },
   { id: "KRW", label: "원/달러", kind: "hl", coin: "KRW", unit: "₩", sub: "무기한선물" },
-  { id: "USO", label: "유가(USO)", kind: "tv", symbol: "AMEX:USO" },
-  { id: "QQQ", label: "QQQ", kind: "tv", symbol: "NASDAQ:QQQ" },
+  { id: "USO", label: "유가(USO)", kind: "tv", symbol: "AMEX:USO", unit: "$" },
+  { id: "QQQ", label: "QQQ", kind: "tv", symbol: "NASDAQ:QQQ", unit: "$" },
   { id: "KR200", label: "KR200", kind: "hl", coin: "KR200", sub: "코스피200 무기한선물 · 포인트" },
-  { id: "WTI", label: "서부텍사스유(WTI)", kind: "tv", symbol: "TVC:USOIL" },
-  { id: "BRENT", label: "브렌트유", kind: "tv", symbol: "TVC:UKOIL" },
-  { id: "SPY", label: "SPY", kind: "tv", symbol: "AMEX:SPY" },
-  { id: "SOXX", label: "반도체(SOXX)", kind: "tv", symbol: "NASDAQ:SOXX" },
-  { id: "GOLD", label: "금", kind: "tv", symbol: "TVC:GOLD" },
-  { id: "DXY", label: "달러 인덱스", kind: "tv", symbol: "TVC:DXY" },
+  { id: "WTI", label: "서부텍사스유(WTI)", kind: "tv", symbol: "TVC:USOIL", unit: "$" },
+  { id: "BRENT", label: "브렌트유", kind: "tv", symbol: "TVC:UKOIL", unit: "$" },
+  { id: "SPY", label: "SPY", kind: "tv", symbol: "AMEX:SPY", unit: "$" },
+  { id: "SOXX", label: "반도체(SOXX)", kind: "tv", symbol: "NASDAQ:SOXX", unit: "$" },
+  { id: "GOLD", label: "금", kind: "tv", symbol: "TVC:GOLD", unit: "$" },
+  { id: "DXY", label: "달러 인덱스", kind: "tv", symbol: "TVC:DXY", digits: 3 },
   { id: "BTC", label: "비트코인", kind: "hl", coin: "BTC", unit: "$", sub: XSUB },
   // 주말·새벽에도 거래되는 무기한선물. 등락 기준은 REF_RULES(전일 정산·미국 마감, 비트코인 09:00)
   { id: "P-CL", label: "유가(WTI) · 24시간", kind: "hl", coin: "CL", unit: "$", sub: XSUB },
@@ -249,13 +250,15 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
   const x = d?.extra?.[t.coin];
   // 주말(금요일 CME 마감 뒤)에는 원자재 카드를 금요일 마감 대비로 본다
   const wk = x?.wk;
-  const ref = wk ? wk.close : x?.prev;
+  // 미국 주말에는 국내 앱처럼 금요일 하루 등락(금요일 마감 ÷ 목요일 마감)을 크게, 주말 거래는 아래 한 줄로
+  const fri = x?.fri;
+  const ref = wk ? wk.close : fri ? fri.prev : x?.prev;
   const i =
-    (x && { coin: t.coin, price: x.price, chg: ref ? (x.price / ref - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT }) ??
+    (x && { coin: t.coin, price: fri ? fri.close : x.price, chg: ref ? ((fri ? fri.close : x.price) / ref - 1) * 100 : null, krw: undefined, spark: x.spark, sparkT: x.sparkT }) ??
     d?.inputs.find((v) => v.coin === t.coin);
   // 원화 환산 종목은 등락률이 KRX 종가 대비라, 선 차트 점선도 그 종가를 달러 가격으로 되돌린 값에 둔다
   const krxBase = !x && i && "krxClose" in i && i.krxClose && i.krw ? (i.price * i.krxClose) / i.krw : undefined;
-  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : i && "krxClose" in i && i.krxClose ? "KRX 정규장 종가 대비" : "15:45 대비";
+  const basis = wk ? "주말 거래 · 금요일 마감 대비 · 추정치" : fri ? "금요일 미국 마감 · 전 거래일 대비" : x?.prev && REF_RULES[t.coin] && x.prevAt ? REF_RULES[t.coin].label : x ? "24시간 전 대비" : i && "krxClose" in i && i.krxClose ? "KRX 정규장 종가 대비" : "15:45 대비";
   if (!i) return <p className="tile-price muted">{d ? "자료 없음" : "…"}</p>;
   return (
     <>
@@ -272,9 +275,70 @@ function HlBody({ t, d }: { t: Extract<Tile, { kind: "hl" }>; d: NightData | nul
         </p>
         {i.spark && <Spark v={i.spark} t={i.sparkT} base={x ? (ref ?? undefined) : krxBase} />}
       </div>
+      {fri && x && (
+        <p className="tile-wk">
+          주말 거래 {fmt(x.price)} <span className={tone(x.price - fri.close)}>{`${x.price >= fri.close ? "+" : ""}${fmt((x.price / fri.close - 1) * 100)}%`}</span>
+        </p>
+      )}
       <p className="tile-sub">{wk ? basis : `${t.sub} · ${basis}`}</p>
     </>
   );
+}
+
+/** 야후 시세로 직접 그리는 카드(상승 빨강·하락 파랑). 시세를 못 받으면 트레이딩뷰 위젯으로 되돌린다 */
+function QuoteBody({ q, unit, digits = 2, sub }: { q: Quote; unit?: "₩" | "$"; digits?: number; sub: string }) {
+  const chg = (q.price / q.prev - 1) * 100;
+  return (
+    <>
+      <div className="tile-body">
+        <p className="tile-price">
+          {unit && <span className="tile-unit">{unit}</span>}
+          {fmt(q.price, digits)}
+          {unit && <span className="tile-word">{unit === "₩" ? "원" : "달러"}</span>}
+        </p>
+        <p className={`tile-chg ${tone(chg)}`}>{`${chg > 0 ? "+" : ""}${fmt(chg)}%`}</p>
+        {q.spark.length > 1 && <Spark v={q.spark} t={q.sparkT} base={q.prev} />}
+      </div>
+      <p className="tile-sub">{sub}</p>
+    </>
+  );
+}
+
+const QUOTE_SUB: Record<string, string> = {
+  KRW: "환율 · 전일 종가 대비",
+  WTI: "선물 · 전일 종가 대비",
+  BRENT: "선물 · 전일 종가 대비",
+  GOLD: "선물 · 전일 종가 대비",
+  DXY: "지수 · 전일 종가 대비",
+};
+
+/** /api/quotes 를 1분마다(보이는 동안) 다시 읽는다 */
+function useQuotes() {
+  const [q, setQ] = useState<Record<string, Quote>>({});
+  useEffect(() => {
+    let stop = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tick = async () => {
+      clearTimeout(timer);
+      try {
+        const r = await fetch("/api/quotes");
+        if (r.ok) {
+          const b = (await r.json()) as { quotes?: Record<string, Quote> };
+          if (!stop && b.quotes) setQ(b.quotes);
+        }
+      } catch {}
+      if (!stop) timer = setTimeout(tick, 60_000);
+    };
+    tick();
+    const vis = () => document.visibilityState === "visible" && tick();
+    document.addEventListener("visibilitychange", vis);
+    return () => {
+      stop = true;
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", vis);
+    };
+  }, []);
+  return q;
 }
 
 /** 위젯은 폭이 좁으면 등락을 숨긴다. 이 폭보다 좁은 카드에서는 이 폭으로 그린 뒤 줄여서 보인다 */
@@ -501,6 +565,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
   const [picking, setPicking] = useState(false);
   const grid = useRef<HTMLDivElement>(null);
   const { list, held, props, dragged } = useDrag(ids, grid);
+  const quotes = useQuotes();
   const router = useRouter();
   const rest = TILES.filter((t) => !ids.includes(t.id));
   // 캡처 이미지에는 앞쪽 무기한선물 카드 6개만 넣는다
@@ -523,8 +588,8 @@ export function Dashboard({ d }: { d: NightData | null }) {
               key={id}
               data-tile={id}
               // 캡처 공유에서 고를 수 있는 카드(위젯 카드는 찍히지 않아 뺀다)
-              {...(t.kind === "hl" && { "data-cap": id, "data-cap-label": t.label })}
-              className={`tile${held === id ? " held" : ""}${t.kind === "hl" ? "" : " no-capture"}${href ? " linked" : ""}`}
+              {...((t.kind === "hl" || quotes[id]) && { "data-cap": id, "data-cap-label": t.label })}
+              className={`tile${held === id ? " held" : ""}${t.kind === "hl" || quotes[id] ? "" : " no-capture"}${href ? " linked" : ""}`}
               {...props(id)}
               {...(go && {
                 role: "link",
@@ -538,9 +603,15 @@ export function Dashboard({ d }: { d: NightData | null }) {
                 <Icon id={id} />
                 {t.label}
               </h3>
-              {t.kind === "hl" ? <HlBody t={t} d={d} /> : <TvBody t={t} />}
+              {quotes[id] ? (
+                <QuoteBody q={quotes[id]} unit={t.unit} digits={t.kind === "tv" ? t.digits : undefined} sub={QUOTE_SUB[id] ?? "미국 정규장 · 전일 종가 대비"} />
+              ) : t.kind === "hl" ? (
+                <HlBody t={t} d={d} />
+              ) : (
+                <TvBody t={t} />
+              )}
               {/* 편집 중에는 위젯 위를 덮어 카드 어디를 잡아도 끌 수 있게 */}
-              {edit && t.kind === "tv" && <div className="tile-cover" />}
+              {edit && t.kind === "tv" && !quotes[id] && <div className="tile-cover" />}
               {edit && (
                 <button type="button" className="tile-remove no-capture" onClick={() => save(ids.filter((x) => x !== id))} aria-label={`${t.label} 빼기`}>
                   ×
@@ -576,7 +647,7 @@ export function Dashboard({ d }: { d: NightData | null }) {
                   >
                     <Icon id={t.id} />
                     <span>{t.label}</span>
-                    <span className="muted">{t.kind === "hl" ? t.sub : "트레이딩뷰 시세"}</span>
+                    <span className="muted">{t.kind === "hl" ? t.sub : "미국 시세"}</span>
                   </button>
                 </li>
               ))}
@@ -596,8 +667,8 @@ export function Dashboard({ d }: { d: NightData | null }) {
         <p>
           카드를 길게 누르거나(마우스는 끌어서) 원하는 자리로 옮길 수 있어요. 무기한선물 카드는 Hyperliquid(trade.xyz) 시세이고, 등락률은 카드 아래에 적힌
           기준으로 셉니다. 미국 지수·종목은 전일 미국 마감(뉴욕 16:00), 원유·금·은은 전일 CME 정산, 비트코인은 오늘 09:00, 삼성전자·SK하이닉스는 그날 KRX 종가,
-          KR200은 오늘 15:45 대비예요. 나스닥 100·S&P 500 무기한선물은 지수를 따라가서, 이자 몫이 붙는 CME 선물(12월물 등)보다 0.3~0.5% 낮게 보일 수 있어요. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 그 밖의 카드는 트레이딩뷰가 직접
-          보여 주는 시세(미국 전일 종가 대비)입니다. 카드 배치는 이 브라우저에만 저장됩니다.
+          KR200은 오늘 15:45 대비예요. 나스닥 100·S&P 500 무기한선물은 지수를 따라가서, 이자 몫이 붙는 CME 선물(12월물 등)보다 0.3~0.5% 낮게 보일 수 있어요. 삼성전자·SK하이닉스는 1주 기준 달러 가격에 원/달러를 곱한 값이에요. 미국 주말(금요일 마감 뒤)에는 미국 지수·종목 카드가 국내 앱처럼 금요일 하루 등락을 보여 주고, 주말에 움직인 무기한선물 가격은
+          카드 아래 &lsquo;주말 거래&rsquo;에 따로 적어요. 원/달러와 그 밖의 카드는 야후 파이낸스 시세(전일 종가 대비)이고, 받지 못하면 트레이딩뷰 위젯으로 보여 줍니다. 카드 배치는 이 브라우저에만 저장됩니다.
         </p>
       </Fold>
     </section>

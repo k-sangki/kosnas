@@ -53,8 +53,11 @@ export function LiveQuoteView({ q }: { q: Pick<LiveQuote, "coin" | "name" | "uni
 
   const x = d?.extra?.[q.coin];
   // 주말(금요일 CME 마감 뒤)에는 원자재를 금요일 마감 대비로
-  const base = x?.wk?.close ?? x?.prev ?? null;
-  const chg = x && base ? (x.price / base - 1) * 100 : null;
+  // 미국 주말에는 국내 앱처럼 금요일 하루 등락(금요일 마감 ÷ 전 거래일 마감)을 크게 보이고, 주말 거래는 따로 적는다
+  const fri = x?.fri;
+  const base = x?.wk?.close ?? fri?.prev ?? x?.prev ?? null;
+  const shown = x ? (fri ? fri.close : x.price) : null;
+  const chg = shown != null && base ? (shown / base - 1) * 100 : null;
   const u = q.unit ?? "";
   return (
     <section className="card night">
@@ -71,30 +74,40 @@ export function LiveQuoteView({ q }: { q: Pick<LiveQuote, "coin" | "name" | "uni
               <p className="night-price">
                 <b className={tone(chg ?? 0)}>
                   {u}
-                  {num(x.price)}
+                  {num(shown!)}
                 </b>
                 {chg != null && base && (
                   <span className={tone(chg)}>
                     {sign(chg)}
-                    {num(x.price - base)} ({sign(chg)}
+                    {num(shown! - base)} ({sign(chg)}
                     {chg.toFixed(2)}%)
                   </span>
                 )}
               </p>
+              {fri && (
+                <p className="muted">
+                  주말 거래 {u}
+                  {num(x.price)}{" "}
+                  <span className={tone(x.price - fri.close)}>
+                    ({x.price >= fri.close ? "+" : ""}
+                    {((x.price / fri.close - 1) * 100).toFixed(2)}%, 금요일 마감 대비)
+                  </span>
+                </p>
+              )}
             </div>
             <dl className="night-stats">
               <div>
                 <dt>기준</dt>
-                <dd>{x.wk ? "금요일 CME 마감 대비(주말 추정)" : x.prevAt ? q.basis : "24시간 전 대비"}</dd>
+                <dd>{x.wk ? "금요일 CME 마감 대비(주말 추정)" : fri ? "금요일 미국 마감 · 전 거래일 대비" : x.prevAt ? q.basis : "24시간 전 대비"}</dd>
               </div>
               <div>
                 <dt>기준 가격</dt>
                 <dd>{base ? `${u}${num(base)}` : "-"}</dd>
               </div>
-              {(x.wk?.at ?? x.prevAt) && (
+              {(x.wk?.at ?? fri?.at ?? x.prevAt) && (
                 <div>
-                  <dt>기준 시각</dt>
-                  <dd>{at((x.wk?.at ?? x.prevAt)!)}</dd>
+                  <dt>{fri ? "금요일 마감" : "기준 시각"}</dt>
+                  <dd>{at((x.wk?.at ?? fri?.at ?? x.prevAt)!)}</dd>
                 </div>
               )}
               <div>

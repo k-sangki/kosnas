@@ -273,7 +273,7 @@ export type NightData = {
   points: NightPoint[];
   inputs: NightInput[];
   /** 지금 가격과 등락 기준 가격(prevAt 시각), 24시간 선 차트를 싣는 무기한선물(대시보드 추가 카드용) */
-  extra?: Record<string, { price: number; prev: number | null; prevAt?: number; spark?: number[]; sparkT?: number[]; wk?: WeekendRef }>;
+  extra?: Record<string, { price: number; prev: number | null; prevAt?: number; spark?: number[]; sparkT?: number[]; wk?: WeekendRef; fri?: FridayRef }>;
   updated: number;
 };
 
@@ -409,6 +409,26 @@ export function refPrice(cs: readonly Candle[], at: number): number | null {
   let v: number | null = null;
   for (const k of cs) if (k.t + 15 * MIN <= at) v = k.c;
   return v;
+}
+
+/** 미국 주말(뉴욕 금요일 16:00 마감 뒤 ~ 월요일 0시)인가. 국내 앱은 이때 금요일 하루 등락을 그대로 보여 준다 */
+export function usWeekend(now: number) {
+  const p = nyParts(now);
+  const wd = new Date(Date.UTC(p.y, p.mo - 1, p.d)).getUTCDay();
+  return wd === 0 || wd === 6 || (wd === 5 && p.h >= 16);
+}
+
+/** 주말에 금요일 하루 등락으로 보여 줄 미국 지수·종목 무기한선물 */
+export const US_WEEKEND_COINS = ["XYZ100", "SP500", "EWY", "NVDA", "TSLA", "MU", "TSM", "VIX"] as const;
+
+/** 금요일 미국 마감(close)과 그 전 거래일 마감(prev). 주말 거래는 얇은 무기한선물만 움직여 국내 앱(토스 등)은 금요일 하루 등락을 보여 준다 */
+export type FridayRef = { close: number; prev: number; at: number };
+export function fridayRef(now: number, r: RefRule, cs: readonly Candle[]): FridayRef | null {
+  if (!usWeekend(now)) return null;
+  const at = lastRefTime(now, r);
+  const close = refPrice(cs, at);
+  const prev = refPrice(cs, lastRefTime(at - MIN, r));
+  return close && prev ? { close, prev, at } : null;
 }
 
 /** 주말에 금요일 마감 대비로 보여 줄 원자재(WTI·브렌트·금·은) */
