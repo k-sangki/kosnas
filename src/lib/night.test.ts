@@ -23,6 +23,8 @@ import {
   cmeFridayClose,
   weekendRef,
   lastRefTime,
+  fridayRef,
+  usWeekend,
   refPrice,
   REF_RULES,
   type Candle,
@@ -346,5 +348,27 @@ describe("boardState (맨 위 카드 상태)", () => {
     expect(untilText(at("2026-11-11T09:00:00+09:00"), at("2026-11-10T20:30:00+09:00"))).toBe("12시간 30분");
     expect(untilText(1000, 990)).toBe("곧");
     expect(dayBounds(at("2026-11-13T15:45:00+09:00"), at("2026-11-16T09:00:00+09:00")).map((b) => b.label)).toEqual(["토요일", "일요일", "월요일"]);
+  });
+});
+
+describe("미국 주말에는 금요일 하루 등락(2026-11-22 나스닥 카드)", () => {
+  const utc = (s: string) => Date.parse(`${s}Z`);
+  // 11/19(목) 마감 26,439 → 11/20(금) 마감 25,113(−5.0%) → 일요일 무기한선물 25,539
+  const cs: Candle[] = [
+    { t: utc("2026-11-19T20:45:00"), c: 26439 },
+    { t: utc("2026-11-19T21:00:00"), c: 26400 },
+    { t: utc("2026-11-20T20:45:00"), c: 25113 },
+    { t: utc("2026-11-20T21:00:00"), c: 25200 },
+  ];
+  it("일요일 오전(KST)에는 금요일 마감과 목요일 마감", () => {
+    const now = kst("2026-11-22T10:49:00");
+    expect(usWeekend(now)).toBe(true);
+    expect(fridayRef(now, REF_RULES.XYZ100, cs)).toEqual({ close: 25113, prev: 26439, at: utc("2026-11-20T21:00:00") });
+  });
+  it("평일에는 없다(월요일 14시 KST부터 평일)", () => {
+    expect(usWeekend(kst("2026-11-24T10:00:00"))).toBe(false);
+    expect(usWeekend(kst("2026-11-23T14:30:00"))).toBe(false);
+    expect(usWeekend(kst("2026-11-23T08:00:00"))).toBe(true);
+    expect(fridayRef(kst("2026-11-20T10:00:00"), REF_RULES.XYZ100, cs)).toBeNull();
   });
 });

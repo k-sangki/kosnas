@@ -7,6 +7,9 @@ import {
   WEEKEND_COINS,
   sparkEnd,
   lastRefTime,
+  usWeekend,
+  fridayRef,
+  US_WEEKEND_COINS,
   refPrice,
   weekendRef,
   HL_INFO,
@@ -79,12 +82,13 @@ type Close = { t: number; c: number };
 /** 대시보드 추가 카드의 15분봉 종가(야간 구간 시작 전부터). 원천 호출을 아끼려고 5분 단위로 묶어 캐시한다 */
 async function extraCandlesFor(cache: Cache | undefined, base: string, now: number, win: NightWindow) {
   const slot = Math.floor(now / (EXTRA_TTL * 1000));
-  const key = new Request(new URL(`/api/night/extra4?${slot}`, base).toString());
+  const key = new Request(new URL(`/api/night/extra5?${slot}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
   if (hit) return (await hit.json()) as Record<string, Close[]>;
   // 등락률 기준 시각(전일 미국 마감·정산, 09:00)의 가격도 이 봉에서 찾으므로 가장 이른 기준보다 30분 앞부터
   const earliest = Math.min(...Object.values(REF_RULES).map((r) => lastRefTime(now, r)));
-  const from = Math.min(earliest - 30 * MIN, win.start - 60 * MIN);
+  // 미국 주말에는 금요일 하루 등락(목요일 마감 대비)도 내므로 사흘 더 앞부터
+  const from = Math.min(earliest - 30 * MIN - (usWeekend(now) ? 3 * DAY : 0), win.start - 60 * MIN);
   const dexCoins = [...EXTRA_COINS, ...US_INDEX_COINS];
   const all = [...dexCoins.map((c) => [c, `${DEX}:${c}`]), ...MAIN_COINS.map((c) => [c, c])];
   const series = await Promise.all(
@@ -278,7 +282,8 @@ async function load(now: number, cache: Cache | undefined, base: string) {
     const wk = (WEEKEND_COINS as readonly string[]).includes(c)
       ? weekendRef(win, now, cs, sparkEnd(win, last[0]) - win.start)
       : null;
-    return { price, prev: prev > 0 ? prev : null, ...(ref && prevAt ? { prevAt } : {}), ...(s ?? {}), ...(wk ? { wk } : {}) };
+    const fri = rule && (US_WEEKEND_COINS as readonly string[]).includes(c) ? fridayRef(now, rule, cs) : null;
+    return { price, prev: prev > 0 ? prev : null, ...(ref && prevAt ? { prevAt } : {}), ...(s ?? {}), ...(wk ? { wk } : {}), ...(fri ? { fri } : {}) };
   };
   let kr200: HlCtx | undefined;
   ctx[0].universe.forEach((u, i) => {
