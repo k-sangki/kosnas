@@ -9,6 +9,10 @@ export interface Change {
 
 export const CHANGELOG: Change[] = [
   {
+    date: "2026-11-23",
+    items: ["가이드 추가: 거래량과 거래대금 차이 - 거래량 급증과 유동성 읽는 법"],
+  },
+  {
     date: "2026-11-19",
     items: ["가이드 추가: 선물·옵션 만기일(네 마녀의 날)이란 - 날짜 계산과 장 막판 변동"],
   },
