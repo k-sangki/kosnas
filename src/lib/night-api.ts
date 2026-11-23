@@ -53,24 +53,44 @@ async function loadCandles(now: number, interval: string, from: number, to: numb
   const [series, funding] = await Promise.all([
     Promise.all(
       coins.map((c) =>
-        info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin: `${DEX}:${c}`, interval, startTime: from, endTime: to } }).catch(() => []),
+        info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin: `${DEX}:${c}`, interval, startTime: from, endTime: to } }).catch(() => null),
       ),
     ),
     // 시간마다 정산한 KR200 평균 프리미엄: 지난 시각의 기준가를 체결가에서 되짚는 데 쓴다
     info<{ time: number; premium: string }[]>({ type: "fundingHistory", coin: `${DEX}:KR200`, startTime: from }).catch(() => []),
   ]);
   const candles: Record<string, Candle[]> = {};
-  coins.forEach((c, i) => (candles[c] = series[i].map((k) => ({ t: k.t, c: Number(k.c) })).sort((a, b) => a.t - b.t)));
+  const failed: string[] = [];
+  coins.forEach((c, i) => {
+    const s = series[i];
+    if (!s) failed.push(c);
+    candles[c] = (s ?? []).map((k) => ({ t: k.t, c: Number(k.c) })).sort((a, b) => a.t - b.t);
+  });
   const prem: Premium[] = funding.map((x) => ({ t: x.time, p: Number(x.premium) })).filter((x) => Number.isFinite(x.p));
-  return { at: now, candles, prem };
+  return { at: now, candles, prem, failed };
 }
+
+/** 원천이 일부 종목을 거절(429 등)하면 그 종목은 마지막으로 받은 봉을 쓰고, 빈 결과를 오래 캐시하지 않는다 */
+const LAST_GOOD_TTL = 1800;
+const RETRY_TTL = 5;
 
 async function candlesFor(cache: Cache | undefined, base: string, now: number, interval: string, from: number, to: number) {
   const key = new Request(new URL(`/api/night/candles?${interval}-${from}`, base).toString());
+  const lastKey = new Request(new URL(`/api/night/candles-last?${interval}-${from}`, base).toString());
   const hit = await cache?.match(key).catch(() => undefined);
   if (hit) return (await hit.json()) as Awaited<ReturnType<typeof loadCandles>>;
   const got = await loadCandles(now, interval, from, to);
-  await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${CANDLE_TTL}` } })).catch(() => undefined);
+  if (got.failed.length) {
+    const last = await cache
+      ?.match(lastKey)
+      .then((r) => (r ? (r.json() as Promise<Awaited<ReturnType<typeof loadCandles>>>) : undefined))
+      .catch(() => undefined);
+    for (const c of got.failed) if (last?.candles?.[c]?.length) got.candles[c] = last.candles[c];
+  } else {
+    await cache?.put(lastKey, Response.json(got, { headers: { "Cache-Control": `public, max-age=${LAST_GOOD_TTL}` } })).catch(() => undefined);
+  }
+  const ttl = got.failed.length ? RETRY_TTL : CANDLE_TTL;
+  await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${ttl}` } })).catch(() => undefined);
   return got;
 }
 
@@ -93,12 +113,29 @@ async function extraCandlesFor(cache: Cache | undefined, base: string, now: numb
   const all = [...dexCoins.map((c) => [c, `${DEX}:${c}`]), ...MAIN_COINS.map((c) => [c, c])];
   const series = await Promise.all(
     all.map(([, coin]) =>
-      info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin, interval: "15m", startTime: from, endTime: now } }).catch(() => []),
+      info<{ t: number; c: string }[]>({ type: "candleSnapshot", req: { coin, interval: "15m", startTime: from, endTime: now } }).catch(() => null),
     ),
   );
   const got: Record<string, Close[]> = {};
-  all.forEach(([c], i) => (got[c] = series[i].sort((a, b) => a.t - b.t).map((k) => ({ t: k.t, c: Number(k.c) })).filter((k) => k.c > 0)));
-  await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${EXTRA_TTL}` } })).catch(() => undefined);
+  const failed: string[] = [];
+  all.forEach(([c], i) => {
+    const s = series[i];
+    if (!s) failed.push(c);
+    got[c] = (s ?? []).sort((a, b) => a.t - b.t).map((k) => ({ t: k.t, c: Number(k.c) })).filter((k) => k.c > 0);
+  });
+  // 일부가 거절되면 그 종목은 마지막으로 받은 봉으로 채우고 잠깐만 캐시해 곧 다시 받는다
+  const lastKey = new Request(new URL("/api/night/extra-last", base).toString());
+  if (failed.length) {
+    const last = await cache
+      ?.match(lastKey)
+      .then((r) => (r ? (r.json() as Promise<Record<string, Close[]>>) : undefined))
+      .catch(() => undefined);
+    for (const c of failed) if (last?.[c]?.length) got[c] = last[c];
+  } else {
+    await cache?.put(lastKey, Response.json(got, { headers: { "Cache-Control": `public, max-age=${LAST_GOOD_TTL}` } })).catch(() => undefined);
+  }
+  const ttl = failed.length ? 15 : EXTRA_TTL;
+  await cache?.put(key, Response.json(got, { headers: { "Cache-Control": `public, max-age=${ttl}` } })).catch(() => undefined);
   return got;
 }
 
