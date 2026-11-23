@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-22",
- "since": "2026-10-23",
+ "updated": "2026-11-23",
+ "since": "2026-10-24",
  "window": 30,
  "failed": [],
  "investors": [
@@ -649,22 +649,6 @@
    "filed": "2026-10-29",
    "acc": "0001193125-26-438090",
    "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526438090/xslF345X06/ownership.xml"
-  },
-  {
-   "kind": "acquire",
-   "shares": 4798758.0,
-   "value": null,
-   "price": null,
-   "after": 5382739.0,
-   "from": "2026-10-23",
-   "to": "2026-10-23",
-   "issuer": "Oaktree Acquisition Corp. III Life Sciences",
-   "ticker": "OACC",
-   "investor": "marks",
-   "form": "4",
-   "filed": "2026-10-23",
-   "acc": "0001193125-26-430503",
-   "url": "https://www.sec.gov/Archives/edgar/data/949509/000119312526430503/xslF345X06/ownership.xml"
   }
  ],
  "ark": {
