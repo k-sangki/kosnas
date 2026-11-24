@@ -45,17 +45,7 @@ function Gauge({ s, label }: { s: FgSummary; label: string }) {
   );
 }
 
-/** 막대형(시안 B): 0~100 띠 위에 지금(진한 점)과 1주 전(흐린 점) */
-function Bar({ s }: { s: FgSummary }) {
-  return (
-    <span className="fg-bar" aria-hidden>
-      <i className="fg-bar-mark ghost" style={{ left: `${s.week}%` }} />
-      <i className="fg-bar-mark" style={{ left: `${s.score}%` }} />
-    </span>
-  );
-}
-
-function Panel({ name, s, kind, bar }: { name: string; s: FgSummary; kind: string; bar: boolean }) {
+function Panel({ name, s, kind }: { name: string; s: FgSummary; kind: string }) {
   const band = bandOf(s.score);
   const diff = s.score - s.week;
   const md = `${Number(s.date.slice(5, 7))}/${Number(s.date.slice(8, 10))}`;
@@ -68,17 +58,6 @@ function Panel({ name, s, kind, bar }: { name: string; s: FgSummary; kind: strin
       </b>
     </span>
   );
-  if (bar)
-    return (
-      <div className="fg-row">
-        <b className="fg-mkt">{name}</b>
-        <Bar s={s} />
-        <span className="fg-val">
-          <b className={`fg-num fg-t-${band.tone}`}>{s.score}</b> <span className={`fg-name fg-t-${band.tone}`}>{band.name}</span>
-        </span>
-        {change}
-      </div>
-    );
   return (
     <div className="fg-panel">
       <Gauge s={s} label={`${name} ${kind}`} />
@@ -93,9 +72,6 @@ function Panel({ name, s, kind, bar }: { name: string; s: FgSummary; kind: strin
   );
 }
 
-/** 시안 B(막대형)를 보려면 true */
-const BAR = false;
-
 /**
  * 국장·미장 공포·탐욕 지수 추정. 전체가 기본이고 오른쪽 단추로 반도체를 고른다(2026-11-24 SK: 자동 전환 없이).
  * 계산 방법은 아래 설명 글(NightContent)에 접어 두었다.
@@ -106,7 +82,7 @@ export function FearGreed() {
   const k = semi ? "semi" : "all";
   const kind = semi ? "반도체" : "전체";
   return (
-    <section className={`card fg${BAR ? " fg-b" : ""}`} data-cap="fg" data-cap-label="공포·탐욕 지수">
+    <section className="card fg" data-cap="fg" data-cap-label="공포·탐욕 지수">
       <div className="fg-top">
         <h2 className="fg-title">
           공포·탐욕 지수 <span className="muted">자체 추정</span>
@@ -120,8 +96,8 @@ export function FearGreed() {
         </span>
       </div>
       <div className="fg-grid">
-        <Panel name="국장" s={D.kr[k]} kind={kind} bar={BAR} />
-        <Panel name="미장" s={D.us[k]} kind={kind} bar={BAR} />
+        <Panel name="국장" s={D.kr[k]} kind={kind} />
+        <Panel name="미장" s={D.us[k]} kind={kind} />
       </div>
     </section>
   );
