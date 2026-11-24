@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T07:13+09:00",
+ "updated": "2026-11-24T10:12+09:00",
  "rows": [
   {
    "d": "2026-11-10",
@@ -105,6 +105,69 @@
    "t": "18:30",
    "c": "United States",
    "n": "FOMC Member Bowman Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "1,697K",
+   "f": "1,710K",
+   "p": "1,717K"
+  },
+  {
+   "d": "2026-11-13",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "200K",
+   "f": "194K",
+   "p": "191K"
+  },
+  {
+   "d": "2026-11-13",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Fed Vice Chair for Supervision Barr Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "11:30",
+   "c": "United States",
+   "n": "Fed Goolsbee Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "13:10",
+   "c": "United States",
+   "n": "FOMC Member Daly Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "13:30",
+   "c": "United States",
+   "n": "Fed Schmid Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "18:30",
+   "c": "United States",
+   "n": "FOMC Member Williams Speaks",
    "a": "",
    "f": "",
    "p": ""
@@ -883,15 +946,19 @@
    "when": "after",
    "capB": 54,
    "quarter": "Oct/2026",
-   "f": 1.18,
+   "f": 1.29,
    "n": 7,
-   "a": null,
-   "s": null,
+   "a": 1.43,
+   "s": 11.01,
    "ly": 0.11,
+   "src": "yahoo",
+   "ra": 14547000000,
+   "na": 1788000000,
    "rf": 14425411720,
    "gf": 12978059410,
    "rly": 9679000000.0,
-   "nly": 175000000.0
+   "nly": 175000000.0,
+   "secUrl": "https://www.sec.gov/Archives/edgar/data/1645590/000164559026000097/ex-991x11232026x8k.htm"
   },
   {
    "symbol": "DELL",
@@ -991,8 +1058,8 @@
    "a": null,
    "s": null,
    "ly": 2.19,
-   "rf": 11461698340,
-   "gf": 12346304200,
+   "rf": 11461322200,
+   "gf": 12343817260,
    "rly": 10259000000.0,
    "nly": 2086000000.0
   },
