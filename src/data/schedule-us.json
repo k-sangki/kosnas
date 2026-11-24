@@ -1,13 +1,6 @@
 {
- "updated": "2026-11-24T07:25+09:00",
+ "updated": "2026-11-24T15:32+09:00",
  "events": [
-  {
-   "symbol": "HPE",
-   "name": "HPE",
-   "date": "2026-11-23",
-   "when": "after",
-   "capB": 54
-  },
   {
    "symbol": "DELL",
    "name": "델",
@@ -98,6 +91,13 @@
    "date": "2026-12-10",
    "when": "pre",
    "capB": 33
+  },
+  {
+   "symbol": "ORCL",
+   "name": "오라클",
+   "date": "2026-12-14",
+   "when": "after",
+   "capB": 306
   }
  ]
 }
