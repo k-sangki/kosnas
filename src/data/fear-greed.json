@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T15:29+09:00",
+ "updated": "2026-11-25T03:54+09:00",
  "kr": {
   "all": {
    "date": "2026-11-24",
@@ -8,9 +8,9 @@
    "week": 23,
    "month": 23,
    "parts": {
-    "momentum": 2,
+    "momentum": 3,
     "high52": 25,
-    "rsi": 40,
+    "rsi": 41,
     "volatility": 36,
     "safe": 17
    },
@@ -156,22 +156,21 @@
  },
  "us": {
   "all": {
-   "date": "2026-11-23",
-   "score": 15,
-   "prev": 9,
-   "week": 23,
-   "month": 27,
+   "date": "2026-11-24",
+   "score": 16,
+   "prev": 15,
+   "week": 18,
+   "month": 32,
    "parts": {
     "momentum": 2,
-    "high52": 61,
-    "rsi": 41,
-    "volatility": 4,
+    "high52": 58,
+    "rsi": 40,
+    "volatility": 5,
     "safe": 1,
-    "breadth20": 87,
-    "breadth125": 4
+    "breadth20": 96,
+    "breadth125": 6
    },
    "hist": [
-    52,
     41,
     48,
     57,
@@ -230,24 +229,24 @@
     18,
     12,
     9,
-    15
+    15,
+    16
    ]
   },
   "semi": {
-   "date": "2026-11-23",
-   "score": 18,
-   "prev": 12,
-   "week": 17,
+   "date": "2026-11-24",
+   "score": 14,
+   "prev": 18,
+   "week": 18,
    "month": 28,
    "parts": {
-    "momentum": 2,
-    "high52": 39,
-    "rsi": 43,
+    "momentum": 1,
+    "high52": 28,
+    "rsi": 38,
     "volatility": 0,
-    "safe": 7
+    "safe": 2
    },
    "hist": [
-    36,
     38,
     40,
     40,
@@ -306,7 +305,8 @@
     18,
     18,
     12,
-    18
+    18,
+    14
    ]
   }
  }
