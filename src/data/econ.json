@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25T05:52+09:00",
+ "updated": "2026-11-25T08:16+09:00",
  "rows": [
   {
    "d": "2026-11-11",
@@ -60,6 +60,69 @@
    "t": "18:30",
    "c": "United States",
    "n": "FOMC Member Bowman Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "1,697K",
+   "f": "1,710K",
+   "p": "1,717K"
+  },
+  {
+   "d": "2026-11-13",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "200K",
+   "f": "194K",
+   "p": "191K"
+  },
+  {
+   "d": "2026-11-13",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Fed Vice Chair for Supervision Barr Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "11:30",
+   "c": "United States",
+   "n": "Fed Goolsbee Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "13:10",
+   "c": "United States",
+   "n": "FOMC Member Daly Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "13:30",
+   "c": "United States",
+   "n": "Fed Schmid Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-13",
+   "t": "18:30",
+   "c": "United States",
+   "n": "FOMC Member Williams Speaks",
    "a": "",
    "f": "",
    "p": ""
@@ -407,15 +470,6 @@
    "p": ""
   },
   {
-   "d": "2026-11-23",
-   "t": "16:00",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
    "d": "2026-11-24",
    "t": "16:00",
    "c": "United States",
@@ -426,75 +480,12 @@
   },
   {
    "d": "2026-11-25",
-   "t": "08:30",
+   "t": "10:00",
    "c": "United States",
-   "n": "Continuing Jobless Claims",
-   "a": "",
-   "f": "",
-   "p": "1,763K"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Core PCE Price Index",
-   "a": "",
-   "f": "3.2%",
-   "p": "3.1%"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Core PCE Price Index",
-   "a": "",
-   "f": "0.3%",
-   "p": "0.3%"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "08:30",
-   "c": "United States",
-   "n": "GDP",
-   "a": "",
-   "f": "3.4%",
-   "p": "2.2%"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Initial Jobless Claims",
-   "a": "",
-   "f": "201K",
-   "p": "203K"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "08:30",
-   "c": "United States",
-   "n": "PCE Price index",
-   "a": "",
-   "f": "3.8%",
-   "p": "3.6%"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "08:30",
-   "c": "United States",
-   "n": "PCE price index",
-   "a": "",
-   "f": "0.3%",
-   "p": "0.5%"
-  },
-  {
-   "d": "2026-11-25",
-   "t": "20:00",
-   "c": "South Korea",
-   "n": "Interest Rate Decision",
-   "a": "",
-   "f": "3.25%",
-   "p": "3.00%"
+   "n": "CB Consumer Confidence",
+   "a": "103.3",
+   "f": "92.4",
+   "p": "91.9"
   },
   {
    "d": "2026-11-26",
@@ -603,6 +594,42 @@
    "a": "",
    "f": "",
    "p": "86K"
+  },
+  {
+   "d": "2026-12-04",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-12-04",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-12-04",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Non-Manufacturing PMI",
+   "a": "",
+   "f": "",
+   "p": "54.5"
+  },
+  {
+   "d": "2026-12-04",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Non-Manufacturing Prices",
+   "a": "",
+   "f": "",
+   "p": "73.0"
   },
   {
    "d": "2026-12-05",
@@ -737,7 +764,7 @@
    "n": "PPI",
    "a": "",
    "f": "",
-   "p": "0.3%"
+   "p": "6.5%"
   },
   {
    "d": "2026-12-16",
@@ -746,7 +773,7 @@
    "n": "PPI",
    "a": "",
    "f": "",
-   "p": "6.5%"
+   "p": "0.3%"
   },
   {
    "d": "2026-12-18",
