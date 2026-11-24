@@ -13,9 +13,12 @@ CNN 값을 가져오지 않는다. 다섯 항목을 0~100으로 바꿔 평균한
 미장은 야후 파이낸스 차트(S&P 500 ^GSPC, VIX ^VIX, iShares 반도체 SOXX, 미국 국채 7~10년 IEF).
 원본 시세는 저장하지 않고 점수만 남긴다.
 
-보정(2026-11-24): 다섯 항목 평균을 CNN 공포·탐욕 지수(공개 과거 값)와 날짜별로 견주면 상관 0.80인데 평균 16점 높았다.
-2025-05-29~2026-07-13로 맞춘 직선 CAL_A + CAL_B × 평균을 쓴다 — 맞추는 데 안 쓴 2026-07-14~11-23에서 평균절대차 18.3 → 7.9점,
-같은 구간(극단적 공포·공포·중립·탐욕·극단적 탐욕) 19% → 62%. 기준이 있는 것은 미장 전체뿐이고, 같은 방식으로 만든 나머지 셋에도 같은 직선을 쓴다.
+보정(2026-11-24): 미장 전체를 CNN 공포·탐욕 지수 공개 과거 값(2025-05-29~2026-11-23)과 견줬다.
+다섯 항목 평균은 상관 0.80인데 달마다 −3 ~ +33점 차이가 났다 — 소수 대형주만 오른 달에 우리가 높았다(CNN은 시장 폭을 본다).
+그래서 미장 전체에만 시장 폭 두 항목(동일가중 S&P 500 ETF RSP의 SPY 대비 20일 상대수익 백분위, RSP의 125일선 괴리 백분위)을 더해 일곱 항목 평균
+− 13.7로 쓴다(앞 75%로 맞춤). 맞추는 데 안 쓴 2026-07-14~11-23에서 평균절대차 18.3 → 5.1점, 같은 구간 19% → 68%.
+고정 직선만 빼는 방식(−11.3 + 0.93x)은 7.9점·62%였고 최근 한 달은 CNN보다 12점 낮게 나와 쓰지 않는다.
+기준이 없는 국장·반도체는 보정하지 않는다.
 
     python collector/fear_greed.py --out src/data/fear-greed.json
 """
@@ -35,8 +38,8 @@ NAVER = "https://fchart.stock.naver.com/siseJson.nhn?symbol={sym}&requestType=1&
 YAHOO = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=3y&interval=1d"
 UA = {"User-Agent": "Mozilla/5.0"}
 YEAR = 252
-CAL_A = -11.3
-CAL_B = 0.93
+# 미장 전체(시장 폭 두 항목 포함 일곱 항목 평균)에 더하는 값
+US_ALL_SHIFT = -13.7
 
 
 def _get(url: str) -> str:
@@ -96,7 +99,7 @@ def rsi(c: list[float], n: int = 14) -> list[float | None]:
     return out
 
 
-def series(price: dict[str, float], bond: dict[str, float], vol: dict[str, float] | None) -> list[dict]:
+def series(price: dict[str, float], bond: dict[str, float], vol: dict[str, float] | None, breadth: dict[str, dict] | None = None, shift: float = 0.0) -> list[dict]:
     """날짜별 점수와 항목. 채권·VIX는 그 날짜까지의 마지막 값을 쓴다"""
     days = sorted(price)
     c = [price[d] for d in days]
@@ -149,10 +152,16 @@ def series(price: dict[str, float], bond: dict[str, float], vol: dict[str, float
             "volatility": rank(rv, invert=True),
             "safe": rank(safe),
         }
+        if breadth is not None:
+            bp = breadth.get(days[i])
+            if bp is None:
+                continue
+            parts["breadth20"] = bp["parts"]["safe"]
+            parts["breadth125"] = bp["parts"]["momentum"]
         vals = [v for v in parts.values() if v is not None]
         if len(vals) < 4:
             continue
-        score = min(100, max(0, round(CAL_A + CAL_B * sum(vals) / len(vals))))
+        score = min(100, max(0, round(shift + sum(vals) / len(vals))))
         out.append({"d": days[i], "score": score, "parts": {k: (round(v) if v is not None else None) for k, v in parts.items()}})
     return out
 
@@ -181,7 +190,7 @@ def build() -> dict:
             "semi": summary(series(naver("396500"), kr_bond, None)),
         },
         "us": {
-            "all": summary(series(yahoo("^GSPC"), us_bond, yahoo("^VIX"))),
+            "all": summary(series(yahoo("^GSPC"), us_bond, yahoo("^VIX"), breadth={x["d"]: x for x in series(yahoo("RSP"), yahoo("SPY"), None)}, shift=US_ALL_SHIFT)),
             "semi": summary(series(yahoo("SOXX"), us_bond, None)),
         },
     }
