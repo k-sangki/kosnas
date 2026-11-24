@@ -51,7 +51,10 @@ export function StockNight({ coin, name }: { coin: string; name: string }) {
     <section className="card night">
       <h1 className="night-title">{name} 야간 시세 실시간 추정</h1>
       {!d ? (
-        <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
+        // data-snap: 서버(Worker)가 최근 추정값·기준 시각을 미리 넣는 자리(lib/snapshot.ts)
+        <p className="muted" data-snap="stock" data-coin={coin} data-name={name} suppressHydrationWarning>
+          {err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}
+        </p>
       ) : !i || i.krw == null ? (
         <p className="muted">지금은 {name} 무기한선물 가격을 받지 못했습니다.</p>
       ) : (

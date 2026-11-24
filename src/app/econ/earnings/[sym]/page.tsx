@@ -7,7 +7,7 @@ import { Fold } from "@/components/Fold";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { VERDICT, dayLabel, earningKst, usd, type Earning } from "@/lib/econ";
-import { companyEarnings, findEarn, openEarn } from "@/lib/econ-pages";
+import { EARN_INDEXABLE, companyEarnings, findEarn, openEarn } from "@/lib/econ-pages";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 /**
@@ -24,12 +24,13 @@ export async function generateMetadata({ params }: PageProps<"/econ/earnings/[sy
   const { sym } = await params;
   const p = findEarn(sym);
   if (!p) return {};
-  return pageMeta({
+  const meta = pageMeta({
     title: `${p.name} 실적 예상과 발표 결과 - ${p.sym} 실적 발표일·예상 EPS`,
     description: `${p.name}(${p.sym}) 다음 실적 발표일과 시장 예상 EPS, 1년 전 EPS, 발표 뒤 실제 EPS가 예상에 부합·상회·하회했는지 정리합니다. ${p.about}`,
     keywords: [`${p.name} 실적`, `${p.name} 실적 예상`, `${p.name} 실적 발표일`, `${p.sym} 실적`, `${p.sym} earnings`, `${p.name} EPS`],
     path: `/econ/earnings/${p.slug}`,
   });
+  return EARN_INDEXABLE ? meta : { ...meta, robots: { index: false, follow: true } };
 }
 
 /** '2026-11-10' → '2026년 11월 10일(화)' */

@@ -4,6 +4,7 @@ import { AD_SLOTS } from "@/lib/ad-slots";
 import { Fold } from "./Fold";
 import { NightBoard } from "./NightBoard";
 import { THEMES } from "@/lib/themes";
+import { SiteLinks } from "./SiteLinks";
 
 export const NIGHT_FAQ: [string, string][] = [
   [
@@ -152,6 +153,7 @@ export function NightContent({ page = "home" }: { page?: "home" | "night" }) {
             </span>
           ))}
         </p>
+        <SiteLinks />
       </section>
       {night && (
       <script

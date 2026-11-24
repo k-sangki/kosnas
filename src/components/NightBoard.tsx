@@ -358,7 +358,8 @@ export function NightBoard({ heading = "h1", fixed }: { heading?: "h1" | "h2"; f
           {d ? (
             <Main d={d} />
           ) : (
-            <p className="muted">
+            // data-snap: 서버(Worker)가 최근 추정값·기준 시각을 미리 넣는 자리(lib/snapshot.ts). 받아 오면 덮어쓴다
+            <p className="muted" data-snap="night" suppressHydrationWarning>
               {err
                 ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})`
                 : "불러오는 중…"}

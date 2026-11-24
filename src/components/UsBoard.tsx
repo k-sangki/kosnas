@@ -153,7 +153,10 @@ export function UsBoard() {
     return (
       <section className="card">
         <h2 className="card-title">S&P 500 · 나스닥 100 실시간 등락</h2>
-        <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
+        {/* data-snap: 서버(Worker)가 최근 등락·기준 시각을 미리 넣는 자리(lib/snapshot.ts) */}
+        <p className="muted" data-snap="us" suppressHydrationWarning>
+          {err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}
+        </p>
       </section>
     );
   }

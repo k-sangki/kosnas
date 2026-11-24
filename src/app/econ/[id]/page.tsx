@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import names from "@/data/econ-names.json";
 import { VERDICT, dayLabel, kstDate, kstHm, type Release } from "@/lib/econ";
-import { findEcon, indicatorReleases, openEcon } from "@/lib/econ-pages";
+import { econIndexable, findEcon, indicatorReleases, openEcon } from "@/lib/econ-pages";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 /**
@@ -27,7 +27,8 @@ export async function generateMetadata({ params }: PageProps<"/econ/[id]">): Pro
   const { id } = await params;
   const p = findEcon(id);
   if (!p) return {};
-  return pageMeta({ title: p.title, description: p.description, keywords: p.keywords, path: `/econ/${id}` });
+  const meta = pageMeta({ title: p.title, description: p.description, keywords: p.keywords, path: `/econ/${id}` });
+  return econIndexable(id) ? meta : { ...meta, robots: { index: false, follow: true } };
 }
 
 const when = (r: Release) => `${dayLabel(kstDate(r.at))} ${kstHm(r.at)}`;

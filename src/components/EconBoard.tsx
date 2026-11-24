@@ -29,6 +29,7 @@ import {
   type Release,
   type Verdict,
 } from "@/lib/econ";
+import { econSnap, onServer } from "@/lib/snapshot-static";
 import { CaptureArea } from "./CaptureArea";
 import { useEcon } from "./useEcon";
 
@@ -51,7 +52,13 @@ export function EconBoard() {
     el?.scrollIntoView({ block: "start" });
   }, [ready]);
 
-  if (!now) return <section className="card muted">불러오는 중…</section>;
+  // 빌드(서버 렌더링) 때는 그때의 다음 발표·최근 결과 한 줄을 넣어 둔다(검색 로봇용, lib/snapshot-static.ts)
+  if (!now)
+    return (
+      <section className="card muted" suppressHydrationWarning>
+        {onServer(() => econSnap(list))}
+      </section>
+    );
   // 하루 안에 나온 결과는 모두 맨 위에 펼쳐 둔다(어젯밤 CPI를 아침에도). 없으면 다음 발표 하나
   const recent = recentResults(list, now);
   const next = recent.length ? null : bandPick(list, now)?.r;
@@ -140,7 +147,12 @@ export function EconBoard() {
  */
 export function EconItem({ group, sym }: { group?: string; sym?: string }) {
   const { now, list, data } = useEcon();
-  if (!now) return <section className="card muted">불러오는 중…</section>;
+  if (!now)
+    return (
+      <section className="card muted" suppressHydrationWarning>
+        {onServer(() => econSnap(list, undefined, (r) => (sym ? r.sym === sym : r.group === group)))}
+      </section>
+    );
   const mine = list.filter((r) => (sym ? r.sym === sym : r.group === group));
   const last = [...mine].reverse().find((r) => r.out && r.at <= now);
   const next = mine.find((r) => !r.out && r.at > now - grace(r));

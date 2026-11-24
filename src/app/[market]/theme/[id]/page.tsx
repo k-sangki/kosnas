@@ -9,7 +9,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { StockList } from "@/components/StockList";
 import { THEME_GUIDES } from "@/lib/theme-guides";
-import { asofDay, asofPrefix, breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
+import { SiteLinks } from "@/components/SiteLinks";
+import { asofPrefix, breadcrumbLd, datasetLd, pageMeta } from "@/lib/seo";
 import { capText } from "@/lib/screens";
 import { sectorData, signed } from "@/lib/sectors";
 import {
@@ -43,7 +44,8 @@ export async function generateMetadata({
   return pageMeta({
     // 노출은 많은데 클릭이 0~1이던 자리(2026-11-17 서치콘솔 28일: 원전 176·ESS 140·로봇 100). 경쟁 글처럼
     // 종목 수와 자료 날짜를 제목에 넣어 '정리된 최신 목록'임을 먼저 보인다. 날짜는 장 마감 자료 갱신 때 바뀐다.
-    title: `${themeLabel(t)} 관련주 대장주 ${stocks.length}종목 - 시총 순위·등락률${asofDay(sectorData("kr").asof) ? ` (${asofDay(sectorData("kr").asof)})` : ""}`,
+    // 날짜는 제목이 아니라 설명문 앞머리에만(구글이 제목을 늦게 갱신해 지난 날짜가 보일 수 있다, 2026-11-25)
+    title: `${themeLabel(t)} 관련주 대장주 ${stocks.length}종목 - 시총 순위·등락률`,
     description: `${asofPrefix(sectorData("kr").asof)}${t.name} 관련주 ${stocks.length}종목을 시가총액 순으로 정리했습니다. ${names.length ? `${names.join("·")} 등 ` : ""}종목별 관련 사업과 오늘·5·20·60일 등락률, 52주 고점 대비, 테마 평균 등락률을 매일 장 마감 자료로 봅니다.`,
     keywords: [
       ...t.keywords,
@@ -227,6 +229,7 @@ export default async function ThemePage({
               </Link>
             </li>
           </ul>
+          <SiteLinks show={["sectors"]} />
         </section>
       </main>
       <SiteFooter />

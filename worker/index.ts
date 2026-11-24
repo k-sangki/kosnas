@@ -18,6 +18,8 @@ import type { PollState } from "../src/lib/poll";
 import { usGET } from "../src/lib/us-api";
 import { econGET } from "../src/lib/econ-api";
 import { quotesGET } from "../src/lib/quotes-api";
+import { snapFor, snapNeeds } from "../src/lib/snapshot";
+import type { UsData } from "../src/lib/us";
 import { ChatRoom } from "./chat-room";
 import { PollRoom } from "./poll-room";
 import { NightRecord } from "./night-record";
@@ -153,7 +155,63 @@ function withVersion(res: Response, version: string) {
 }
 
 async function page(req: Request, env: Env, ctx: ExecutionContext) {
-  return withVersion(withLiveOg(req, await cachedPage(req, env, ctx)), versionOf(env));
+  return withVersion(withLiveOg(req, await withSnapshot(req, await cachedPage(req, env, ctx))), versionOf(env));
+}
+
+/** 미리 넣는 값을 엣지에 두는 시간(초). 화면은 따로 실시간으로 받는다 */
+const SNAP_TTL = 60;
+
+/** /api/night·/api/us 를 읽어 JSON으로(엣지 캐시 적중이면 1ms 안팎). 실패하면 null */
+async function readJson<T>(get: (r: Request) => Promise<Response>, url: string): Promise<T | null> {
+  try {
+    const r = await get(new Request(url));
+    return r.ok ? ((await r.json()) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 실시간 화면의 '불러오는 중…' 자리([data-snap])에 최근 값과 기준 시각을 넣는다(2026-11-25 외부 검색 진단: 검색 로봇·AI 검색이 값을 못 봤다).
+ * 페이지 HTML 캐시는 그대로 두고 내보낼 때만 바꾼다. 자료(night·us)는 1분 엣지 캐시에 담아 페이지마다 다시 계산하지 않는다.
+ * 자료를 못 받으면 원래 글자 그대로 둔다.
+ */
+async function withSnapshot(req: Request, res: Response) {
+  if (res.status !== 200 || !(res.headers.get("content-type") ?? "").startsWith("text/html")) return res;
+  const u = new URL(req.url);
+  const need = snapNeeds(u.pathname);
+  if (!need) return res;
+  const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
+  const key = new Request(`${u.origin}/__snap?n=${+need.night}&u=${+need.us}&t=${Math.floor(Date.now() / (SNAP_TTL * 1000))}`);
+  type Snap = { night: NightData | null; us: UsData | null };
+  let snap: Snap | null = null;
+  const hit = await cache?.match(key).catch(() => undefined);
+  if (hit) snap = (await hit.json().catch(() => null)) as Snap | null;
+  if (!snap) {
+    const [night, us] = await Promise.all([
+      need.night ? readJson<NightData>(nightGET, `${u.origin}/api/night`) : null,
+      need.us ? readJson<UsData>(usGET, `${u.origin}/api/us`) : null,
+    ]);
+    // 차트 점 같은 큰 배열은 빼고 담는다(한 줄 글자만 만든다)
+    snap = {
+      night: night && { ...night, points: [], inputs: night.inputs.map((i) => ({ ...i, spark: undefined, sparkT: undefined })), extra: night.extra && Object.fromEntries(Object.entries(night.extra).map(([k, v]) => [k, { ...v, spark: undefined, sparkT: undefined }])) },
+      us: us && { ...us, points: [], inputs: [] },
+    };
+    if (night || us) await cache?.put(key, Response.json(snap, { headers: { "Cache-Control": `public, max-age=${SNAP_TTL}` } })).catch(() => undefined);
+  }
+  const s = snap;
+  return new HTMLRewriter()
+    .on("[data-snap]", {
+      element(el) {
+        try {
+          const text = snapFor(el.getAttribute("data-snap") ?? "", (n) => el.getAttribute(n), s.night, s.us);
+          if (text) el.setInnerContent(text);
+        } catch (e) {
+          console.log("미리 넣는 값 실패", String(e));
+        }
+      },
+    })
+    .transform(res);
 }
 
 async function cachedPage(req: Request, env: Env, ctx: ExecutionContext) {
