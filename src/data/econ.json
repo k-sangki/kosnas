@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T15:22+09:00",
+ "updated": "2026-11-25T05:52+09:00",
  "rows": [
   {
    "d": "2026-11-11",
@@ -60,69 +60,6 @@
    "t": "18:30",
    "c": "United States",
    "n": "FOMC Member Bowman Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Continuing Jobless Claims",
-   "a": "1,697K",
-   "f": "1,710K",
-   "p": "1,717K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Initial Jobless Claims",
-   "a": "200K",
-   "f": "194K",
-   "p": "191K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Fed Vice Chair for Supervision Barr Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "11:30",
-   "c": "United States",
-   "n": "Fed Goolsbee Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:10",
-   "c": "United States",
-   "n": "FOMC Member Daly Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:30",
-   "c": "United States",
-   "n": "Fed Schmid Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "18:30",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
    "a": "",
    "f": "",
    "p": ""
@@ -470,13 +407,94 @@
    "p": ""
   },
   {
-   "d": "2026-11-25",
-   "t": "10:00",
+   "d": "2026-11-23",
+   "t": "16:00",
    "c": "United States",
-   "n": "CB Consumer Confidence",
+   "n": "FOMC Member Williams Speaks",
    "a": "",
-   "f": "92.1",
-   "p": "91.7"
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-24",
+   "t": "16:00",
+   "c": "United States",
+   "n": "FOMC Member Williams Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "",
+   "f": "",
+   "p": "1,763K"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PCE Price Index",
+   "a": "",
+   "f": "3.2%",
+   "p": "3.1%"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PCE Price Index",
+   "a": "",
+   "f": "0.3%",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "GDP",
+   "a": "",
+   "f": "3.4%",
+   "p": "2.2%"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "",
+   "f": "201K",
+   "p": "203K"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PCE Price index",
+   "a": "",
+   "f": "3.8%",
+   "p": "3.6%"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PCE price index",
+   "a": "",
+   "f": "0.3%",
+   "p": "0.5%"
+  },
+  {
+   "d": "2026-11-25",
+   "t": "20:00",
+   "c": "South Korea",
+   "n": "Interest Rate Decision",
+   "a": "",
+   "f": "3.25%",
+   "p": "3.00%"
   },
   {
    "d": "2026-11-26",
@@ -512,7 +530,7 @@
    "n": "GDP",
    "a": "",
    "f": "3.4%",
-   "p": "3.4%"
+   "p": "2.2%"
   },
   {
    "d": "2026-11-26",
@@ -529,7 +547,7 @@
    "c": "United States",
    "n": "PCE Price index",
    "a": "",
-   "f": "",
+   "f": "3.8%",
    "p": "3.6%"
   },
   {
@@ -578,22 +596,13 @@
    "p": "7.523M"
   },
   {
-   "d": "2026-12-04",
-   "t": "10:00",
+   "d": "2026-12-03",
+   "t": "08:15",
    "c": "United States",
-   "n": "ISM Non-Manufacturing PMI",
+   "n": "ADP Nonfarm Employment Change",
    "a": "",
    "f": "",
-   "p": "54.5"
-  },
-  {
-   "d": "2026-12-04",
-   "t": "10:00",
-   "c": "United States",
-   "n": "ISM Non-Manufacturing Prices",
-   "a": "",
-   "f": "",
-   "p": "73.0"
+   "p": "86K"
   },
   {
    "d": "2026-12-05",
@@ -704,6 +713,42 @@
    "p": "0.4%"
   },
   {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PPI",
+   "a": "",
+   "f": "",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PPI",
+   "a": "",
+   "f": "",
+   "p": "5.0%"
+  },
+  {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PPI",
+   "a": "",
+   "f": "",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PPI",
+   "a": "",
+   "f": "",
+   "p": "6.5%"
+  },
+  {
    "d": "2026-12-18",
    "t": "22:00",
    "c": "Japan",
@@ -719,7 +764,7 @@
    "name": "엔비디아",
    "date": "2026-11-17",
    "when": "after",
-   "capB": 3025,
+   "capB": 3978,
    "quarter": "Oct/2026",
    "f": 2.47,
    "n": 14,
@@ -743,7 +788,7 @@
    "name": "홈디포",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 338,
+   "capB": 345,
    "quarter": "Oct/2026",
    "f": 3.86,
    "n": 11,
@@ -756,7 +801,7 @@
    "name": "디즈니",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 202,
+   "capB": 205,
    "quarter": "Sep/2026",
    "f": 1.67,
    "n": 9,
@@ -769,7 +814,7 @@
    "name": "징둥",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 33,
+   "capB": 34,
    "quarter": "Sep/2026",
    "f": 0.89,
    "n": 2,
@@ -782,7 +827,7 @@
    "name": "팔로알토",
    "date": "2026-11-18",
    "when": "after",
-   "capB": 282,
+   "capB": 290,
    "quarter": "Oct/2026",
    "f": 0.52,
    "n": 16,
@@ -795,7 +840,7 @@
    "name": "로우스",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 124,
+   "capB": 127,
    "quarter": "Oct/2026",
    "f": 2.86,
    "n": 11,
@@ -808,7 +853,7 @@
    "name": "타깃",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 75,
+   "capB": 76,
    "quarter": "Oct/2026",
    "f": 2.05,
    "n": 13,
@@ -821,7 +866,7 @@
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 1015,
+   "capB": 1028,
    "quarter": "Oct/2026",
    "f": 0.64,
    "n": 13,
@@ -842,7 +887,7 @@
    "name": "알리바바",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 196,
+   "capB": 208,
    "quarter": "Sep/2026",
    "f": 1.56,
    "n": 2,
@@ -855,7 +900,7 @@
    "name": "PDD(테무)",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 119,
+   "capB": 124,
    "quarter": "Sep/2026",
    "f": 2.61,
    "n": 2,
@@ -864,11 +909,24 @@
    "ly": null
   },
   {
+   "symbol": "CRWD",
+   "name": "크라우드스트라이크",
+   "date": "2026-11-23",
+   "when": "",
+   "capB": 214,
+   "quarter": "Oct/2026",
+   "f": 0.0,
+   "n": 13,
+   "a": 0.05,
+   "s": null,
+   "ly": null
+  },
+  {
    "symbol": "HPE",
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 54,
+   "capB": 64,
    "quarter": "Oct/2026",
    "f": 1.29,
    "n": 7,
@@ -889,7 +947,7 @@
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 177,
+   "capB": 213,
    "quarter": "Oct/2026",
    "f": 6.55,
    "n": 8,
@@ -906,23 +964,10 @@
    "name": "BHP",
    "date": "2026-11-24",
    "when": "",
-   "capB": 174,
+   "capB": 180,
    "quarter": "Sep/2026",
    "f": null,
    "n": 3,
-   "a": null,
-   "s": null,
-   "ly": null
-  },
-  {
-   "symbol": "CRWD",
-   "name": "크라우드스트라이크",
-   "date": "2026-12-01",
-   "when": "after",
-   "capB": 235,
-   "quarter": "Oct/2026",
-   "f": 0.0,
-   "n": 13,
    "a": null,
    "s": null,
    "ly": null
@@ -932,7 +977,7 @@
    "name": "마벨",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 107,
+   "capB": 127,
    "quarter": "Oct/2026",
    "f": 0.79,
    "n": 12,
@@ -949,7 +994,7 @@
    "name": "몽고DB",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 23,
+   "capB": 25,
    "quarter": "Oct/2026",
    "f": 0.08,
    "n": 9,
@@ -975,15 +1020,15 @@
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 149,
+   "capB": 153,
    "quarter": "Oct/2026",
    "f": 2.41,
    "n": 13,
    "a": null,
    "s": null,
    "ly": 2.19,
-   "rf": 11461322200,
-   "gf": 12343817260,
+   "rf": 11462347840,
+   "gf": 12343501470,
    "rly": 10259000000.0,
    "nly": 2086000000.0
   },
@@ -992,15 +1037,15 @@
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 90,
+   "capB": 96,
    "quarter": "Oct/2026",
    "f": -0.32,
    "n": 11,
    "a": null,
    "s": null,
    "ly": -0.87,
-   "rf": 1654413500,
-   "gf": 1721216800,
+   "rf": 1654416060,
+   "gf": 1721221920,
    "rly": 1212909000.0,
    "nly": -293957000.0
   },
@@ -1009,7 +1054,7 @@
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 254,
+   "capB": 260,
    "quarter": "Oct/2026",
    "f": 2.93,
    "n": 4,
