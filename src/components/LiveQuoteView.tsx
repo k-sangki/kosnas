@@ -63,7 +63,10 @@ export function LiveQuoteView({ q }: { q: Pick<LiveQuote, "coin" | "name" | "uni
     <section className="card night">
       <h1 className="night-title">{q.name} 실시간</h1>
       {!d ? (
-        <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
+        // data-snap: 서버(Worker)가 최근 값·기준 시각을 미리 넣는 자리(lib/snapshot.ts)
+        <p className="muted" data-snap="live" data-coin={q.coin} data-name={q.name} data-unit={q.unit ?? ""} data-basis={q.basis} suppressHydrationWarning>
+          {err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}
+        </p>
       ) : !x ? (
         <p className="muted">지금은 {q.name} 가격을 받지 못했습니다.</p>
       ) : (

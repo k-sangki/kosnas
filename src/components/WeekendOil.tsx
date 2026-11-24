@@ -57,7 +57,10 @@ export function WeekendOil() {
     <section className="card night">
       <h1 className="night-title">국제유가 실시간 · 주말에도 보는 WTI 유가</h1>
       {!d ? (
-        <p className="muted">{err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}</p>
+        // data-snap: 서버(Worker)가 최근 유가·기준 시각을 미리 넣는 자리(lib/snapshot.ts)
+        <p className="muted" data-snap="oil" suppressHydrationWarning>
+          {err ? `자료를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다. (${err})` : "불러오는 중…"}
+        </p>
       ) : (
         <>
           <p className="muted">

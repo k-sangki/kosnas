@@ -10,6 +10,7 @@ import {
   type Cat,
   type Market,
 } from "@/lib/schedule";
+import { onServer, scheduleSnap } from "@/lib/snapshot-static";
 import { CaptureSheet } from "./CaptureSheet";
 import { LogoSvg } from "./Logo";
 
@@ -57,7 +58,13 @@ export function ScheduleBoard() {
     history.replaceState(null, "", m === "kr" ? "/schedule" : "/schedule?m=us");
   };
 
-  if (!today) return <section className="card muted">불러오는 중…</section>;
+  // 빌드(서버 렌더링) 때는 그때의 이번 주 일정 몇 개를 넣어 둔다(검색 로봇용, lib/snapshot-static.ts)
+  if (!today)
+    return (
+      <section className="card muted" suppressHydrationWarning>
+        {onServer(() => scheduleSnap())}
+      </section>
+    );
   const cats = CATS[market];
   const only = new Set(
     cats.filter((c) => !hidden.has(`${market}:${c.id}`)).map((c) => c.id),

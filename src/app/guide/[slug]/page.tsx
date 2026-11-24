@@ -3,6 +3,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 import { SITE_URL } from "@/app/layout";
 import Link from "next/link";
+import { SiteLinks } from "@/components/SiteLinks";
 import { notFound } from "next/navigation";
 import { AdSlot } from "@/components/AdSlot";
 import { AD_SLOTS } from "@/lib/ad-slots";
@@ -39,6 +40,10 @@ export default async function GuidePage({ params }: PageProps<"/guide/[slug]">) 
         </article>
         <AdSlot slot={AD_SLOTS.sector} />
         <section className="card">
+          <h2 className="card-title">관련 화면</h2>
+          <SiteLinks show={relatedLinks(g.slug)} />
+        </section>
+        <section className="card">
           <h2 className="card-title">다른 가이드</h2>
           <ul className="guide-links">
             {others.map((o) => (
@@ -52,4 +57,12 @@ export default async function GuidePage({ params }: PageProps<"/guide/[slug]">) 
       <SiteFooter />
     </div>
   );
+}
+
+/** 가이드 주제에 맞는 화면 링크 줄(2026-11-25 외부 검색 진단: 투자자·섹터·실시간 화면으로 가는 링크 보강) */
+function relatedLinks(slug: string): ("live" | "econ" | "sectors" | "investors")[] {
+  if (slug === "13f") return ["investors", "econ"];
+  if (["night-estimate", "ewy-kospi", "perpetual-futures", "expiry-day"].includes(slug)) return ["live", "econ"];
+  if (["usd-krw-kospi", "vix", "us-sector-map"].includes(slug)) return ["live", "econ", "investors"];
+  return ["sectors", "live"];
 }

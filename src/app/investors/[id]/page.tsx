@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps<"/investors/[id]">)
   const short = inv.person.split(" ").pop() ?? inv.person;
   const solid = inv.person.replace(/\s/g, "");
   return pageMeta({
-    title: `${inv.person} 포트폴리오 - ${q} 보유 종목·비중 한눈에 (${inv.firm})`,
+    title: `${inv.person} 포트폴리오 - ${q} 보유 종목·비중`,
     description: `${inv.person}(${inv.firm}) ${q} 말 포트폴리오: ${topText(inv, 5)}. 보유 종목 ${inv.count}개의 비중을 파이차트로 보고, 이번 분기 새로 산 종목 ${inv.new_count}개·모두 판 종목 ${inv.sold_count}개까지 정리했습니다.`,
     keywords: [
       `${inv.person} 포트폴리오`,

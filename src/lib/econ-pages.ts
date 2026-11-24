@@ -392,6 +392,15 @@ export const EARN_PAGES: EarnPage[] = [
 export const openEcon = ECON_PAGES.filter((p) => econOpen(p.id));
 export const openEarn = EARN_PAGES.filter((p) => earnOpen(p.sym));
 
+/**
+ * 본문이 얇아(450~600자) 검색에 아직 내지 않는 페이지(2026-11-25 외부 검색 진단 반영).
+ * 실적 페이지는 지난 분기별 예상 대비 결과·발표 뒤 주가 반응 같은 고유 내용을 채우기 전까지 모두,
+ * 지표는 한국은행 금리·JOLTS. noindex,follow 로 두고 사이트맵에서 뺀다(주소·링크는 그대로).
+ */
+export const EARN_INDEXABLE = false;
+export const THIN_ECON = new Set(["bok", "jolts"]);
+export const econIndexable = (id: string) => !THIN_ECON.has(id);
+
 /** 한 지표의 가장 최근 결과와 다음 발표 */
 export function indicatorReleases(id: string, now = Date.now()) {
   const list = releases(BASE.rows ?? []).filter((r) => r.group === id);
