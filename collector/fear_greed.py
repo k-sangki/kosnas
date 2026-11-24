@@ -13,6 +13,10 @@ CNN 값을 가져오지 않는다. 다섯 항목을 0~100으로 바꿔 평균한
 미장은 야후 파이낸스 차트(S&P 500 ^GSPC, VIX ^VIX, iShares 반도체 SOXX, 미국 국채 7~10년 IEF).
 원본 시세는 저장하지 않고 점수만 남긴다.
 
+보정(2026-11-24): 다섯 항목 평균을 CNN 공포·탐욕 지수(공개 과거 값)와 날짜별로 견주면 상관 0.80인데 평균 16점 높았다.
+2025-05-29~2026-07-13로 맞춘 직선 CAL_A + CAL_B × 평균을 쓴다 — 맞추는 데 안 쓴 2026-07-14~11-23에서 평균절대차 18.3 → 7.9점,
+같은 구간(극단적 공포·공포·중립·탐욕·극단적 탐욕) 19% → 62%. 기준이 있는 것은 미장 전체뿐이고, 같은 방식으로 만든 나머지 셋에도 같은 직선을 쓴다.
+
     python collector/fear_greed.py --out src/data/fear-greed.json
 """
 
@@ -31,6 +35,8 @@ NAVER = "https://fchart.stock.naver.com/siseJson.nhn?symbol={sym}&requestType=1&
 YAHOO = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=3y&interval=1d"
 UA = {"User-Agent": "Mozilla/5.0"}
 YEAR = 252
+CAL_A = -11.3
+CAL_B = 0.93
 
 
 def _get(url: str) -> str:
@@ -146,7 +152,8 @@ def series(price: dict[str, float], bond: dict[str, float], vol: dict[str, float
         vals = [v for v in parts.values() if v is not None]
         if len(vals) < 4:
             continue
-        out.append({"d": days[i], "score": round(sum(vals) / len(vals)), "parts": {k: (round(v) if v is not None else None) for k, v in parts.items()}})
+        score = min(100, max(0, round(CAL_A + CAL_B * sum(vals) / len(vals))))
+        out.append({"d": days[i], "score": score, "parts": {k: (round(v) if v is not None else None) for k, v in parts.items()}})
     return out
 
 
