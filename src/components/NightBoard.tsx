@@ -21,9 +21,8 @@ import { Chat } from "./Chat";
 import { Wall } from "./Wall";
 import { Dashboard } from "./Dashboard";
 import { Poll } from "./Poll";
-import { NightPnl } from "./NightPnl";
 import { NightContext } from "./NightContext";
-import { NightRecordLine } from "./NightRecordLine";
+import { FearGreed } from "./FearGreed";
 import { TestBand } from "./TestBand";
 import { ScheduleBand } from "./ScheduleBand";
 import { EconBand } from "./EconBand";
@@ -59,7 +58,8 @@ function Chart({ d }: { d: NightData }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const H = W < 480 ? 240 : 300;
+  // 세로 높이는 예전(240·300)의 60%(2026-11-24 SK)
+  const H = W < 480 ? 144 : 180;
   const pts = d.points;
   const x0 = d.window.start;
   // 장중에는 09:00 뒤로 지금까지 이어 그린다
@@ -268,8 +268,11 @@ function Chart({ d }: { d: NightData }) {
 /** 캡처 공유에서 처음 골라 둘 카드(2026-11-10 SK) */
 const CAP_PICK = ["night", "SMSN", "SKHX"];
 
-/** heading: 페이지에 따로 h1이 있으면 "h2"(검색용 고정 제목은 페이지가 갖는다) */
-export function NightBoard({ heading = "h1" }: { heading?: "h1" | "h2" } = {}) {
+/**
+ * heading: 카드 제목 태그. fixed: 검색용 고정 제목(/night의 h1). 주면 카드 제목을 이것으로 고정하고
+ * 시각별 상태(야간·장중·주말 추정)는 옆에 작은 글씨로 붙인다 — 페이지 제목과 카드 제목이 두 번 보이지 않게(2026-11-24 SK)
+ */
+export function NightBoard({ heading = "h1", fixed }: { heading?: "h1" | "h2"; fixed?: string } = {}) {
   const Title = heading;
   const [d, setD] = useState<NightData | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -330,13 +333,21 @@ export function NightBoard({ heading = "h1" }: { heading?: "h1" | "h2" } = {}) {
         <EconBand />
         {/* 주말에는 다음 주 일정이 평일보다 쓸모가 커서 맨 위에 둔다 */}
         {weekend && <ScheduleBand weekend />}
+        {/* 국장·미장 공포·탐욕 추정 계기판(2026-11-24 SK: 추정 카드 바로 위) */}
+        <FearGreed />
         <section
           className="card night"
           data-cap="night"
           data-cap-label="코스피 야간선물"
         >
           <div className="night-top">
-            <Title className="night-title">{titleOf(d, state)}</Title>
+            {fixed ? (
+              <Title className="night-title">
+                {fixed} <span className="night-kind">{kindOf(state)}</span>
+              </Title>
+            ) : (
+              <Title className="night-title">{titleOf(d, state)}</Title>
+            )}
             {d && <span className="night-upd">{hhmm(d.updated)} 갱신</span>}
           </div>
           {weekend && (
@@ -359,13 +370,11 @@ export function NightBoard({ heading = "h1" }: { heading?: "h1" | "h2" } = {}) {
             </p>
           )}
           {d && state !== "day" && <NightContext pct={d.chgPct} at={d.updated} />}
-          {d && <NightRecordLine refresh={state === "day" ? Math.floor(d.updated / 600_000) : 0} />}
         </section>
         <Poll weekend={weekend} />
         <Wall />
         <Chat />
         <Dashboard d={d} />
-        <NightPnl d={d} />
         <TestBand />
         {!weekend && <ScheduleBand />}
         <div className="cap-only cap-foot">
@@ -406,6 +415,13 @@ function titleOf(d: NightData | null, state: BoardState) {
   if (state === "weekend") return "월요일 시작 추정가";
   if (state === "day") return "코스피 선물 장중 실시간 추정";
   return "코스피 야간선물 실시간 추정";
+}
+
+/** 고정 제목 옆 작은 상태 글씨 */
+function kindOf(state: BoardState) {
+  if (state === "weekend") return "월요일 시작 추정";
+  if (state === "day") return "장중 추정";
+  return "야간 추정";
 }
 
 /** 금요일 15:45에 시작한(주말을 낀) 구간인가 */

@@ -1,0 +1,45 @@
+name: Collect fear greed
+
+# 국장·미장 공포·탐욕 지수 추정(전체·반도체, collector/fear_greed.py)을 하루 두 번 다시 계산한다.
+# 16:20 KST(국장 마감 뒤)와 07:20 KST(미장 마감 뒤). 바뀐 것이 있을 때만 main에 올려 배포한다.
+# collect-fear-greed-first 브랜치에 push하면 그 브랜치에서 한 번 돈다(시안 확인용).
+on:
+  schedule:
+    - cron: "20 7 * * 1-5"
+    - cron: "20 22 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [collect-fear-greed-first]
+
+concurrency: collect-fear-greed
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: 계산
+        run: python collector/fear_greed.py --out src/data/fear-greed.json
+      - name: 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event_name == 'push' && github.ref_name || 'main' }}
+        run: |
+          git add src/data/fear-greed.json
+          git diff --cached --quiet && exit 0
+          git config user.name "kosnas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -qm "공포·탐욕 추정 $(jq -r '.updated' src/data/fear-greed.json)"
+          git pull -q --rebase origin "$BRANCH"
+          git push -q origin "HEAD:$BRANCH"
+          if [ "$BRANCH" = main ]; then gh workflow run deploy.yml --ref main; fi

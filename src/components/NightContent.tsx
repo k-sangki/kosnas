@@ -37,18 +37,16 @@ export function NightContent({ page = "home" }: { page?: "home" | "night" }) {
   const night = page === "night";
   return (
     <>
+      {/* /night: 카드 제목이 곧 검색용 h1(고정 글자). 위에 따로 제목·안내 두 줄을 두면 같은 제목이 두 번 보여 뺐다(2026-11-24 SK).
+          삼성전자·SK하이닉스 야간 차트 링크는 아래 '종목별 밤사이 가격' 줄에 있다 */}
       {night ? (
-        <div className="night-intro">
-          <h1 className="page-title">코스피 야간선물 실시간 시세</h1>
-          <p className="muted small-note">
-            코스피200 야간선물 추정 차트와 <Link href="/night/samsung-electronics">삼성전자 야간 차트</Link> ·{" "}
-            <Link href="/night/sk-hynix">SK하이닉스 야간 차트</Link>. 해외 24시간 시세로 계산한 추정치입니다.
-          </p>
-        </div>
+        <NightBoard heading="h1" fixed="코스피 야간선물 실시간 시세" />
       ) : (
-        <h1 className="sr-only">코스나스 - 코스피 야간선물·나스닥 선물 실시간 대시보드</h1>
+        <>
+          <h1 className="sr-only">코스나스 - 코스피 야간선물·나스닥 선물 실시간 대시보드</h1>
+          <NightBoard heading="h2" />
+        </>
       )}
-      <NightBoard heading="h2" />
       <Fold small title="이 화면은 무엇인가요" className="lead-fold">
         <p className="lead">
           코스피 야간선물(흔히 &lsquo;야선&rsquo;)이 지금 어디쯤인지, 국내 장이 끝난 15:45부터 다음 날 09:00까지 해외에서 24시간 거래되는 한국 관련 무기한선물로 코스피200 수준을 실시간
@@ -97,6 +95,18 @@ export function NightContent({ page = "home" }: { page?: "home" | "night" }) {
             </p>
           </Fold>
         )}
+        <Fold title="공포·탐욕 지수(추정)는 어떻게 계산하나요">
+          <p>
+            맨 위 공포·탐욕 지수는 KosNas가 일봉으로 직접 계산한 추정치이며 CNN 공포·탐욕 지수와 같은 값이 아닙니다. 다섯 항목을 0~100으로 바꿔 평균하고,
+            높을수록 탐욕입니다. ① 종가의 125일 이동평균 대비 괴리 ② 52주 고가·저가 사이 위치 ③ RSI 14일 ④ 변동성(미장 전체는 VIX, 나머지는 20일 실현
+            변동성 — 낮을수록 탐욕) ⑤ 20일 수익률에서 국채 ETF 20일 수익률을 뺀 값. ①④⑤는 지난 1년 안의 백분위입니다.
+          </p>
+          <p>
+            국장 전체는 코스피200, 국장 반도체는 TIGER 반도체TOP10, 미장 전체는 S&amp;P 500, 미장 반도체는 iShares 반도체 ETF(SOXX)로 계산합니다. 흐린 바늘은
+            1주(5거래일) 전 값이고, 하루 두 번(16:20·07:20쯤) 종가로 다시 계산합니다. 0~24 극단적 공포, 25~44 공포, 45~55 중립, 56~75 탐욕, 76~100 극단적
+            탐욕으로 나눕니다. 과거 시세로 만든 참고 지표이며 매수·매도를 권하지 않습니다.
+          </p>
+        </Fold>
         <Fold title="나스닥 선물·달러 인덱스·VIX까지, 실시간 세계 증시">
           <p>
             위 대시보드에는 코스피200 야간선물 추정과 함께 밤사이 한국 증시에 영향을 주는 해외 시세를 원하는 대로 골라 놓을 수 있습니다. 실시간 미국 선물 지수로는
