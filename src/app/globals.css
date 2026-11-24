@@ -4780,74 +4780,96 @@ body:has(.tabbar) .toast {
   text-align: center;
 }
 
-/* 공포·탐욕 지수 추정 계기판(FearGreed) — 국장·미장 나란히, 비율을 지키며(viewBox) 폭에 맞춘다 */
-.fg {
-  padding-bottom: 10px;
+/* 공포·탐욕 지수 추정(FearGreed) — 국장·미장 나란히. 계기판은 viewBox로 비율을 지킨 채 작게 */
+.card.fg {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.fg-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 .fg-title {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 15px;
   font-weight: 700;
 }
 .fg-title .muted {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-}
-.fg-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.fg-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 0;
-  padding: 8px 6px 8px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--chip);
-  color: inherit;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.fg-head {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  font-size: 13px;
 }
 .fg-kind {
   display: inline-flex;
-  gap: 2px;
-  font-size: 11px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--chip);
 }
-.fg-kind i {
-  font-style: normal;
-  padding: 1px 5px;
+.fg-kind button {
+  border: 0;
+  padding: 2px 9px;
   border-radius: 6px;
+  background: none;
   color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
 }
-.fg-kind i.on {
+.fg-kind button.on {
   background: var(--card);
   color: var(--ink);
   font-weight: 700;
   box-shadow: var(--shadow-2);
 }
-.fg-panel svg {
+.fg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fg-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--chip);
+}
+.fg-gauge {
   display: block;
-  width: 100%;
-  max-width: 220px;
+  flex: 0 0 auto;
+  width: 40%;
+  max-width: 96px;
   height: auto;
-  margin-top: 4px;
+}
+.fg-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.fg-mkt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.fg-val {
+  white-space: nowrap;
+}
+.fg-num {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.fg-name {
+  font-size: 12px;
+  font-weight: 700;
 }
 .fg-band {
   fill: var(--card);
   stroke: var(--line);
-  stroke-width: 0.8;
-  transition: fill 0.3s;
+  stroke-width: 1;
 }
 .fg-band.on.fg-xf {
   fill: var(--down);
@@ -4869,10 +4891,6 @@ body:has(.tabbar) .toast {
   fill: var(--up);
   stroke: var(--up);
 }
-.fg-tick {
-  font-size: 9px;
-  fill: var(--muted);
-}
 .fg-needle {
   fill: var(--ink);
   transform-box: view-box;
@@ -4881,22 +4899,10 @@ body:has(.tabbar) .toast {
 }
 .fg-needle.ghost {
   fill: var(--muted);
-  opacity: 0.35;
+  opacity: 0.4;
 }
 .fg-hub {
-  fill: var(--chip);
-  stroke: var(--line);
-}
-.fg-num {
-  font-size: 22px;
-  font-weight: 800;
   fill: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.fg-name {
-  margin-top: 2px;
-  font-size: 13px;
-  font-weight: 700;
 }
 .fg-t-xf,
 .fg-t-f {
@@ -4910,26 +4916,60 @@ body:has(.tabbar) .toast {
   color: var(--up);
 }
 .fg-sub {
-  margin-top: 1px;
   font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
 }
-.fg-ghost-key {
-  display: inline-block;
-  width: 10px;
-  height: 3px;
-  margin: 0 3px 2px 0;
-  border-radius: 2px;
+/* 시안 B: 막대형 — 한 시장 한 줄 */
+.fg-b .fg-grid {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+.fg-row {
+  display: grid;
+  grid-template-columns: 30px 1fr 104px;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 8px;
+}
+.fg-row .fg-mkt {
+  grid-row: 1 / 3;
+}
+.fg-row .fg-val {
+  text-align: right;
+}
+.fg-row .fg-sub {
+  grid-column: 3;
+  text-align: right;
+}
+.fg-row .fg-num {
+  font-size: 17px;
+}
+.fg-bar {
+  position: relative;
+  grid-row: 1 / 3;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--down) 0%, var(--down-soft) 35%, var(--line) 50%, var(--up-soft) 65%, var(--up) 100%);
+}
+.fg-bar-mark {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--ink);
+  transition: left 0.6s;
+}
+.fg-bar-mark.ghost {
   background: var(--muted);
   opacity: 0.5;
-  vertical-align: middle;
-}
-.fg .fold {
-  margin-top: 6px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .fg-needle {
+  .fg-needle,
+  .fg-bar-mark {
     transition: none;
   }
 }
