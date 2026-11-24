@@ -62,6 +62,7 @@ print("회귀 비중", " ".join(f"{n}:{x:.2f}" for n, x in zip(["상수"] + name
 reg = lambda r: w[0] + sum(wi * xi for wi, xi in zip(w[1:], r[3:11]))
 avg7 = lambda r: (sum(r[3:8]) + r[9] + r[10]) / 7
 a7, b7 = lsq([[1, avg7(r)] for r in tr], [r[1] for r in tr])
+print(f"폭포함직선 계수 {a7:.2f} {b7:.3f}")
 models = {"그대로": lambda r: r[2], "직선": lambda r: a + b * r[2], "폭포함평균": avg7, "폭포함직선": lambda r: a7 + b7 * avg7(r), "회귀": reg}
 for lab, data in (("학습", tr), ("검증", te)):
     print(lab)
