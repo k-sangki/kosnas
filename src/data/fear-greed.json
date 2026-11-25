@@ -1,21 +1,20 @@
 {
- "updated": "2026-11-25T03:54+09:00",
+ "updated": "2026-11-25T13:56+09:00",
  "kr": {
   "all": {
-   "date": "2026-11-24",
-   "score": 24,
-   "prev": 21,
-   "week": 23,
-   "month": 23,
+   "date": "2026-11-25",
+   "score": 20,
+   "prev": 24,
+   "week": 25,
+   "month": 25,
    "parts": {
-    "momentum": 3,
-    "high52": 25,
-    "rsi": 41,
-    "volatility": 36,
-    "safe": 17
+    "momentum": 0,
+    "high52": 20,
+    "rsi": 35,
+    "volatility": 39,
+    "safe": 4
    },
    "hist": [
-    43,
     42,
     38,
     43,
@@ -74,24 +73,24 @@
     27,
     22,
     21,
-    24
+    24,
+    20
    ]
   },
   "semi": {
-   "date": "2026-11-24",
-   "score": 22,
-   "prev": 20,
-   "week": 21,
-   "month": 22,
+   "date": "2026-11-25",
+   "score": 17,
+   "prev": 22,
+   "week": 23,
+   "month": 24,
    "parts": {
-    "momentum": 3,
-    "high52": 22,
-    "rsi": 41,
-    "volatility": 26,
-    "safe": 19
+    "momentum": 0,
+    "high52": 16,
+    "rsi": 36,
+    "volatility": 32,
+    "safe": 3
    },
    "hist": [
-    40,
     40,
     35,
     40,
@@ -150,7 +149,8 @@
     25,
     20,
     20,
-    22
+    22,
+    17
    ]
   }
  },
@@ -167,7 +167,7 @@
     "rsi": 40,
     "volatility": 5,
     "safe": 1,
-    "breadth20": 96,
+    "breadth20": 95,
     "breadth125": 6
    },
    "hist": [
@@ -240,9 +240,9 @@
    "week": 18,
    "month": 28,
    "parts": {
-    "momentum": 1,
+    "momentum": 0,
     "high52": 28,
-    "rsi": 38,
+    "rsi": 37,
     "volatility": 0,
     "safe": 2
    },
