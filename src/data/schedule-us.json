@@ -1,12 +1,19 @@
 {
- "updated": "2026-11-25T14:11+09:00",
+ "updated": "2026-11-26T05:18+09:00",
  "events": [
+  {
+   "symbol": "BHP",
+   "name": "BHP",
+   "date": "2026-12-01",
+   "when": "",
+   "capB": 175
+  },
   {
    "symbol": "MRVL",
    "name": "마벨",
    "date": "2026-12-01",
    "when": "after",
-   "capB": 127
+   "capB": 115
   },
   {
    "symbol": "MDB",
@@ -27,7 +34,7 @@
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 153
+   "capB": 159
   },
   {
    "symbol": "SNOW",
@@ -41,42 +48,42 @@
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 260
+   "capB": 262
   },
   {
    "symbol": "AVGO",
    "name": "브로드컴",
    "date": "2026-12-09",
    "when": "after",
-   "capB": 1497
+   "capB": 1437
   },
   {
    "symbol": "ADBE",
    "name": "어도비",
    "date": "2026-12-09",
    "when": "after",
-   "capB": 87
+   "capB": 90
   },
   {
    "symbol": "COST",
    "name": "코스트코",
    "date": "2026-12-10",
    "when": "after",
-   "capB": 487
+   "capB": 484
   },
   {
    "symbol": "CIEN",
    "name": "시에나",
    "date": "2026-12-10",
    "when": "pre",
-   "capB": 38
+   "capB": 34
   },
   {
    "symbol": "ORCL",
    "name": "오라클",
    "date": "2026-12-14",
    "when": "after",
-   "capB": 344
+   "capB": 331
   }
  ]
 }
