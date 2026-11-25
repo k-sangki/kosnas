@@ -1,69 +1,6 @@
 {
- "updated": "2026-11-26T05:10+09:00",
+ "updated": "2026-11-26T07:44+09:00",
  "rows": [
-  {
-   "d": "2026-11-12",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Continuing Jobless Claims",
-   "a": "1,697K",
-   "f": "1,710K",
-   "p": "1,717K"
-  },
-  {
-   "d": "2026-11-12",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Initial Jobless Claims",
-   "a": "200K",
-   "f": "194K",
-   "p": "191K"
-  },
-  {
-   "d": "2026-11-12",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Fed Vice Chair for Supervision Barr Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-12",
-   "t": "11:30",
-   "c": "United States",
-   "n": "Fed Goolsbee Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-12",
-   "t": "13:10",
-   "c": "United States",
-   "n": "FOMC Member Daly Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-12",
-   "t": "13:30",
-   "c": "United States",
-   "n": "Fed Schmid Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-12",
-   "t": "18:30",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
   {
    "d": "2026-11-13",
    "t": "08:30",
@@ -479,6 +416,123 @@
    "p": ""
   },
   {
+   "d": "2026-11-25",
+   "t": "10:00",
+   "c": "United States",
+   "n": "CB Consumer Confidence",
+   "a": "103.3",
+   "f": "92.4",
+   "p": "91.9"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "07:25",
+   "c": "United States",
+   "n": "FOMC Member Bowman Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "1,697K",
+   "f": "",
+   "p": "1,792K"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PCE Price Index",
+   "a": "0.3%",
+   "f": "0.3%",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PCE Price Index",
+   "a": "3.3%",
+   "f": "3.2%",
+   "p": "3.1%"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "GDP",
+   "a": "4.3%",
+   "f": "3.4%",
+   "p": "2.2%"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "189K",
+   "f": "201K",
+   "p": "202K"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PCE price index",
+   "a": "0.3%",
+   "f": "0.3%",
+   "p": "0.5%"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PCE Price index",
+   "a": "3.8%",
+   "f": "3.8%",
+   "p": "3.7%"
+  },
+  {
+   "d": "2026-11-26",
+   "t": "20:00",
+   "c": "South Korea",
+   "n": "Interest Rate Decision",
+   "a": "",
+   "f": "3.25%",
+   "p": "3.00%"
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Manufacturing PMI",
+   "a": "",
+   "f": "",
+   "p": "55.5"
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Manufacturing Prices",
+   "a": "",
+   "f": "",
+   "p": "75.2"
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
+   "n": "JOLTS Job Openings",
+   "a": "",
+   "f": "",
+   "p": "7.523M"
+  },
+  {
    "d": "2026-12-03",
    "t": "08:15",
    "c": "United States",
@@ -486,6 +540,105 @@
    "a": "",
    "f": "",
    "p": "86K"
+  },
+  {
+   "d": "2026-12-04",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Continuing Jobless Claims",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-12-04",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Initial Jobless Claims",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-12-04",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Non-Manufacturing PMI",
+   "a": "",
+   "f": "",
+   "p": "54.5"
+  },
+  {
+   "d": "2026-12-04",
+   "t": "10:00",
+   "c": "United States",
+   "n": "ISM Non-Manufacturing Prices",
+   "a": "",
+   "f": "",
+   "p": "73.0"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Average Hourly Earnings",
+   "a": "",
+   "f": "",
+   "p": "0.4%"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Nonfarm Payrolls",
+   "a": "",
+   "f": "",
+   "p": "165K"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Unemployment Rate",
+   "a": "",
+   "f": "",
+   "p": "4.1%"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 1-Year Inflation Expectations",
+   "a": "",
+   "f": "",
+   "p": "3.7%"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 5-Year Inflation Expectations",
+   "a": "",
+   "f": "",
+   "p": "3.3%"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Expectations",
+   "a": "",
+   "f": "",
+   "p": "52.9"
+  },
+  {
+   "d": "2026-12-05",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Sentiment",
+   "a": "",
+   "f": "",
+   "p": "51.5"
   },
   {
    "d": "2026-12-10",
@@ -533,6 +686,42 @@
    "p": "0.4%"
   },
   {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PPI",
+   "a": "",
+   "f": "",
+   "p": "5.0%"
+  },
+  {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "Core PPI",
+   "a": "",
+   "f": "",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PPI",
+   "a": "",
+   "f": "",
+   "p": "0.3%"
+  },
+  {
+   "d": "2026-12-16",
+   "t": "08:30",
+   "c": "United States",
+   "n": "PPI",
+   "a": "",
+   "f": "",
+   "p": "6.5%"
+  },
+  {
    "d": "2026-12-17",
    "t": "08:30",
    "c": "United States",
@@ -558,6 +747,15 @@
    "a": "",
    "f": "",
    "p": "6.82%"
+  },
+  {
+   "d": "2026-12-18",
+   "t": "22:00",
+   "c": "Japan",
+   "n": "BoJ Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "1.25%"
   }
  ],
  "earnings": [
