@@ -1,20 +1,6 @@
 {
- "updated": "2026-11-25T05:59+09:00",
+ "updated": "2026-11-25T14:11+09:00",
  "events": [
-  {
-   "symbol": "DELL",
-   "name": "델",
-   "date": "2026-11-24",
-   "when": "after",
-   "capB": 213
-  },
-  {
-   "symbol": "BHP",
-   "name": "BHP",
-   "date": "2026-11-24",
-   "when": "",
-   "capB": 180
-  },
   {
    "symbol": "MRVL",
    "name": "마벨",
