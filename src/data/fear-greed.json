@@ -1,21 +1,20 @@
 {
- "updated": "2026-11-26T02:58+09:00",
+ "updated": "2026-11-26T13:12+09:00",
  "kr": {
   "all": {
-   "date": "2026-11-25",
-   "score": 19,
-   "prev": 24,
-   "week": 25,
-   "month": 25,
+   "date": "2026-11-26",
+   "score": 21,
+   "prev": 19,
+   "week": 27,
+   "month": 29,
    "parts": {
-    "momentum": 0,
-    "high52": 20,
-    "rsi": 35,
+    "momentum": 1,
+    "high52": 21,
+    "rsi": 37,
     "volatility": 38,
-    "safe": 3
+    "safe": 7
    },
    "hist": [
-    42,
     38,
     43,
     37,
@@ -74,24 +73,24 @@
     22,
     21,
     24,
-    19
+    19,
+    21
    ]
   },
   "semi": {
-   "date": "2026-11-25",
-   "score": 16,
-   "prev": 22,
-   "week": 23,
-   "month": 24,
+   "date": "2026-11-26",
+   "score": 18,
+   "prev": 16,
+   "week": 25,
+   "month": 28,
    "parts": {
-    "momentum": 0,
-    "high52": 15,
-    "rsi": 35,
-    "volatility": 29,
-    "safe": 3
+    "momentum": 1,
+    "high52": 17,
+    "rsi": 38,
+    "volatility": 27,
+    "safe": 6
    },
    "hist": [
-    40,
     35,
     40,
     35,
@@ -150,25 +149,26 @@
     20,
     20,
     22,
-    16
+    16,
+    18
    ]
   }
  },
  "us": {
   "all": {
    "date": "2026-11-25",
-   "score": 15,
+   "score": 16,
    "prev": 16,
    "week": 18,
    "month": 35,
    "parts": {
-    "momentum": 1,
-    "high52": 53,
-    "rsi": 38,
-    "volatility": 1,
+    "momentum": 2,
+    "high52": 57,
+    "rsi": 40,
+    "volatility": 2,
     "safe": 0,
-    "breadth20": 98,
-    "breadth125": 10
+    "breadth20": 97,
+    "breadth125": 12
    },
    "hist": [
     48,
@@ -230,21 +230,21 @@
     9,
     15,
     16,
-    15
+    16
    ]
   },
   "semi": {
    "date": "2026-11-25",
-   "score": 12,
+   "score": 13,
    "prev": 14,
    "week": 18,
    "month": 29,
    "parts": {
     "momentum": 0,
-    "high52": 23,
-    "rsi": 35,
+    "high52": 27,
+    "rsi": 37,
     "volatility": 0,
-    "safe": 0
+    "safe": 1
    },
    "hist": [
     40,
@@ -306,7 +306,7 @@
     12,
     18,
     14,
-    12
+    13
    ]
   }
  }
