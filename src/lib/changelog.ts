@@ -9,6 +9,10 @@ export interface Change {
 
 export const CHANGELOG: Change[] = [
   {
+    date: "2026-11-26",
+    items: ["가이드 추가: 배당 기준일과 배당락일 - 배당 받으려면 언제까지 사야 하나요"],
+  },
+  {
     date: "2026-11-24",
     items: [
       "첫 화면에 국장·미장 공포·탐욕 지수(추정) 계기판 추가: 전체와 반도체를 번갈아 보이고, 흐린 바늘로 1주 전과 비교",
