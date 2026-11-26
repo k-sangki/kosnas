@@ -1,18 +1,18 @@
 {
- "updated": "2026-11-26T13:12+09:00",
+ "updated": "2026-11-27T02:44+09:00",
  "kr": {
   "all": {
    "date": "2026-11-26",
-   "score": 21,
+   "score": 20,
    "prev": 19,
    "week": 27,
    "month": 29,
    "parts": {
     "momentum": 1,
-    "high52": 21,
-    "rsi": 37,
+    "high52": 20,
+    "rsi": 36,
     "volatility": 38,
-    "safe": 7
+    "safe": 6
    },
    "hist": [
     38,
@@ -74,21 +74,21 @@
     21,
     24,
     19,
-    21
+    20
    ]
   },
   "semi": {
    "date": "2026-11-26",
-   "score": 18,
+   "score": 17,
    "prev": 16,
    "week": 25,
    "month": 28,
    "parts": {
-    "momentum": 1,
-    "high52": 17,
-    "rsi": 38,
-    "volatility": 27,
-    "safe": 6
+    "momentum": 0,
+    "high52": 16,
+    "rsi": 37,
+    "volatility": 28,
+    "safe": 4
    },
    "hist": [
     35,
@@ -150,7 +150,7 @@
     20,
     22,
     16,
-    18
+    17
    ]
   }
  },
