@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26T13:21+09:00",
+ "updated": "2026-11-27T04:48+09:00",
  "rows": [
   {
    "d": "2026-11-13",
@@ -509,6 +509,15 @@
    "d": "2026-12-02",
    "t": "10:00",
    "c": "United States",
+   "n": "FOMC Member Bowman Speaks",
+   "a": "",
+   "f": "",
+   "p": ""
+  },
+  {
+   "d": "2026-12-02",
+   "t": "10:00",
+   "c": "United States",
    "n": "ISM Manufacturing PMI",
    "a": "",
    "f": "",
@@ -548,7 +557,7 @@
    "n": "Continuing Jobless Claims",
    "a": "",
    "f": "",
-   "p": ""
+   "p": "1,697K"
   },
   {
    "d": "2026-12-04",
@@ -557,7 +566,7 @@
    "n": "Initial Jobless Claims",
    "a": "",
    "f": "",
-   "p": ""
+   "p": "189K"
   },
   {
    "d": "2026-12-04",
@@ -747,6 +756,33 @@
    "a": "",
    "f": "",
    "p": "6.82%"
+  },
+  {
+   "d": "2026-12-18",
+   "t": "07:00",
+   "c": "United Kingdom",
+   "n": "BoE Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "4.00%"
+  },
+  {
+   "d": "2026-12-18",
+   "t": "08:15",
+   "c": "Euro Zone",
+   "n": "Deposit Facility Rate",
+   "a": "",
+   "f": "",
+   "p": "2.50%"
+  },
+  {
+   "d": "2026-12-18",
+   "t": "08:15",
+   "c": "Euro Zone",
+   "n": "ECB Interest Rate Decision",
+   "a": "",
+   "f": "",
+   "p": "2.65%"
   },
   {
    "d": "2026-12-18",
@@ -971,7 +1007,7 @@
    "capB": 175,
    "quarter": "Sep/2026",
    "f": null,
-   "n": null,
+   "n": 3,
    "a": null,
    "s": null,
    "ly": null
@@ -1060,7 +1096,7 @@
    "when": "pre",
    "capB": 262,
    "quarter": "Oct/2026",
-   "f": 2.93,
+   "f": 2.94,
    "n": 4,
    "a": null,
    "s": null,
@@ -1095,6 +1131,32 @@
    "a": null,
    "s": null,
    "ly": 4.55
+  },
+  {
+   "symbol": "COST",
+   "name": "코스트코",
+   "date": "2026-12-10",
+   "when": "after",
+   "capB": 484,
+   "quarter": "Nov/2026",
+   "f": 4.89,
+   "n": 11,
+   "a": null,
+   "s": null,
+   "ly": 4.34
+  },
+  {
+   "symbol": "CIEN",
+   "name": "시에나",
+   "date": "2026-12-10",
+   "when": "pre",
+   "capB": 34,
+   "quarter": "Oct/2026",
+   "f": 1.77,
+   "n": 8,
+   "a": null,
+   "s": null,
+   "ly": 0.64
   }
  ],
  "dots": {
