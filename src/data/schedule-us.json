@@ -1,12 +1,12 @@
 {
- "updated": "2026-11-27T13:44+09:00",
+ "updated": "2026-11-28T04:48+09:00",
  "events": [
   {
    "symbol": "BHP",
    "name": "BHP",
    "date": "2026-12-01",
    "when": "",
-   "capB": 175
+   "capB": 179
   },
   {
    "symbol": "MRVL",
@@ -27,49 +27,49 @@
    "name": "니오",
    "date": "2026-12-01",
    "when": "pre",
-   "capB": 6
+   "capB": 7
   },
   {
    "symbol": "CRM",
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 159
+   "capB": 162
   },
   {
    "symbol": "SNOW",
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 96
+   "capB": 94
   },
   {
    "symbol": "RY",
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 262
+   "capB": 261
   },
   {
    "symbol": "AVGO",
    "name": "브로드컴",
    "date": "2026-12-09",
    "when": "after",
-   "capB": 1437
+   "capB": 1436
   },
   {
    "symbol": "ADBE",
    "name": "어도비",
    "date": "2026-12-09",
    "when": "after",
-   "capB": 90
+   "capB": 91
   },
   {
    "symbol": "COST",
    "name": "코스트코",
    "date": "2026-12-10",
    "when": "after",
-   "capB": 484
+   "capB": 482
   },
   {
    "symbol": "CIEN",
@@ -83,7 +83,21 @@
    "name": "오라클",
    "date": "2026-12-14",
    "when": "after",
-   "capB": 331
+   "capB": 314
+  },
+  {
+   "symbol": "MU",
+   "name": "마이크론",
+   "date": "2026-12-17",
+   "when": "after",
+   "capB": 681
+  },
+  {
+   "symbol": "NKE",
+   "name": "나이키",
+   "date": "2026-12-17",
+   "when": "after",
+   "capB": 54
   }
  ]
 }
