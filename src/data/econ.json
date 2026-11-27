@@ -1,69 +1,6 @@
 {
- "updated": "2026-11-27T13:31+09:00",
+ "updated": "2026-11-28T04:38+09:00",
  "rows": [
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Continuing Jobless Claims",
-   "a": "1,697K",
-   "f": "1,710K",
-   "p": "1,717K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "08:30",
-   "c": "United States",
-   "n": "Initial Jobless Claims",
-   "a": "200K",
-   "f": "194K",
-   "p": "191K"
-  },
-  {
-   "d": "2026-11-13",
-   "t": "10:00",
-   "c": "United States",
-   "n": "Fed Vice Chair for Supervision Barr Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "11:30",
-   "c": "United States",
-   "n": "Fed Goolsbee Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:10",
-   "c": "United States",
-   "n": "FOMC Member Daly Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "13:30",
-   "c": "United States",
-   "n": "Fed Schmid Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
-  {
-   "d": "2026-11-13",
-   "t": "18:30",
-   "c": "United States",
-   "n": "FOMC Member Williams Speaks",
-   "a": "",
-   "f": "",
-   "p": ""
-  },
   {
    "d": "2026-11-14",
    "t": "08:30",
@@ -520,7 +457,7 @@
    "c": "United States",
    "n": "ISM Manufacturing PMI",
    "a": "",
-   "f": "",
+   "f": "55.2",
    "p": "55.5"
   },
   {
@@ -574,7 +511,7 @@
    "c": "United States",
    "n": "ISM Non-Manufacturing PMI",
    "a": "",
-   "f": "",
+   "f": "54.5",
    "p": "54.5"
   },
   {
@@ -592,7 +529,7 @@
    "c": "United States",
    "n": "Average Hourly Earnings",
    "a": "",
-   "f": "",
+   "f": "0.3%",
    "p": "0.4%"
   },
   {
@@ -601,7 +538,7 @@
    "c": "United States",
    "n": "Nonfarm Payrolls",
    "a": "",
-   "f": "",
+   "f": "90K",
    "p": "165K"
   },
   {
@@ -610,7 +547,7 @@
    "c": "United States",
    "n": "Unemployment Rate",
    "a": "",
-   "f": "",
+   "f": "4.1%",
    "p": "4.1%"
   },
   {
@@ -646,7 +583,7 @@
    "c": "United States",
    "n": "Michigan Consumer Sentiment",
    "a": "",
-   "f": "",
+   "f": "51.8",
    "p": "51.5"
   },
   {
@@ -792,6 +729,42 @@
    "a": "",
    "f": "",
    "p": "1.25%"
+  },
+  {
+   "d": "2026-12-19",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 1-Year Inflation Expectations",
+   "a": "",
+   "f": "",
+   "p": "3.7%"
+  },
+  {
+   "d": "2026-12-19",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan 5-Year Inflation Expectations",
+   "a": "",
+   "f": "",
+   "p": "3.3%"
+  },
+  {
+   "d": "2026-12-19",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Expectations",
+   "a": "",
+   "f": "",
+   "p": "52.9"
+  },
+  {
+   "d": "2026-12-19",
+   "t": "10:00",
+   "c": "United States",
+   "n": "Michigan Consumer Sentiment",
+   "a": "",
+   "f": "",
+   "p": "51.5"
   }
  ],
  "earnings": [
@@ -800,7 +773,7 @@
    "name": "엔비디아",
    "date": "2026-11-17",
    "when": "after",
-   "capB": 3745,
+   "capB": 3598,
    "quarter": "Oct/2026",
    "f": 2.47,
    "n": 14,
@@ -824,7 +797,7 @@
    "name": "홈디포",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 353,
+   "capB": 360,
    "quarter": "Oct/2026",
    "f": 3.86,
    "n": 11,
@@ -837,7 +810,7 @@
    "name": "디즈니",
    "date": "2026-11-17",
    "when": "pre",
-   "capB": 209,
+   "capB": 215,
    "quarter": "Sep/2026",
    "f": 1.67,
    "n": 9,
@@ -863,7 +836,7 @@
    "name": "팔로알토",
    "date": "2026-11-18",
    "when": "after",
-   "capB": 290,
+   "capB": 292,
    "quarter": "Oct/2026",
    "f": 0.52,
    "n": 16,
@@ -876,7 +849,7 @@
    "name": "로우스",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 130,
+   "capB": 132,
    "quarter": "Oct/2026",
    "f": 2.86,
    "n": 11,
@@ -889,7 +862,7 @@
    "name": "타깃",
    "date": "2026-11-18",
    "when": "pre",
-   "capB": 80,
+   "capB": 78,
    "quarter": "Oct/2026",
    "f": 2.05,
    "n": 13,
@@ -902,7 +875,7 @@
    "name": "월마트",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 1050,
+   "capB": 1047,
    "quarter": "Oct/2026",
    "f": 0.64,
    "n": 13,
@@ -923,7 +896,7 @@
    "name": "알리바바",
    "date": "2026-11-19",
    "when": "pre",
-   "capB": 206,
+   "capB": 209,
    "quarter": "Sep/2026",
    "f": 1.56,
    "n": 2,
@@ -949,7 +922,7 @@
    "name": "크라우드스트라이크",
    "date": "2026-11-23",
    "when": "",
-   "capB": 217,
+   "capB": 216,
    "quarter": "Oct/2026",
    "f": 0.0,
    "n": 13,
@@ -962,7 +935,7 @@
    "name": "HPE",
    "date": "2026-11-23",
    "when": "after",
-   "capB": 53,
+   "capB": 54,
    "quarter": "Oct/2026",
    "f": 1.29,
    "n": 7,
@@ -983,7 +956,7 @@
    "name": "델",
    "date": "2026-11-24",
    "when": "after",
-   "capB": 188,
+   "capB": 189,
    "quarter": "Oct/2026",
    "f": 6.59,
    "n": 8,
@@ -1004,7 +977,7 @@
    "name": "BHP",
    "date": "2026-12-01",
    "when": "",
-   "capB": 175,
+   "capB": 179,
    "quarter": "Sep/2026",
    "f": null,
    "n": 3,
@@ -1047,7 +1020,7 @@
    "name": "니오",
    "date": "2026-12-01",
    "when": "pre",
-   "capB": 6,
+   "capB": 7,
    "quarter": "Sep/2026",
    "f": -0.03,
    "n": 1,
@@ -1060,7 +1033,7 @@
    "name": "세일즈포스",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 159,
+   "capB": 162,
    "quarter": "Oct/2026",
    "f": 2.41,
    "n": 13,
@@ -1077,7 +1050,7 @@
    "name": "스노우플레이크",
    "date": "2026-12-02",
    "when": "after",
-   "capB": 96,
+   "capB": 94,
    "quarter": "Oct/2026",
    "f": -0.32,
    "n": 11,
@@ -1094,7 +1067,7 @@
    "name": "Royal Bank Of Canada",
    "date": "2026-12-03",
    "when": "pre",
-   "capB": 262,
+   "capB": 261,
    "quarter": "Oct/2026",
    "f": 2.94,
    "n": 4,
@@ -1107,7 +1080,7 @@
    "name": "브로드컴",
    "date": "2026-12-09",
    "when": "after",
-   "capB": 1437,
+   "capB": 1436,
    "quarter": "Oct/2026",
    "f": 3.45,
    "n": 10,
@@ -1124,7 +1097,7 @@
    "name": "어도비",
    "date": "2026-12-09",
    "when": "after",
-   "capB": 90,
+   "capB": 91,
    "quarter": "Nov/2026",
    "f": 5.11,
    "n": 12,
@@ -1137,7 +1110,7 @@
    "name": "코스트코",
    "date": "2026-12-10",
    "when": "after",
-   "capB": 484,
+   "capB": 482,
    "quarter": "Nov/2026",
    "f": 4.89,
    "n": 11,
